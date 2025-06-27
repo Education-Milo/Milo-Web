@@ -18,15 +18,26 @@ jobs:
       - name: 📊 Récupération des informations
         id: commit_info
         run: |
-          echo "commit_message=$(git log -1 --pretty=format:'%s' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "commit_message=$(git log -1 --pretty=format:'%s' | tr '\n' ' ' | head -c 100)" >> $GITHUB_OUTPUT
           echo "commit_author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
           echo "files_changed=$(git diff --name-only HEAD~1 HEAD | wc -l)" >> $GITHUB_OUTPUT
+          echo "repo_name=$(echo '${{ github.repository }}' | cut -d'/' -f2)" >> $GITHUB_OUTPUT
 
-      - name: 🔔 Message discord
+      - name: 🔔 Message discord stylé
         uses: appleboy/discord-action@master
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#00D4AA"
-          username: "🤖 GitHub Bot"
-          message: "🚀 Nouveau push par ${{ steps.commit_info.outputs.commit_author }} - ${{ steps.commit_info.outputs.commit_message }} - ${{ steps.commit_info.outputs.files_changed }} fichiers modifiés"
+          color: "#7289DA"
+          username: "⚡ Milo Deploy Bot"
+          avatar_url: "https://cdn.discordapp.com/emojis/853928735402917888.png"
+          message: |
+            🚀 **NOUVEAU PUSH WEB** 🚀
+            
+            **📦 Projet:** ${{ steps.commit_info.outputs.repo_name }}
+            **👨‍💻 Dev:** ${{ steps.commit_info.outputs.commit_author }}
+            **💬 Message:** ${{ steps.commit_info.outputs.commit_message }}
+            **📁 Fichiers:** ${{ steps.commit_info.outputs.files_changed }} modifiés
+            **🔗 Commit:** ${{ github.sha }}
+            
+            [🔍 Voir les changements](${{ github.event.repository.html_url }}/commit/${{ github.sha }}) | [📊 Actions](${{ github.event.repository.html_url }}/actions)
