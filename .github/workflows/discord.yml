@@ -30,14 +30,17 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#7289DA"
+          username: "🤖 Bot D. Push"
+          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
           message: |
             🚀 **NOUVEAU PUSH WEB** 🚀
             
             **📋 INFORMATIONS**
-            **📦 Projet:** ${{ steps.commit_info.outputs.repo_name }}
-            **👨‍💻 Développeur:** ${{ steps.commit_info.outputs.commit_author }}
-            **📅 Date:** ${{ steps.commit_info.outputs.commit_date }}
+            📦 Projet: ${{ steps.commit_info.outputs.repo_name }}
+            👨‍💻 Développeur: ${{ steps.commit_info.outputs.commit_author }}
+            📅 Date: ${{ steps.commit_info.outputs.commit_date }}
 
             **💬 COMMIT**
-            **🏷️ Message:** ${{ steps.commit_info.outputs.commit_message }}
-            **📁 Fichiers modifiés:** ${{ steps.commit_info.outputs.files_changed }}
+            🏷️ Message: ${{ steps.commit_info.outputs.commit_message }}
+            📁 Fichiers modifiés: ${{ steps.commit_info.outputs.files_changed }}
+
