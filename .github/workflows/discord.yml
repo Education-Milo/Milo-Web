@@ -1,0 +1,56 @@
+name: 🎮 Discord Notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    name: 🔔 Notification Discord
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📊 Récupération des informations
+        id: commit_info
+        run: |
+          echo "commit_message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_OUTPUT
+          echo "commit_author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+          echo "commit_date=$(git log -1 --pretty=format:'%ad' --date=format:'%d/%m/%Y à %H:%M')" >> $GITHUB_OUTPUT
+          echo "files_changed=$(git diff --name-only HEAD~1 HEAD | wc -l)" >> $GITHUB_OUTPUT
+          echo "additions=$(git diff --shortstat HEAD~1 HEAD | grep -o '[0-9]* insertion' | cut -d' ' -f1 || echo '0')" >> $GITHUB_OUTPUT
+          echo "deletions=$(git diff --shortstat HEAD~1 HEAD | grep -o '[0-9]* deletion' | cut -d' ' -f1 || echo '0')" >> $GITHUB_OUTPUT
+
+      - name: 🔔 Message discord
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          color: "#00D4AA"
+          username: "🤖 Robot D. Push"
+          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          message: |
+            ## 🚀 **Nouveau Push** 
+            
+            **👤 Développeur:** `${{ steps.commit_info.outputs.commit_author }}`
+            **🌐 Repository:** ${{ github.event.repository.html_url }}
+            **📅 Date:** ${{ steps.commit_info.outputs.commit_date }}
+            **🏷️ Commit:** `${{ github.sha }}`
+            
+            ### 📝 **Message du commit:**
+            > ${{ steps.commit_info.outputs.commit_message }}
+            
+            ### 📊 **Statistiques:**
+            • **📁 Fichiers modifiés:** ${{ steps.commit_info.outputs.files_changed }}
+            • **➕ Lignes ajoutées:** ${{ steps.commit_info.outputs.additions }}
+            • **➖ Lignes supprimées:** ${{ steps.commit_info.outputs.deletions }}
+            
+            ### 🔗 **Liens utiles:**
+            • [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
+            • [⚡ Actions](${{ github.event.repository.html_url }}/actions)
+            
+            ---
