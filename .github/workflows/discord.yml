@@ -37,10 +37,7 @@ jobs:
             **📦 Projet:** ${{ steps.commit_info.outputs.repo_name }}
             **👨‍💻 Développeur:** ${{ steps.commit_info.outputs.commit_author }}
             **📅 Date:** ${{ steps.commit_info.outputs.commit_date }}
-            
+
             **💬 COMMIT**
             **🏷️ Message:** ${{ steps.commit_info.outputs.commit_message }}
             **📁 Fichiers modifiés:** ${{ steps.commit_info.outputs.files_changed }}
-            
-            **🔗 LIENS**
-            [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
