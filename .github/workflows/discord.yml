@@ -29,8 +29,6 @@ jobs:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
           color: "#7289DA"
-          username: "⚡ Milo Deploy Bot"
-          avatar_url: "https://cdn.discordapp.com/emojis/853928735402917888.png"
           message: |
             🚀 **NOUVEAU PUSH WEB** 🚀
             
@@ -39,5 +37,3 @@ jobs:
             **💬 Message:** ${{ steps.commit_info.outputs.commit_message }}
             **📁 Fichiers:** ${{ steps.commit_info.outputs.files_changed }} modifiés
             **🔗 Commit:** ${{ github.sha }}
-            
-            [🔍 Voir les changements](${{ github.event.repository.html_url }}/commit/${{ github.sha }}) | [📊 Actions](${{ github.event.repository.html_url }}/actions)
