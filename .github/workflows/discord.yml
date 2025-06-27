@@ -44,6 +44,3 @@ jobs:
             🏷️ Commit :  ${{ steps.commit_info.outputs.commit_message }}
             📁 Fichiers modifiés : ${{ steps.commit_info.outputs.files_changed }}
             
-            
-            **🔗 LIENS UTILES**
-            [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }}) • [⚡ Actions](${{ github.event.repository.html_url }}/actions)
