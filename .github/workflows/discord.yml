@@ -14,14 +14,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: 🔍 Debug secrets (RETIRE APRÈS TEST!)
-        run: |
-            echo "Webhook ID length: ${#DISCORD_WEBHOOK_ID}"
-            echo "Token length: ${#DISCORD_WEBHOOK_TOKEN}"
-        env:
-            DISCORD_WEBHOOK_ID: ${{ secrets.DISCORD_WEBHOOK_ID }}
-            DISCORD_WEBHOOK_TOKEN: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-
 
       - name: 📊 Récupération des informations
         id: commit_info
@@ -42,23 +34,17 @@ jobs:
           username: "🤖 Robot D. Push"
           avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
           message: |
-            ## 🚀 **Nouveau Push** 
+            🚀 **Nouveau Push sur le Web !**
             
-            **👤 Développeur:** `${{ steps.commit_info.outputs.commit_author }}`
-            **🌐 Repository:** ${{ github.event.repository.html_url }}
-            **📅 Date:** ${{ steps.commit_info.outputs.commit_date }}
-            **🏷️ Commit:** `${{ github.sha }}`
+            👤 **Développeur:** ${{ steps.commit_info.outputs.commit_author }}
+            📅 **Date:** ${{ steps.commit_info.outputs.commit_date }}
+            💬 **Message:** ${{ steps.commit_info.outputs.commit_message }}
             
-            ### 📝 **Message du commit:**
-            > ${{ steps.commit_info.outputs.commit_message }}
+            📊 **Statistiques:**
+            📁 Fichiers modifiés: ${{ steps.commit_info.outputs.files_changed }}
+            ➕ Lignes ajoutées: ${{ steps.commit_info.outputs.additions }}
+            ➖ Lignes supprimées: ${{ steps.commit_info.outputs.deletions }}
             
-            ### 📊 **Statistiques:**
-            • **📁 Fichiers modifiés:** ${{ steps.commit_info.outputs.files_changed }}
-            • **➕ Lignes ajoutées:** ${{ steps.commit_info.outputs.additions }}
-            • **➖ Lignes supprimées:** ${{ steps.commit_info.outputs.deletions }}
-            
-            ### 🔗 **Liens utiles:**
-            • [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
-            • [⚡ Actions](${{ github.event.repository.html_url }}/actions)
-            
-            ---
+            🔗 **Liens:**
+            [Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
+            [Actions GitHub](${{ github.event.repository.html_url }}/actions)
