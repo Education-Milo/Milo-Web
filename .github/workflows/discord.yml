@@ -20,6 +20,7 @@ jobs:
         run: |
           echo "commit_message=$(git log -1 --pretty=format:'%s' | tr '\n' ' ' | head -c 100)" >> $GITHUB_OUTPUT
           echo "commit_author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_OUTPUT
+          echo "commit_date=$(git log -1 --pretty=format:'%ad' --date=format:'%d/%m/%Y à %H:%M')" >> $GITHUB_OUTPUT
           echo "files_changed=$(git diff --name-only HEAD~1 HEAD | wc -l)" >> $GITHUB_OUTPUT
           echo "repo_name=$(echo '${{ github.repository }}' | cut -d'/' -f2)" >> $GITHUB_OUTPUT
 
@@ -28,12 +29,21 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#7289DA"
+          color: "#00D4AA"
           message: |
             🚀 **NOUVEAU PUSH WEB** 🚀
             
-            **📦 Projet:** ${{ steps.commit_info.outputs.repo_name }}
-            **👨‍💻 Dev:** ${{ steps.commit_info.outputs.commit_author }}
-            **💬 Message:** ${{ steps.commit_info.outputs.commit_message }}
-            **📁 Fichiers:** ${{ steps.commit_info.outputs.files_changed }} modifiés
-            **🔗 Commit:** ${{ github.sha }}
+            
+            **📋 INFORMATIONS GÉNÉRALES**
+            📦 Projet : ${{ steps.commit_info.outputs.repo_name }}
+            👨‍💻 Développeur : ${{ steps.commit_info.outputs.commit_author }}
+            📅 Date : ${{ steps.commit_info.outputs.commit_date }}
+            
+            
+            **💬 DÉTAILS DU COMMIT**
+            🏷️ Commit :  ${{ steps.commit_info.outputs.commit_message }}
+            📁 Fichiers modifiés : ${{ steps.commit_info.outputs.files_changed }}
+            
+            
+            **🔗 LIENS UTILES**
+            [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }}) • [⚡ Actions](${{ github.event.repository.html_url }}/actions)
