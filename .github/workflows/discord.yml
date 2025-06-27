@@ -29,5 +29,18 @@ jobs:
         with:
           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#00D4AA"
-          message: "🚀 **NOUVEAU PUSH WEB** 🚀\n\n\n**📋 INFORMATIONS GÉNÉRALES**\n📦 Projet : ${{ steps.commit_info.outputs.repo_name }}\n👨‍💻 Développeur : ${{ steps.commit_info.outputs.commit_author }}\n📅 Date : ${{ steps.commit_info.outputs.commit_date }}\n\n\n**💬 DÉTAILS DU COMMIT**\n🏷️ Message : ${{ steps.commit_info.outputs.commit_message }}\n📁 Fichiers modifiés : ${{ steps.commit_info.outputs.files_changed }}"
+          color: "#7289DA"
+          message: |
+            🚀 **NOUVEAU PUSH WEB** 🚀
+            
+            **📋 INFORMATIONS**
+            **📦 Projet:** ${{ steps.commit_info.outputs.repo_name }}
+            **👨‍💻 Développeur:** ${{ steps.commit_info.outputs.commit_author }}
+            **📅 Date:** ${{ steps.commit_info.outputs.commit_date }}
+            
+            **💬 COMMIT**
+            **🏷️ Message:** ${{ steps.commit_info.outputs.commit_message }}
+            **📁 Fichiers modifiés:** ${{ steps.commit_info.outputs.files_changed }}
+            
+            **🔗 LIENS**
+            [📋 Voir le commit](${{ github.event.repository.html_url }}/commit/${{ github.sha }})
