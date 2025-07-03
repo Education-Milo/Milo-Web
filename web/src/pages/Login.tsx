@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../services/authService';
 import '../styles/Login.css';
 import miloLogo from '/milo-logo.png';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [generalError, setGeneralError] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Reset errors
     setEmailError('');
     setPasswordError('');
+    setGeneralError('');
     
-    // Validation
+    // Validation locale
     let hasError = false;
     
     if (!email) {
@@ -30,15 +35,51 @@ const Login: React.FC = () => {
       hasError = true;
     }
     
-    if (!hasError) {
-      // Simulation de connexion réussie
-      console.log('Login attempt:', { email, password });
-      // Redirection vers la page d'accueil
-      navigate('/home');
+    if (hasError) return;
+
+    setIsLoading(true);
+
+    try {
+      // Appel à l'API avec l'email comme username
+      const response = await authService.login({
+        username: email,
+        password: password
+      });
+
+      // Sauvegarder le token
+      authService.saveToken(response.access_token);
+      
+      console.log('Connexion réussie:', response);
+      
+      // Redirection vers la page d'origine ou vers /home
+      const from = location.state?.from?.pathname || '/home';
+      navigate(from, { replace: true });
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      
+      // Gérer les différents types d'erreurs
+      const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue';
+      
+      if (errorMessage.toLowerCase().includes('incorrect username or password')) {
+        setGeneralError('Email ou mot de passe incorrect');
+      } else if (errorMessage.toLowerCase().includes('user not found')) {
+        setGeneralError('Aucun compte trouvé avec cet email');
+      } else {
+        setGeneralError(errorMessage);
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
-   const handleForgotPassword = () => {
+  // Gérer la touche Entrée
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !isLoading) {
+      handleSubmit();
+    }
+  };
+
+  const handleForgotPassword = () => {
     navigate('/forgot-password');
   };
 
@@ -86,6 +127,21 @@ const Login: React.FC = () => {
             </div>
             
             <div className="form">
+              {/* Message d'erreur général */}
+              {generalError && (
+                <div style={{
+                  padding: '0.75rem',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  <p style={{ color: '#dc2626', fontSize: '0.875rem', margin: 0 }}>
+                    {generalError}
+                  </p>
+                </div>
+              )}
+
               {/* Email Field */}
               <div className="input-group">
                 <div className="input-container">
@@ -96,8 +152,10 @@ const Login: React.FC = () => {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${emailError ? 'error' : ''}`}
                     placeholder="Votre adresse email"
+                    disabled={isLoading}
                   />
                 </div>
                 {emailError && (
@@ -115,13 +173,16 @@ const Login: React.FC = () => {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input password-input ${passwordError ? 'error' : ''}`}
                     placeholder="Votre mot de passe"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="password-toggle"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -137,6 +198,7 @@ const Login: React.FC = () => {
                   type="button"
                   className="forgot-password-link"
                   onClick={handleForgotPassword}
+                  disabled={isLoading}
                 >
                   Mot de passe oublié ?
                 </button>
@@ -146,8 +208,16 @@ const Login: React.FC = () => {
               <button
                 onClick={handleSubmit}
                 className="submit-button"
+                disabled={isLoading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
               >
-                Se connecter
+                {isLoading && <Loader2 size={20} className="animate-spin" />}
+                {isLoading ? 'Connexion en cours...' : 'Se connecter'}
               </button>
 
               {/* Divider */}
@@ -161,7 +231,11 @@ const Login: React.FC = () => {
               <div className="signup-section">
                 <p className="signup-text">
                   Pas de compte ?{' '}
-                  <button className="signup-link" onClick={handleSignUp}>
+                  <button 
+                    className="signup-link" 
+                    onClick={handleSignUp}
+                    disabled={isLoading}
+                  >
                     Inscrivez-vous
                   </button>
                 </p>

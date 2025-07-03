@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/HomePage.css';
 import ProfilePage from './ProfilePage';
 import MiloModel3D from '../components/Milo3DModel';
+import { authService } from '../services/authService';
 
 // Type pour définir la structure d'une mission
 interface Mission {
@@ -14,6 +17,8 @@ interface Mission {
 }
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+  
   // État pour le message d'accueil dynamique
   const [welcomeMessage, setWelcomeMessage] = useState('Bon retour, champion ! 🎉');
   
@@ -60,6 +65,17 @@ const HomePage: React.FC = () => {
   const handleNavigation = (page: string) => {
     setActiveNav(page);
     setActivePage(page);
+  };
+
+  // Fonction pour gérer la déconnexion
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login', { replace: true });
+  };
+
+    // Fonction pour rediriger vers la page Milo
+  const handleMiloClick = () => {
+    navigate('/milo');
   };
 
   // Si la page Profil est active, afficher le composant ProfilePage
@@ -135,6 +151,16 @@ const HomePage: React.FC = () => {
               <p>Niveau Expert</p>
             </div>
           </div>
+          
+          {/* Bouton de déconnexion */}
+          <button 
+            className="logout-button"
+            onClick={handleLogout}
+            title="Se déconnecter"
+            >
+            <LogOut size={18} />
+            <span>Se déconnecter</span>
+          </button>
         </div>
       </aside>
 
@@ -181,7 +207,10 @@ const HomePage: React.FC = () => {
             </section>
 
             {/* Chat with Milo - New Central Section */}
-            <section className="section-card chat-milo-central">
+            <section 
+              className="section-card chat-milo-central"
+              onClick={handleMiloClick}
+            >
               <div className="chat-content-with-milo">
                 <div className="milo-3d-fullscreen">
                   <MiloModel3D modelPath="/milo.glb" />

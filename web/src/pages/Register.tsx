@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { User, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { User, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/authService';
 import '../styles/Register.css';
 import miloLogo from '/milo-logo.png';
 
@@ -14,7 +15,9 @@ const Register: React.FC = () => {
     role: ''
   });
   
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [generalError, setGeneralError] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (field: string, value: string) => {
@@ -23,6 +26,10 @@ const Register: React.FC = () => {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
+    // Clear general error when user makes changes
+    if (generalError) {
+      setGeneralError('');
+    }
   };
 
   const handleRoleSelect = (role: string) => {
@@ -30,10 +37,13 @@ const Register: React.FC = () => {
     if (errors.role) {
       setErrors(prev => ({ ...prev, role: '' }));
     }
+    if (generalError) {
+      setGeneralError('');
+    }
   };
 
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors: {[key: string]: string} = {};
     
     if (!formData.nom.trim()) {
       newErrors.nom = 'Le nom est requis';
@@ -45,10 +55,14 @@ const Register: React.FC = () => {
     
     if (!formData.email.trim()) {
       newErrors.email = "L'email est requis";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "L'email n'est pas valide";
     }
     
     if (!formData.password) {
       newErrors.password = 'Le mot de passe est requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
     }
     
     if (!formData.confirmPassword) {
@@ -64,13 +78,61 @@ const Register: React.FC = () => {
     return newErrors;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setGeneralError('');
     const newErrors = validateForm();
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
-      console.log('Registration attempt:', formData);
-      navigate('/home');
+      setIsLoading(true);
+      
+      try {
+        // Préparer les données pour l'API
+        const registerData = {
+          nom: formData.nom.trim(),
+          prenom: formData.prenom.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+          role: formData.role
+        };
+
+        console.log('Tentative d\'inscription:', registerData);
+        
+        // Appel à l'API
+        const response = await authService.register(registerData);
+        
+        // Sauvegarder le token reçu
+        authService.saveToken(response.access_token);
+        
+        console.log('Inscription réussie:', response);
+        
+        // Redirection vers la page d'accueil
+        navigate('/home');
+        
+      } catch (error) {
+        console.error('Erreur d\'inscription:', error);
+        
+        const errorMessage = error instanceof Error ? error.message : 'Une erreur est survenue';
+        
+        // Gérer les erreurs spécifiques
+        if (errorMessage.toLowerCase().includes('email already registered') || 
+            errorMessage.toLowerCase().includes('user already exists')) {
+          setGeneralError('Cette adresse email est déjà utilisée');
+        } else if (errorMessage.toLowerCase().includes('invalid email')) {
+          setErrors(prev => ({ ...prev, email: 'Adresse email invalide' }));
+        } else {
+          setGeneralError(errorMessage);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Gérer la touche Entrée
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !isLoading) {
+      handleSubmit();
     }
   };
 
@@ -94,17 +156,23 @@ const Register: React.FC = () => {
             }}>
               <button 
                 onClick={handleBackToLogin}
+                disabled={isLoading}
                 style={{ 
                   background: 'none', 
                   border: 'none', 
-                  cursor: 'pointer', 
+                  cursor: isLoading ? 'not-allowed' : 'pointer', 
                   marginRight: '1rem',
                   padding: '0.5rem',
                   borderRadius: '0.5rem',
-                  transition: 'background-color 0.2s'
+                  transition: 'background-color 0.2s',
+                  opacity: isLoading ? 0.5 : 1
                 }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                onMouseEnter={(e) => {
+                  if (!isLoading) e.target.style.backgroundColor = '#f3f4f6';
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) e.target.style.backgroundColor = 'transparent';
+                }}
               >
                 <ArrowLeft size={24} style={{ color: '#374151' }} />
               </button>
@@ -136,6 +204,21 @@ const Register: React.FC = () => {
             </div>
             
             <div className="form">
+              {/* Message d'erreur général */}
+              {generalError && (
+                <div style={{
+                  padding: '0.75rem',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  <p style={{ color: '#dc2626', fontSize: '0.875rem', margin: 0 }}>
+                    {generalError}
+                  </p>
+                </div>
+              )}
+
               {/* Nom Field */}
               <div className="input-group">
                 <div className="input-container">
@@ -146,8 +229,10 @@ const Register: React.FC = () => {
                     type="text"
                     value={formData.nom}
                     onChange={(e) => handleInputChange('nom', e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${errors.nom ? 'error' : ''}`}
                     placeholder="Nom"
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.nom && (
@@ -165,8 +250,10 @@ const Register: React.FC = () => {
                     type="text"
                     value={formData.prenom}
                     onChange={(e) => handleInputChange('prenom', e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${errors.prenom ? 'error' : ''}`}
                     placeholder="Prénom"
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.prenom && (
@@ -184,8 +271,10 @@ const Register: React.FC = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${errors.email ? 'error' : ''}`}
                     placeholder="Adresse email"
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.email && (
@@ -203,8 +292,10 @@ const Register: React.FC = () => {
                     type="password"
                     value={formData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${errors.password ? 'error' : ''}`}
                     placeholder="Mot de passe"
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.password && (
@@ -222,8 +313,10 @@ const Register: React.FC = () => {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    onKeyPress={handleKeyPress}
                     className={`input ${errors.confirmPassword ? 'error' : ''}`}
                     placeholder="Confirmation du mot de passe"
+                    disabled={isLoading}
                   />
                 </div>
                 {errors.confirmPassword && (
@@ -251,6 +344,7 @@ const Register: React.FC = () => {
                     <button
                       key={role}
                       onClick={() => handleRoleSelect(role)}
+                      disabled={isLoading}
                       style={{
                         padding: '0.75rem',
                         borderRadius: '0.75rem',
@@ -259,16 +353,17 @@ const Register: React.FC = () => {
                         color: formData.role === role ? '#ea580c' : '#374151',
                         fontSize: '0.875rem',
                         fontWeight: '500',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out'
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        opacity: isLoading ? 0.7 : 1
                       }}
                       onMouseEnter={(e) => {
-                        if (formData.role !== role) {
+                        if (formData.role !== role && !isLoading) {
                           e.target.style.borderColor = '#d1d5db';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (formData.role !== role) {
+                        if (formData.role !== role && !isLoading) {
                           e.target.style.borderColor = '#e5e7eb';
                         }
                       }}
@@ -306,16 +401,28 @@ const Register: React.FC = () => {
               <button
                 onClick={handleSubmit}
                 className="submit-button"
-                style={{ marginTop: '1.5rem' }}
+                disabled={isLoading}
+                style={{ 
+                  marginTop: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
               >
-                S'inscrire
+                {isLoading && <Loader2 size={20} className="animate-spin" />}
+                {isLoading ? 'Inscription en cours...' : 'S\'inscrire'}
               </button>
 
               {/* Back to Login */}
               <div className="signup-section">
                 <p className="signup-text">
                   Déjà un compte ?{' '}
-                  <button className="signup-link" onClick={handleBackToLogin}>
+                  <button 
+                    className="signup-link" 
+                    onClick={handleBackToLogin}
+                    disabled={isLoading}
+                  >
                     Se connecter
                   </button>
                 </p>

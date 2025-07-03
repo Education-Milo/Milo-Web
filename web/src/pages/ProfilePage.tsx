@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/ProfilePage.css';
+import { authService } from '../services/authService';
 
 // Interface pour les informations utilisateur
 interface UserProfile {
@@ -18,6 +21,8 @@ interface ProfilePageProps {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+  
   // État pour l'élément de navigation actif
   const [activeNav, setActiveNav] = useState('Profil');
   
@@ -47,6 +52,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
     if (onNavigate) {
       onNavigate(page);
     }
+  };
+
+  // Fonction pour gérer la déconnexion
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login', { replace: true });
   };
 
   // Fonction pour gérer le changement des champs
@@ -95,7 +106,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <h1>MILO</h1>
+          <img src="/milo-logo2.png" alt="Milo Logo" className="logo" />
         </div>
 
         <nav className="sidebar-nav">
@@ -162,6 +173,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate }) => {
               <p>Niveau {profile.level}</p>
             </div>
           </div>
+          
+          {/* Bouton de déconnexion */}
+          <button 
+            className="logout-button"
+            onClick={handleLogout}
+            title="Se déconnecter"
+          >
+            <LogOut size={18} />
+            <span>Se déconnecter</span>
+          </button>
         </div>
       </aside>
 

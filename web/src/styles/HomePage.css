@@ -112,6 +112,37 @@ body {
     padding-top: 1.5rem;
 }
 
+.logout-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0 0 0;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 2px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.logout-button:hover {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.logout-button:active {
+    transform: translateY(0);
+}
+
 .user-profile {
     display: flex;
     align-items: center;
@@ -561,7 +592,6 @@ body {
     font-size: 0.95rem;
 }
 
-/* New Central Chat Section */
 .chat-milo-central {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 24px;
@@ -573,12 +603,39 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    min-height: 250px; /* Make it larger */
+    min-height: 250px;
     animation: slideInUp 1s ease-out 0.4s forwards;
     opacity: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
+.chat-milo-central::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
 
+.chat-milo-central:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
+}
+
+.chat-milo-central:hover::before {
+    opacity: 1;
+}
+
+.chat-milo-central:active {
+    transform: translateY(-3px) scale(1.01);
+    transition: all 0.1s ease;
+}
 
 .chat-content-with-milo {
     position: relative;
@@ -586,6 +643,7 @@ body {
     height: 100%;
     min-height: 250px;
     overflow: hidden;
+    z-index: 2;
 }
 
 .milo-3d-fullscreen {
@@ -596,17 +654,28 @@ body {
     bottom: 0;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    z-index: 2;
+    transition: transform 0.3s ease;
+}
+
+.chat-milo-central:hover .milo-3d-fullscreen {
+    transform: scale(1.05);
 }
 
 .chat-text-overlay {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    z-index: 2;
+    z-index: 3;
     color: white;
     text-align: right;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.chat-milo-central:hover .chat-text-overlay {
+    transform: scale(1.05);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .chat-text-overlay h3 {
