@@ -29,7 +29,7 @@ function MiloModel({ modelPath }: MiloModelProps) {
 
   return (
     <group ref={group}>
-      <primitive object={scene} scale={[0.8, 0.8, 0.8]} position={[0, -1.3, 0]} rotation={[0, Math.PI, 0]} />
+      <primitive object={scene} scale={[0.8, 0.8, 0.8]} position={[2, -2.3, 0]} rotation={[0, Math.PI, 0]} />
     </group>
   );
 }
@@ -45,16 +45,19 @@ const TextPanel: React.FC<TextPanelProps> = ({ text, isEditing }) => {
   return (
     <group position={[0, -2, 3]} rotation={[-Math.PI / 2, 0, 0]}>
       <mesh>
-        <planeGeometry args={[4, 2]} />
+        <planeGeometry args={[5, 3]} />
         <meshStandardMaterial color="#2a2a2a" side={THREE.DoubleSide} />
       </mesh>
+      <mesh position={[0, 0, 0.01]}>
+        <planeGeometry args={[2, 2.5]} />
+        <meshStandardMaterial color="white" side={THREE.DoubleSide} />
+      </mesh>
       <Text
-        position={[0, 0, 0.01]}
-        fontSize={0.25}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={3.5}
+        position={[-0.8, 1, 0.02]}
+        fontSize={0.10}
+        color="black"
+        anchorX="left"
+        anchorY="top"
       >
         {displayText}
       </Text>
@@ -168,7 +171,7 @@ const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number }> =
   isEditing, 
   cameraY 
 }) => (
-  <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+  <Canvas camera={{ position: [0, 0, 5], fov: 80 }}>
     <Suspense fallback={null}>
       <ambientLight intensity={0.6} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
@@ -188,7 +191,7 @@ const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number }> =
 const MiloScene: React.FC = () => {
   const [cameraY, setCameraY] = useState(0);
   const [down, setDown] = useState(true);
-  const [text, setText] = useState("Go Milo 👋");
+  const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
   const toggleCamera = () => {

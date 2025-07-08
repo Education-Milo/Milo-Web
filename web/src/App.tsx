@@ -6,6 +6,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import MiloScene from './pages/MiloScene';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import TestQCM from './pages/TestQCM';
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
               <MiloScene />
             </ProtectedRoute>
           } 
+        />
+        <Route 
+          path="/qcm"
+          element={
+            <ProtectedRoute>
+              <TestQCM />
+            </ProtectedRoute>
+          }
         />
 
         {/* Route pour gérer les URLs non trouvées */}
