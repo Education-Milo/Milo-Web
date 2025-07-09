@@ -21,6 +21,26 @@ class ChatService {
     
         return response.json();
     }
+
+
+    // Créer un FillIn
+    async createFillIn(chatRequest: string): Promise<any> {
+        const response = await fetch(`${this.apiBaseUrl}/fill_in`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authService.getToken()}`,
+            },
+            body: JSON.stringify({ chat_request: chatRequest }),
+        });
+    
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Erreur lors de la création du Fill In');
+        }
+    
+        return response.json();
+    }
 }
 
 export const chatService = new ChatService();

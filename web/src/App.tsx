@@ -7,6 +7,7 @@ import MiloScene from './pages/MiloScene';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import TestQCM from './pages/TestQCM';
+import TestFillIn from './pages/TestFillIn';
 
 function App() {
   return (
@@ -63,6 +64,14 @@ function App() {
           element={
             <ProtectedRoute>
               <TestQCM />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/fill-in"
+          element={
+            <ProtectedRoute>
+              <TestFillIn />
             </ProtectedRoute>
           }
         />
