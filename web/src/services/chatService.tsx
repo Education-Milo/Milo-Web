@@ -41,6 +41,26 @@ class ChatService {
     
         return response.json();
     }
+
+
+
+    async chat(chatRequest: string): Promise<any> {
+        const response = await fetch(`${this.apiBaseUrl}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authService.getToken()}`,
+            },
+            body: JSON.stringify({ chat_request: chatRequest }),
+        });
+    
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Erreur lors du chat');
+        }
+    
+        return response.json();
+    }
 }
 
 export const chatService = new ChatService();

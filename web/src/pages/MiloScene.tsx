@@ -2,7 +2,8 @@ import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { FaChevronDown, FaChevronUp, FaEdit } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaEdit, FaTransgenderAlt} from 'react-icons/fa';
+import { chatService } from '../services/chatService';
 
 interface MiloModelProps {
   modelPath: string;
@@ -34,6 +35,35 @@ function MiloModel({ modelPath }: MiloModelProps) {
   );
 }
 
+
+
+const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
+  const displayText = text || (isEditing ? "|" : "Tapez votre texte...");
+  
+  return (
+    <group position={[0, 1, 0]} rotation={[0, 0, 0]}>
+      <mesh>
+        <planeGeometry args={[6, 4]} />
+        <meshStandardMaterial color="black" side={THREE.DoubleSide} />
+      </mesh>
+      <Text
+        position={[-2.5, 1.6, 0.01]}
+        fontSize={0.10}
+        color="white"
+        anchorX="left"
+        anchorY="top"
+        maxWidth={5}
+      >
+        {displayText}
+      </Text>
+    </group>
+  );
+};
+
+
+
+
+
 interface TextPanelProps {
   text: string;
   isEditing: boolean;
@@ -46,7 +76,7 @@ const TextPanel: React.FC<TextPanelProps> = ({ text, isEditing }) => {
     <group position={[0, -2, 3]} rotation={[-Math.PI / 2, 0, 0]}>
       <mesh>
         <planeGeometry args={[5, 3]} />
-        <meshStandardMaterial color="#2a2a2a" side={THREE.DoubleSide} />
+        <meshStandardMaterial color="#35261a" side={THREE.DoubleSide} />
       </mesh>
       <mesh position={[0, 0, 0.01]}>
         <planeGeometry args={[2, 2.5]} />
@@ -137,39 +167,47 @@ const EditButton: React.FC<EditButtonProps> = ({ isEditing, onToggle }) => (
   </button>
 );
 
-interface TextEditorProps {
-  text: string;
-  isEditing: boolean;
-  onTextChange: (text: string) => void;
+interface SendButtonProps {
+  onToggle: () => void;
 }
 
-const TextEditor: React.FC<TextEditorProps> = ({ text, isEditing, onTextChange }) => {
-  useEffect(() => {
-    if (!isEditing) return;
+const SendButton: React.FC<SendButtonProps> = ({onToggle}) => (
+  <button
+    onClick={onToggle}
+    style={{
+      position: 'fixed',
+      bottom: 30,
+      right: 90,
+      background:'rgba(0,0,0,0.5)',
+      border: 'none',
+      color: 'white',
+      borderRadius: '50%',
+      width: 50,
+      height: 50,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      zIndex: 10,
+    }}
+  >
+    <FaTransgenderAlt size={20} />
+  </button>
+);
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      
-      if (e.key === 'Backspace') {
-        onTextChange(text.slice(0, -1));
-      } else if (e.key === 'Enter') {
-        onTextChange(text + '\n');
-      } else if (e.key.length === 1) {
-        onTextChange(text + e.key);
-      }
-    };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isEditing, text, onTextChange]);
 
-  return null;
-};
 
-const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number }> = ({ 
+
+
+
+
+
+const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number; reply: string }> = ({ 
   text, 
   isEditing, 
-  cameraY 
+  cameraY,
+  reply
 }) => (
   <Canvas camera={{ position: [0, 0, 5], fov: 80 }}>
     <Suspense fallback={null}>
@@ -179,6 +217,7 @@ const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number }> =
 
       <MiloModel modelPath="/milo.glb" />
       <TextPanel text={text} isEditing={isEditing} />
+      <Tableau text={reply} isEditing={isEditing} />
 
       <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
       <Environment preset="studio" />
@@ -193,6 +232,7 @@ const MiloScene: React.FC = () => {
   const [down, setDown] = useState(true);
   const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [reply, setReply] = useState("");
 
   const toggleCamera = () => {
     setDown(!down);
@@ -207,18 +247,52 @@ const MiloScene: React.FC = () => {
     setText(newText);
   };
 
+  const handleSend = () => {
+    setText(""); // Clear text after sending
+    chatService.chat(text)
+      .then(response => {
+        setReply(response.reply || "J'ai besoin de plus d'informations pour répondre.");
+      }
+      )
+      .catch(error => {
+        console.error("Error sending text:", error);
+        setReply("Une erreur s'est produite lors de l'envoi du texte.");
+      }
+    );
+  };
+
+
+
+
+
+  useEffect(() => {
+    if (!isEditing) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (e.key === 'Backspace') {
+        setText(prev => prev.slice(0, -1));
+      } else if (e.key === 'Enter') {
+        setText(prev => prev + '\n');
+      } else if (e.key.length === 1) {
+        setText(prev => prev + e.key);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing]);
+
+
+
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      <Scene3D text={text} isEditing={isEditing} cameraY={cameraY} />
+      <Scene3D text={text} isEditing={isEditing} cameraY={cameraY} reply={reply} />
       
       <CameraToggleButton down={down} onToggle={toggleCamera} />
       <EditButton isEditing={isEditing} onToggle={toggleEditing} />
-      
-      <TextEditor 
-        text={text} 
-        isEditing={isEditing} 
-        onTextChange={handleTextChange} 
-      />
+      <SendButton onToggle={handleSend} />
     </div>
   );
 };
