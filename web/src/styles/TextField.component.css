@@ -1,0 +1,58 @@
+.textfield-container {
+  width: 100%;
+}
+
+.textfield-input-icon-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #FFF;
+  border-radius: 9999px;
+  padding: 4px 15px;
+  border: 1px solid #DDD;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  height: 48px;
+}
+
+.textfield-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textfield-right-icon-container {
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.textfield-right-icon-container:hover {
+  opacity: 0.7;
+}
+
+.textfield-input {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 15px;
+  color: #11181C;
+  height: 43px;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.textfield-input::placeholder {
+  color: #999;
+}
+
+.textfield-error-text {
+  color: #ff3b30;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-left: 15px;
+}
