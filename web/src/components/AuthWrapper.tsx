@@ -1,6 +1,6 @@
 // components/AuthWrapper.tsx
 import React, { useEffect, useState } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../store/authService';
 
 interface AuthWrapperProps {
   children: React.ReactNode;

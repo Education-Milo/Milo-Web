@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import '../../../styles/TextField.component.css';
+import '@styles/TextField.component.css';
 
 interface TextFieldComponentProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
@@ -10,7 +10,7 @@ interface TextFieldComponentProps extends React.InputHTMLAttributes<HTMLInputEle
 
 const TextFieldComponent = forwardRef<HTMLInputElement, TextFieldComponentProps>(
   (props, ref) => {
-    const { className, icon, type, error, ...rest } = props;
+    const { className, icon, type, error, disabled, ...rest } = props;
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -19,16 +19,17 @@ const TextFieldComponent = forwardRef<HTMLInputElement, TextFieldComponentProps>
 
     return (
       <div className="textfield-container">
-        <div className="textfield-input-icon-container">
+        <div className={`textfield-input-icon-container ${disabled ? 'textfield-disabled' : ''}`}>
           {icon && <div className="textfield-icon-container">{icon}</div>}
           <input
             ref={ref}
             {...rest}
-            className={`textfield-input ${className || ''}`}
+            disabled={disabled}
+            className={`textfield-input ${disabled ? 'textfield-input-disabled' : ''} ${className || ''}`}
             type={type === 'password' && !isPasswordVisible ? 'password' : type === 'email' ? 'email' : 'text'}
             placeholder={rest.placeholder}
           />
-          {type === 'password' && (
+          {type === 'password' && !disabled && (
             <button
               type="button"
               className="textfield-right-icon-container"

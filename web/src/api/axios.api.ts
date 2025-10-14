@@ -28,13 +28,18 @@ APIAxios.interceptors.response.use(
   async (err: AxiosError) => {
     if (
       err.response?.status === 401 &&
-      (err.response as any)?.data?.message !== 'CODE_NOT_CORRECT'
+      (err.response as any)?.data?.message !== 'CODE_NOT_CORRECT' &&
+      !err.config?.headers?.['X-Token-Validation'] // Éviter les boucles infinies lors de la validation
     ) {
       console.warn('Unauthorized access - token expired, logging out');
       try {
         await useAuthStore.getState().logout();
+        // Forcer le rechargement de la page pour rediriger vers /login
+        window.location.href = '/login';
       } catch (logoutError) {
         console.error('Error during automatic logout:', logoutError);
+        // En cas d'erreur, forcer quand même la redirection
+        window.location.href = '/login';
       }
     }
 

@@ -10,45 +10,61 @@ export const useAuthStore = create<AuthStore>()(
       loading: false,
       accessToken: '',
 
-      // // Nouvelle fonction pour vérifier la validité du token
-      // checkTokenValidity: async () => {
-      //   const { accessToken } = get();
-      //   if (!accessToken) {
-      //     return false;
-      //   }
+      // Nouvelle fonction pour vérifier la validité du token
+      checkTokenValidity: async () => {
+        const { accessToken } = get();
+        if (!accessToken) {
+          return false;
+        }
 
-      //   try {
-      //     // Appel à une route qui nécessite une authentification
-      //     // avec un en-tête spécial pour éviter la déconnexion automatique
-      //     await APIAxios.get(APIRoutes.GET_Me, {
-      //       headers: {
-      //         'X-Token-Validation': 'true'
-      //       }
-      //     });
-      //     return true;
-      //   } catch (error: any) {
-      //     if (error.response?.status === 401) {
-      //       console.log('Token invalide détecté, déconnexion automatique');
-      //       await get().logout();
-      //       return false;
-      //     }
-      //     // Pour les autres erreurs (réseau, etc.), on considère le token comme valide
-      //     return true;
-      //   }
-      // },
+        try {
+          // Appel à une route qui nécessite une authentification
+          // avec un en-tête spécial pour éviter la déconnexion automatique
+          await APIAxios.get(APIRoutes.GET_Me, {
+            headers: {
+              'X-Token-Validation': 'true'
+            }
+          });
+          return true;
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            console.log('Token invalide détecté, déconnexion automatique');
+            await get().logout();
+            return false;
+          }
+          // Pour les autres erreurs (réseau, etc.), on considère le token comme valide
+          return true;
+        }
+      },
 
-      // // Fonction pour démarrer la vérification périodique
-      // startTokenValidation: () => {
-      //   const interval = setInterval(async () => {
-      //     const isValid = await get().checkTokenValidity();
-      //     if (!isValid) {
-      //       clearInterval(interval);
-      //     }
-      //   }, 5 * 60 * 1000); // Vérification toutes les 5 minutes
+      // Fonction pour démarrer la vérification périodique
+      startTokenValidation: () => {
+        const interval = setInterval(async () => {
+          const { accessToken } = get();
+          if (!accessToken) {
+            clearInterval(interval);
+            return;
+          }
 
-      //   // Retourner la fonction pour arrêter l'intervalle
-      //   return () => clearInterval(interval);
-      // },
+          try {
+            // Appel à une route qui nécessite une authentification
+            await APIAxios.get(APIRoutes.GET_Me, {
+              headers: {
+                'X-Token-Validation': 'true'
+              }
+            });
+          } catch (error: any) {
+            if (error.response?.status === 401) {
+              console.log('Token invalide détecté lors de la vérification périodique, déconnexion automatique');
+              await get().logout();
+              clearInterval(interval);
+            }
+          }
+        }, 5 * 60 * 1000); // Vérification toutes les 5 minutes
+
+        // Retourner la fonction pour arrêter l'intervalle
+        return () => clearInterval(interval);
+      },
 
       login: async (email, password) => {
         try {

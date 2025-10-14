@@ -17,12 +17,14 @@ export default defineConfig({
     alias: {
       '@api': resolve(__dirname, 'src/api'),
       '@components': resolve(__dirname, 'src/components'),
+      '@navigation': resolve(__dirname, 'src/navigation'),
       // '@fonts': resolve(__dirname, 'src/fonts'),
       // '@locales': resolve(__dirname, 'src/locales'),
       '@screens': resolve(__dirname, 'src/screens'),
       '@store': resolve(__dirname, 'src/store'),
       '@hooks': resolve(__dirname, 'src/hooks'),
       '@types': resolve(__dirname, 'src/types'),
+      '@styles': resolve(__dirname, 'src/styles'),
       // '@assets': resolve(__dirname, 'src/assets'),
       // '@utils': resolve(__dirname, 'src/utils'),
     }

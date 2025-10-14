@@ -58,10 +58,9 @@ export const useRegisterForm = () => {
       newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
     
-    // Validation du rôle désactivée temporairement
-    // if (!formData.role) {
-    //   newErrors.role = 'Veuillez sélectionner un rôle';
-    // }
+    if (!formData.role) {
+      newErrors.role = 'Veuillez sélectionner un rôle';
+    }
 
     return newErrors;
   };
@@ -80,7 +79,7 @@ export const useRegisterForm = () => {
           formData.password,
           formData.nom.trim(),
           formData.prenom.trim(),
-          'Élève' // Rôle par défaut temporaire
+          formData.role
         );
         console.log('✅ Inscription réussie');
         navigate('/home');
