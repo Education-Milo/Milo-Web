@@ -32,10 +32,10 @@ export interface ApiError {
   }>;
 }
 
-
 export interface AuthState {
   loading: boolean;
   accessToken: string;
+  tokenValidationInterval: NodeJS.Timeout | null; // ✅ AJOUTÉ
 }
 
 export interface AuthActions {
@@ -44,9 +44,9 @@ export interface AuthActions {
   logout: () => Promise<void>;
   forgetPassword: (email: string) => Promise<void>;
   checkTokenValidity: () => Promise<boolean>;
-  startTokenValidation: () => () => void;
-  // verifyEmail: (email: string) => Promise<AxiosResponse>;
+  startTokenValidation: () => void; // ✅ MODIFIÉ : ne retourne plus une fonction
+  stopTokenValidation: () => void; // ✅ AJOUTÉ
+  isTokenExpired: () => boolean; // ✅ AJOUTÉ
 }
 
 export type AuthStore = AuthState & AuthActions;
-

@@ -4,66 +4,91 @@ import qs from 'qs';
 import type { AuthStore } from '@store/auth/auth.model';
 import APIAxios, { APIRoutes } from '@api/axios.api';
 
+import { jwtDecode } from 'jwt-decode';
+
+// Dans auth.store.ts
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       loading: false,
       accessToken: '',
+      tokenValidationInterval: null as NodeJS.Timeout | null,
 
-      // Nouvelle fonction pour vérifier la validité du token
-      checkTokenValidity: async () => {
+      // Vérifier si le token est expiré (côté client)
+      isTokenExpired: () => {
         const { accessToken } = get();
-        if (!accessToken) {
-          return false;
-        }
+        if (!accessToken) return true;
 
         try {
-          // Appel à une route qui nécessite une authentification
-          // avec un en-tête spécial pour éviter la déconnexion automatique
-          await APIAxios.get(APIRoutes.GET_Me, {
-            headers: {
-              'X-Token-Validation': 'true'
-            }
-          });
-          return true;
-        } catch (error: any) {
-          if (error.response?.status === 401) {
-            console.log('Token invalide détecté, déconnexion automatique');
-            await get().logout();
-            return false;
-          }
-          // Pour les autres erreurs (réseau, etc.), on considère le token comme valide
+          const decoded: any = jwtDecode(accessToken);
+          const currentTime = Date.now() / 1000;
+
+          // Vérifier avec une marge de 60 secondes
+          return decoded.exp < currentTime + 60;
+        } catch (error) {
+          console.error('Erreur décodage token:', error);
           return true;
         }
       },
 
-      // Fonction pour démarrer la vérification périodique
+      // Vérifier la validité du token (avec l'API si nécessaire)
+      checkTokenValidity: async () => {
+        const { isTokenExpired, accessToken } = get();
+
+        if (!accessToken || isTokenExpired()) {
+          await get().logout();
+          return false;
+        }
+
+        try {
+          await APIAxios.get(APIRoutes.GET_Me, {
+            headers: { 'X-Token-Validation': 'true' }
+          });
+          return true;
+        } catch (error: any) {
+          if (error.response?.status === 401) {
+            console.log('Token invalide, déconnexion');
+            await get().logout();
+            return false;
+          }
+          return true;
+        }
+      },
+
+      // Démarrer la vérification périodique (UNE SEULE FOIS)
       startTokenValidation: () => {
+        const state = get();
+        // Si un intervalle existe déjà, ne rien faire
+        if (state.tokenValidationInterval) {
+          return;
+        }
+
         const interval = setInterval(async () => {
-          const { accessToken } = get();
+          const { accessToken, isTokenExpired } = get();
           if (!accessToken) {
-            clearInterval(interval);
+            get().stopTokenValidation();
             return;
           }
 
-          try {
-            // Appel à une route qui nécessite une authentification
-            await APIAxios.get(APIRoutes.GET_Me, {
-              headers: {
-                'X-Token-Validation': 'true'
-              }
-            });
-          } catch (error: any) {
-            if (error.response?.status === 401) {
-              console.log('Token invalide détecté lors de la vérification périodique, déconnexion automatique');
-              await get().logout();
-              clearInterval(interval);
-            }
+          // Vérifier d'abord côté client (pas d'appel API)
+          if (isTokenExpired()) {
+            console.log('Token expiré, déconnexion');
+            await get().logout();
+            get().stopTokenValidation();
+            return;
           }
-        }, 5 * 60 * 1000); // Vérification toutes les 5 minutes
+        }, 5 * 60 * 1000); // Toutes les 5 minutes
 
-        // Retourner la fonction pour arrêter l'intervalle
-        return () => clearInterval(interval);
+        set({ tokenValidationInterval: interval });
+      },
+
+      // Arrêter la vérification
+      stopTokenValidation: () => {
+        const { tokenValidationInterval } = get();
+        if (tokenValidationInterval) {
+          clearInterval(tokenValidationInterval);
+          set({ tokenValidationInterval: null });
+        }
       },
 
       login: async (email, password) => {
@@ -132,13 +157,14 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: async () => {
+        get().stopTokenValidation(); // Arrêter l'intervalle
         const { useUserStore } = await import('@store/user/user.store');
         useUserStore.getState().clearUserData();
         set({
           accessToken: '',
+          tokenValidationInterval: null,
         });
       },
-
     }),
     {
       name: 'auth-storage',
