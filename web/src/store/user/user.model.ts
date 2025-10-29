@@ -1,4 +1,4 @@
-export type UserRole = 'USER' | 'PROF' | 'PARENT' | 'ADMIN' ;
+export type UserRole = 'User' | 'Prof' | 'Parent' | 'ADMIN' ;
 export type ClassType = '6ème' | '5ème' | '4ème' | '3ème';
 export interface User {
 
