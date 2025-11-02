@@ -50,13 +50,8 @@ export const useLoginForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        console.log('📤 Tentative de connexion');
         await login(formData.email.trim(), formData.password);
-
-        console.log('✅ Connexion réussie');
-        // Redirection vers la page d'origine ou vers /home
-        const from = location.state?.from?.pathname || '/home';
-        navigate(from, { replace: true });
+        navigate('/', { replace: true });
       } catch (error: any) {
         console.error('❌ Erreur de connexion:', error);
         // Gérer les différents types d'erreurs
