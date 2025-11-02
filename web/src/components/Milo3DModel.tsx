@@ -38,9 +38,9 @@ function MiloModel({ modelPath }: MiloModelProps) {
     <group ref={group}>
       <primitive 
         object={scene} 
-        scale={[0.8, 0.8, 0.8]} 
+        scale={[0.4, 0.4, 0.4]} 
         position={[0, -1.1, 0]}
-        rotation={[0, Math.PI, 0]}
+        rotation={[0, 0, 0]}
       />
     </group>
   );

@@ -30,7 +30,7 @@ function MiloModel({ modelPath }: MiloModelProps) {
 
   return (
     <group ref={group}>
-      <primitive object={scene} scale={[0.8, 0.8, 0.8]} position={[2, -2.3, 0]} rotation={[0, Math.PI, 0]} />
+      <primitive object={scene} scale={[0.5, 0.5, 0.5]} position={[2, -2.3, 0]} rotation={[0, 0, 0]} />
     </group>
   );
 }
@@ -215,7 +215,7 @@ const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number; rep
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <pointLight position={[-10, -10, -10]} intensity={0.5} />
 
-      <MiloModel modelPath="/milo.glb" />
+      <MiloModel modelPath="/MiloV1RIGGED.glb" />
       <TextPanel text={text} isEditing={isEditing} />
       <Tableau text={reply} isEditing={isEditing} />
 

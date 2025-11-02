@@ -67,7 +67,7 @@ const HomePage: React.FC = () => {
             >
               <div className="chat-content-with-milo">
                 <div className="milo-3d-fullscreen">
-                  <MiloModel3D modelPath="/milo.glb" />
+                  <MiloModel3D modelPath="/MiloV1RIGGED.glb" />
                 </div>
                 <div className="chat-text-overlay">
                   <h3>Discuter avec Milo</h3>
