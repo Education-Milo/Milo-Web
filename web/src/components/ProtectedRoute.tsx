@@ -24,7 +24,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Si pas connecté, rediriger vers login
   if (!accessToken) {
-    console.log('❌ No token, redirecting to login');
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
