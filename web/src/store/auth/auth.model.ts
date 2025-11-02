@@ -17,11 +17,12 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  id: number;
   email: string;
-  nom: string;
-  prenom: string;
+  lastName: string;
+  firstName: string;
   role: string;
+  level: string;
+  profilePicture?: string;
 }
 
 export interface ApiError {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import type { LoginFormData, FormErrors } from '../types/auth.types';
+import { ROUTES } from '@constants/routes';
 
 export const useLoginForm = () => {
   const [formData, setFormData] = useState<LoginFormData>({
@@ -51,7 +52,7 @@ export const useLoginForm = () => {
       setIsLoading(true);
       try {
         await login(formData.email.trim(), formData.password);
-        navigate('/', { replace: true });
+        navigate(ROUTES.ROOT, { replace: true });
       } catch (error: any) {
         console.error('❌ Erreur de connexion:', error);
         // Gérer les différents types d'erreurs
@@ -76,11 +77,11 @@ export const useLoginForm = () => {
   };
 
   const handleForgotPassword = () => {
-    navigate('/forgot-password');
+    navigate(ROUTES.FORGOT_PASSWORD);
   };
 
   const handleSignUp = () => {
-    navigate('/register');
+    navigate(ROUTES.REGISTER);
   };
 
   return {

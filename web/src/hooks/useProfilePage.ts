@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../store/authService';
+import { useAuthStore } from '../store/auth/auth.store';
 import { useUserStore } from '../store/user/user.store';
+import { ROUTES } from '@constants/routes';
 
 // Interface pour les informations utilisateur du profil
 export interface UserProfile {
@@ -16,27 +17,13 @@ export interface UserProfile {
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
+  const logout = useAuthStore(state => state.logout);
   const { user, getMe } = useUserStore();
-  
-  // État pour l'élément de navigation actif
-  const [activeNav, setActiveNav] = useState('Profil');
-  
-  // État pour le mode édition
   const [isEditing, setIsEditing] = useState(false);
   
   // Référence pour l'input file
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  // Données en dur commentées - à remplacer par les vraies données utilisateur
-  // const [profile, setProfile] = useState<UserProfile>({
-  //   firstName: 'Titouan',
-  //   lastName: 'Dupont',
-  //   email: 'titouan.dupont@email.com',
-  //   dateOfBirth: '2005-03-15',
-  //   level: 'Expert',
-  //   bio: 'Passionné d\'apprentissage et toujours prêt à relever de nouveaux défis !',
-  //   profilePicture: null
-  // });
+
 
   // État pour les informations du profil - maintenant basé sur les données utilisateur
   const [profile, setProfile] = useState<UserProfile>({
@@ -84,35 +71,10 @@ export const useProfilePage = () => {
     }
   }, [user]);
 
-  // Fonction pour gérer la navigation
-  const handleNavigation = (page: string) => {
-    setActiveNav(page);
-    // Navigation vers les différentes pages
-    switch (page) {
-      case 'Accueil':
-        navigate('/home');
-        break;
-      case 'Cours':
-        navigate('/courses'); // À créer si nécessaire
-        break;
-      case 'Missions':
-        navigate('/missions'); // À créer si nécessaire
-        break;
-      case 'Duels':
-        navigate('/duels'); // À créer si nécessaire
-        break;
-      case 'Profil':
-        navigate('/profile');
-        break;
-      default:
-        navigate('/home');
-    }
-  };
-
   // Fonction pour gérer la déconnexion
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    await logout();
+    navigate(ROUTES.LOGIN, { replace: true });
   };
 
   // Fonction pour gérer le changement des champs
@@ -165,7 +127,6 @@ export const useProfilePage = () => {
 
   return {
     // États
-    activeNav,
     isEditing,
     profile,
     tempProfile,
@@ -175,7 +136,6 @@ export const useProfilePage = () => {
     fileInputRef,
     
     // Fonctions de gestion
-    handleNavigation,
     handleLogout,
     handleInputChange,
     handlePhotoUpload,

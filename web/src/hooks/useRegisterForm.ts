@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import type { RegisterFormData, FormErrors } from '../types/auth.types';
+import { ROUTES } from '@constants/routes';
 
 export const useRegisterForm = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -73,7 +74,6 @@ export const useRegisterForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        console.log('📤 Tentative d\'inscription');
         await register(
           formData.email.trim(),
           formData.password,
@@ -81,8 +81,7 @@ export const useRegisterForm = () => {
           formData.prenom.trim(),
           formData.role
         );
-        console.log('✅ Inscription réussie');
-        navigate('/home');
+        navigate(ROUTES.HOME);
 
       } catch (error: any) {
         console.error('❌ Erreur d\'inscription:', error);

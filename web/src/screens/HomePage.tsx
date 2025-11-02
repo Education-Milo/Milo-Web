@@ -7,16 +7,11 @@ import TopBar from '@components/TopBar';
 
 const HomePage: React.FC = () => {
   const {
-    // États
     welcomeMessage,
-    activeNav,
     missions,
     completedMissionsCount,
     user,
-    
-    // Fonctions de gestion
     handleMissionClick,
-    handleNavigation,
     handleLogout,
     handleMiloClick
   } = useHomePage();
@@ -24,15 +19,15 @@ const HomePage: React.FC = () => {
   return (
     <>
       {/* Sidebar Navigation */}
-      <Sidebar 
-        activeNav={activeNav}
-        onNavigation={handleNavigation}
+      <Sidebar
         onLogout={handleLogout}
         userProfile={{
+          email: user?.email || '',
           firstName: user?.prenom || '',
           lastName: user?.nom || '',
           level: user?.level?.toString() || '1',
-          profilePicture: null
+          role: user?.role || '',
+          profilePicture: undefined
         }}
       />
 

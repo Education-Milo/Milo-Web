@@ -8,7 +8,6 @@ import TextFieldComponent from '@components/ui/common/TextField.component';
 const ProfilePage: React.FC = () => {
   const {
     // États
-    activeNav,
     isEditing,
     profile,
     tempProfile,
@@ -16,7 +15,6 @@ const ProfilePage: React.FC = () => {
     // Références
     fileInputRef,
     // Fonctions de gestion
-    handleNavigation,
     handleLogout,
     handleInputChange,
     handlePhotoUpload,
@@ -30,14 +28,14 @@ const ProfilePage: React.FC = () => {
     <>
       {/* Sidebar Navigation */}
       <Sidebar
-        activeNav={activeNav}
-        onNavigation={handleNavigation}
         onLogout={handleLogout}
         userProfile={{
+          email: user?.email || '',
           firstName: user?.prenom || '',
           lastName: user?.nom || '',
           level: user?.level?.toString() || '1',
-          profilePicture: null // Pas encore disponible dans le modèle User
+          role: user?.role || '',
+          profilePicture: undefined
         }}
       />
 

@@ -1,39 +1,40 @@
+// Sidebar.tsx - MEILLEURE APPROCHE
 import React from 'react';
 import { LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import  type { UserProfile }   from '@store/auth/auth.model';
+import { ROUTES } from '@constants/routes';
 
-// Interface pour les informations utilisateur
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  level: string;
-  profilePicture?: string | null;
-}
-
-// Props pour le composant Sidebar
 interface SidebarProps {
-  activeNav: string;
-  onNavigation: (page: string) => void;
   onLogout: () => void;
-  userProfile?: UserProfile;
+  userProfile: UserProfile;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  activeNav,
-  onNavigation,
-  onLogout,
-  userProfile
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
   const navigate = useNavigate();
-  // Valeurs par défaut pour le profil utilisateur
-  const defaultProfile: UserProfile = {
-    firstName: 'Titouan',
-    lastName: 'Dupont',
-    level: 'Expert',
-    profilePicture: null
-  };
+  const location = useLocation();
 
-  const profile = userProfile || defaultProfile;
+  // Configuration des items de navigation
+  const navItems = [
+    { label: 'Accueil', path: ROUTES.HOME, icon: '🏠' },
+    { label: 'Cours', path: ROUTES.COURSES, icon: '📚', badge: 3 },
+    { label: 'Missions', path: ROUTES.MISSIONS, icon: '✅' },
+    { label: 'Duels', path: ROUTES.DUELS, icon: '⚔️' },
+  ];
+
+  const progressItems = [
+    { label: 'Succès', path: '/achievements', icon: '🏆' },
+    { label: 'Statistiques', path: '/stats', icon: '📊' },
+    { label: 'Objectifs', path: '/goals', icon: '🎯' },
+  ];
+
+  const socialItems = [
+    { label: 'Amis', path: '/friends', icon: '👥' },
+    { label: 'Classements', path: '/leaderboard', icon: '🌟' },
+  ];
+
+  // Vérifier si la route est active
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <aside className="sidebar">
@@ -42,74 +43,68 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <nav className="sidebar-nav">
+        {/* Groupe Principal */}
         <div className="nav-group">
           <div className="nav-group-title">Principal</div>
-          {['Accueil', 'Cours', 'Missions', 'Duels'].map(item => (
+          {navItems.map(item => (
             <div
-              key={item}
-              className={`nav-item ${activeNav === item ? 'active' : ''}`}
-              onClick={() => onNavigation(item)}
+              key={item.path}
+              className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
             >
-              <span className="nav-item-icon">
-                {item === 'Accueil' && '🏠'}
-                {item === 'Cours' && '📚'}
-                {item === 'Missions' && '✅'}
-                {item === 'Duels' && '⚔️'}
-              </span>
-              <span>{item}</span>
-              {item === 'Cours' && <span className="nav-item-badge">3</span>}
+              <span className="nav-item-icon">{item.icon}</span>
+              <span>{item.label}</span>
+              {item.badge && <span className="nav-item-badge">{item.badge}</span>}
             </div>
           ))}
         </div>
 
+        {/* Groupe Progression */}
         <div className="nav-group">
           <div className="nav-group-title">Progression</div>
-          <div className="nav-item">
-            <span className="nav-item-icon">🏆</span>
-            <span>Succès</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-item-icon">📊</span>
-            <span>Statistiques</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-item-icon">🎯</span>
-            <span>Objectifs</span>
-          </div>
+          {progressItems.map(item => (
+            <div
+              key={item.path}
+              className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
+            >
+              <span className="nav-item-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+          ))}
         </div>
+
+        {/* Groupe Social */}
         <div className="nav-group">
           <div className="nav-group-title">Social</div>
-          <div className="nav-item">
-            <span className="nav-item-icon">👥</span>
-            <span>Amis</span>
-          </div>
-          <div className="nav-item">
-            <span className="nav-item-icon">🌟</span>
-            <span>Classements</span>
-          </div>
+          {socialItems.map(item => (
+            <div
+              key={item.path}
+              className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
+            >
+              <span className="nav-item-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+          ))}
         </div>
       </nav>
 
       <div className="sidebar-footer">
         <div className="user-profile" onClick={() => navigate('/profile')}>
           <div className="user-avatar">
-            {profile.profilePicture ? (
-              <img src={profile.profilePicture} alt="Profile" className="profile-image" />
+            {userProfile?.profilePicture ? (
+              <img src={userProfile.profilePicture} alt="Profile" className="profile-image" />
             ) : (
               '👤'
             )}
           </div>
           <div className="user-info">
-            <h4>{profile.firstName}</h4>
-            <p>Niveau {profile.level}</p>
+            <h4>{userProfile?.firstName || 'Utilisateur'}</h4>
+            <p>Niveau {userProfile?.level || '1'}</p>
           </div>
         </div>
-        {/* Bouton de déconnexion */}
-        <button
-          className="logout-button"
-          onClick={onLogout}
-          title="Se déconnecter"
-        >
+        <button className="logout-button" onClick={onLogout} title="Se déconnecter">
           <LogOut size={18} />
           <span>Se déconnecter</span>
         </button>
