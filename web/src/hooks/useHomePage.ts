@@ -20,7 +20,11 @@ export const useHomePage = () => {
   const navigate = useNavigate();
 
   const [welcomeMessage, setWelcomeMessage] = useState('Bon retour, champion ! 🎉');
-  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missions, setMissions] = useState<Mission[]>([
+    { id: 1, title: 'Révision quotidienne', description: 'Mission accomplie avec brio !', category: 'GÉNÉRAL', points: 50, status: 'completed' },
+    { id: 2, title: 'Vocabulaire anglais', description: 'Apprendre 10 nouveaux mots', category: 'ANGLAIS', points: 30, status: 'pending' },
+    { id: 3, title: 'Exercices de mathématiques', description: 'Résoudre 5 problèmes de géométrie', category: 'MATHÉMATIQUES', points: 40, status: 'pending' },
+  ]);
 
   const completedMissionsCount = missions.filter(m => m.status === 'completed').length;
 
