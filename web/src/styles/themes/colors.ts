@@ -1,4 +1,4 @@
-import { useTheme } from '../../contexts/ThemeContext';
+// import { useTheme } from '../../contexts/ThemeContext';
 
 // Couleurs pour le mode clair
 const lightColors = {
@@ -114,8 +114,8 @@ const darkColors = {
 
 // Hook pour obtenir les couleurs selon le thème
 export const useColors = () => {
-  const { isDark } = useTheme();
-  return isDark ? darkColors : lightColors;
+  // const { isDark } = useTheme();
+  return lightColors;
 };
 
 // Export par défaut pour la compatibilité

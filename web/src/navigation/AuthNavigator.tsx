@@ -1,46 +1,148 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from '@components/ProtectedRoute';
+import RedirectScreen from '@screens/RedirectScreen';
+
+// Pages communes
 import HomeScreen from '@screens/HomePage';
-import MiloScene from '@screens/MiloScene';
 import ProfilePage from '@screens/ProfilePage';
+import UnauthorizedPage from '@screens/UnauthorizedScreen';
+
+// Pages User (Enfant/Élève)
+import MiloScene from '@screens/MiloScene';
 import CoursesPage from '@screens/CoursesScreen';
 import MissionsPage from '@screens/MissionsScreen';
 import DuelsPage from '@screens/DuelsScreen';
-import DashboardParent from '@screens/Parent/Dashboard';
-import RoleBasedRedirect from '@components/RoleBasedRedirect';
-import RoleProtectedRoute from '@components/RoleProtectedRoute';
+
+// Pages Parent
+import ParentDashboard from '@screens/Parent/Dashboard';
+// import ChildrenManagement from '@screens/Parent/ChildrenManagement';
+// import ProgressTracking from '@screens/Parent/ProgressTracking';
+// import ParentalControls from '@screens/Parent/ParentalControls';
+
+// // Pages Prof
+// import ProfDashboard from '@screens/Prof/Dashboard';
+// import ClassManagement from '@screens/Prof/ClassManagement';
+// import StudentProgress from '@screens/Prof/StudentProgress';
+
+// // Pages Admin
+// import AdminDashboard from '@screens/Admin/Dashboard';
 
 const AuthNavigator: React.FC = () => {
   return (
     <Routes>
-      {/* Route Dashboard - accessible uniquement aux parents */}
-      <Route 
-        path="/dashboard" 
-        element={
-          <RoleProtectedRoute allowedRoles={['Parent']}>
-            <DashboardParent />
-          </RoleProtectedRoute>
-        } 
-      />
 
-      {/* Routes pour tous les utilisateurs authentifiés */}
-      <Route path="/home" element={<HomeScreen />} />
-      <Route path="/milo" element={<MiloScene />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/courses" element={<CoursesPage />} />
-      <Route path="/missions" element={<MissionsPage />} />
-      <Route path="/duels" element={<DuelsPage />} />
+      {/* ==================== PAGE DE REDIRECTION ==================== */}
 
-      {/* Redirection par défaut selon le rôle */}
-      <Route path="/" element={<RoleBasedRedirect />} />
-      
-      {/* Redirection des routes publiques selon le rôle */}
-      <Route path="/login" element={<RoleBasedRedirect />} />
-      <Route path="/register" element={<RoleBasedRedirect />} />
-      <Route path="/forgot-password" element={<RoleBasedRedirect />} />
-      
-      {/* Route catch-all */}
-      <Route path="*" element={<RoleBasedRedirect />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <RedirectScreen />
+        </ProtectedRoute>
+      } />
+
+      {/* ==================== ROUTES COMMUNES ==================== */}
+
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <ProfilePage />
+        </ProtectedRoute>
+      } />
+
+      {/* ==================== ROUTES USER (Élève) ==================== */}
+
+      <Route path="/milo" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <MiloScene />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/home" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <HomeScreen />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/courses" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <CoursesPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/missions" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <MissionsPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/duels" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <DuelsPage />
+        </ProtectedRoute>
+      } />
+
+      {/* ==================== ROUTES PARENT ==================== */}
+      <Route path="/parent/dashboard" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <ParentDashboard />
+        </ProtectedRoute>
+      } />
+      {/*
+      <Route path="/parent/children" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <ChildrenManagement />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/parent/progress" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <ProgressTracking />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/parent/controls" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <ParentalControls />
+        </ProtectedRoute>
+      } />
+
+      {/* ==================== ROUTES PROF ==================== */}
+      {/* <Route path="/prof/dashboard" element={
+        <ProtectedRoute allowedRoles={['Prof']}>
+          <ProfDashboard />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/prof/classes" element={
+        <ProtectedRoute allowedRoles={['Prof']}>
+          <ClassManagement />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/prof/students" element={
+        <ProtectedRoute allowedRoles={['Prof']}>
+          <StudentProgress />
+        </ProtectedRoute>
+      } /> */}
+
+      {/* ==================== ROUTES ADMIN ==================== */}
+
+      {/* <Route path="/admin" element={
+        <ProtectedRoute allowedRoles={['ADMIN']}>
+          <AdminDashboard />
+        </ProtectedRoute>
+      } /> */}
+
+      {/* ==================== ROUTES SPÉCIALES ==================== */}
+      {/* Page non autorisé */}
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+      {/* Redirection des routes publiques */}
+      <Route path="/login" element={<Navigate to="/home" replace />} />
+      <Route path="/register" element={<Navigate to="/home" replace />} />
+      <Route path="/forgot-password" element={<Navigate to="/home" replace />} />
+
+      {/* Route catch-all pour 404 */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };

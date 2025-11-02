@@ -5,7 +5,7 @@ import TextFieldComponent from '@components/ui/common/TextField.component';
 import '@styles/Login.css';
 import miloLogo from '/milo-logo.png';
 import MainButtonComponent from '@components/ui/common/MainButtonComponent';
-import ThemeToggle from '@components/ui/common/ThemeToggle';
+// import ThemeToggle from '@components/ui/common/ThemeToggle';
 
 const Login: React.FC = () => {
   const {
@@ -57,10 +57,6 @@ const Login: React.FC = () => {
         {/* Right Section - Login Form */}
         <div className="right-section">
           <div className="form-wrapper">
-            {/* Theme Toggle */}
-            <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-              <ThemeToggle />
-            </div>
             <div className="form-header">
               <h2 className="form-title">Se connecter</h2>
               <p className="form-subtitle">
@@ -118,22 +114,6 @@ const Login: React.FC = () => {
                   Mot de passe oublié ?
                 </button>
               </div>
-
-              {/* Submit Button - Ancien bouton commenté */}
-              {/* <button
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={isLoading}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                {isLoading && <Loader2 size={20} className="animate-spin" />}
-                {isLoading ? 'Connexion en cours...' : 'Se connecter'}
-              </button> */}
 
               {/* Nouveau bouton avec MainButtonComponent */}
               <MainButtonComponent
