@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mail, CheckCircle } from 'lucide-react';
 import '@styles/ForgotPassword.css';
-import miloLogo from '/milo-logo.png'; // Adjust the path according to your project structure
+import miloLogo from '/milo-logo.png';
 import TextFieldComponent from '@components/ui/common/TextField.component';
 import MainButtonComponent from '@components/ui/common/MainButtonComponent';
 import useForgotPassword from '@hooks/userForgotPassword';
@@ -15,6 +15,8 @@ const ForgotPassword: React.FC = () => {
     handleSubmit,
     handleBackToLogin,
     resend,
+    canResend,
+    resendCountdown,
   } = useForgotPassword();
 
   if (isSubmitted) {
@@ -72,9 +74,20 @@ const ForgotPassword: React.FC = () => {
                 <button
                   onClick={resend}
                   className="signup-link"
-                  style={{ fontSize: '0.875rem' }}
+                  disabled={!canResend}
+                  style={{
+                    fontSize: '0.875rem',
+                    opacity: canResend ? 1 : 0.5,
+                    cursor: canResend ? 'pointer' : 'not-allowed',
+                  }}
                 >
-                  Renvoyer l'email
+                  {canResend ? (
+                    "Renvoyer l'email"
+                  ) : (
+                    <>
+                      Renvoyer l'email dans <span style={{ fontWeight: '600' }}>{resendCountdown}s</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -91,7 +104,6 @@ const ForgotPassword: React.FC = () => {
     <div className="form-page-wrapper">
       <div className="decorative-circle-1"></div>
       <div className="decorative-circle-2"></div>
-      
       <div className="form-page-container">
         <div className="form-content">
           {/* Header with back button */}
@@ -100,22 +112,6 @@ const ForgotPassword: React.FC = () => {
             alignItems: 'center',
             marginBottom: '2rem'
           }}>
-            {/* <button 
-              onClick={handleBackToLogin}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer', 
-                marginRight: '1rem',
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            >
-              <ArrowLeft size={24} style={{ color: '#374151' }} />
-            </button> */}
             <h1 style={{
               fontSize: '1.5rem',
               fontWeight: '600',
@@ -145,16 +141,6 @@ const ForgotPassword: React.FC = () => {
             {/* Email Field */}
             <div className="input-group">
               <div className="input-container">
-                {/* <div className="input-icon">
-                  <Mail size={20} />
-                </div> */}
-                {/* <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`input ${emailError ? 'error' : ''}`}
-                  placeholder="Votre adresse email"
-                /> */}
                 <TextFieldComponent
                   type="email"
                   placeholder='Votre adresse email'
@@ -167,14 +153,6 @@ const ForgotPassword: React.FC = () => {
                 <p className="error-message">{emailError}</p>
               )}
             </div>
-
-            {/* Submit Button */}
-            {/* <button
-              onClick={handleSubmit}
-              className="submit-button"
-            >
-              Envoyer le lien de réinitialisation
-            </button> */}
             <MainButtonComponent
               title="Envoyer le lien de connexion"
               onPress={handleSubmit}
