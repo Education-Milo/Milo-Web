@@ -1,0 +1,123 @@
+/* --- Définition de l'animation d'apparition --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour la page des cours */
+.courses-content-area {
+  padding: 1.5rem 2.5rem;
+  width: 100%;
+}
+
+/* CARTE DE BIENVENUE */
+.courses-welcome-card {
+  background: linear-gradient(105deg, #fdba74 0%, #f97316 100%);
+  color: white;
+  border-radius: 20px;
+  padding: 1.5rem 2.5rem;
+  margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.1s forwards;
+}
+
+/* CONTENEUR IMAGE MILO */
+.courses-welcome-milo-image-container {
+  width: 200px;
+  height: auto;
+  margin-right: 1.5rem;
+  margin-top: -30px;
+  position: relative; 
+  left: -20px;
+  bottom: -30px;
+}
+
+/* IMAGE MILO */
+.milo-greeting-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.courses-welcome-text {
+  flex-grow: 1;
+}
+
+.welcome-card-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.welcome-card-subtitle {
+  font-size: 1.1rem;
+  color: #fff9;
+  max-width: 500px;
+}
+
+/* Conteneur pour le titre et le menu déroulant */
+.courses-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1300px;
+  margin: 0 auto 1.5rem auto;
+  padding: 0 0.5rem;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.2s forwards;
+}
+
+/* TITRE DE GRILLE */
+.courses-grid-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a202c; 
+  margin: 0;
+  padding: 0;
+}
+
+/* Style du menu déroulant */
+.class-level-dropdown {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  color: #1a202c;
+  cursor: pointer;
+  outline: none;
+}
+.class-level-dropdown:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px #fdba74;
+}
+
+/* GRILLE DES COURS (Juste le conteneur) */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* TOUS LES STYLES .course-card-* ONT ÉTÉ DÉPLACÉS 
+  VERS src/components/CourseCard/CourseCard.css
+*/
