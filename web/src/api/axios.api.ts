@@ -25,7 +25,9 @@ APIAxios.interceptors.request.use(
 APIAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
+    const isAuthRequest = ['/token', '/register'].some(endpoint => originalRequest.url?.includes(endpoint));
+    if (error.response?.status === 401 && !isAuthRequest) {
       const { logout } = useAuthStore.getState();
       await logout();
       window.location.href = '/login';
