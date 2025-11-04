@@ -36,37 +36,44 @@ const MissionsScreen: React.FC = () => {
           streakDays={user?.streak || 0}
         />
 
-        {/* MODIFIÉ : Le layout est maintenant une seule colonne verticale */}
         <div className="missions-page-container">
-
-          {/* NOUVEAU : Rangée du haut contenant les 2 cartes de missions */}
           <div className="missions-top-row">
             
-            {/* Carte Défi Mensuel (prend 2/3 de la largeur) */}
             <section className="section-card monthly-challenge-card">
-              <div className="monthly-challenge-header">
-                <h3>{monthlyChallenge.title}</h3>
-                <span>📅 {monthlyChallenge.daysLeft} jours restants</span>
-              </div>
-              <div className="monthly-challenge-body">
-                <p>Termine {monthlyChallenge.questsTotal} quêtes ce mois-ci pour gagner un badge exclusif !</p>
-                <div className="mission-progress-container">
-                  <div className="mission-progress-bar">
-                    <div 
-                      className="mission-progress-fill" 
-                      style={{ width: `${(monthlyChallenge.questsCurrent / monthlyChallenge.questsTotal) * 100}%` }}
-                    ></div>
+              
+              {/* 1. Contenu du haut (Titre, Sub, Barre de progression) */}
+              <div className="monthly-challenge-top-content">
+                <div className="monthly-challenge-header">
+                  <h3>{monthlyChallenge.title}</h3>
+                </div>
+                <div className="monthly-challenge-body">
+                  <p>Termine {monthlyChallenge.questsTotal} quêtes ce mois-ci pour gagner un badge exclusif !</p>
+                  <div className="mission-progress-container">
+                    <div className="mission-progress-bar">
+                      <div 
+                        className="mission-progress-fill" 
+                        style={{ width: `${(monthlyChallenge.questsCurrent / monthlyChallenge.questsTotal) * 100}%` }}
+                      ></div>
+                    </div>
+                    <span>{monthlyChallenge.questsCurrent}/{monthlyChallenge.questsTotal}</span>
                   </div>
-                  <span>{monthlyChallenge.questsCurrent}/{monthlyChallenge.questsTotal}</span>
                 </div>
               </div>
-              <div className="monthly-challenge-fox-img">
-                <img src="/buttonGo.png" alt="Milo en explorateur" />
+
+              {/* 2. Contenu du bas (Jours restants et Milo) */}
+              <div className="monthly-challenge-bottom-content">
+                <div className="monthly-challenge-days-left">
+                  <span>📅 {monthlyChallenge.daysLeft} jours restants</span>
+                </div>
+                <div className="monthly-challenge-fox-img">
+                  <img src="/buttonGo.png" alt="Milo en explorateur" />
+                </div>
               </div>
+              
             </section>
 
-            {/* Carte Missions du Jour (prend 1/3 de la largeur) */}
             <section className="section-card">
+              {/* Carte Missions du jour */}
               <div className="section-header">
                 <h2 className="section-title">🎯 Missions du jour</h2>
                 <div className="missions-timer">⏳ 8 HEURES</div>
@@ -97,8 +104,8 @@ const MissionsScreen: React.FC = () => {
             </section>
           </div>
 
-          {/* NOUVEAU : Section Calendrier des Badges (pleine largeur) */}
           <section className="section-card badge-calendar-card">
+            {/* Calendrier des badges */}
             <div className="section-header">
               <h2 className="section-title">🏆 Badges Mensuels</h2>
             </div>
@@ -114,8 +121,7 @@ const MissionsScreen: React.FC = () => {
                           {badge.status === 'locked' ? (
                             <span className="badge-lock-icon">🔒</span>
                           ) : (
-                            // Utilisez une image par défaut si imageUrl est nul mais que le badge n'est pas verrouillé
-                            <img src={badge.imageUrl || './public/badges/badge1.png'} alt={badge.month} />
+                            <img src={badge.imageUrl || '/badges/badge-default-missed.png'} alt={badge.month} />
                           )}
                         </div>
                         <span className="badge-month-label">{badge.month}</span>
