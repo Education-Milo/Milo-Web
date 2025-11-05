@@ -41,7 +41,7 @@ const CoursesScreen: React.FC = () => {
 
           <section className="courses-welcome-card">
             <div className="courses-welcome-milo-image-container">
-              <img src="/buttonGo.png" alt="Milo greetings" className="milo-greeting-image" />
+              <img src="/Milo_cours.png" alt="Milo greetings" className="milo-greeting-image" />
             </div>
             <div className="courses-welcome-text">
               <h1 className="welcome-card-title">
