@@ -41,7 +41,6 @@ const MissionsScreen: React.FC = () => {
             
             <section className="section-card monthly-challenge-card">
               
-              {/* 1. Contenu du haut (Titre, Sub, Barre de progression) */}
               <div className="monthly-challenge-top-content">
                 <div className="monthly-challenge-header">
                   <h3>{monthlyChallenge.title}</h3>
@@ -60,20 +59,21 @@ const MissionsScreen: React.FC = () => {
                 </div>
               </div>
 
-              {/* 2. Contenu du bas (Jours restants et Milo) */}
+              {/* MODIFICATION DE LA STRUCTURE INTERNE DE CETTE CARTE */}
               <div className="monthly-challenge-bottom-content">
-                <div className="monthly-challenge-days-left">
-                  <span>📅 {monthlyChallenge.daysLeft} jours restants</span>
-                </div>
+                {/* Le span "jours restants" est maintenant un enfant direct de ce conteneur */}
+                <span className="monthly-challenge-days-left-text">
+                  📅 {monthlyChallenge.daysLeft} jours restants
+                </span>
                 <div className="monthly-challenge-fox-img">
-                  <img src="/buttonGo.png" alt="Milo en explorateur" />
+                  <img src="/miloBook.webp" alt="Milo en explorateur" />
                 </div>
               </div>
+              {/* FIN DE LA MODIFICATION */}
               
             </section>
 
             <section className="section-card">
-              {/* Carte Missions du jour */}
               <div className="section-header">
                 <h2 className="section-title">🎯 Missions du jour</h2>
                 <div className="missions-timer">⏳ 8 HEURES</div>
@@ -105,7 +105,6 @@ const MissionsScreen: React.FC = () => {
           </div>
 
           <section className="section-card badge-calendar-card">
-            {/* Calendrier des badges */}
             <div className="section-header">
               <h2 className="section-title">🏆 Badges Mensuels</h2>
             </div>

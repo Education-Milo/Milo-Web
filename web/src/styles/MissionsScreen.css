@@ -2,7 +2,7 @@
  * Styles pour la page Missions
 */
 
-/* Layout .missions-page-container, .missions-top-row, etc. */
+/* ... (Layout .missions-page-container, etc. inchangés) ... */
 .missions-page-container {
   display: flex;
   flex-direction: column; 
@@ -30,69 +30,70 @@
   color: white;
   position: relative;
   overflow: hidden;
-  /* Display flex en colonne pour séparer haut et bas */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding: 1rem 1.5rem 0 1.5rem;
-  min-height: 220px; /* Donne de l'espace pour l'alignement */
+  min-height: 240px; 
 }
 
 /* Conteneur du texte centré */
 .monthly-challenge-top-content {
   text-align: center;
   width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .monthly-challenge-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem; 
 }
 .monthly-challenge-header h3 { 
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700; 
   margin: 0; 
 }
 
-/* .monthly-challenge-header span */
-
-/* Le corps du texte prend toute la largeur */
 .monthly-challenge-body { 
   max-width: 100%;
 }
 .monthly-challenge-body p { 
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: rgba(255, 255, 255, 0.9); 
-  margin-bottom: 1rem; 
+  margin-bottom: 1.25rem;
+  font-weight: 500;
 }
 
-/* Conteneur du bas */
+/* MODIFIÉ : Conteneur du bas */
 .monthly-challenge-bottom-content {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end; /* Aligne Milo et le texte en bas */
+  flex-direction: column; /* Changé pour empiler verticalement */
+  align-items: center;    /* Centré horizontalement */
   width: 100%;
+  gap: 0.5rem; /* Espacement entre le texte et Milo */
+  padding-bottom: 0.5rem; /* Réduire un peu le padding */
 }
 
-/* Style pour le "jours restants" à gauche */
-.monthly-challenge-days-left {
-  padding-bottom: 1rem; /* Aligne avec le bas de la carte */
-}
-.monthly-challenge-days-left span {
+/* NOUVEAU : Style pour le texte "jours restants" (maintenant un enfant direct) */
+.monthly-challenge-days-left-text {
   font-size: 1.1rem;
   font-weight: 600;
   color: white;
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 99px;
   padding: 0.5rem 1rem;
+  margin-top: 1rem; /* Ajoute un peu d'espace avec la barre de progression */
 }
 
-/* Milo est en position relative */
+/* MODIFIÉ : Milo est plus grand et centré */
 .monthly-challenge-fox-img {
-  position: relative;
-  bottom: -15px;
-  right: -10px;
-  width: 180px;
-  height: 180px;
+  position: relative; /* Garde la position relative pour le 'bottom' */
+  bottom: -15px; /* Toujours un léger dépassement */
+  right: auto; /* Annule le 'right: -10px' */
+  margin: 0 auto; /* Centre Milo horizontalement */
+  width: 220px; /* MODIFIÉ : Plus grand */
+  height: 220px; /* MODIFIÉ : Plus grand */
 }
 .monthly-challenge-fox-img img { 
   width: 100%; 
@@ -101,7 +102,7 @@
 }
 
 
-/* Carte Missions du Jour */
+/* ... (Le reste du fichier CSS est inchangé) ... */
 .missions-timer { font-size: 0.9rem; font-weight: 600; color: #4a5568; }
 .daily-missions-list { display: flex; flex-direction: column; gap: 1rem; }
 .mission-item {
@@ -133,8 +134,6 @@
   border-radius: 8px;
 }
 
-
-/* Barres de progression */
 .mission-progress-container { 
   display: flex; 
   align-items: center; 
@@ -159,9 +158,7 @@
   transition: width 0.5s ease; 
 }
 
-/* Styles pour la barre de progression mensuelle */
 .monthly-challenge-body .mission-progress-container {
-  /* Centre le conteneur (barre + texte) */
   max-width: 500px;
   margin: 0 auto;
 }
@@ -177,7 +174,6 @@
   font-weight: 600;
   font-size: 1rem;
 }
-
 
 .badge-calendar-card {
   width: 100%;
