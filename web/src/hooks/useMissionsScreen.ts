@@ -2,33 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@store/user/user.store';
 import { useAuthStore } from '@store/auth/auth.store';
+import type { DailyMission, MonthlyChallenge, MonthlyBadge } from '@types/missions';
 
 // Types pour nos données de mission (DailyMission & MonthlyChallenge restent les mêmes)
-interface DailyMission {
-  id: string;
-  icon: string;
-  title: string;
-  progressCurrent: number;
-  progressTotal: number;
-  rewardPoints: number;
-}
-
-interface MonthlyChallenge {
-  title: string;
-  daysLeft: number;
-  questsCurrent: number;
-  questsTotal: number;
-}
-
-// NOUVEAU : Type pour les badges mensuels
-export interface MonthlyBadge {
-  id: string;
-  month: string;
-  monthIndex: number; // 0-11 pour le tri
-  year: number;
-  imageUrl: string | null; // URL de l'image du badge
-  status: 'earned' | 'missed' | 'in-progress' | 'locked';
-}
 
 // Données statiques (à remplacer par un appel API)
 const mockDailyMissions: DailyMission[] = [

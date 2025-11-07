@@ -2,6 +2,8 @@ import React from 'react';
 import Sidebar from '@components/Sidebar';
 import TopBar from '@components/TopBar';
 import { useMissionsScreen } from '@hooks/useMissionsScreen';
+import MissionItem from '@components/MissionItem/MissionItem';
+import BadgeItem from '@components/BadgeItem/BadgeItem';
 import '@styles/MissionsScreen.css';
 import '@styles/HomePage.css'; 
 
@@ -15,6 +17,10 @@ const MissionsScreen: React.FC = () => {
     badgesByYear,
     sortedYears
   } = useMissionsScreen();
+
+  // Délais de base pour les animations
+  const dailyMissionDelayStart = 0.3; // Après les cartes principales
+  const badgeDelayStart = 0.5; // Après les missions quotidiennes
 
   return (
     <>
@@ -58,47 +64,30 @@ const MissionsScreen: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              {/* MODIFICATION DE LA STRUCTURE INTERNE DE CETTE CARTE */}
               <div className="monthly-challenge-bottom-content">
-                {/* Le span "jours restants" est maintenant un enfant direct de ce conteneur */}
                 <span className="monthly-challenge-days-left-text">
                   📅 {monthlyChallenge.daysLeft} jours restants
                 </span>
                 <div className="monthly-challenge-fox-img">
-                  <img src="/miloBook.webp" alt="Milo en explorateur" />
+                  <img src="/miloBook.webp" alt="Milo reading a book" />
                 </div>
               </div>
-              {/* FIN DE LA MODIFICATION */}
-              
+
             </section>
 
-            <section className="section-card">
+            <section className="section-card daily-missions-card">
               <div className="section-header">
                 <h2 className="section-title">🎯 Missions du jour</h2>
                 <div className="missions-timer">⏳ 8 HEURES</div>
               </div>
               
               <div className="daily-missions-list">
-                {dailyMissions.map((mission) => (
-                  <div key={mission.id} className="mission-item">
-                    <div className="mission-item-icon">{mission.icon}</div>
-                    <div className="mission-item-info">
-                      <h4>{mission.title}</h4>
-                      <div className="mission-progress-container">
-                        <div className="mission-progress-bar">
-                          <div 
-                            className="mission-progress-fill" 
-                            style={{ width: `${(mission.progressCurrent / mission.progressTotal) * 100}%` }}
-                          ></div>
-                        </div>
-                        <span>{mission.progressCurrent}/{mission.progressTotal}</span>
-                      </div>
-                    </div>
-                    <div className="mission-item-reward">
-                      <span>+{mission.rewardPoints} pts</span>
-                    </div>
-                  </div>
+                {dailyMissions.map((mission, index) => (
+                  <MissionItem 
+                    key={mission.id} 
+                    mission={mission} 
+                    animationDelay={`${dailyMissionDelayStart + index * 0.05}s`}
+                  />
                 ))}
               </div>
             </section>
@@ -114,24 +103,18 @@ const MissionsScreen: React.FC = () => {
                 <div key={year} className="badge-year-section">
                   <h3 className="badge-year-title">Badges {year}</h3>
                   <div className="badge-grid">
-                    {badgesByYear[year].map((badge) => (
-                      <div key={badge.id} className={`badge-item ${badge.status}`}>
-                        <div className="badge-circle">
-                          {badge.status === 'locked' ? (
-                            <span className="badge-lock-icon">🔒</span>
-                          ) : (
-                            <img src={badge.imageUrl || '/badges/badge-default-missed.png'} alt={badge.month} />
-                          )}
-                        </div>
-                        <span className="badge-month-label">{badge.month}</span>
-                      </div>
+                    {badgesByYear[year].map((badge, index) => (
+                      <BadgeItem 
+                        key={badge.id} 
+                        badge={badge} 
+                        animationDelay={`${badgeDelayStart + index * 0.03}s`}
+                      />
                     ))}
                   </div>
                 </div>
               ))}
             </div>
           </section>
-
         </div>
       </main>
     </>
