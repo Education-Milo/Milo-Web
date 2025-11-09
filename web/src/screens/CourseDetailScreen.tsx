@@ -4,7 +4,8 @@ import TopBar from '@components/TopBar';
 import ChapterAccordion from '@components/ChapterAccordion/ChapterAccordion';
 import { useCourseDetailScreen } from '@hooks/useCourseDetailScreen';
 import { ArrowLeft } from 'lucide-react';
-import '@styles/CourseDetailScreen.css'; // Nouveau CSS
+import '@styles/CourseDetailScreen.css';
+import miloFoxImage from '/miloBook.webp';
 
 const CourseDetailScreen: React.FC = () => {
   const {
@@ -22,9 +23,9 @@ const CourseDetailScreen: React.FC = () => {
   }
 
   // Trouve le chapitre "en cours" pour l'ouvrir par défaut
-  const currentChapter = courseData.chapters.find(c => 
-    c.lessons.some(l => l.status === 'in-progress')
-  );
+//   const currentChapter = courseData.chapters.find(c => 
+//     c.lessons.some(l => l.status === 'in-progress')
+//   );
 
   return (
     <>
@@ -65,21 +66,35 @@ const CourseDetailScreen: React.FC = () => {
               <li className="course-nav-item">Kit Brevet</li>
             </ul>
           </nav>
+        
+        {/* --- Encart orange pour le titre du programme --- */}
+          <div className="course-main-column">
+
+            {/* Encart orange */}
+            <div className="course-program-header-card">
+              <img src={miloFoxImage} alt="Milo le renard" className="milo-fox-mascot" />
+              <h1 className="course-program-title">Programme de {courseData.title}</h1>
+            </div>
 
           {/* 2. Contenu principal (Chapitres à droite) */}
           <div className="course-detail-content">
-            <h1 className="course-content-title">Programme de {courseData.title}</h1>
+            {/* <div className="course-content-header">
+              <span className="course-content-emoji">{courseData.emoji}</span>
+              <h1 className="course-content-title">Programme de {courseData.title}</h1>
+            </div> */}
+
             <div className="chapter-list">
               {courseData.chapters.map((chapter) => (
                 <ChapterAccordion 
                   key={chapter.id} 
                   chapter={chapter}
-                  defaultOpen={chapter.id === currentChapter?.id}
+                  defaultOpen={true}
                 />
               ))}
             </div>
           </div>
 
+        </div>
         </div>
       </main>
     </>

@@ -23,10 +23,10 @@
   background: none;
   border: none;
   color: #4a5568;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 .back-button:hover {
   color: #f97316;
@@ -46,8 +46,8 @@
   font-size: 2rem;
 }
 .course-detail-sidebar-title h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
   margin: 0;
 }
 
@@ -61,9 +61,10 @@
 }
 
 .course-nav-item {
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   border-radius: 8px;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1rem;
   color: #334155;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -77,20 +78,94 @@
   font-weight: 600;
 }
 
+.course-main-column {
+  flex: 1; /* Prend tout l'espace restant */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Espace entre l'encart orange et la carte blanche */
+}
+
 /* 2. Contenu principal (droite) */
 .course-detail-content {
   flex: 1; /* Prend le reste de la place */
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Encart orange pour le titre du programme --- */
+.course-program-header-card {
+  background: linear-gradient(to right, #f97316, #fb923c); /* Dégradé orange */
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centrer le contenu */
+  gap: 1.5rem; /* Espace entre Milo et le titre */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.milo-fox-mascot {
+  width: 5rem;  /* Taille de la mascotte */
+  height: auto;
+  flex-shrink: 0; /* Empêche l'image de rétrécir */
+}
+
+.course-program-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffffff;   /* Texte blanc */
+  margin: 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1); /* Petite ombre pour la lisibilité */
+}
+
+/** .course-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.course-content-emoji {
+  font-size: 2.5rem;
 }
 
 .course-content-title {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #1a202c;
-  margin-bottom: 2rem;
-}
+  margin-bottom: 0;
+} */
 
 .chapter-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: relative;
+  padding-left: 2.5rem;
+  margin-top: 0;
+}
+
+.chapter-list::before {
+  content: '';
+  position: absolute;
+  left: 1rem; /* Positionne la ligne dans le padding (16px) */
+  top: 1.5rem;  /* Ajustement vertical pour l'aligner */
+  bottom: 1.5rem; /* Ajustement vertical */
+  width: 2px;
+  
+  /* Crée l'effet pointillé avec un gradient */
+  background-image: linear-gradient(
+    #cbd5e1 60%, /* Couleur du "point" */
+    rgba(255, 255, 255, 0) 0% /* Espace transparent */
+  );
+  background-position: left;
+  background-size: 2px 10px; /* Taille du "point" et de l'espace */
+  background-repeat: repeat-y;
+  z-index: 0; /* S'assure qu'elle est en arrière-plan */
 }
