@@ -24,32 +24,72 @@ const courseChapterData: Record<string, CourseDetails> = {
   francais: {
     title: 'Français',
     emoji: '🇫🇷',
+    // Structure basée sur le Sommaire (source 17) du document du Ministère de l'Education Nationale (https://eduscol.education.fr/document/64863/download)
     chapters: [
       {
         id: 'fr-c1',
         chapterNumber: 1,
-        title: 'Grammaire : Les bases',
+        title: 'Lecture', // (Source 19)
         lessons: [
-          { id: 'fr-l1a', title: 'Les types de phrases', status: 'completed' },
-          { id: 'fr-l1b', title: 'Le sujet, le verbe et le complément', status: 'in-progress' },
-          { id: 'fr-l1c', title: 'Les accords sujet-verbe', status: 'locked' },
+          // Première leçon en 'in-progress' pour l'exemple
+          { id: 'fr-l1a', title: 'Lire avec fluidité', status: 'in-progress' }, // (Source 20)
+          { id: 'fr-l1b', title: 'Lire à voix haute avec expressivité', status: 'locked' }, // (Source 22)
+          { id: 'fr-l1c', title: 'Comprendre des textes, documents et images', status: 'locked' }, // (Source 24, 27)
+          { id: 'fr-l1d', title: 'Lire une œuvre et se l\'approprier', status: 'locked' }, // (Source 31)
         ],
       },
       {
         id: 'fr-c2',
         chapterNumber: 2,
-        title: 'Conjugaison : Le présent',
+        title: 'Culture littéraire et artistique', // (Source 33)
         lessons: [
-          { id: 'fr-l2a', title: 'Le présent de l\'indicatif (1er groupe)', status: 'locked' },
-          { id: 'fr-l2b', title: 'Le présent : être et avoir', status: 'locked' },
+          { id: 'fr-l2a', title: 'Récits des origines (Récit, fiction)', status: 'locked' }, // (Source 34)
+          { id: 'fr-l2b', title: 'Mots et merveilles (Poésie)', status: 'locked' }, // (Source 62)
+          { id: 'fr-l2c', title: 'Ruses en action (Théâtre)', status: 'locked' }, // (Source 94)
+          { id: 'fr-l2d', title: 'Partir à l\'aventure ! (Récit, fiction)', status: 'locked' }, // (Source 124)
+          { id: 'fr-l2e', title: 'Rencontrer des monstres (Récit, fiction)', status: 'locked' }, // (Source 147)
         ],
       },
       {
         id: 'fr-c3',
         chapterNumber: 3,
-        title: 'Lecture : Molière',
+        title: 'Écriture', // (Source 179)
         lessons: [
-          { id: 'fr-l3a', title: 'Introduction à L\'Avare', status: 'locked' },
+          { id: 'fr-l3a', title: 'Écrire à la main (fluidité et lisibilité)', status: 'locked' }, // (Source 180)
+          { id: 'fr-l3b', title: 'Écrire pour réfléchir et apprendre', status: 'locked' }, // (Source 183)
+          { id: 'fr-l3c', title: 'Produire des écrits variés', status: 'locked' }, // (Source 185)
+        ],
+      },
+      {
+        id: 'fr-c4',
+        chapterNumber: 4,
+        title: 'Oral', // (Source 189)
+        lessons: [
+          { id: 'fr-l4a', title: 'Écouter pour comprendre', status: 'locked' }, // (Source 190)
+          { id: 'fr-l4b', title: 'Dire pour être compris', status: 'locked' }, // (Source 192)
+          { id: 'fr-l4c', title: 'Participer à des échanges verbaux', status: 'locked' }, // (Source 201)
+        ],
+      },
+      {
+        id: 'fr-c5',
+        chapterNumber: 5,
+        title: 'Vocabulaire', // (Source 203)
+        lessons: [
+          { id: 'fr-l5a', title: 'Enrichir son vocabulaire', status: 'locked' }, // (Source 204)
+          { id: 'fr-l5b', title: 'Établir des relations entre les mots', status: 'locked' }, // (Source 207)
+          { id: 'fr-l5c', title: 'Réemployer le vocabulaire étudié', status: 'locked' }, // (Source 209)
+          { id: 'fr-l5d', title: 'Mémoriser l\'orthographe des mots', status: 'locked' }, // (Source 211)
+        ],
+      },
+      {
+        id: 'fr-c6',
+        chapterNumber: 6,
+        title: 'Grammaire et orthographe', // (Source 214)
+        lessons: [
+          { id: 'fr-l6a', title: 'Identifier les constituants (phrase simple)', status: 'locked' }, // (Source 215)
+          { id: 'fr-l6b', title: 'Se repérer dans la phrase complexe', status: 'locked' }, // (Source 223)
+          { id: 'fr-l6c', title: 'Acquérir l\'orthographe grammaticale', status: 'locked' }, // (Source 228)
+          { id: 'fr-l6d', title: 'Maîtriser la conjugaison', status: 'locked' }, // (Source 236)
         ],
       },
     ],
