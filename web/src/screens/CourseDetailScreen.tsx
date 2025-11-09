@@ -52,14 +52,12 @@ const CourseDetailScreen: React.FC = () => {
           
           {/* 1. Sidebar de navigation du cours (à gauche) */}
           <nav className="course-detail-sidebar">
-            <button className="back-button" onClick={handleGoBack}>
-              <ArrowLeft size={18} />
-              <span>Tous les cours</span>
+
+            <button className="course-sidebar-back-button" onClick={handleGoBack}>
+              <ArrowLeft size={24} className="course-title-icon" />
+              <h3>Mes matières</h3>
             </button>
-            <div className="course-detail-sidebar-title">
-              <span className="course-emoji">{courseData.emoji}</span>
-              <h3>{courseData.title}</h3>
-            </div>
+
             <ul className="course-nav-list">
               <li className="course-nav-item active">Programme</li>
               <li className="course-nav-item">Encyclopédie</li>
