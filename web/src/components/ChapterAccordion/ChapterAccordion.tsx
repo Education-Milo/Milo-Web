@@ -5,10 +5,11 @@ import './ChapterAccordion.css';
 
 interface ChapterAccordionProps {
   chapter: Chapter;
+  emoji: string;
   defaultOpen?: boolean; // Pour ouvrir le chapitre en cours par défaut
 }
 
-const ChapterAccordion: React.FC<ChapterAccordionProps> = ({ chapter, defaultOpen = false }) => {
+const ChapterAccordion: React.FC<ChapterAccordionProps> = ({ chapter, emoji, defaultOpen = false }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const getLessonIcon = (status: 'completed' | 'in-progress' | 'locked') => {
@@ -26,9 +27,12 @@ const ChapterAccordion: React.FC<ChapterAccordionProps> = ({ chapter, defaultOpe
   return (
     <div className={`chapter-accordion ${isOpen ? 'open' : ''}`}>
       <button className="chapter-header" onClick={() => setIsOpen(!isOpen)}>
-        <div className="chapter-header-title">
-          <span className="chapter-number">Chapitre {chapter.chapterNumber}</span>
-          <h3 className="chapter-title">{chapter.title}</h3>
+        <div className="chapter-header-left">
+          <span className="chapter-emoji">{emoji}</span>
+          <div className="chapter-header-title">
+            <span className="chapter-number">Chapitre {chapter.chapterNumber}</span>
+            <h3 className="chapter-title">{chapter.title}</h3>
+          </div>
         </div>
         <ChevronDown size={24} className="chapter-chevron" />
       </button>

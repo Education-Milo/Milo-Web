@@ -60,8 +60,8 @@ const CourseDetailScreen: React.FC = () => {
 
             <ul className="course-nav-list">
               <li className="course-nav-item active">Programme</li>
-              <li className="course-nav-item">Encyclopédie</li>
-              <li className="course-nav-item">Kit Brevet</li>
+              <li className="course-nav-item">QCM</li>
+              <li className="course-nav-item">Quizz</li>
             </ul>
           </nav>
         
@@ -86,6 +86,7 @@ const CourseDetailScreen: React.FC = () => {
                 <ChapterAccordion 
                   key={chapter.id} 
                   chapter={chapter}
+                  emoji={chapter.emoji}
                   defaultOpen={true}
                 />
               ))}

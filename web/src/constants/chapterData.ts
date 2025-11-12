@@ -10,6 +10,7 @@ export interface Chapter {
   id: string;
   chapterNumber: number;
   title: string;
+  emoji: string;
   lessons: Lesson[];
 }
 
@@ -30,6 +31,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c1',
         chapterNumber: 1,
         title: 'Lecture', // (Source 19)
+        emoji: '📖',
         lessons: [
           // Première leçon en 'in-progress' pour l'exemple
           { id: 'fr-l1a', title: 'Lire avec fluidité', status: 'in-progress' }, // (Source 20)
@@ -42,6 +44,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c2',
         chapterNumber: 2,
         title: 'Culture littéraire et artistique', // (Source 33)
+        emoji: '🎨',
         lessons: [
           { id: 'fr-l2a', title: 'Récits des origines (Récit, fiction)', status: 'locked' }, // (Source 34)
           { id: 'fr-l2b', title: 'Mots et merveilles (Poésie)', status: 'locked' }, // (Source 62)
@@ -54,6 +57,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c3',
         chapterNumber: 3,
         title: 'Écriture', // (Source 179)
+        emoji: '✍️',
         lessons: [
           { id: 'fr-l3a', title: 'Écrire à la main (fluidité et lisibilité)', status: 'locked' }, // (Source 180)
           { id: 'fr-l3b', title: 'Écrire pour réfléchir et apprendre', status: 'locked' }, // (Source 183)
@@ -64,6 +68,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c4',
         chapterNumber: 4,
         title: 'Oral', // (Source 189)
+        emoji: '🗣️',
         lessons: [
           { id: 'fr-l4a', title: 'Écouter pour comprendre', status: 'locked' }, // (Source 190)
           { id: 'fr-l4b', title: 'Dire pour être compris', status: 'locked' }, // (Source 192)
@@ -74,6 +79,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c5',
         chapterNumber: 5,
         title: 'Vocabulaire', // (Source 203)
+        emoji: '📚',
         lessons: [
           { id: 'fr-l5a', title: 'Enrichir son vocabulaire', status: 'locked' }, // (Source 204)
           { id: 'fr-l5b', title: 'Établir des relations entre les mots', status: 'locked' }, // (Source 207)
@@ -85,6 +91,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'fr-c6',
         chapterNumber: 6,
         title: 'Grammaire et orthographe', // (Source 214)
+        emoji: '📝',
         lessons: [
           { id: 'fr-l6a', title: 'Identifier les constituants (phrase simple)', status: 'locked' }, // (Source 215)
           { id: 'fr-l6b', title: 'Se repérer dans la phrase complexe', status: 'locked' }, // (Source 223)
@@ -103,6 +110,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c1',
         chapterNumber: 1,
         title: 'Nombres, calcul et résolution de problèmes', // (Inspiré de la source 19)
+        emoji: '🔢',
         lessons: [
           // Première leçon en 'in-progress' pour l'exemple
           { id: 'ma-l1a', title: 'Les nombres entiers et décimaux', status: 'in-progress' }, // (Source 20)
@@ -114,6 +122,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c2',
         chapterNumber: 2,
         title: 'Algèbre', // (Inspiré de la source 76)
+        emoji: '⚖️',
         lessons: [
           { id: 'ma-l2a', title: 'Résoudre des problèmes (nombres inconnus)', status: 'locked' }, // (Source 77)
           { id: 'ma-l2b', title: 'Identifier des motifs et régularités', status: 'locked' }, // (Source 82)
@@ -123,6 +132,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c3',
         chapterNumber: 3,
         title: 'Grandeurs et mesures', // (Inspiré de la source 103)
+        emoji: '📏',
         lessons: [
           { id: 'ma-l3a', title: 'Longueurs, périmètres et cercles', status: 'locked' }, // (Source 106, 108)
           { id: 'ma-l3b', title: 'Aires (carrés, rectangles)', status: 'locked' }, // (Source 131)
@@ -134,6 +144,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c4',
         chapterNumber: 4,
         title: 'Espace et géométrie', // (Inspiré de la source 153)
+        emoji: '📐',
         lessons: [
           { id: 'ma-l4a', title: 'Configurations planes (points, cercles, médiatrices)', status: 'locked' }, // (Source 161)
           { id: 'ma-l4b', title: 'Les angles', status: 'locked' }, // (Source 172)
@@ -145,6 +156,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c5',
         chapterNumber: 5,
         title: 'Organisation et gestion de données, probabilités', // (Inspiré de la source 186)
+        emoji: '📊',
         lessons: [
           { id: 'ma-l5a', title: 'Organisation et gestion de données (tableaux)', status: 'locked' }, // (Source 187)
           { id: 'ma-l5b', title: 'Introduction aux probabilités', status: 'locked' }, // (Source 225)
@@ -155,6 +167,7 @@ const courseChapterData: Record<string, CourseDetails> = {
         id: 'ma-c6',
         chapterNumber: 6,
         title: 'Initiation à la pensée informatique', // (Inspiré de la source 233)
+        emoji: '💻',
         lessons: [
           { id: 'ma-l6a', title: 'Produire une séquence d\'instructions', status: 'locked' }, // (Source 234)
         ],
