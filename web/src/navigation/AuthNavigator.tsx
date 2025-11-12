@@ -11,6 +11,7 @@ import UnauthorizedPage from '@screens/UnauthorizedScreen';
 // Pages User (Enfant/Élève)
 import MiloScene from '@screens/MiloScene';
 import CoursesPage from '@screens/CoursesScreen';
+import CourseDetailScreen from '@screens/CourseDetailScreen';
 import MissionsPage from '@screens/MissionsScreen';
 import DuelsPage from '@screens/DuelsScreen';
 
@@ -65,6 +66,12 @@ const AuthNavigator: React.FC = () => {
       <Route path="/courses" element={
         <ProtectedRoute allowedRoles={['Élève']}>
           <CoursesPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/courses/:courseId" element={
+        <ProtectedRoute allowedRoles={['Élève']}>
+          <CourseDetailScreen />
         </ProtectedRoute>
       } />
 
