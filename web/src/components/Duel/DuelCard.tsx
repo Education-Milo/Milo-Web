@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Duel } from '../../types/duels';
 import '@styles/DuelsScreen.css';
@@ -6,12 +7,13 @@ interface DuelCardProps {
     duel?: Duel;
     isSearching?: boolean;
     onRandomDuel?: () => void;
+    animationDelay?: string;
 }
 
-const DuelCard: React.FC<DuelCardProps> = ({ duel, isSearching, onRandomDuel }) => {
+const DuelCard: React.FC<DuelCardProps> = ({ duel, isSearching, onRandomDuel, animationDelay }) => {
     if (isSearching) {
         return (
-            <div className="duel-card searching">
+            <div className="duel-card searching" style={{ animationDelay }}>
                 <div className="spinner"></div>
                 <h3>Recherche d'un adversaire...</h3>
                 <p>Prépare-toi au combat !</p>
@@ -21,7 +23,7 @@ const DuelCard: React.FC<DuelCardProps> = ({ duel, isSearching, onRandomDuel }) 
 
     if (!duel && onRandomDuel) {
         return (
-            <div className="duel-card random-duel" onClick={onRandomDuel}>
+            <div className="duel-card random-duel" onClick={onRandomDuel} style={{ animationDelay }}>
                 <div className="duel-icon">🎲</div>
                 <h3>Duel Aléatoire</h3>
                 <p>Affronte un adversaire de ton niveau</p>
@@ -32,7 +34,7 @@ const DuelCard: React.FC<DuelCardProps> = ({ duel, isSearching, onRandomDuel }) 
 
     if (duel) {
         return (
-            <div className="duel-card active-duel">
+            <div className="duel-card active-duel" style={{ animationDelay }}>
                 <div className="duel-header">
                     <span className="duel-status">{duel.status === 'pending' ? 'En attente...' : 'En cours'}</span>
                 </div>

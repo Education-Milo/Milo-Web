@@ -12,8 +12,12 @@ const FriendList: React.FC<FriendListProps> = ({ friends, onDuelRequest }) => {
         <div className="friend-list-container">
             <h3 className="friend-list-title">Mes Amis</h3>
             <div className="friend-list">
-                {friends.map((friend) => (
-                    <div key={friend.id} className="friend-item">
+                {friends.map((friend, index) => (
+                    <div
+                        key={friend.id}
+                        className="friend-item"
+                        style={{ animationDelay: `${0.4 + index * 0.05}s` } as React.CSSProperties}
+                    >
                         <div className="friend-avatar-container">
                             {friend.avatarUrl ? (
                                 <img src={friend.avatarUrl} alt={`${friend.firstName} ${friend.lastName}`} className="friend-avatar" />

@@ -62,13 +62,18 @@ const DuelsScreen: React.FC = () => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 {activeDuels.length > 0 ? (
-                  activeDuels.map(duel => (
-                    <DuelCard key={duel.id} duel={duel} />
+                  activeDuels.map((duel, index) => (
+                    <DuelCard
+                      key={duel.id}
+                      duel={duel}
+                      animationDelay={`${0.4 + index * 0.1}s`}
+                    />
                   ))
                 ) : (
                   <DuelCard
                     isSearching={isSearching}
                     onRandomDuel={handleRandomDuel}
+                    animationDelay="0.4s"
                   />
                 )}
               </div>

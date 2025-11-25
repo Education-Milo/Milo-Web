@@ -75,8 +75,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  animation: fadeInUp 0.5s ease-out 0.2s forwards;
-  opacity: 0;
 }
 
 @media (max-width: 900px) {
@@ -104,6 +102,8 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.2s forwards;
 }
 
 .duels-section-card:hover {
@@ -175,6 +175,8 @@
   border-radius: 16px;
   transition: all 0.2s ease;
   border: 1px solid transparent;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
 .friend-item:hover {
@@ -284,6 +286,8 @@
   align-items: center;
   gap: 16px;
   transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
 }
 
 .duel-card.random-duel {
