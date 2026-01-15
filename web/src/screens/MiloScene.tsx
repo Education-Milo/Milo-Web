@@ -62,14 +62,11 @@ const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
   const displayText = text || (isEditing ? "|" : "Tapez votre texte...");
   
   return (
-    <group position={[0, 1, -1]} rotation={[0, 0, 0]}>
-      <mesh>
-        <planeGeometry args={[6, 4]} />
-        <meshStandardMaterial color="black" side={THREE.DoubleSide} />
-      </mesh>
+    <group position={[0, 0, 0.5]} rotation={[0, 0, 0]}>
+      
       <Text
-        position={[-2.5, 1.6, 0.01]}
-        fontSize={0.10}
+        position={[-3.8, 1.6, 0.01]}
+        fontSize={0.15}
         color="white"
         anchorX="left"
         anchorY="top"
@@ -88,19 +85,16 @@ interface TextPanelProps {
 
 const TextPanel: React.FC<TextPanelProps> = ({ text, isEditing }) => {
   const displayText = text || (isEditing ? "|" : "Tapez votre texte...");
+  const scale = 0.55; // Changez cette valeur pour scaler (1 = normal, 1.5 = 150%)
   
   return (
-    <group position={[0, -2, 3]} rotation={[-Math.PI / 2, 0, 0]}>
-      <mesh>
-        <planeGeometry args={[5, 3]} />
-        <meshStandardMaterial color="#35261a" side={THREE.DoubleSide} />
-      </mesh>
+    <group position={[0, -0.65, 4.2]} rotation={[-Math.PI / 2, 0, 0]} scale={scale}>
       <mesh position={[0, 0, 0.01]}>
-        <planeGeometry args={[2, 2.5]} />
+        <planeGeometry args={[2.5, 2.5]} />
         <meshStandardMaterial color="white" side={THREE.DoubleSide} />
       </mesh>
       <Text
-        position={[-0.8, 1, 0.02]}
+        position={[-1, 1, 0.02]}
         fontSize={0.10}
         color="black"
         anchorX="left"
