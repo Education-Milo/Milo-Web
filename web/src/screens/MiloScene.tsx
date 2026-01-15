@@ -3,45 +3,66 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { FaChevronDown, FaChevronUp, FaEdit, FaTransgenderAlt} from 'react-icons/fa';
-import { chatService } from '../store/chatService';
 
 interface MiloModelProps {
   modelPath: string;
+  activeAnimation: string;
+  showHat: boolean;
+  showGlasses: boolean;
 }
 
-function MiloModel({ modelPath }: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloModelProps) {
   const group = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(modelPath);
   const { actions } = useAnimations(animations, group);
 
   React.useEffect(() => {
+    console.log('Available animations:', Object.keys(actions || {}));
     if (actions) {
-      Object.values(actions).forEach((action) => {
-        action?.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+      // Stop all animations first
+      Object.values(actions).forEach(action => action?.stop());
+      
+      // Play selected animation
+      if (activeAnimation && actions[activeAnimation]) {
+        actions[activeAnimation].reset().play().setLoop(THREE.LoopRepeat, Infinity);
+      }
+    }
+  }, [actions, activeAnimation]);
+
+  // Toggle accessories visibility
+  React.useEffect(() => {
+    if (scene) {
+      scene.traverse((child) => {
+        if (child.name === 'Hat') {
+          child.visible = showHat;
+        }
+        if (child.name === 'Glasses') {
+          child.visible = showGlasses;
+        }
       });
     }
-  }, [actions]);
-
-  useFrame((state) => {
-    if (group.current) {
-      group.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
-    }
-  });
+  }, [scene, showHat, showGlasses]);
 
   return (
     <group ref={group}>
-      <primitive object={scene} scale={[0.5, 0.5, 0.5]} position={[2, -2.3, 0]} rotation={[0, 0, 0]} />
+      <primitive object={scene} scale={[0.45, 0.45, 0.45]} position={[2.2, -2.3, 1.4]} rotation={[0, -0.4, 0]} />
     </group>
   );
 }
 
-
+function Classroom({ modelPath }: { modelPath: string }) {
+  const { scene } = useGLTF(modelPath);
+  
+  return (
+    <primitive object={scene} scale={[1, 1, 1]} position={[-2, -2.5, 6.95]} rotation={[0, 0, 0]} />
+  );
+}
 
 const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
   const displayText = text || (isEditing ? "|" : "Tapez votre texte...");
   
   return (
-    <group position={[0, 1, 0]} rotation={[0, 0, 0]}>
+    <group position={[0, 1, -1]} rotation={[0, 0, 0]}>
       <mesh>
         <planeGeometry args={[6, 4]} />
         <meshStandardMaterial color="black" side={THREE.DoubleSide} />
@@ -59,10 +80,6 @@ const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
     </group>
   );
 };
-
-
-
-
 
 interface TextPanelProps {
   text: string;
@@ -195,32 +212,160 @@ const SendButton: React.FC<SendButtonProps> = ({onToggle}) => (
   </button>
 );
 
+const AnimationControls: React.FC<{ 
+  activeAnimation: string; 
+  onAnimationChange: (animation: string) => void;
+  showHat: boolean;
+  onHatToggle: () => void;
+  showGlasses: boolean;
+  onGlassesToggle: () => void;
+}> = ({ 
+  activeAnimation, 
+  onAnimationChange,
+  showHat,
+  onHatToggle,
+  showGlasses,
+  onGlassesToggle
+}) => (
+  <div style={{
+    position: 'fixed',
+    top: 30,
+    left: 30,
+    background: 'rgba(0,0,0,0.7)',
+    padding: '20px',
+    borderRadius: '8px',
+    color: 'white',
+    zIndex: 10,
+  }}>
+    <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Animations</h3>
+    <label style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name="animation"
+        value="Idle"
+        checked={activeAnimation === 'Idle'}
+        onChange={(e) => onAnimationChange(e.target.value)}
+        style={{ marginRight: '10px', cursor: 'pointer' }}
+      />
+      Idle
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name="animation"
+        value="IdleFoot"
+        checked={activeAnimation === 'IdleFoot'}
+        onChange={(e) => onAnimationChange(e.target.value)}
+        style={{ marginRight: '10px', cursor: 'pointer' }}
+      />
+      IdleFoot
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', cursor: 'pointer' }}>
+      <input
+        type="radio"
+        name="animation"
+        value="Explaining"
+        checked={activeAnimation === 'Explaining'}
+        onChange={(e) => onAnimationChange(e.target.value)}
+        style={{ marginRight: '10px', cursor: 'pointer' }}
+      />
+      Explaining
+    </label>
+    
+    <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.2)', margin: '15px 0' }} />
+    
+    <h3 style={{ marginTop: 0, marginBottom: '15px' }}>Accessoires</h3>
+    <label style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', cursor: 'pointer' }}>
+      <input
+        type="checkbox"
+        checked={showHat}
+        onChange={onHatToggle}
+        style={{ marginRight: '10px', cursor: 'pointer' }}
+      />
+      Afficher le chapeau
+    </label>
+    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <input
+        type="checkbox"
+        checked={showGlasses}
+        onChange={onGlassesToggle}
+        style={{ marginRight: '10px', cursor: 'pointer' }}
+      />
+      Afficher les lunettes
+    </label>
+  </div>
+);
 
-
-
-
-
-
-
-
-const Scene3D: React.FC<{ text: string; isEditing: boolean; cameraY: number; reply: string }> = ({ 
+const Scene3D: React.FC<{ 
+  text: string; 
+  isEditing: boolean; 
+  cameraY: number; 
+  reply: string; 
+  activeAnimation: string;
+  showHat: boolean;
+  showGlasses: boolean;
+}> = ({ 
   text, 
   isEditing, 
   cameraY,
-  reply
+  reply,
+  activeAnimation,
+  showHat,
+  showGlasses
 }) => (
-  <Canvas camera={{ position: [0, 0, 5], fov: 80 }}>
+  <Canvas 
+    camera={{ position: [0, 0, 5], fov: 80 }}
+    shadows
+  >
     <Suspense fallback={null}>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+      {/* Éclairage ambiant */}
+      <ambientLight intensity={0.5} color="#ffffff" />
+      
+      {/* Lumière directionnelle principale avec ombres */}
+      <directionalLight 
+        position={[8, 10, 5]} 
+        intensity={1.2}
+        color="#f5f5f0"
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
+      />
+      
+      {/* Lumière chaude (côté droit) */}
+      <pointLight 
+        position={[10, 5, 5]} 
+        intensity={0.7}
+        color="#ffe8cc"
+        castShadow
+      />
+      
+      {/* Lumière froide (côté gauche) */}
+      <pointLight 
+        position={[-10, 5, 3]} 
+        intensity={0.5}
+        color="#d4e6ff"
+        castShadow
+      />
+      
+      {/* Lumière de remplissage (bas) */}
+      <pointLight 
+        position={[0, -3, 5]} 
+        intensity={0.4}
+        color="#ffffff"
+      />
 
-      <MiloModel modelPath="/MiloV1RIGGED.glb" />
+      <Classroom modelPath="/classroom.glb" />
+      <MiloModel modelPath="/MiloV1.glb" activeAnimation={activeAnimation} showHat={showHat} showGlasses={showGlasses} />
       <TextPanel text={text} isEditing={isEditing} />
       <Tableau text={reply} isEditing={isEditing} />
 
       <OrbitControls enableZoom={false} enablePan={false} enableRotate={false} />
-      <Environment preset="studio" />
+      <Environment preset="park" />
 
       <CameraController targetY={cameraY} />
     </Suspense>
@@ -233,6 +378,9 @@ const MiloScene: React.FC = () => {
   const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [reply, setReply] = useState("");
+  const [activeAnimation, setActiveAnimation] = useState("Idle");
+  const [showHat, setShowHat] = useState(true);
+  const [showGlasses, setShowGlasses] = useState(true);
 
   const toggleCamera = () => {
     setDown(!down);
@@ -243,27 +391,24 @@ const MiloScene: React.FC = () => {
     setIsEditing(!isEditing);
   };
 
-  const handleTextChange = (newText: string) => {
-    setText(newText);
+  const toggleHat = () => {
+    setShowHat(!showHat);
+  };
+
+  const toggleGlasses = () => {
+    setShowGlasses(!showGlasses);
   };
 
   const handleSend = () => {
-    setText(""); // Clear text after sending
-    chatService.chat(text)
-      .then(response => {
-        setReply(response.reply || "J'ai besoin de plus d'informations pour répondre.");
-      }
-      )
-      .catch(error => {
-        console.error("Error sending text:", error);
-        setReply("Une erreur s'est produite lors de l'envoi du texte.");
-      }
-    );
+    const messageToSend = text;
+    setText("");
+    setReply("Envoi en cours...");
+    
+    // Simulate chat service call
+    setTimeout(() => {
+      setReply(`Vous avez dit: "${messageToSend}"`);
+    }, 1000);
   };
-
-
-
-
 
   useEffect(() => {
     if (!isEditing) return;
@@ -283,13 +428,26 @@ const MiloScene: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isEditing]);
 
-
-
-
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      <Scene3D text={text} isEditing={isEditing} cameraY={cameraY} reply={reply} />
+      <Scene3D 
+        text={text} 
+        isEditing={isEditing} 
+        cameraY={cameraY} 
+        reply={reply} 
+        activeAnimation={activeAnimation}
+        showHat={showHat}
+        showGlasses={showGlasses}
+      />
       
+      <AnimationControls 
+        activeAnimation={activeAnimation} 
+        onAnimationChange={setActiveAnimation}
+        showHat={showHat}
+        onHatToggle={toggleHat}
+        showGlasses={showGlasses}
+        onGlassesToggle={toggleGlasses}
+      />
       <CameraToggleButton down={down} onToggle={toggleCamera} />
       <EditButton isEditing={isEditing} onToggle={toggleEditing} />
       <SendButton onToggle={handleSend} />
