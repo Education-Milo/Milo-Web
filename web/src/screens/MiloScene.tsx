@@ -2,6 +2,7 @@ import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import HelpModal from '../components/HelpClass';
 
 interface MiloModelProps {
   modelPath: string;
@@ -308,6 +309,8 @@ const MiloScene: React.FC = () => {
   const [activeAnimation, setActiveAnimation] = useState("Idle");
   const [showHat, setShowHat] = useState(true);
   const [showGlasses, setShowGlasses] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
+  const [helpImageUrl, setHelpImageUrl] = useState("/help.webp");
 
   const toggleCamera = () => {
     setDown(!down);
@@ -387,6 +390,39 @@ const MiloScene: React.FC = () => {
         onHatToggle={toggleHat}
         showGlasses={showGlasses}
         onGlassesToggle={toggleGlasses}
+      />
+      
+      {/* Bouton d'aide */}
+      <button
+        onClick={() => setShowHelp(true)}
+        style={{
+          position: 'fixed',
+          top: 30,
+          right: 30,
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          border: 'none',
+          fontSize: '28px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10,
+          transition: 'background 0.3s',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,136,0,0.8)'}
+        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.7)'}
+      >
+        ?
+      </button>
+
+      <HelpModal 
+        isOpen={showHelp} 
+        onClose={() => setShowHelp(false)} 
+        imageUrl={helpImageUrl}
       />
     </div>
   );
