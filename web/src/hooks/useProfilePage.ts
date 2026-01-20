@@ -10,15 +10,14 @@ export const useProfilePage = () => {
   const logout = useAuthStore(state => state.logout);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { user, getMe } = useUserStore();
-  const [profile, setProfile] = useState<Partial<UserProfile>>({
+  const { user, getMe, updateUser, loading } = useUserStore();
+  const [profile, setProfile] = useState<UserProfile>({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     email: user?.email || '',
     classe: user?.classe,
   });
-  const [tempProfile, setTempProfile] = useState<Partial<UserProfile>>(profile);
+  const [tempProfile, setTempProfile] = useState<UserProfile>(profile);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -37,10 +36,9 @@ export const useProfilePage = () => {
   useEffect(() => {
     if (user) {
       const updatedProfile: UserProfile = {
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
-        email: user.email || '',
-        role: user.role || '',
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
         classe: user.classe || '',
       };
       setProfile(updatedProfile);
@@ -60,9 +58,22 @@ export const useProfilePage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setProfile(tempProfile);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!tempProfile.first_name.trim() || !tempProfile.last_name.trim()) {
+      alert("Le nom et le prénom ne peuvent pas être vides.");
+      return;
+    }
+    try {
+      await updateUser({
+        first_name: tempProfile.first_name,
+        last_name: tempProfile.last_name,
+        classe: tempProfile.classe,
+      });
+      setProfile(tempProfile);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde :", error);
+    }
   };
 
   const handleCancel = () => {
@@ -90,6 +101,7 @@ export const useProfilePage = () => {
     handleCancel,
     triggerPhotoUpload,
     startEditing,
-    setIsEditing
+    setIsEditing,
+    isLoading: loading,
   };
 };

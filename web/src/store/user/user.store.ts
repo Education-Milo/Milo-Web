@@ -62,30 +62,40 @@ export const useUserStore = create<UserStore>((set, get) => ({
 //     }
 //   },
 
-//   updateUser: async (userData: Partial<User>) => {
-//     try {
-//       set({ loading: true });
-//       const response = await APIAxios.put(APIRoutes.PUT_UpdateUser, userData); // À ajouter dans votre API
-//       const updatedUser: User = response.data;
-//       set({
-//         user: updatedUser,
-//         lastUserFetch: Date.now(),
-//         loading: false,
-//       });
-//       return updatedUser;
-//     } catch (error) {
-//       set({ loading: false });
-//       throw error;
-//     }
-//   },
+  updateUser: async (userData: Partial<User>) => {
+    const currentUser = get().user;
+    if (!currentUser) {
+      throw new Error('No user logged in');
+    }
+    try {
+      set({ loading: true });
+      const { classe, first_name, last_name, ...rest } = userData;
+      const dataForBackend = {
+        ...rest,
+        class_: classe || currentUser.classe,
+        first_name: first_name || currentUser.first_name,
+        last_name: last_name || currentUser.last_name,
+      };
+      const response = await APIAxios.put(APIRoutes.PUT_Update_user(currentUser.id), dataForBackend);
+      set({
+        user: { ...currentUser, ...userData},
+        loading: false,
+      });
+      return response.data;
+    } catch (error) {
+      set({ loading: false });
+      throw error;
 
-//   refreshUserData: async () => {
-//     const promises = [
-//       get().getMe(true),
-//       get().getUserStats(true)
-//     ];
-//     await Promise.all(promises);
-//   },
+    }
+  },
+
+  // refreshUserData: async () => {
+  //   const promises = [
+  //     get().getMe(true),
+  //     get().getUserStats(true)
+  //   ];
+  //   await Promise.all(promises);
+  // },
 
   getFullName: () => {
     const user = get().user;
