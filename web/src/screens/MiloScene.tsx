@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { FaChevronDown, FaChevronUp, FaEdit, FaTransgenderAlt} from 'react-icons/fa';
-import { chatService } from '../store/chatService';
+// import { chatService } from '../store/chatService';
 
 interface MiloModelProps {
   modelPath: string;
@@ -249,16 +249,16 @@ const MiloScene: React.FC = () => {
 
   const handleSend = () => {
     setText(""); // Clear text after sending
-    chatService.chat(text)
-      .then(response => {
-        setReply(response.reply || "J'ai besoin de plus d'informations pour répondre.");
-      }
-      )
-      .catch(error => {
-        console.error("Error sending text:", error);
-        setReply("Une erreur s'est produite lors de l'envoi du texte.");
-      }
-    );
+    // chatService.chat(text)
+    //   .then(response => {
+    //     setReply(response.reply || "J'ai besoin de plus d'informations pour répondre.");
+    //   }
+    //   )
+    //   .catch(error => {
+    //     console.error("Error sending text:", error);
+    //     setReply("Une erreur s'est produite lors de l'envoi du texte.");
+    //   }
+    // );
   };
 
 

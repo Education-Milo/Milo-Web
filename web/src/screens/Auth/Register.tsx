@@ -8,6 +8,7 @@ import { BackButton } from '@components/ui/common/BackButton';
 import '@styles/Register.css';
 import miloLogo from '/milo-logo.png';
 import MainButtonComponent from '@components/ui/common/MainButtonComponent';
+import { ClassSelector } from '@components/ClassSelector.component';
 
 const Register: React.FC = () => {
   const {
@@ -33,7 +34,6 @@ const Register: React.FC = () => {
       <div className="form-page-container">
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div className="form-content">
-            {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
               <BackButton
                 onClick={() => navigate('/login')}
@@ -43,12 +43,9 @@ const Register: React.FC = () => {
                 Inscription
               </h1>
             </div>
-
-            {/* Logo */}
             <div className="logo-container">
               <img src={miloLogo} alt="Milo Logo" className="logo-milo" />
             </div>
-            {/* Form Header */}
             <div className="form-header">
               <h2 className="form-title">Créer votre compte</h2>
               <p className="form-subtitle">
@@ -60,23 +57,23 @@ const Register: React.FC = () => {
 
               <TextField
                 type="text"
-                value={formData.nom}
-                onChange={(e) => handleInputChange('nom', e.target.value)}
+                value={formData.last_name}
+                onChange={(e) => handleInputChange('last_name', e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Nom"
                 icon={<User className="w-5 h-5 text-gray-500" />}
-                error={errors.nom}
+                error={errors.last_name}
                 disabled={isLoading}
               />
 
               <TextField
                 type="text"
-                value={formData.prenom}
-                onChange={(e) => handleInputChange('prenom', e.target.value)}
+                value={formData.first_name}
+                onChange={(e) => handleInputChange('first_name', e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Prénom"
                 icon={<User className="w-5 h-5 text-gray-500" />}
-                error={errors.prenom}
+                error={errors.first_name}
                 disabled={isLoading}
               />
 
@@ -119,8 +116,17 @@ const Register: React.FC = () => {
                 error={errors.role}
                 disabled={isLoading}
               />
+              {formData.role === 'Élève' && (
+                <div style={{ marginTop: '1rem' }}>
+                  <ClassSelector
+                    value={formData.classe}
+                    onChange={(classe: string) => handleInputChange('classe', classe)}
+                    error={errors.classe}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
 
-              {/* Legal Text */}
               <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem', color: '#6b7280', lineHeight: '1.5' }}>
                 <p>
                   En rejoignant Milo, vous confirmez avoir lu et accepté les{' '}
@@ -133,17 +139,6 @@ const Register: React.FC = () => {
                   </a>.
                 </p>
               </div>
-
-              {/* Submit Button */}
-              {/* <button
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={isLoading}
-                style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                {isLoading && <Loader2 size={20} className="animate-spin" />}
-                {isLoading ? 'Inscription en cours...' : 'S\'inscrire'}
-              </button> */}
               <MainButtonComponent
                 title={isLoading ? 'Inscription en cours...' : "S'inscrire"}
                 onPress={handleSubmit}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { chatService } from '../store/chatService';
+// import { chatService } from '../store/chatService';
 
 interface FillInQuestion {
   sentence: string;
@@ -17,10 +17,11 @@ const TestFillIn: React.FC = () => {
   const fetchFillIn = async () => {
     setError('');
     try {
-      const response = await chatService.createFillIn(subject);
-      setFillIn(response.fill_in);
-      setScore(-1); // reset score when fetching new FillIn
-      setUserAnswers({}); // reset les réponses à chaque fetch
+      console.log('Fetching FillIn for subject:', subject);
+      // const response = await chatService.createFillIn(subject);
+      // setFillIn(response.fill_in);
+      // setScore(-1); // reset score when fetching new FillIn
+      // setUserAnswers({}); // reset les réponses à chaque fetch
     } catch (err) {
       console.error('Error fetching FillIn:', err);
       setError('Failed to fetch FillIn. Please try again later.');

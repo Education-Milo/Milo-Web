@@ -4,7 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import { useUserStore } from '@store/user/user.store';
 
-type UserRole = 'Élève' | 'Prof' | 'Parent' | 'ADMIN';
+type UserRole = 'Enfant' | 'Prof' | 'Parent' | 'Admin';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -22,7 +22,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const loading = useUserStore(state => state.loading);
   const location = useLocation();
 
-  // Si pas connecté, rediriger vers login
   if (!accessToken) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -35,7 +34,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // 3️⃣ Si les rôles ne matchent pas une fois le user chargé
   if (allowedRoles && allowedRoles.length > 0 && user) {
     if (!allowedRoles.includes(user.role as UserRole)) {
       return <Navigate to={redirectTo} replace />;

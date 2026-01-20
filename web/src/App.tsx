@@ -11,18 +11,14 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      // <ThemeProvider>
-        <LoadingScreen />
-      // </ThemeProvider>
+      <LoadingScreen />
     );
   }
 
   return (
-    // <ThemeProvider>
       <Router>
         {isAuthenticated ? <AuthNavigator /> : <PublicNavigator />}
       </Router>
-    // </ThemeProvider>
   );
 };
 

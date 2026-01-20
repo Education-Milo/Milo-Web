@@ -4,7 +4,6 @@ import { useAuthStore } from '@store/auth/auth.store';
 import { useUserStore } from '@store/user/user.store';
 import { ROUTES } from '@constants/routes';
 
-// Type pour définir la structure d'une mission
 export interface Mission {
   id: number;
   title: string;
@@ -30,7 +29,7 @@ export const useHomePage = () => {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    const firstName = user?.prenom || 'Champion';
+    const firstName = user?.first_name || 'Champion';
 
     if (hour < 12) {
       setWelcomeMessage(`Bonjour, ${firstName} ! 🌅`);

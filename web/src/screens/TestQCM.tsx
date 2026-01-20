@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { chatService } from '../store/chatService';
+// import { chatService } from '../store/chatService';
 
 interface QCMQuestion {
   question: string;
@@ -17,10 +17,11 @@ const TestQCM: React.FC = () => {
   const fetchQCM = async () => {
     setError('');
     try {
-      const response = await chatService.createQCM(subject);
-      setQCM(response.qcm);
-      setScore(-1); // reset score when fetching new QCM
-      setUserAnswers({}); // reset les réponses à chaque fetch
+      console.log('Fetching QCM for subject:', subject);
+      // const response = await chatService.createQCM(subject);
+      // setQCM(response.qcm);
+      // setScore(-1); // reset score when fetching new QCM
+      // setUserAnswers({}); // reset les réponses à chaque fetch
     } catch (err) {
       console.error('Error fetching QCM:', err);
       setError('Failed to fetch QCM. Please try again later.');

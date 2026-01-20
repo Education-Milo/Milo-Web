@@ -1,22 +1,12 @@
-export type UserRole = 'Elève' | 'Prof' | 'Parent' | 'ADMIN' ;
+export type UserRole = 'Enfant' | 'Prof' | 'Parent' | 'Admin' ;
 export type ClassType = '6ème' | '5ème' | '4ème' | '3ème';
-export interface User {
-
+export interface User extends UserProfile {
     id: string;
-    email: string;
-    prenom: string;
-    nom: string;
-    role: string;
-    level?: number;
-    points?: number;
-    streak?: number;
-    xp?: number;
-    miloro?: number;
-    maxXp?: number;
-    documentsScanned?: number;
-    challengesCompleted?: number;
-    avatarId?: number;
+    role: UserRole;
     classe: ClassType;
+    miloro_coin: number;
+    xp: number;
+    created_at: string;
   }
   export interface UserStats {
     documentsScanned: number;
@@ -32,6 +22,14 @@ export interface User {
     userStats: UserStats | null;
     lastUserFetch: number;
     lastStatsFetch: number;
+  }
+
+  export interface UserProfile {
+    email: string;
+    last_name: string;
+    first_name: string;
+    role?: UserRole;
+    classe?: ClassType;
   }
 
   export interface UserActions {
