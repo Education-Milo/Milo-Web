@@ -327,9 +327,6 @@ const MiloScene: React.FC = () => {
     toggleEditing();
   };
 
-  const handleSend = () => {
-    setText(""); 
-  };
   const toggleHat = () => {
     setShowHat(!showHat);
   };
