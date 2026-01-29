@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
           </div>
           <div className="user-info">
             <h4>{userProfile?.first_name || 'Utilisateur'}</h4>
-            <p>Niveau {userProfile?.classe || '1'}</p>
+            <p>Classe {userProfile?.classe || '1'}</p>
           </div>
         </div>
         <button className="logout-button" onClick={onLogout} title="Se déconnecter">

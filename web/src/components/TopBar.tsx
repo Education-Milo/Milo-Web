@@ -1,41 +1,21 @@
 import React from 'react';
-
-// Props pour le composant TopBar
 interface TopBarProps {
-  searchPlaceholder?: string;
   energyPoints?: number;
   streakDays?: number;
-  onSearch?: (query: string) => void;
   onNotificationClick?: () => void;
   onSettingsClick?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ 
-  searchPlaceholder = "Rechercher des cours, missions, amis...",
+const TopBar: React.FC<TopBarProps> = ({
   energyPoints = 450,
   streakDays = 3,
-  onSearch,
   onNotificationClick,
   onSettingsClick
 }) => {
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onSearch) {
-      onSearch(event.target.value);
-    }
-  };
 
   return (
     <header className="top-bar">
-      <div className="search-bar">
-        <span className="search-icon">🔍</span>
-        <input 
-          type="text" 
-          className="search-input" 
-          placeholder={searchPlaceholder}
-          onChange={handleSearchChange}
-        />
-      </div>
-
+      <div className='top-bar-spacer' />
       <div className="top-bar-actions">
         <div className="stats-badges">
           <div className="stat-badge yellow">
