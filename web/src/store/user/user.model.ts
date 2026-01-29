@@ -8,6 +8,11 @@ export interface User extends UserProfile {
     xp: number;
     created_at: string;
   }
+
+  export interface Interest {
+    id: string;
+    name: string;
+  }
   export interface UserStats {
     documentsScanned: number;
     challengesCompleted: number;
@@ -30,12 +35,15 @@ export interface User extends UserProfile {
     first_name: string;
     role?: UserRole;
     classe?: ClassType;
+    Interests?: Interest[];
   }
 
   export interface UserActions {
     getMe: (forceRefresh?: boolean) => Promise<User>;
     // getUserStats: (forceRefresh?: boolean) => Promise<UserStats>;
     updateUser: (userData: Partial<User>) => Promise<User>;
+    addUserInterest: (interestName: string) => Promise<void>;
+    deleteUserInterest: (interestId: string) => Promise<void>;
     // refreshUserData: () => Promise<void>;
     clearUserData: () => void;
     getFullName: () => string;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import type { LoginFormData, FormErrors } from '../types/auth.types';
 import { ROUTES } from '@constants/routes';
@@ -14,7 +14,6 @@ export const useLoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState('');
   const navigate = useNavigate();
-  const location = useLocation();
   const login = useAuthStore(state => state.login);
 
   const handleInputChange = (field: keyof LoginFormData, value: string) => {
@@ -55,7 +54,6 @@ export const useLoginForm = () => {
         navigate(ROUTES.ROOT, { replace: true });
       } catch (error: any) {
         console.error('❌ Erreur de connexion:', error);
-        // Gérer les différents types d'erreurs
         const errorMessage = error?.response?.data?.detail ||
                             error?.message ||
                             'Une erreur est survenue';

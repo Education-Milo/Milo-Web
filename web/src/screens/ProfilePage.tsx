@@ -14,8 +14,14 @@ const ProfilePage: React.FC = () => {
     handleInputChange,
     handleSave,
     handleCancel,
-    startEditing
+    startEditing,
+    newInterest,
+    setNewInterest,
+    handleAdd,
+    handleDelete,
   } = useProfilePage();
+
+  console.log('User Interests:', user?.Interests);
 
   return (
     <>
@@ -122,6 +128,59 @@ const ProfilePage: React.FC = () => {
                   <option value="4ème">4ème</option>
                   <option value="3ème">3ème</option>
                 </select>
+              </div>
+            </div>
+          </section>
+          <section className="profile-interests-section">
+            <div className="section-header">
+              <h2 className="section-title">🧡 Mes centres d'intérêt</h2>
+            </div>
+
+            <div className="interests-content">
+              <div className="interests-grid">
+                {user?.Interests && user.Interests.length > 0 ? (
+                  user.Interests.map((interest) => (
+                    <div key={interest.id} className="interest-item-tag">
+                      {interest.name}
+                      <button
+                        className="interest-delete-btn"
+                        onClick={() => handleDelete(interest.id)}
+                        title="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-interests">Aucun intérêt renseigné pour le moment.</p>
+                )}
+              </div>
+              <div className="interest-add-container">
+                <input
+                  type="text"
+                  className="interest-input"
+                  placeholder="Ajouter un centre d'intérêt..."
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                />
+                <button className="interest-plus-btn" onClick={() => handleAdd()}>
+                  +
+                </button>
+              </div>
+              <div className="interest-suggestions">
+                <p className="suggestions-label">Suggestions :</p>
+                <div className="suggestions-flex">
+                  {['Jeux Vidéo', 'Football', 'Mangas', 'Histoire'].map((name) => (
+                    <button
+                      key={name}
+                      className="suggestion-tag"
+                      onClick={() => handleAdd(name)}
+                    >
+                      + {name}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </section>

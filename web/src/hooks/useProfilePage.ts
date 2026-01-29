@@ -10,7 +10,8 @@ export const useProfilePage = () => {
   const logout = useAuthStore(state => state.logout);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, getMe, updateUser, loading } = useUserStore();
+  const { user, getMe, updateUser, addUserInterest, deleteUserInterest, loading } = useUserStore();
+  const [newInterest, setNewInterest] = useState('');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -76,6 +77,21 @@ export const useProfilePage = () => {
     }
   };
 
+  const handleAdd = async (interestName?: string) => {
+  const nameToProcess = interestName || newInterest;
+
+  if (!nameToProcess.trim()) return;
+
+  try {
+    await addUserInterest(nameToProcess);
+    if (!interestName) {
+      setNewInterest('');
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout:", error);
+  }
+};
+
   const handleCancel = () => {
     setTempProfile(profile);
     setIsEditing(false);
@@ -102,6 +118,10 @@ export const useProfilePage = () => {
     triggerPhotoUpload,
     startEditing,
     setIsEditing,
+    newInterest,
+    setNewInterest,
+    handleAdd,
+    handleDelete: deleteUserInterest,
     isLoading: loading,
   };
 };

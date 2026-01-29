@@ -3,6 +3,251 @@
 /* Import base styles from HomePage.css */
 @import url('./HomePage.css');
 
+
+
+/* Section Container */
+.interests-section {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Le wrapper qui contient les tags + l'input */
+  .interests-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #ff9a3e; /* Orange de ta capture */
+    border-radius: 30px;
+    padding: 8px 12px;
+    position: relative;
+    min-height: 56px;
+    box-shadow: 0 2px 8px rgba(255, 154, 62, 0.1);
+  }
+  
+  .interests-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 1;
+  }
+  
+  /* Les Bulles (Tags) */
+  .interest-tag {
+    background-color: #ff8a00;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .delete-interest-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    margin-left: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: background 0.2s;
+  }
+  
+  .delete-interest-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* L'input transparent à l'intérieur du wrapper */
+  .interest-main-input {
+    border: none;
+    outline: none;
+    flex: 1;
+    min-width: 120px;
+    padding: 8px;
+    font-size: 1rem;
+    color: #4a4a4a;
+  }
+  
+  /* Le bouton rond + à droite */
+  .add-interest-confirm-btn {
+    background-color: #ff8a00;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-left: 8px;
+    transition: transform 0.2s;
+  }
+  
+  .add-interest-confirm-btn:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Suggestions Style */
+  .suggestions-container {
+    margin-top: 20px;
+  }
+  
+  .suggestions-title {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  
+  .suggestions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .suggestion-btn {
+    background: transparent;
+    border: 1.5px solid #ffb366;
+    color: #ff8a00;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .suggestion-btn:hover {
+    background: #fff5eb;
+    border-color: #ff8a00;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .profile-interests-section {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.interests-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Les Bulles Oranges */
+.interest-item-tag {
+    background-color: #ff9a3e;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(255, 154, 62, 0.3);
+}
+
+.interest-delete-btn {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    margin-left: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.interest-delete-btn:hover {
+    background: #f44336;
+}
+
+/* Barre d'ajout */
+.interest-add-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.interest-input {
+    flex: 1;
+    border: 2px solid #ff9a3e;
+    border-radius: 25px;
+    padding: 10px 20px;
+    outline: none;
+}
+
+.interest-plus-btn {
+    background: #ff9a3e;
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.interest-plus-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Suggestions */
+.suggestions-label {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.suggestions-flex {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.suggestion-tag {
+    background: transparent;
+    border: 1px solid #ff9a3e;
+    color: #ff9a3e;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.suggestion-tag:hover {
+    background: #fff5eb;
+}
+
+
+
+
 /* Profile Container */
 .profile-container {
     padding: 2rem;
