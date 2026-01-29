@@ -1,45 +1,25 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/auth/auth.store';
-import { useUserStore } from '../store/user/user.store';
+import { useAuthStore } from '@store/auth/auth.store';
+import { useUserStore } from '@store/user/user.store';
 import { ROUTES } from '@constants/routes';
-
-// Interface pour les informations utilisateur du profil
-export interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  dateOfBirth: string;
-  level: string;
-  bio: string;
-  profilePicture: string | null;
-}
+import type { UserProfile } from '@/store/user/user.model';
 
 export const useProfilePage = () => {
   const navigate = useNavigate();
   const logout = useAuthStore(state => state.logout);
-  const { user, getMe } = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Référence pour l'input file
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-
-  // État pour les informations du profil - maintenant basé sur les données utilisateur
+  const { user, getMe, updateUser, addUserInterest, deleteUserInterest, loading } = useUserStore();
+  const [newInterest, setNewInterest] = useState('');
   const [profile, setProfile] = useState<UserProfile>({
-    firstName: user?.prenom || '',
-    lastName: user?.nom || '',
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
     email: user?.email || '',
-    dateOfBirth: '2005-03-15', // Pas encore disponible dans le modèle User
-    level: user?.level?.toString() || '1',
-    bio: 'Passionné d\'apprentissage et toujours prêt à relever de nouveaux défis !', // Pas encore disponible dans le modèle User
-    profilePicture: null // Pas encore disponible dans le modèle User
+    classe: user?.classe,
   });
-
-  // État temporaire pour l'édition
   const [tempProfile, setTempProfile] = useState<UserProfile>(profile);
 
-  // Charger les données utilisateur au montage du composant
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -54,30 +34,24 @@ export const useProfilePage = () => {
     }
   }, [user, getMe]);
 
-  // Mettre à jour le profil quand les données utilisateur changent
   useEffect(() => {
     if (user) {
       const updatedProfile: UserProfile = {
-        firstName: user.prenom || '',
-        lastName: user.nom || '',
-        email: user.email || '',
-        dateOfBirth: '2005-03-15', // Pas encore disponible dans le modèle User
-        level: user.level?.toString() || '1',
-        bio: 'Passionné d\'apprentissage et toujours prêt à relever de nouveaux défis !', // Pas encore disponible dans le modèle User
-        profilePicture: null // Pas encore disponible dans le modèle User
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        classe: user.classe || '',
       };
       setProfile(updatedProfile);
       setTempProfile(updatedProfile);
     }
   }, [user]);
 
-  // Fonction pour gérer la déconnexion
   const handleLogout = async () => {
     await logout();
     navigate(ROUTES.LOGIN, { replace: true });
   };
 
-  // Fonction pour gérer le changement des champs
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     setTempProfile(prev => ({
       ...prev,
@@ -85,66 +59,69 @@ export const useProfilePage = () => {
     }));
   };
 
-  // Fonction pour gérer l'upload de photo
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setTempProfile(prev => ({
-          ...prev,
-          profilePicture: result
-        }));
-      };
-      reader.readAsDataURL(file);
+  const handleSave = async () => {
+    if (!tempProfile.first_name.trim() || !tempProfile.last_name.trim()) {
+      alert("Le nom et le prénom ne peuvent pas être vides.");
+      return;
+    }
+    try {
+      await updateUser({
+        first_name: tempProfile.first_name,
+        last_name: tempProfile.last_name,
+        classe: tempProfile.classe,
+      });
+      setProfile(tempProfile);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde :", error);
     }
   };
 
-  // Fonction pour sauvegarder les modifications
-  const handleSave = () => {
-    setProfile(tempProfile);
-    setIsEditing(false);
-    // TODO: Implémenter la sauvegarde via l'API
-    console.log('Sauvegarde du profil:', tempProfile);
-  };
+  const handleAdd = async (interestName?: string) => {
+  const nameToProcess = interestName || newInterest;
 
-  // Fonction pour annuler les modifications
+  if (!nameToProcess.trim()) return;
+
+  try {
+    await addUserInterest(nameToProcess);
+    if (!interestName) {
+      setNewInterest('');
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout:", error);
+  }
+};
+
   const handleCancel = () => {
     setTempProfile(profile);
     setIsEditing(false);
   };
 
-  // Fonction pour déclencher l'upload de photo
   const triggerPhotoUpload = () => {
     fileInputRef.current?.click();
   };
 
-  // Fonction pour activer le mode édition
   const startEditing = () => {
     setIsEditing(true);
   };
 
   return {
-    // États
     isEditing,
     profile,
     tempProfile,
     user,
-    
-    // Références
     fileInputRef,
-    
-    // Fonctions de gestion
     handleLogout,
     handleInputChange,
-    handlePhotoUpload,
     handleSave,
     handleCancel,
     triggerPhotoUpload,
     startEditing,
-    
-    // Fonctions utilitaires
-    setIsEditing
+    setIsEditing,
+    newInterest,
+    setNewInterest,
+    handleAdd,
+    handleDelete: deleteUserInterest,
+    isLoading: loading,
   };
 };

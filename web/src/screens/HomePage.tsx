@@ -18,32 +18,23 @@ const HomePage: React.FC = () => {
 
   return (
     <>
-      {/* Sidebar Navigation */}
       <Sidebar
         onLogout={handleLogout}
         userProfile={{
           email: user?.email || '',
-          firstName: user?.prenom || '',
-          lastName: user?.nom || '',
-          level: user?.level?.toString() || '1',
-          role: user?.role || '',
-          profilePicture: undefined
+          first_name: user?.first_name || '',
+          last_name: user?.last_name || '',
+          classe: user?.classe,
+          role: user?.role,
         }}
       />
-
-      {/* Main Content */}
       <main className="main-container">
-        {/* Top Bar */}
         <TopBar
-          energyPoints={user?.points || 0}
-          streakDays={user?.streak || 0}
+          energyPoints={0}
+          streakDays={0}
         />
-
-        {/* Dashboard Content */}
         <div className="dashboard">
-          {/* Main Column */}
           <div className="main-column">
-            {/* Welcome Section */}
             <section className="welcome-section">
               <div className="welcome-content">
                 <h1 className="welcome-title">{welcomeMessage}</h1>
@@ -54,8 +45,6 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </section>
-
-            {/* Chat with Milo - New Central Section */}
             <section
               className="section-card chat-milo-central"
               onClick={handleMiloClick}
@@ -71,10 +60,7 @@ const HomePage: React.FC = () => {
               </div>
             </section>
           </div>
-
-          {/* Sidebar Column */}
           <div className="sidebar-column">
-            {/* Daily Missions - Moved to Sidebar */}
             <section className="section-card">
               <div className="section-header">
                 <h2 className="section-title">🎯 Missions du jour</h2>
@@ -107,8 +93,6 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
             </section>
-
-            {/* Recent Achievements - Remains in Sidebar */}
             <section className="section-card">
               <div className="section-header">
                 <h2 className="section-title">🏆 Derniers succès</h2>

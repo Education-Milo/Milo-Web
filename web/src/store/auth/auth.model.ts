@@ -3,26 +3,9 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterData {
-  nom: string;
-  prenom: string;
-  email: string;
-  password: string;
-  role: string;
-}
-
 export interface AuthResponse {
   access_token: string;
   token_type: string;
-}
-
-export interface UserProfile {
-  email: string;
-  lastName: string;
-  firstName: string;
-  role: string;
-  level: string;
-  profilePicture?: string;
 }
 
 export interface ApiError {
@@ -41,7 +24,7 @@ export interface AuthState {
 
 export interface AuthActions {
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, lastName: string, firstName: string, role: string) => Promise<void>;
+  register: (email: string, password: string, lastName: string, firstName: string, role: string, classe: string) => Promise<void>;
   logout: () => Promise<void>;
   forgetPassword: (email: string) => Promise<void>;
   checkTokenValidity: () => Promise<boolean>;

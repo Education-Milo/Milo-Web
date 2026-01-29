@@ -4,12 +4,13 @@ export interface LoginFormData {
 }
 
 export interface RegisterFormData {
-    nom: string;
-    prenom: string;
+    last_name: string;
+    first_name: string;
     email: string;
     password: string;
     confirmPassword: string;
     role: string;
+    classe: string;
   }
 
 export interface FormErrors {

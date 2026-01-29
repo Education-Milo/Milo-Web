@@ -52,37 +52,37 @@ const AuthNavigator: React.FC = () => {
       {/* ==================== ROUTES USER (Élève) ==================== */}
 
       <Route path="/milo" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <MiloScene />
         </ProtectedRoute>
       } />
 
       <Route path="/home" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <HomeScreen />
         </ProtectedRoute>
       } />
 
       <Route path="/courses" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <CoursesPage />
         </ProtectedRoute>
       } />
 
       <Route path="/courses/:courseId" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <CourseDetailScreen />
         </ProtectedRoute>
       } />
 
       <Route path="/missions" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <MissionsPage />
         </ProtectedRoute>
       } />
 
       <Route path="/duels" element={
-        <ProtectedRoute allowedRoles={['Élève']}>
+        <ProtectedRoute allowedRoles={['Enfant']}>
           <DuelsPage />
         </ProtectedRoute>
       } />

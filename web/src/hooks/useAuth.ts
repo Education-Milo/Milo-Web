@@ -16,18 +16,12 @@ export const useAuth = () => {
     const initializeAuth = async () => {
       if (accessToken) {
         try {
-          // Vérifier la validité du token
           const isValid = await checkTokenValidity();
-
           if (!isMounted) return;
-
           if (isValid) {
-            // Charger les données utilisateur
             await getMe(true);
-            // Démarrer la validation périodique
             startTokenValidation();
           }
-          // Si invalide, checkTokenValidity() appelle déjà logout()
         } catch (error) {
           console.error('Erreur vérification token:', error);
         }
@@ -40,7 +34,6 @@ export const useAuth = () => {
 
     initializeAuth();
 
-    // Cleanup
     return () => {
       isMounted = false;
       stopTokenValidation();

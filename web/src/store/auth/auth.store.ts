@@ -3,10 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import qs from 'qs';
 import type { AuthStore } from '@store/auth/auth.model';
 import APIAxios, { APIRoutes } from '@api/axios.api';
-
 import { jwtDecode } from 'jwt-decode';
 
-// Dans auth.store.ts
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
@@ -14,7 +12,6 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: '',
       tokenValidationInterval: null as NodeJS.Timeout | null,
 
-      // Vérifier si le token est expiré (côté client)
       isTokenExpired: () => {
         const { accessToken } = get();
         if (!accessToken) return true;
@@ -23,7 +20,6 @@ export const useAuthStore = create<AuthStore>()(
           const decoded: any = jwtDecode(accessToken);
           const currentTime = Date.now() / 1000;
 
-          // Vérifier avec une marge de 60 secondes
           return decoded.exp < currentTime + 60;
         } catch (error) {
           console.error('Erreur décodage token:', error);
@@ -31,7 +27,6 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // Vérifier la validité du token (avec l'API si nécessaire)
       checkTokenValidity: async () => {
         const { isTokenExpired, accessToken } = get();
 
@@ -55,10 +50,8 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // Démarrer la vérification périodique (UNE SEULE FOIS)
       startTokenValidation: () => {
         const state = get();
-        // Si un intervalle existe déjà, ne rien faire
         if (state.tokenValidationInterval) {
           return;
         }
@@ -70,19 +63,17 @@ export const useAuthStore = create<AuthStore>()(
             return;
           }
 
-          // Vérifier d'abord côté client (pas d'appel API)
           if (isTokenExpired()) {
             console.log('Token expiré, déconnexion');
             await get().logout();
             get().stopTokenValidation();
             return;
           }
-        }, 5 * 60 * 1000); // Toutes les 5 minutes
+        }, 5 * 60 * 1000);
 
         set({ tokenValidationInterval: interval });
       },
 
-      // Arrêter la vérification
       stopTokenValidation: () => {
         const { tokenValidationInterval } = get();
         if (tokenValidationInterval) {
@@ -121,15 +112,15 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      register: async (email, password, lastName, firstName, role) => {
+      register: async (email, password, lastName, firstName, role, classe) => {
         try {
-          console.log('Registering user with role:', role, email, lastName, firstName, password);
           const response = await APIAxios.post(APIRoutes.POST_Register, {
             email,
             password,
-            nom: lastName,
-            prenom: firstName,
-            role
+            first_name: firstName,
+            last_name: lastName,
+            role,
+            class_: classe,
           });
           const token = response.data.access_token || response.data.accessToken;
           if (!token) {
@@ -157,7 +148,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: async () => {
-        get().stopTokenValidation(); // Arrêter l'intervalle
+        get().stopTokenValidation();
         const { useUserStore } = await import('@store/user/user.store');
         useUserStore.getState().clearUserData();
         set({

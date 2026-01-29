@@ -1,8 +1,7 @@
 import { create } from 'zustand';
-import type { UserStore, User, UserStats } from '@store/user/user.model';
+import type { UserStore, User } from '@store/user/user.model';
 import APIAxios, { APIRoutes } from '@api/axios.api';
 
-// Durée de cache en millisecondes (5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export const useUserStore = create<UserStore>((set, get) => ({
@@ -22,7 +21,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
     try {
       set({ loading: true });
       const response = await APIAxios.get(APIRoutes.GET_Me);
-      const userData: User = response.data;
+      const backData = response.data;
+      const userData: User = {
+        ...backData,
+        classe : backData.class_,
+        Interests: backData.interests || [],
+      };
       set({
         user: userData,
         lastUserFetch: now,
@@ -59,42 +63,106 @@ export const useUserStore = create<UserStore>((set, get) => ({
 //     }
 //   },
 
-//   updateUser: async (userData: Partial<User>) => {
-//     try {
-//       set({ loading: true });
-//       const response = await APIAxios.put(APIRoutes.PUT_UpdateUser, userData); // À ajouter dans votre API
-//       const updatedUser: User = response.data;
-//       set({
-//         user: updatedUser,
-//         lastUserFetch: Date.now(),
-//         loading: false,
-//       });
-//       return updatedUser;
-//     } catch (error) {
-//       set({ loading: false });
-//       throw error;
-//     }
-//   },
+  updateUser: async (userData: Partial<User>) => {
+    const currentUser = get().user;
+    if (!currentUser) {
+      throw new Error('No user logged in');
+    }
+    try {
+      set({ loading: true });
+      const { classe, first_name, last_name, ...rest } = userData;
+      const dataForBackend = {
+        ...rest,
+        class_: classe || currentUser.classe,
+        first_name: first_name || currentUser.first_name,
+        last_name: last_name || currentUser.last_name,
+      };
+      const response = await APIAxios.put(APIRoutes.PUT_Update_user(currentUser.id), dataForBackend);
+      set({
+        user: { ...currentUser, ...userData},
+        loading: false,
+      });
+      return response.data;
+    } catch (error) {
+      set({ loading: false });
+      throw error;
 
-//   refreshUserData: async () => {
-//     const promises = [
-//       get().getMe(true),
-//       get().getUserStats(true)
-//     ];
-//     await Promise.all(promises);
-//   },
+    }
+  },
+
+  addUserInterest: async (interestName: string) => {
+    const currentUser = get().user;
+    if (!currentUser) {
+      throw new Error('No user logged in');
+    }
+    const tempInterest = { id: `temp-${Date.now()}`, name: interestName };
+    set({
+      user: {
+        ...currentUser,
+        Interests: [...(currentUser.Interests || []), tempInterest]
+      }
+    });
+    try {
+      const response = await APIAxios.post(APIRoutes.POST_Add_User_Interest(currentUser.id), { name: interestName.trim().toLowerCase() });
+      const newUser = get().user;
+      const newInterest = response.data
+      if (newUser) {
+        set({
+          user: { ...newUser,
+          Interests: [...(currentUser.Interests || []), newInterest]
+          },
+        });
+    }
+    } catch (error) {
+      set({
+        user: {
+          ...currentUser,
+          Interests: currentUser.Interests
+        }
+      })
+      set({ loading: false });
+      throw error;
+    }
+  },
+
+  deleteUserInterest: async (interestId: string) => {
+    const currentUser = get().user;
+    if (!currentUser) {
+      throw new Error('No user logged in');
+    }
+    try {
+      set({ loading: true });
+      await APIAxios.delete(`${APIRoutes.POST_Add_User_Interest(currentUser.id)}${interestId}/`);
+      set({
+        user: { ...currentUser},
+        loading: false,
+      });
+    }
+    catch (error) {
+      set({ loading: false });
+      throw error;
+    }
+  },
+
+  // refreshUserData: async () => {
+  //   const promises = [
+  //     get().getMe(true),
+  //     get().getUserStats(true)
+  //   ];
+  //   await Promise.all(promises);
+  // },
 
   getFullName: () => {
     const user = get().user;
     if (!user) return '';
-    return `${user.prenom} ${user.nom}`.trim();
+    return `${user.first_name} ${user.last_name}`.trim();
   },
 
   getInitials: () => {
     const user = get().user;
     if (!user) return '';
-    const firstInitial = user.prenom?.charAt(0)?.toUpperCase() || '';
-    const lastInitial = user.nom?.charAt(0)?.toUpperCase() || '';
+    const firstInitial = user.first_name?.charAt(0)?.toUpperCase() || '';
+    const lastInitial = user.last_name?.charAt(0)?.toUpperCase() || '';
     return `${firstInitial}${lastInitial}`;
   },
 

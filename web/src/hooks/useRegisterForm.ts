@@ -3,16 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import type { RegisterFormData, FormErrors } from '../types/auth.types';
 import { ROUTES } from '@constants/routes';
+import type { UserRole, ClassType } from '@store/user/user.model';
 
 export const useRegisterForm = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
-    nom: '',
-    prenom: '',
+    last_name: '',
+    first_name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: ''
+    role: '',
+    classe: '',
   });
+
+  const ROLE_MAPPING: Record<string, UserRole> = {
+    'Élève': 'Enfant',
+    'Parent': 'Parent',
+    'Professeur': 'Prof'
+  };
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -32,35 +40,39 @@ export const useRegisterForm = () => {
 
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
-    
-    if (!formData.nom.trim()) {
+
+    if (!formData.last_name.trim()) {
       newErrors.nom = 'Le nom est requis';
     }
-    
-    if (!formData.prenom.trim()) {
+
+    if (!formData.first_name.trim()) {
       newErrors.prenom = 'Le prénom est requis';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = "L'email est requis";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "L'email n'est pas valide";
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Le mot de passe est requis';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'La confirmation du mot de passe est requise';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
-    
+
     if (!formData.role) {
       newErrors.role = 'Veuillez sélectionner un rôle';
+    }
+
+    if (formData.role === 'Élève' && !formData.classe.trim()) {
+      newErrors.classe = 'La classe est requise pour le rôle Élève';
     }
 
     return newErrors;
@@ -74,19 +86,20 @@ export const useRegisterForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
+        formData.role = ROLE_MAPPING[formData.role] || 'Enfant';
         await register(
           formData.email.trim(),
           formData.password,
-          formData.nom.trim(),
-          formData.prenom.trim(),
-          formData.role
+          formData.last_name.trim(),
+          formData.first_name.trim(),
+          formData.role,
+          formData.classe as ClassType
         );
         navigate(ROUTES.HOME);
 
       } catch (error: any) {
         console.error('❌ Erreur d\'inscription:', error);
 
-        // Gérer les erreurs Axios
         const errorMessage = error?.response?.data?.detail ||
                             error?.message ||
                             'Une erreur est survenue';
@@ -101,7 +114,6 @@ export const useRegisterForm = () => {
             setGeneralError(errorMessage);
           }
         } else if (Array.isArray(errorMessage)) {
-          // Gérer les erreurs de validation FastAPI
           const validationErrors: FormErrors = {};
           errorMessage.forEach((err: any) => {
             const field = err.loc[err.loc.length - 1];

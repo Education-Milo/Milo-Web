@@ -41,8 +41,10 @@ export const APIRoutes = {
   POST_Register: '/register',
   POST_Login: '/token',
   POST_ForgotPassword: '/auth/forgot-password',
-  POST_RequestConfirmEmail: '/auth/request-confirm-email',
   GET_Me: '/users/me',
+  PUT_Update_user: (userId: string) => `/users/${userId}`,
+  POST_Add_User_Interest: (userId: string) => `/users/${userId}/interests/`,
+  DELETE_User_Interest: (userId: string, interestId: string) => `/users/${userId}/interests/${interestId}`,
   POST_CREATE_QCM: '/qcm',
 };
 

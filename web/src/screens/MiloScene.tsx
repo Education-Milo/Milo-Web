@@ -2,6 +2,7 @@ import React, { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
+import { FaChevronDown, FaChevronUp, FaEdit, FaTransgenderAlt} from 'react-icons/fa';
 import HelpModal from '../components/HelpClass';
 
 interface MiloModelProps {
@@ -326,6 +327,9 @@ const MiloScene: React.FC = () => {
     toggleEditing();
   };
 
+  const handleSend = () => {
+    setText(""); 
+  };
   const toggleHat = () => {
     setShowHat(!showHat);
   };

@@ -3,80 +3,55 @@ import '@styles/ProfilePage.css';
 import { useProfilePage } from '@hooks/useProfilePage';
 import Sidebar from '@components/Sidebar';
 import TopBar from '@components/TopBar';
-import TextFieldComponent from '@components/ui/common/TextField.component';
 
 const ProfilePage: React.FC = () => {
   const {
-    // États
     isEditing,
     profile,
     tempProfile,
     user,
-    // Références
-    fileInputRef,
-    // Fonctions de gestion
     handleLogout,
     handleInputChange,
-    handlePhotoUpload,
     handleSave,
     handleCancel,
-    triggerPhotoUpload,
-    startEditing
+    startEditing,
+    newInterest,
+    setNewInterest,
+    handleAdd,
+    handleDelete,
   } = useProfilePage();
+
+  console.log('User Interests:', user?.Interests);
 
   return (
     <>
-      {/* Sidebar Navigation */}
       <Sidebar
         onLogout={handleLogout}
         userProfile={{
           email: user?.email || '',
-          firstName: user?.prenom || '',
-          lastName: user?.nom || '',
-          level: user?.level?.toString() || '1',
-          role: user?.role || '',
-          profilePicture: undefined
+          first_name: user?.first_name || '',
+          last_name: user?.last_name || '',
+          classe: user?.classe,
+          role: user?.role,
         }}
       />
-
-      {/* Main Content */}
       <main className="main-container">
-        {/* Top Bar */}
         <TopBar
-          energyPoints={user?.points || 0}
-          streakDays={user?.streak || 0}
+          energyPoints={0}
+          streakDays={0}
         />
-
-        {/* Profile Content */}
         <div className="profile-container">
-          {/* Profile Header */}
           <section className="profile-header">
             <div className="profile-header-content">
               <div className="profile-picture-section">
                 <div className="profile-picture-container">
-                  {tempProfile.profilePicture ? (
-                    <img src={tempProfile.profilePicture} alt="Profile" className="profile-picture" />
-                  ) : (
                     <div className="profile-picture-placeholder">👤</div>
-                  )}
-                  {isEditing && (
-                    <button className="change-photo-btn" onClick={triggerPhotoUpload}>
-                      📷
-                    </button>
-                  )}
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  style={{ display: 'none' }}
-                />
               </div>
               <div className="profile-info">
-                <h1 className="profile-name">{profile.firstName} {profile.lastName}</h1>
-                <p className="profile-level">Niveau {profile.level}</p>
-                <p className="profile-bio">{profile.bio}</p>
+                <h1 className="profile-name">{profile.first_name} {profile.last_name}</h1>
+                <p className="profile-level">Niveau 1</p>
+                <p className="profile-classe">Classe {profile.classe?.toLowerCase()}</p>
               </div>
 
               <div className="profile-actions">
@@ -97,8 +72,6 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
           </section>
-
-          {/* Profile Form */}
           <section className="profile-form-section">
             <div className="section-header">
               <h2 className="section-title">📝 Informations personnelles</h2>
@@ -111,16 +84,8 @@ const ProfilePage: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    value={tempProfile.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <TextFieldComponent
-                    type='text'
-                    placeholder='Prénom'
-                    // label="Prénom"
-                    value={tempProfile.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    value={tempProfile.first_name}
+                    onChange={(e) => handleInputChange('first_name', e.target.value)}
                     disabled={!isEditing}
                   />
                 </div>
@@ -129,8 +94,8 @@ const ProfilePage: React.FC = () => {
                   <input
                     type="text"
                     className="form-input"
-                    value={tempProfile.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    value={tempProfile.last_name}
+                    onChange={(e) => handleInputChange('last_name', e.target.value)}
                     disabled={!isEditing}
                   />
                 </div>
@@ -147,50 +112,78 @@ const ProfilePage: React.FC = () => {
                     disabled={!isEditing}
                   />
                 </div>
-              <div className="form-group">
-                <label className="form-label">Date de naissance</label>
-                <input
-                  type="date"
-                  className="form-input"
-                  value={tempProfile.dateOfBirth}
-                  onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                  disabled={!isEditing}
-                />
-                {/* TODO: Ajouter le champ dateOfBirth au modèle User */}
-              </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Niveau</label>
+                <label className="form-label">Classe</label>
                 <select
                   className="form-input"
-                  value={tempProfile.level}
-                  onChange={(e) => handleInputChange('level', e.target.value)}
+                  value={tempProfile.classe}
+                  onChange={(e) => handleInputChange('classe', e.target.value)}
                   disabled={!isEditing}
                 >
-                  <option value="Débutant">Débutant</option>
-                  <option value="Intermédiaire">Intermédiaire</option>
-                  <option value="Avancé">Avancé</option>
-                  <option value="Expert">Expert</option>
+                  <option value="" disabled>Sélectionnez votre classe</option>
+                  <option value="6ème">6ème</option>
+                  <option value="5ème">5ème</option>
+                  <option value="4ème">4ème</option>
+                  <option value="3ème">3ème</option>
                 </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Bio</label>
-                <textarea
-                  className="form-textarea"
-                  value={tempProfile.bio}
-                  onChange={(e) => handleInputChange('bio', e.target.value)}
-                  disabled={!isEditing}
-                  rows={4}
-                  placeholder="Parlez-nous de vous..."
-                />
-                {/* TODO: Ajouter le champ bio au modèle User */}
               </div>
             </div>
           </section>
+          <section className="profile-interests-section">
+            <div className="section-header">
+              <h2 className="section-title">🧡 Mes centres d'intérêt</h2>
+            </div>
 
-          {/* Profile Stats */}
+            <div className="interests-content">
+              <div className="interests-grid">
+                {user?.Interests && user.Interests.length > 0 ? (
+                  user.Interests.map((interest) => (
+                    <div key={interest.id} className="interest-item-tag">
+                      {interest.name}
+                      <button
+                        className="interest-delete-btn"
+                        onClick={() => handleDelete(interest.id)}
+                        title="Supprimer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-interests">Aucun intérêt renseigné pour le moment.</p>
+                )}
+              </div>
+              <div className="interest-add-container">
+                <input
+                  type="text"
+                  className="interest-input"
+                  placeholder="Ajouter un centre d'intérêt..."
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                />
+                <button className="interest-plus-btn" onClick={() => handleAdd()}>
+                  +
+                </button>
+              </div>
+              <div className="interest-suggestions">
+                <p className="suggestions-label">Suggestions :</p>
+                <div className="suggestions-flex">
+                  {['Jeux Vidéo', 'Football', 'Mangas', 'Histoire'].map((name) => (
+                    <button
+                      key={name}
+                      className="suggestion-tag"
+                      onClick={() => handleAdd(name)}
+                    >
+                      + {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
           <section className="profile-stats-section">
             <div className="section-header">
               <h2 className="section-title">📊 Statistiques</h2>
@@ -200,22 +193,22 @@ const ProfilePage: React.FC = () => {
               <div className="stat-card">
                 <div className="stat-icon">🏆</div>
                 <h4>Succès obtenus</h4>
-                <p>{user?.challengesCompleted || 0}</p>
+                <p>{0}</p>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">📚</div>
                 <h4>Cours terminés</h4>
-                <p>{user?.documentsScanned || 0}</p>
+                <p>{0}</p>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">⚡</div>
                 <h4>Points totaux</h4>
-                <p>{user?.points?.toLocaleString() || '0'}</p>
+                <p>{0}</p>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">🔥</div>
                 <h4>Série actuelle</h4>
-                <p>{user?.streak || 0} jours</p>
+                <p>{0} jours</p>
               </div>
             </div>
           </section>
