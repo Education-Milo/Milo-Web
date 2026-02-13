@@ -472,7 +472,14 @@ const ChatInput: React.FC<{
 
 const LoadingOverlay: React.FC = () => (
   <div className="scene-loading-overlay">
-    <div className="loading-spinner" />
+    <video
+      className="loading-video"
+      src="/loading.webm"
+      autoPlay
+      loop
+      muted
+      playsInline
+    />
     <span className="loading-text">Chargement de la scene...</span>
   </div>
 );
@@ -486,8 +493,7 @@ const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
   return (
     <div className="intro-overlay">
       <div className="intro-content">
-        <h1 className="intro-title">Bienvenue dans la classe de Milo !</h1>
-        <p className="intro-subtitle">Ton meilleur ami pour apprendre !</p>
+        <img src="/milo-logo-3D.png" alt="Intro" className="intro-image" />
       </div>
     </div>
   );

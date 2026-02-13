@@ -330,6 +330,12 @@
   animation: spin 0.8s linear infinite;
 }
 
+.loading-video {
+  width: 175px;
+  height: 175px;
+  object-fit: contain;
+}
+
 .loading-text {
   color: rgba(255, 255, 255, 0.5);
   font-size: 13px;
@@ -485,6 +491,7 @@
 
 /* ---------- Intro Overlay ---------- */
 .intro-overlay {
+  margin-top: -325px;
   position: absolute;
   inset: 0;
   display: flex;
@@ -515,6 +522,15 @@
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
   text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+}
+
+.intro-image {
+  max-width: 60vw;
+  max-height: 50vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 40px rgba(0, 0, 0, 0.5));
 }
 
 @keyframes introSlideUp {
