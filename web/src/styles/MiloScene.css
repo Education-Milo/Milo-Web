@@ -8,7 +8,7 @@
   height: 100vh;
   position: relative;
   overflow: hidden;
-  background: #0d0d0d;
+  background: rgb(88, 189, 230)
 }
 
 /* ---------- Glassmorphism Panel Base ---------- */
@@ -315,19 +315,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #0d0d0d;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
   z-index: 50;
   gap: 20px;
   animation: fadeIn 0.3s ease;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 140, 0, 0.15);
-  border-top-color: #FF8C00;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }
 
 .loading-video {
