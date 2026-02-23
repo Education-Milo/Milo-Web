@@ -17,6 +17,7 @@ import DuelsPage from '@screens/DuelsScreen';
 
 // Pages Parent
 import ParentDashboard from '@screens/Parent/Dashboard';
+import SubscriptionPage from '@screens/Parent/SubscriptionPage';
 // import ChildrenManagement from '@screens/Parent/ChildrenManagement';
 // import ProgressTracking from '@screens/Parent/ProgressTracking';
 // import ParentalControls from '@screens/Parent/ParentalControls';
@@ -93,6 +94,13 @@ const AuthNavigator: React.FC = () => {
           <ParentDashboard />
         </ProtectedRoute>
       } />
+
+      <Route path="/parent/subscription" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <SubscriptionPage />
+        </ProtectedRoute>
+      } />
+
       {/*
       <Route path="/parent/children" element={
         <ProtectedRoute allowedRoles={['Parent']}>
