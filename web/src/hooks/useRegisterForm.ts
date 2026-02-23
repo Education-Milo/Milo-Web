@@ -41,12 +41,13 @@ export const useRegisterForm = () => {
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
 
+    // Correction des clés: last_name et first_name pour matcher avec Register.tsx
     if (!formData.last_name.trim()) {
-      newErrors.nom = 'Le nom est requis';
+      newErrors.last_name = 'Le nom est requis';
     }
 
     if (!formData.first_name.trim()) {
-      newErrors.prenom = 'Le prénom est requis';
+      newErrors.first_name = 'Le prénom est requis';
     }
 
     if (!formData.email.trim()) {
@@ -86,16 +87,31 @@ export const useRegisterForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        formData.role = ROLE_MAPPING[formData.role] || 'Enfant';
+        // Au lieu de muter formData (ce qui peut créer des bugs dans React),
+        // on crée des variables juste pour l'envoi au serveur.
+        const roleToSend = ROLE_MAPPING[formData.role] || 'Enfant';
+        
+        // ASTUCE: Si c'est un parent, on n'envoie pas de classe au serveur (undefined)
+        // pour éviter que le backend ne bloque l'inscription avec une classe vide ("").
+        const classeToSend = formData.role === 'Élève' ? (formData.classe as ClassType) : undefined;
+
         await register(
           formData.email.trim(),
           formData.password,
           formData.last_name.trim(),
           formData.first_name.trim(),
-          formData.role,
-          formData.classe as ClassType
+          roleToSend,
+          classeToSend
         );
-        navigate(ROUTES.HOME);
+        
+        // Une fois inscrit, on redirige (tu pourras changer la route si tu crées une page spécifique parent)
+        if (roleToSend === 'Parent') {
+          navigate('/parent/dashboard');
+        } else if (roleToSend === 'Prof') {
+          navigate('/prof/dashboard'); // Si tu l'actives plus tard
+        } else {
+          navigate('/home'); // Pour les enfants
+        }
 
       } catch (error: any) {
         console.error('❌ Erreur d\'inscription:', error);
@@ -103,6 +119,7 @@ export const useRegisterForm = () => {
         const errorMessage = error?.response?.data?.detail ||
                             error?.message ||
                             'Une erreur est survenue';
+                            
         if (typeof errorMessage === 'string') {
           if (errorMessage.toLowerCase().includes('email already registered') ||
               errorMessage.toLowerCase().includes('user already exists') ||
@@ -120,6 +137,9 @@ export const useRegisterForm = () => {
             validationErrors[field] = err.msg;
           });
           setErrors(validationErrors);
+          
+          // Si une erreur cachée bloque le formulaire, on l'affiche en global
+          setGeneralError('Le serveur a refusé certaines données. Vérifiez vos informations.');
         } else {
           setGeneralError('Une erreur est survenue lors de l\'inscription');
         }
