@@ -350,3 +350,38 @@
   color: #1e293b;
 }
 
+.graphical-card {
+  background: white;
+  border-radius: 24px; /* Plus arrondi pour un style "app" */
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.graphical-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Pour les cartes avec un fond dégradé vif */
+.graphical-card.vibrant {
+    color: white;
+}
+
+.graphical-card.vibrant h3 {
+    color: white !important;
+    opacity: 0.9;
+}
+
+/* Petites illustrations de fond décoratives */
+.card-decoration-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -20px;
+    font-size: 8rem;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
+

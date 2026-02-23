@@ -7,14 +7,17 @@ import '@styles/SideBar.css';
 
 interface SidebarProps {
   onLogout: () => void;
-  userProfile: UserProfile;
+  userProfile: UserProfile | any; // Ajout de 'any' au cas où le type UserProfile strict n'a pas encore toutes les propriétés
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems = [
+  const isParent = userProfile?.role === 'Parent';
+
+  // --- MENUS ÉLÈVE ---
+  const studentNavItems = [
     { label: 'Accueil', path: ROUTES.HOME, icon: '🏠' },
     { label: 'Cours', path: ROUTES.COURSES, icon: '📚', badge: 3 },
     { label: 'Missions', path: ROUTES.MISSIONS, icon: '✅' },
@@ -31,6 +34,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
     { label: 'Amis', path: '/friends', icon: '👥', disabled: true },
     { label: 'Classements', path: '/leaderboard', icon: '🌟', disabled: true },
   ];
+
+  // --- MENUS PARENT ---
+  const parentNavItems = [
+    { label: 'Tableau de bord', path: '/parent/dashboard', icon: '📊' },
+    { label: 'Abonnement', path: '/parent/subscription', icon: '💳' },
+    { label: 'Comptes liés', path: '/parent/children', icon: '👨‍👩‍👧‍👦', disabled: true },
+    { label: 'Paramètres', path: '/settings', icon: '⚙️', disabled: true },
+  ];
+
+  // On choisit le menu principal en fonction du rôle
+  const activeNavItems = isParent ? parentNavItems : studentNavItems;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -62,18 +76,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
       <nav className="sidebar-nav">
         <div className="nav-group">
           <div className="nav-group-title">Principal</div>
-          {navItems.map(renderNavItem)}
+          {activeNavItems.map(renderNavItem)}
         </div>
 
-        <div className="nav-group">
-          <div className="nav-group-title">Progression</div>
-          {progressItems.map(renderNavItem)}
-        </div>
+        {/* On masque les sections Progression et Social pour les parents */}
+        {!isParent && (
+          <>
+            <div className="nav-group">
+              <div className="nav-group-title">Progression</div>
+              {progressItems.map(renderNavItem)}
+            </div>
 
-        <div className="nav-group">
-          <div className="nav-group-title">Social</div>
-          {socialItems.map(renderNavItem)}
-        </div>
+            <div className="nav-group">
+              <div className="nav-group-title">Social</div>
+              {socialItems.map(renderNavItem)}
+            </div>
+          </>
+        )}
       </nav>
 
       <div className="sidebar-footer">
@@ -83,7 +102,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
           </div>
           <div className="user-info">
             <h4>{userProfile?.first_name || 'Utilisateur'}</h4>
-            <p>Classe {userProfile?.classe || '1'}</p>
+            {/* Si c'est un parent on affiche "Parent", sinon on affiche sa classe */}
+            <p>{isParent ? 'Parent' : `Classe ${userProfile?.classe || '1'}`}</p>
           </div>
         </div>
         <button className="logout-button" onClick={onLogout} title="Se déconnecter">

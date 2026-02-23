@@ -17,6 +17,7 @@ import DuelsPage from '@screens/DuelsScreen';
 
 // Pages Parent
 import ParentDashboard from '@screens/Parent/Dashboard';
+import SubscriptionPage from '@screens/Parent/SubscriptionPage';
 // import ChildrenManagement from '@screens/Parent/ChildrenManagement';
 // import ProgressTracking from '@screens/Parent/ProgressTracking';
 // import ParentalControls from '@screens/Parent/ParentalControls';
@@ -93,6 +94,13 @@ const AuthNavigator: React.FC = () => {
           <ParentDashboard />
         </ProtectedRoute>
       } />
+
+      <Route path="/parent/subscription" element={
+        <ProtectedRoute allowedRoles={['Parent']}>
+          <SubscriptionPage />
+        </ProtectedRoute>
+      } />
+
       {/*
       <Route path="/parent/children" element={
         <ProtectedRoute allowedRoles={['Parent']}>
@@ -144,9 +152,9 @@ const AuthNavigator: React.FC = () => {
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Redirection des routes publiques */}
-      <Route path="/login" element={<Navigate to="/home" replace />} />
-      <Route path="/register" element={<Navigate to="/home" replace />} />
-      <Route path="/forgot-password" element={<Navigate to="/home" replace />} />
+      <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="/register" element={<Navigate to="/" replace />} />
+      <Route path="/forgot-password" element={<Navigate to="/" replace />} />
 
       {/* Route catch-all pour 404 */}
       <Route path="*" element={<Navigate to="/login" replace />} />

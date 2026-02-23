@@ -112,9 +112,7 @@ const ProfilePage: React.FC = () => {
                     disabled={!isEditing}
                   />
                 </div>
-              </div>
-
-              <div className="form-group">
+                <div className="form-group">
                 <label className="form-label">Classe</label>
                 <select
                   className="form-input"
@@ -129,6 +127,8 @@ const ProfilePage: React.FC = () => {
                   <option value="3ème">3ème</option>
                 </select>
               </div>
+              </div>
+
             </div>
           </section>
           <section className="profile-interests-section">
