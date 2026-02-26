@@ -1,10 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useUserStore } from '@store/user/user.store';
 import type { UserProfile } from '@/store/user/user.model';
 
 export const useProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, getMe, updateUser, addUserInterest, deleteUserInterest, loading } = useUserStore();
   const [newInterest, setNewInterest] = useState('');
   const [profile, setProfile] = useState<UserProfile>({
@@ -81,10 +80,6 @@ export const useProfilePage = () => {
     setIsEditing(false);
   };
 
-  const triggerPhotoUpload = () => {
-    fileInputRef.current?.click();
-  };
-
   const startEditing = () => {
     setIsEditing(true);
   };
@@ -94,11 +89,9 @@ export const useProfilePage = () => {
     profile,
     tempProfile,
     user,
-    fileInputRef,
     handleInputChange,
     handleSave,
     handleCancel,
-    triggerPhotoUpload,
     startEditing,
     setIsEditing,
     newInterest,

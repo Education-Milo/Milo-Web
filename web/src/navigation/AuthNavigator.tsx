@@ -156,8 +156,7 @@ const AuthNavigator: React.FC = () => {
       <Route path="/register" element={<Navigate to="/" replace />} />
       <Route path="/forgot-password" element={<Navigate to="/" replace />} />
 
-      {/* Route catch-all pour 404 */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

@@ -9,4 +9,3 @@ export { useDashboard } from './useDashboard';
 
 // Types exportés
 export type { Mission } from './useHomePage';
-export type { UserProfile } from './useProfilePage';

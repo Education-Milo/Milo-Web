@@ -1,33 +1,36 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@store/user/user.store';
+import { ROUTES } from '@constants/routes';
 
 const RedirectScreen: React.FC = () => {
   const navigate = useNavigate();
   const user = useUserStore(state => state.user);
 
   useEffect(() => {
-    if (!user) return;
-
-    // Rediriger automatiquement selon le rôle
-    switch (user.role) {
-      case 'User':
-        navigate('/home', { replace: true });
-        break;
-      case 'Parent':
-        navigate('/parent/dashboard', { replace: true });
-        break;
-      case 'Prof':
-        navigate('/prof/dashboard', { replace: true });
-        break;
-      case 'ADMIN':
-        navigate('/admin', { replace: true });
-        break;
-      default:
-        // Si rôle inconnu, aller vers home par défaut
-        navigate('/home', { replace: true });
-        break;
+    const timeout = setTimeout(() => {
+      if (!user) navigate(ROUTES.LOGIN, { replace: true });
+    }, 3000);
+    if (user) {
+      switch (user.role) {
+        case 'Enfant':
+          navigate(ROUTES.HOME, { replace: true });
+          break;
+        case 'Parent':
+          navigate(ROUTES.PARENT.DASHBOARD, { replace: true });
+          break;
+        case 'Prof':
+          navigate(ROUTES.PROF.DASHBOARD, { replace: true });
+          break;
+        case 'Admin':
+          navigate(ROUTES.ADMIN.DASHBOARD, { replace: true });
+          break;
+        default:
+          navigate(ROUTES.UNAUTHORIZED, { replace: true });
+          break;
+      }
     }
+    return () => clearTimeout(timeout);
   }, [user, navigate]);
 
   return (
@@ -48,8 +51,8 @@ const RedirectScreen: React.FC = () => {
         borderRadius: '50%',
         animation: 'spin 1s linear infinite'
       }}></div>
-      <p style={{ 
-        color: '#6b7280', 
+      <p style={{
+        color: '#6b7280',
         fontSize: '0.875rem',
         margin: 0
       }}>
