@@ -1,5 +1,5 @@
 import React from 'react';
-import type { DailyMission } from '@types/missions';
+import type { DailyMission } from '../../types/missions';
 import './MissionItem.css';
 
 interface MissionItemProps {

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-// import { chatService } from '../store/chatService';
+import React, { useState } from 'react';
 
 interface QCMQuestion {
   question: string;
@@ -8,7 +7,7 @@ interface QCMQuestion {
 }
 
 const TestQCM: React.FC = () => {
-  const [qcm, setQCM] = useState<QCMQuestion[] | null>(null);
+  const [qcm] = useState<QCMQuestion[] | null>(null);
   const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
   const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});

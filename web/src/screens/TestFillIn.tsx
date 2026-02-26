@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-// import { chatService } from '../store/chatService';
+import React, { useState } from 'react';
 
 interface FillInQuestion {
   sentence: string;
@@ -8,7 +7,7 @@ interface FillInQuestion {
 }
 
 const TestFillIn: React.FC = () => {
-  const [fillIn, setFillIn] = useState<FillInQuestion[] | null>(null);
+  const [fillIn] = useState<FillInQuestion[] | null>(null);
   const [error, setError] = useState('');
   const [subject, setSubject] = useState('');
   const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});

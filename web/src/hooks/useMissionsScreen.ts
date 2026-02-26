@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import type { DailyMission, MonthlyChallenge, MonthlyBadge } from '@types/missions';
+import type { DailyMission, MonthlyChallenge, MonthlyBadge } from '../types/missions';
 
 // Types pour nos données de mission (DailyMission & MonthlyChallenge restent les mêmes)
 

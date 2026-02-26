@@ -5,10 +5,14 @@ const CLASSES = [
   { label: '3ème', value: '3eme' },
 ];
 
-export const ClassSelector = (
-    value: string, onChange: (value: string) => void,
-    error: string,
-    disabled: boolean ) => (
+interface ClassSelectorProps {
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+  disabled?: boolean;
+}
+
+export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelectorProps ) => (
   <div style={{ marginBottom: '1rem', width: '100%' }}>
     <p style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '0.5rem', fontWeight: '500' }}>
       Sélectionnez votre classe :
