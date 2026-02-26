@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '@store/user/user.store';
-import { useAuthStore } from '@store/auth/auth.store';
 import courseChapterData from '@constants/chapterData';
 import type { CourseDetails } from '@constants/chapterData';
 
@@ -11,8 +10,7 @@ export const useCourseDetailScreen = () => {
 
   // Logique pour Sidebar/TopBar (copiée de useCoursesScreen)
   const user = useUserStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
-  
+
   const [courseData, setCourseData] = useState<CourseDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,17 +40,12 @@ export const useCourseDetailScreen = () => {
     navigate('/courses'); // Retourne à la page de liste des cours
   };
 
-  const handleLogout = () => {
-    if (logout) logout();
-    navigate('/login', { replace: true });
-  };
 
   return {
     user,
     courseData,
     isLoading,
     handleNavigation,
-    handleLogout,
     handleGoBack
   };
 };

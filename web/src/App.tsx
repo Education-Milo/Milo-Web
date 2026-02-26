@@ -4,7 +4,6 @@ import { useAuth } from '@hooks/useAuth';
 import AuthNavigator from '@navigation/AuthNavigator';
 import PublicNavigator from '@navigation/PublicNavigator';
 import LoadingScreen from '@components/LoadingScreen';
-// import { ThemeProvider } from './contexts/ThemeContext';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();

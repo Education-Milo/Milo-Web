@@ -23,14 +23,9 @@ export const useProfilePage = () => {
         console.error('Erreur lors du chargement des données utilisateur:', error);
       }
     };
-
     if (!user) {
       loadUserData();
-    }
-  }, [user, getMe]);
-
-  useEffect(() => {
-    if (user) {
+    } else {
       const updatedProfile: UserProfile = {
         first_name: user.first_name,
         last_name: user.last_name,
@@ -40,7 +35,7 @@ export const useProfilePage = () => {
       setProfile(updatedProfile);
       setTempProfile(updatedProfile);
     }
-  }, [user]);
+  }, [user, getMe]);
 
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     setTempProfile(prev => ({

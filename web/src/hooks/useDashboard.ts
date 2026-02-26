@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@store/user/user.store';
-import { useAuthStore } from '@store/auth/auth.store';
 
 export const useDashboard = () => {
-  const navigate = useNavigate();
   const user = useUserStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
 
   const [welcomeMessage, setWelcomeMessage] = useState<string>('');
   const [selectedChild, setSelectedChild] = useState<number | null>(null);
 
-  // Enfants fictifs pour la démo (à remplacer par un appel API réel)
   const children = [
     {
       id: 1,
@@ -36,7 +31,6 @@ export const useDashboard = () => {
   useEffect(() => {
     const hour = new Date().getHours();
     let greeting = '';
-    
     if (hour < 12) {
       greeting = 'Bonjour';
     } else if (hour < 18) {
@@ -44,20 +38,11 @@ export const useDashboard = () => {
     } else {
       greeting = 'Bonsoir';
     }
-    
+
     if (user?.first_name) {
       setWelcomeMessage(`${greeting}, ${user.first_name}`);
     }
   }, [user]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
-  };
 
   const handleSelectChild = (childId: number) => {
     setSelectedChild(childId === selectedChild ? null : childId);
@@ -74,7 +59,6 @@ export const useDashboard = () => {
     user,
     children,
     selectedChild,
-    handleLogout,
     handleSelectChild,
     handleViewDetails
   };
