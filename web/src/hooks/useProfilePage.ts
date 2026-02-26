@@ -1,13 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@store/auth/auth.store';
 import { useUserStore } from '@store/user/user.store';
-import { ROUTES } from '@constants/routes';
 import type { UserProfile } from '@/store/user/user.model';
 
 export const useProfilePage = () => {
-  const navigate = useNavigate();
-  const logout = useAuthStore(state => state.logout);
   const [isEditing, setIsEditing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, getMe, updateUser, addUserInterest, deleteUserInterest, loading } = useUserStore();
@@ -46,11 +41,6 @@ export const useProfilePage = () => {
       setTempProfile(updatedProfile);
     }
   }, [user]);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate(ROUTES.LOGIN, { replace: true });
-  };
 
   const handleInputChange = (field: keyof UserProfile, value: string) => {
     setTempProfile(prev => ({
@@ -110,7 +100,6 @@ export const useProfilePage = () => {
     tempProfile,
     user,
     fileInputRef,
-    handleLogout,
     handleInputChange,
     handleSave,
     handleCancel,

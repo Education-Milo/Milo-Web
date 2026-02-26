@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Friend, Duel } from '../types/duels';
-import { useUserStore } from '../store/user/user.store';
-import { useAuthStore } from '../store/auth/auth.store';
 
 export const useDuelsScreen = () => {
     const navigate = useNavigate();
-    const user = useUserStore(state => state.user);
-    const logout = useAuthStore(state => state.logout);
 
     const [friends, setFriends] = useState<Friend[]>([]);
     const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
-        // Mock fetching friends
         const mockFriends: Friend[] = [
             { id: '1', firstName: 'Alice', lastName: 'Kate', level: 5, status: 'online' },
             { id: '2', firstName: 'Bob', lastName: 'Bardy', level: 3, status: 'offline' },
@@ -23,7 +18,6 @@ export const useDuelsScreen = () => {
         ];
         setFriends(mockFriends);
 
-        // Mock fetching active duels
         const mockDuels: Duel[] = [
             // { id: 'd1', opponent: mockFriends[0], status: 'pending', type: 'friend' }
         ];
@@ -52,13 +46,7 @@ export const useDuelsScreen = () => {
         }
     };
 
-    const handleLogout = () => {
-        if (logout) logout();
-        navigate('/login', { replace: true });
-    };
-
     const handleDuelRequest = (friendId: string) => {
-        console.log(`Requesting duel with friend ${friendId}`);
         // Mock adding a pending duel
         const friend = friends.find(f => f.id === friendId);
         if (friend) {
@@ -89,12 +77,10 @@ export const useDuelsScreen = () => {
     };
 
     return {
-        user,
         friends,
         activeDuels,
         isSearching,
         handleNavigation,
-        handleLogout,
         handleDuelRequest,
         handleRandomDuel
     };

@@ -28,13 +28,11 @@ export const useLoginForm = () => {
 
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
-    
     if (!formData.email.trim()) {
       newErrors.email = "L'email est requis";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "L'email n'est pas valide";
     }
-    
     if (!formData.password) {
       newErrors.password = 'Le mot de passe est requis';
     }

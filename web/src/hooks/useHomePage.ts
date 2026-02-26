@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@store/auth/auth.store';
 import { useUserStore } from '@store/user/user.store';
 import { ROUTES } from '@constants/routes';
 
@@ -14,7 +13,6 @@ export interface Mission {
 }
 
 export const useHomePage = () => {
-  const logout = useAuthStore(state => state.logout);
   const { user, getMe } = useUserStore();
   const navigate = useNavigate();
 
@@ -56,11 +54,6 @@ export const useHomePage = () => {
     );
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate(ROUTES.LOGIN, { replace: true });
-  };
-
   const handleMiloClick = () => {
     navigate(ROUTES.MILO);
   };
@@ -69,9 +62,7 @@ export const useHomePage = () => {
     welcomeMessage,
     missions,
     completedMissionsCount,
-    user,
     handleMissionClick,
-    handleLogout,
     handleMiloClick,
   };
 };

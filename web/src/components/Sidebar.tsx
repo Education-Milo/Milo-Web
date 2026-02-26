@@ -7,7 +7,7 @@ import '@styles/SideBar.css';
 
 interface SidebarProps {
   onLogout: () => void;
-  userProfile: UserProfile | any; // Ajout de 'any' au cas où le type UserProfile strict n'a pas encore toutes les propriétés
+  userProfile: UserProfile | any;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
@@ -16,7 +16,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
 
   const isParent = userProfile?.role === 'Parent';
 
-  // --- MENUS ÉLÈVE ---
   const studentNavItems = [
     { label: 'Accueil', path: ROUTES.HOME, icon: '🏠' },
     { label: 'Cours', path: ROUTES.COURSES, icon: '📚', badge: 3 },
@@ -35,7 +34,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
     { label: 'Classements', path: '/leaderboard', icon: '🌟', disabled: true },
   ];
 
-  // --- MENUS PARENT ---
   const parentNavItems = [
     { label: 'Tableau de bord', path: '/parent/dashboard', icon: '📊' },
     { label: 'Abonnement', path: '/parent/subscription', icon: '💳' },
@@ -43,7 +41,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
     { label: 'Paramètres', path: '/settings', icon: '⚙️', disabled: true },
   ];
 
-  // On choisit le menu principal en fonction du rôle
   const activeNavItems = isParent ? parentNavItems : studentNavItems;
 
   const isActive = (path: string) => location.pathname === path;
@@ -79,7 +76,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
           {activeNavItems.map(renderNavItem)}
         </div>
 
-        {/* On masque les sections Progression et Social pour les parents */}
         {!isParent && (
           <>
             <div className="nav-group">
@@ -102,7 +98,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
           </div>
           <div className="user-info">
             <h4>{userProfile?.first_name || 'Utilisateur'}</h4>
-            {/* Si c'est un parent on affiche "Parent", sinon on affiche sa classe */}
             <p>{isParent ? 'Parent' : `Classe ${userProfile?.classe || '1'}`}</p>
           </div>
         </div>

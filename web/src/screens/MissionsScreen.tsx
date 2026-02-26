@@ -1,52 +1,28 @@
 import React from 'react';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
 import { useMissionsScreen } from '@hooks/useMissionsScreen';
 import MissionItem from '@components/MissionItem/MissionItem';
 import BadgeItem from '@components/BadgeItem/BadgeItem';
 import '@styles/MissionsScreen.css';
-import '@styles/HomePage.css'; 
+import '@styles/HomePage.css';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
 const MissionsScreen: React.FC = () => {
   const {
-    user,
-    handleNavigation,
-    handleLogout,
     dailyMissions,
     monthlyChallenge,
     badgesByYear,
     sortedYears
   } = useMissionsScreen();
 
-  // Délais de base pour les animations
-  const dailyMissionDelayStart = 0.3; // Après les cartes principales
-  const badgeDelayStart = 0.5; // Après les missions quotidiennes
+  const dailyMissionDelayStart = 0.3;
+  const badgeDelayStart = 0.5;
 
   return (
     <>
-      <Sidebar 
-        activeNav="Missions"
-        onNavigation={handleNavigation}
-        onLogout={handleLogout}
-        userProfile={{
-          firstName: user?.prenom || '',
-          lastName: user?.nom || '',
-          level: user?.level?.toString() || '1',
-          profilePicture: null
-        }}
-      />
-
-      <main className="main-container">
-        <TopBar
-          energyPoints={user?.points || 0}
-          streakDays={user?.streak || 0}
-        />
-
+    <ScreenLayout>
         <div className="missions-page-container">
           <div className="missions-top-row">
-            
             <section className="section-card monthly-challenge-card">
-              
               <div className="monthly-challenge-top-content">
                 <div className="monthly-challenge-header">
                   <h3>{monthlyChallenge.title}</h3>
@@ -55,8 +31,8 @@ const MissionsScreen: React.FC = () => {
                   <p>Termine {monthlyChallenge.questsTotal} quêtes ce mois-ci pour gagner un badge exclusif !</p>
                   <div className="mission-progress-container">
                     <div className="mission-progress-bar">
-                      <div 
-                        className="mission-progress-fill" 
+                      <div
+                        className="mission-progress-fill"
                         style={{ width: `${(monthlyChallenge.questsCurrent / monthlyChallenge.questsTotal) * 100}%` }}
                       ></div>
                     </div>
@@ -80,12 +56,11 @@ const MissionsScreen: React.FC = () => {
                 <h2 className="section-title">🎯 Missions du jour</h2>
                 <div className="missions-timer">⏳ 8 HEURES</div>
               </div>
-              
               <div className="daily-missions-list">
                 {dailyMissions.map((mission, index) => (
-                  <MissionItem 
-                    key={mission.id} 
-                    mission={mission} 
+                  <MissionItem
+                    key={mission.id}
+                    mission={mission}
                     animationDelay={`${dailyMissionDelayStart + index * 0.05}s`}
                   />
                 ))}
@@ -97,16 +72,15 @@ const MissionsScreen: React.FC = () => {
             <div className="section-header">
               <h2 className="section-title">🏆 Badges Mensuels</h2>
             </div>
-            
             <div className="badge-calendar-content">
               {sortedYears.map((year) => (
                 <div key={year} className="badge-year-section">
                   <h3 className="badge-year-title">Badges {year}</h3>
                   <div className="badge-grid">
                     {badgesByYear[year].map((badge, index) => (
-                      <BadgeItem 
-                        key={badge.id} 
-                        badge={badge} 
+                      <BadgeItem
+                        key={badge.id}
+                        badge={badge}
                         animationDelay={`${badgeDelayStart + index * 0.03}s`}
                       />
                     ))}
@@ -116,7 +90,7 @@ const MissionsScreen: React.FC = () => {
             </div>
           </section>
         </div>
-      </main>
+      </ScreenLayout>
     </>
   );
 };

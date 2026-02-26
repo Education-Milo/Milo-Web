@@ -1,42 +1,22 @@
 import React from 'react';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
 import { useDuelsScreen } from '@hooks/useDuelsScreen';
 import FriendList from '@components/Duel/FriendList';
 import DuelCard from '@components/Duel/DuelCard';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 import '@styles/DuelsScreen.css';
 
 const DuelsScreen: React.FC = () => {
   const {
-    user,
     friends,
     activeDuels,
     isSearching,
-    handleLogout,
     handleDuelRequest,
     handleRandomDuel
   } = useDuelsScreen();
 
   return (
     <>
-      <Sidebar
-        onLogout={handleLogout}
-        userProfile={{
-          email: user?.email || '',
-          firstName: user?.prenom || '',
-          lastName: user?.nom || '',
-          level: user?.level?.toString() || '1',
-          role: user?.role || '',
-          profilePicture: undefined
-        }}
-      />
-
-      <main className="main-container">
-        <TopBar
-          energyPoints={user?.points || 0}
-          streakDays={user?.streak || 0}
-        />
-
+      <ScreenLayout>
         <div className="duels-page-container">
           {/* Welcome Banner */}
           <section className="duels-welcome-card">
@@ -98,7 +78,7 @@ const DuelsScreen: React.FC = () => {
             </div>
           </section>
         </div>
-      </main>
+      </ScreenLayout>
     </>
   );
 };

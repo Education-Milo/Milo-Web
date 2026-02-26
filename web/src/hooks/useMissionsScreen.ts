@@ -1,7 +1,4 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '@store/user/user.store';
-import { useAuthStore } from '@store/auth/auth.store';
 import type { DailyMission, MonthlyChallenge, MonthlyBadge } from '@types/missions';
 
 // Types pour nos données de mission (DailyMission & MonthlyChallenge restent les mêmes)
@@ -41,8 +38,7 @@ const mockBadgeData: MonthlyBadge[] = [
 export const useMissionsScreen = () => {
   const navigate = useNavigate();
   
-  const user = useUserStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
+
 
   const handleNavigation = (page: string) => {
     switch (page) {
@@ -52,11 +48,6 @@ export const useMissionsScreen = () => {
       case 'Duels': navigate('/duels'); break;
       default: navigate('/home'); break;
     }
-  };
-
-  const handleLogout = () => {
-    if (logout) logout();
-    navigate('/login', { replace: true });
   };
 
   // NOUVEAU : Logique pour grouper et trier les badges
@@ -78,9 +69,7 @@ export const useMissionsScreen = () => {
   }
 
   return {
-    user,
     handleNavigation,
-    handleLogout,
     dailyMissions: mockDailyMissions,
     monthlyChallenge: mockMonthlyChallenge,
     badgesByYear, // Renvoie les badges groupés

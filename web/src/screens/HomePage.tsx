@@ -2,37 +2,20 @@ import React from 'react';
 import '@styles/HomePage.css';
 import { useHomePage } from '@hooks/useHomePage';
 import MiloModel3D from '@components/Milo3DModel';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
 const HomePage: React.FC = () => {
   const {
     welcomeMessage,
     missions,
     completedMissionsCount,
-    user,
     handleMissionClick,
-    handleLogout,
     handleMiloClick
   } = useHomePage();
 
   return (
     <>
-      <Sidebar
-        onLogout={handleLogout}
-        userProfile={{
-          email: user?.email || '',
-          first_name: user?.first_name || '',
-          last_name: user?.last_name || '',
-          classe: user?.classe,
-          role: user?.role,
-        }}
-      />
-      <main className="main-container">
-        <TopBar
-          energyPoints={0}
-          streakDays={0}
-        />
+      <ScreenLayout>
         <div className="dashboard">
           <div className="main-column">
             <section className="welcome-section">
@@ -123,8 +106,8 @@ const HomePage: React.FC = () => {
             </section>
           </div>
         </div>
-      </main>
-    </>
+        </ScreenLayout>
+      </>
   );
 };
 

@@ -2,8 +2,7 @@ import React from 'react';
 import '@styles/HomePage.css';
 import '@styles/Dashboard.css';
 import { useDashboard } from '@hooks/useDashboard';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
 // --- COMPOSANT INTERNE POUR LE GRAPHIQUE CIRCULAIRE (SVG) ---
 const CircularProgress = ({ value, max, color, icon, label, sublabel }: any) => {
@@ -75,12 +74,9 @@ const getStatsForChild = (childId: string | number) => {
 const Dashboard: React.FC = () => {
   const {
     welcomeMessage,
-    user,
     children,
     selectedChild,
-    handleLogout,
     handleSelectChild,
-    handleViewDetails
   } = useDashboard();
 
   const safeChildren = children || [];
@@ -91,23 +87,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Sidebar
-        onLogout={handleLogout}
-        userProfile={{
-          email: user?.email || '',
-          first_name: user?.first_name || user?.prenom || '',
-          last_name: user?.last_name || user?.nom || '',
-          role: 'Parent',
-        }}
-      />
-      
-      <main className="main-container">
-        <TopBar 
-          searchPlaceholder="Rechercher une leçon, une statistique..."
-          energyPoints={0}
-          streakDays={0}
-        />
-
+      <ScreenLayout>
         <div className="dashboard">
           <div className="main-column">
             
@@ -254,7 +234,7 @@ const Dashboard: React.FC = () => {
                   <div style={{ position: 'absolute', top: '-10px', right: '10px', fontSize: '4rem', opacity: 0.2, transform: 'rotate(20deg)' }}>🦊</div>
                   
                   <div style={{ background: 'rgba(255, 107, 53, 0.1)', display: 'inline-block', padding: '0.5rem 1rem', borderRadius: '20px', color: '#ff6b35', fontWeight: 'bold', marginBottom: '1rem' }}>
-                    Ligue {activeChild.league || 'Argent'}
+                    Ligue {'Argent'}
                   </div>
                   
                   <h3 style={{ fontSize: '2.5rem', color: '#2d3748', fontWeight: 800, marginBottom: '0' }}>{activeChild?.points || '0'} XP</h3>
@@ -303,7 +283,7 @@ const Dashboard: React.FC = () => {
             </section>
           </div>
         </div>
-      </main>
+      </ScreenLayout>
     </>
   );
 };

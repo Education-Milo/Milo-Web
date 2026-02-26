@@ -1,42 +1,21 @@
 import React from 'react';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
 import CourseCard from '@components/CourseCard/CourseCard';
 import { useCoursesScreen } from '@hooks/useCoursesScreen';
 import '@styles/CoursesScreen.css';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
 const CoursesScreen: React.FC = () => {
-  // Appelle le hook pour obtenir toute la logique et les données
   const {
     user,
     currentClass,
     setCurrentClass,
     courses,
     handleCourseClick,
-    handleNavigation,
-    handleLogout
   } = useCoursesScreen();
 
   return (
     <>
-      <Sidebar 
-        activeNav="Cours"
-        onNavigation={handleNavigation}
-        onLogout={handleLogout}
-        userProfile={{
-          firstName: user?.prenom || '', // Utilise l'utilisateur du hook
-          lastName: user?.nom || '',
-          level: user?.level?.toString() || '1',
-          profilePicture: null
-        }}
-      />
-
-      <main className="main-container">
-        <TopBar
-          energyPoints={user?.points || 0} // Utilise l'utilisateur du hook
-          streakDays={user?.streak || 0}
-        />
-
+      <ScreenLayout>
         <div className="courses-content-area">
 
           <section className="courses-welcome-card">
@@ -45,7 +24,7 @@ const CoursesScreen: React.FC = () => {
             </div>
             <div className="courses-welcome-text">
               <h1 className="welcome-card-title">
-                Bonjour {user?.prenom || 'Test'} !
+                Bonjour {user?.first_name || ''} !
               </h1>
               <p className="welcome-card-subtitle">
                 Prêt à explorer de nouvelles matières ? Choisis un cours pour commencer.
@@ -55,8 +34,7 @@ const CoursesScreen: React.FC = () => {
 
           <div className="courses-title-container">
             <h2 className="courses-grid-title">Matières générales</h2>
-            
-            <select 
+            <select
               className="class-level-dropdown"
               value={currentClass}
               onChange={(e) => setCurrentClass(e.target.value)}
@@ -70,18 +48,17 @@ const CoursesScreen: React.FC = () => {
 
           <div className="courses-grid">
             {courses.map((course, index) => (
-              <CourseCard 
-                key={course.id} 
+              <CourseCard
+                key={course.id}
                 course={course}
                 onClick={handleCourseClick}
-                // Calcule le délai pour l'animation en cascade
                 animationDelay={`${0.3 + index * 0.05}s`}
               />
             ))}
           </div>
         </div>
-      </main>
-    </>
+        </ScreenLayout>
+      </>
   );
 };
 

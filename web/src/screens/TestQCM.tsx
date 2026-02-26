@@ -17,7 +17,6 @@ const TestQCM: React.FC = () => {
   const fetchQCM = async () => {
     setError('');
     try {
-      console.log('Fetching QCM for subject:', subject);
       // const response = await chatService.createQCM(subject);
       // setQCM(response.qcm);
       // setScore(-1); // reset score when fetching new QCM

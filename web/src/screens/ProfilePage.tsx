@@ -1,8 +1,7 @@
 import React from 'react';
 import '@styles/ProfilePage.css';
 import { useProfilePage } from '@hooks/useProfilePage';
-import Sidebar from '@components/Sidebar';
-import TopBar from '@components/TopBar';
+import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
 const ProfilePage: React.FC = () => {
   const {
@@ -10,7 +9,6 @@ const ProfilePage: React.FC = () => {
     profile,
     tempProfile,
     user,
-    handleLogout,
     handleInputChange,
     handleSave,
     handleCancel,
@@ -23,21 +21,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <Sidebar
-        onLogout={handleLogout}
-        userProfile={{
-          email: user?.email || '',
-          first_name: user?.first_name || '',
-          last_name: user?.last_name || '',
-          classe: user?.classe,
-          role: user?.role,
-        }}
-      />
-      <main className="main-container">
-        <TopBar
-          energyPoints={0}
-          streakDays={0}
-        />
+      <ScreenLayout>
         <div className="profile-container">
           <section className="profile-header">
             <div className="profile-header-content">
@@ -211,7 +195,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </section>
         </div>
-      </main>
+      </ScreenLayout>
     </>
   );
 };

@@ -45,8 +45,8 @@ export const useDashboard = () => {
       greeting = 'Bonsoir';
     }
     
-    if (user?.prenom) {
-      setWelcomeMessage(`${greeting}, ${user.prenom}`);
+    if (user?.first_name) {
+      setWelcomeMessage(`${greeting}, ${user.first_name}`);
     }
   }, [user]);
 
