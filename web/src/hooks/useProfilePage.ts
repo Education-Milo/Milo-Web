@@ -70,7 +70,6 @@ export const useProfilePage = () => {
         last_name: tempProfile.last_name,
         classe: tempProfile.classe,
       });
-      setProfile(tempProfile);
       setIsEditing(false);
     } catch (error) {
       console.error("Erreur lors de la sauvegarde :", error);

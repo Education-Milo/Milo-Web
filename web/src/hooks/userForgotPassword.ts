@@ -34,10 +34,6 @@ export default function useForgotPassword(): UseForgotPasswordReturn {
       setEmailError('Veuillez entrer une adresse email valide');
       return;
     }
-
-    // Simulation d'envoi d'email
-    // eslint-disable-next-line no-console
-    console.log('Password reset email sent to:', email);
     setIsSubmitted(true);
   };
 

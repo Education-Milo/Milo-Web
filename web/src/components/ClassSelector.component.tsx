@@ -1,4 +1,9 @@
-const CLASSES = ['6ème', '5ème', '4ème', '3ème'];
+const CLASSES = [
+  { label: '6ème', value: '6eme' },
+  { label: '5ème', value: '5eme' },
+  { label: '4ème', value: '4eme' },
+  { label: '3ème', value: '3eme' },
+];
 
 export const ClassSelector = ({ value, onChange, error, disabled }: any) => (
   <div style={{ marginBottom: '1rem', width: '100%' }}>
@@ -6,23 +11,23 @@ export const ClassSelector = ({ value, onChange, error, disabled }: any) => (
       Sélectionnez votre classe :
     </p>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-      {CLASSES.map((classe) => (
+      {CLASSES.map(({ label, value: classValue }) => (
         <button
-          key={classe}
+          key={classValue}
           type="button"
           disabled={disabled}
-          onClick={() => onChange(classe)}
+          onClick={() => onChange(classValue)}
           style={{
             padding: '10px',
             borderRadius: '8px',
-            border: value === classe ? '2px solid #f97316' : '1px solid #d1d5db',
-            backgroundColor: value === classe ? '#fff7ed' : 'white',
-            color: value === classe ? '#f97316' : '#4b5563',
+            border: value === classValue ? '2px solid #f97316' : '1px solid #d1d5db',
+            backgroundColor: value === classValue ? '#fff7ed' : 'white',
+            color: value === classValue ? '#f97316' : '#4b5563',
             cursor: 'pointer',
-            fontWeight: value === classe ? '600' : '400'
+            fontWeight: value === classValue ? '600' : '400'
           }}
         >
-          {classe}
+          {label}
         </button>
       ))}
     </div>

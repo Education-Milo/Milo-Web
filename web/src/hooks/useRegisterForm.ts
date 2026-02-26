@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@store/auth/auth.store';
 import type { RegisterFormData, FormErrors } from '../types/auth.types';
-import { ROUTES } from '@constants/routes';
 import type { UserRole, ClassType } from '@store/user/user.model';
+import { ROUTES } from '@constants/routes';
 
 export const useRegisterForm = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
@@ -20,6 +20,13 @@ export const useRegisterForm = () => {
     'Élève': 'Enfant',
     'Parent': 'Parent',
     'Professeur': 'Prof'
+  };
+
+  const ROLE_ROUTES: Record<string, string> = {
+    'Enfant': ROUTES.HOME,
+    'Parent': ROUTES.PARENT.DASHBOARD,
+    'Prof': ROUTES.PROF.DASHBOARD,
+    'Admin': ROUTES.ADMIN.DASHBOARD,
   };
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -41,7 +48,6 @@ export const useRegisterForm = () => {
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
 
-    // Correction des clés: last_name et first_name pour matcher avec Register.tsx
     if (!formData.last_name.trim()) {
       newErrors.last_name = 'Le nom est requis';
     }
@@ -87,12 +93,7 @@ export const useRegisterForm = () => {
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
       try {
-        // Au lieu de muter formData (ce qui peut créer des bugs dans React),
-        // on crée des variables juste pour l'envoi au serveur.
         const roleToSend = ROLE_MAPPING[formData.role] || 'Enfant';
-        
-        // ASTUCE: Si c'est un parent, on n'envoie pas de classe au serveur (undefined)
-        // pour éviter que le backend ne bloque l'inscription avec une classe vide ("").
         const classeToSend = formData.role === 'Élève' ? (formData.classe as ClassType) : undefined;
 
         await register(
@@ -103,15 +104,8 @@ export const useRegisterForm = () => {
           roleToSend,
           classeToSend
         );
-        
-        // Une fois inscrit, on redirige (tu pourras changer la route si tu crées une page spécifique parent)
-        if (roleToSend === 'Parent') {
-          navigate('/parent/dashboard');
-        } else if (roleToSend === 'Prof') {
-          navigate('/prof/dashboard'); // Si tu l'actives plus tard
-        } else {
-          navigate('/home'); // Pour les enfants
-        }
+        const route = ROLE_ROUTES[roleToSend] || ROUTES.HOME;
+        navigate(route, { replace: true });
 
       } catch (error: any) {
         console.error('❌ Erreur d\'inscription:', error);
@@ -119,7 +113,6 @@ export const useRegisterForm = () => {
         const errorMessage = error?.response?.data?.detail ||
                             error?.message ||
                             'Une erreur est survenue';
-                            
         if (typeof errorMessage === 'string') {
           if (errorMessage.toLowerCase().includes('email already registered') ||
               errorMessage.toLowerCase().includes('user already exists') ||
@@ -137,8 +130,6 @@ export const useRegisterForm = () => {
             validationErrors[field] = err.msg;
           });
           setErrors(validationErrors);
-          
-          // Si une erreur cachée bloque le formulaire, on l'affiche en global
           setGeneralError('Le serveur a refusé certaines données. Vérifiez vos informations.');
         } else {
           setGeneralError('Une erreur est survenue lors de l\'inscription');

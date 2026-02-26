@@ -21,8 +21,6 @@ const ProfilePage: React.FC = () => {
     handleDelete,
   } = useProfilePage();
 
-  console.log('User Interests:', user?.Interests);
-
   return (
     <>
       <Sidebar
@@ -121,10 +119,10 @@ const ProfilePage: React.FC = () => {
                   disabled={!isEditing}
                 >
                   <option value="" disabled>Sélectionnez votre classe</option>
-                  <option value="6ème">6ème</option>
-                  <option value="5ème">5ème</option>
-                  <option value="4ème">4ème</option>
-                  <option value="3ème">3ème</option>
+                  <option value="6eme">6ème</option>
+                  <option value="5eme">5ème</option>
+                  <option value="4eme">4ème</option>
+                  <option value="3eme">3ème</option>
                 </select>
               </div>
               </div>

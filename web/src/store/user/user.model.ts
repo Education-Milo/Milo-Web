@@ -1,5 +1,5 @@
 export type UserRole = 'Enfant' | 'Prof' | 'Parent' | 'Admin' ;
-export type ClassType = '6ème' | '5ème' | '4ème' | '3ème';
+export type ClassType = '6eme' | '5eme' | '4eme' | '3eme';
 export interface User extends UserProfile {
     id: string;
     role: UserRole;

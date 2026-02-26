@@ -42,7 +42,6 @@ export const useAuthStore = create<AuthStore>()(
           return true;
         } catch (error: any) {
           if (error.response?.status === 401) {
-            console.log('Token invalide, déconnexion');
             await get().logout();
             return false;
           }
@@ -64,7 +63,6 @@ export const useAuthStore = create<AuthStore>()(
           }
 
           if (isTokenExpired()) {
-            console.log('Token expiré, déconnexion');
             await get().logout();
             get().stopTokenValidation();
             return;
@@ -113,6 +111,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       register: async (email, password, lastName, firstName, role, classe) => {
+        console.log('Registering user with data:', { email, password, lastName, firstName, role, classe });
         try {
           const response = await APIAxios.post(APIRoutes.POST_Register, {
             email,
