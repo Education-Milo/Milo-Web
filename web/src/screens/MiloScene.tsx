@@ -2,7 +2,8 @@ import React, { Suspense, useRef, useState, useEffect, useCallback } from 'react
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Environment, useGLTF, useAnimations, Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { FiSend, FiSettings, FiX, FiHelpCircle } from 'react-icons/fi';
+import { FiSend, FiSettings, FiX, FiHelpCircle, FiArrowLeft } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import HelpModal from '../components/HelpClass';
 import '../styles/MiloScene.css';
 
@@ -94,7 +95,9 @@ const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
         color="white"
         anchorX="left"
         anchorY="top"
-        maxWidth={5}
+        maxWidth={4.5}
+        overflowWrap="break-word"
+        clipRect={[-0.2, -2.8, 5, 0.2]}
       >
         {displayText}
       </Text>
@@ -159,14 +162,16 @@ const Feuille: React.FC<TextPanelProps & { onPanelClick: () => void }> = ({
 
       {/* Text – not raycastable so it doesn't block the sheet */}
       <Text
-        position={[-1, 1, 0.02]}
+        position={[-1.05, 1.05, 0.02]}
         fontSize={0.12}
         color="black"
         anchorX="left"
         anchorY="top"
-        maxWidth={2.3}
+        maxWidth={2.1}
         lineHeight={1.4}
+        overflowWrap="break-word"
         raycast={noRaycast}
+        clipRect={[-0.2, -2.25, 2.3, 0.2]}
       >
         {displayText}
       </Text>
@@ -412,23 +417,6 @@ const AnimationControls: React.FC<{
   </div>
 );
 
-const TypingIndicator: React.FC = () => (
-  <div className="typing-indicator">
-    <div className="typing-dot" />
-    <div className="typing-dot" />
-    <div className="typing-dot" />
-  </div>
-);
-
-const ReplyBubble: React.FC<{ text: string; isLoading: boolean }> = ({ text, isLoading }) => {
-  if (!text && !isLoading) return null;
-  return (
-    <div className={`reply-bubble glass-panel ${!text && !isLoading ? 'hidden' : ''}`}>
-      {isLoading ? <TypingIndicator /> : text}
-    </div>
-  );
-};
-
 const ChatInput: React.FC<{
   value: string;
   onChange: (val: string) => void;
@@ -504,6 +492,7 @@ const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
    ============================ */
 
 const MiloScene: React.FC = () => {
+  const navigate = useNavigate();
   const [cameraY, setCameraY] = useState(0);
   const [, setDown] = useState(true);
   const [text, setText] = useState('');
@@ -606,9 +595,6 @@ const MiloScene: React.FC = () => {
       {/* Intro overlay text */}
       <IntroOverlay visible={showIntroText && sceneReady} />
 
-      {/* Reply bubble */}
-      <ReplyBubble text={reply} isLoading={isLoading} />
-
       {/* Controls panel */}
       <AnimationControls
         activeAnimation={activeAnimation}
@@ -637,6 +623,14 @@ const MiloScene: React.FC = () => {
         aria-label="Aide"
       >
         <FiHelpCircle size={22} />
+      </button>
+
+      <button
+        className="back-btn"
+        onClick={() => navigate(-1)}
+        aria-label="Retour"
+      >
+        <FiArrowLeft size={22} />
       </button>
 
       <ChatInput

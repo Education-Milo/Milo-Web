@@ -41,6 +41,7 @@
   transform: translateX(-260px);
   opacity: 0;
   pointer-events: none;
+  animation: none;
 }
 
 /* Panel toggle button */
@@ -301,6 +302,35 @@
 }
 
 .help-btn:hover {
+  background: rgba(255, 140, 0, 0.2);
+  color: #FF8C00;
+  border-color: rgba(255, 140, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* ---------- Back Button ---------- */
+.back-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 15, 20, 0.65);
+  backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.25s ease;
+  animation: fadeIn 0.4s 0.5s ease both;
+}
+
+.back-btn:hover {
   background: rgba(255, 140, 0, 0.2);
   color: #FF8C00;
   border-color: rgba(255, 140, 0, 0.3);
