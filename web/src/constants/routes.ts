@@ -13,6 +13,7 @@ export const ROUTES = {
     HOME: '/home',
     MILO: '/milo',
     COURSES: '/courses',
+    COURSE_DETAIL: '/courses/:subjectId',
     MISSIONS: '/missions',
     DUELS: '/duels',
 

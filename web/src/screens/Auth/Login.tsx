@@ -19,7 +19,6 @@ const Login: React.FC = () => {
     handleSignUp
   } = useLoginForm();
 
-  // Gérer la touche Entrée
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !isLoading) {
       handleSubmit();
@@ -29,7 +28,6 @@ const Login: React.FC = () => {
   return (
     <div className="login-wrapper">
       <div className="login-container">
-        {/* Left Section - Branding */}
         <div className="left-section">
           <div className="decorative-circle-1"></div>
           <div className="decorative-circle-2"></div>
@@ -53,8 +51,6 @@ const Login: React.FC = () => {
             <p>© 2025 Milo. Tous droits réservés.</p>
           </div>
         </div>
-
-        {/* Right Section - Login Form */}
         <div className="right-section">
           <div className="form-wrapper">
             <div className="form-header">
@@ -64,7 +60,6 @@ const Login: React.FC = () => {
               </p>
             </div>
             <div className="form">
-              {/* Message d'erreur général */}
               {generalError && (
                 <div style={{
                   padding: '0.75rem',
@@ -78,8 +73,6 @@ const Login: React.FC = () => {
                   </p>
                 </div>
               )}
-
-              {/* Email Field */}
               <TextFieldComponent
                 type="email"
                 value={formData.email}
@@ -90,8 +83,6 @@ const Login: React.FC = () => {
                 error={errors.email}
                 disabled={isLoading}
               />
-
-              {/* Password Field */}
               <TextFieldComponent
                 type="password"
                 value={formData.password}
@@ -114,22 +105,16 @@ const Login: React.FC = () => {
                   Mot de passe oublié ?
                 </button>
               </div>
-
-              {/* Nouveau bouton avec MainButtonComponent */}
               <MainButtonComponent
                 title={isLoading ? 'Connexion en cours...' : 'Se connecter'}
                 onPress={handleSubmit}
                 loading={isLoading}
               />
-
-              {/* Divider */}
               <div className="divider">
                 <div className="divider-line"></div>
                 <span className="divider-text">ou</span>
                 <div className="divider-line"></div>
               </div>
-
-              {/* Sign Up Link */}
               <div className="signup-section">
                 <p className="signup-text">
                   Pas de compte ?{' '}

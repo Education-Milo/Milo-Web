@@ -70,7 +70,7 @@ const AuthNavigator: React.FC = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="/courses/:courseId" element={
+      <Route path="/courses/:subjectId" element={
         <ProtectedRoute allowedRoles={['Enfant']}>
           <CourseDetailScreen />
         </ProtectedRoute>

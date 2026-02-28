@@ -1,48 +1,93 @@
-// import { create } from 'zustand';
-// import APIAxios, { APIRoutes } from '@api/axios.api';
-// import type { CourseStore } from './course.model';
+import { create } from 'zustand';
+import APIAxios, { APIRoutes } from '@api/axios.api';
+import type { Chapter, ChapterWithLessons, Courses, CourseStore, CourseWithChapters, Lesson, LessonWithStatus } from '@store/course/course.model';
 
-// export const useCourseStore = create<CourseStore>((set) => ({
-//     subjects: [],
-//     currentProgram: null,
-//     loading: false,
-//     error: null,
+export const useCourseStore = create<CourseStore>((set) => ({
+    subjects: [],
+    coursesWithChapters: [],
+    loading: false,
+    error: null,
 
-//     fetchSubjects: async () => {
-//       set({ loading: true, error: null });
-//       try {
-//         const response = await APIAxios.get(APIRoutes.GET_Subjects);
-//         set({ subjects: response.data, loading: false });
-//       } catch (error) {
-//         console.error('Erreur chargement matières:', error);
-//         set({ loading: false, error: "Impossible de charger les matières" });
-//       }
-//     },
+    get_subject: async () => {
+        try {
+            set({ loading: true, error: null });
+            const response = await APIAxios.get(APIRoutes.GET_Subjects);
+            set({ subjects: response.data, loading: false });
+            return response.data;
+        } catch (error) {
+            set({ error: 'Failed to fetch subjects', loading: false });
+            throw error;
+        }
+    },
 
-//     fetchProgram: async (subjectId: string) => {
-//       set({ loading: true, error: null, currentProgram: null });
-//       try {
-//         const response = await APIAxios.get(APIRoutes.GET_Program, {
-//           params: { subjectId }
-//         });
-//         set({ currentProgram: response.data, loading: false });
-//       } catch (error) {
-//         console.error('Erreur chargement programme:', error);
-//         set({ loading: false, error: "Impossible de charger le programme" });
-//       }
-//     },
+     get_courses: async (subjectId: number) => {
+        try {
+            set({ loading: true, error: null });
+            const response = await APIAxios.get(APIRoutes.GET_Courses, { params: { subject_id: subjectId } });
+            set({ loading: false });
+            return response.data;
+        } catch (error) {
+            set({ error: 'Failed to fetch courses', loading: false });
+            throw error;
+        }
+    },
 
-//     generateExercise: async (userId: string, lessonId: string) => {
-//       try {
-//         const response = await APIAxios.post(APIRoutes.POST_GenerateExercise, {
-//           userId,
-//           lessonId
-//         });
-//         return response.data; // Données de l'exercice généré
-//       } catch (error) {
-//         console.error('Erreur génération exercice IA:', error);
-//         throw error;
-//       }
-//     }
+     get_chapters: async (courseId: number) => {
+        try {
+            set({ loading: true, error: null });
+            const response = await APIAxios.get(APIRoutes.GET_Chapters, { params: { course_id: courseId } });
+            set({ loading: false });
+            return response.data;
+        } catch (error) {
+            set({ error: 'Failed to fetch chapters', loading: false });
+            throw error;
+        }
+    },
 
-//   }));
+     get_lessons: async (chapterId: number) => {
+        try {
+            set({ loading: true, error: null });
+            const response = await APIAxios.get(APIRoutes.GET_Lessons, { params: { chapter_id: chapterId } });
+            set({ loading: false });
+            return response.data;
+        } catch (error) {
+            set({ error: 'Failed to fetch lessons', loading: false });
+            throw error;
+        }
+     },
+
+     load_course_detail: async (subjectId: number) => {
+        try {
+            set({ loading: true, error: null, coursesWithChapters: [] });
+            const coursesRes = await APIAxios.get(APIRoutes.GET_Courses, { params: { subject_id: subjectId } });
+            const courses: Courses[] = coursesRes.data;
+            const coursesWithChapters: CourseWithChapters[] = await Promise.all(
+                courses.map(async (course) => {
+                    const chaptersRes = await APIAxios.get(APIRoutes.GET_Chapters, { params: { course_id: course.id } });
+                    const chapters: Chapter[] = chaptersRes.data;
+
+                    const chaptersWithLessons: ChapterWithLessons[] = await Promise.all(
+                        chapters.map(async (chapter) => {
+                            const lessonsRes = await APIAxios.get(APIRoutes.GET_Lessons, { params: { chapter_id: chapter.id } });
+                            const lessons: Lesson[] = lessonsRes.data;
+                            const lessonsWithStatus: LessonWithStatus[] = lessons.map((lesson, index) => ({
+                                ...lesson,
+                                status: index === 0 ? 'in-progress' : 'locked',
+                            }));
+
+                            return { ...chapter, lessons: lessonsWithStatus };
+                        })
+                    );
+
+                    return { ...course, chapters: chaptersWithLessons };
+                })
+            );
+
+            set({ coursesWithChapters, loading: false });
+        } catch (error) {
+            set({ error: 'Failed to load course detail', loading: false });
+            throw error;
+        }
+    },
+
+  }));

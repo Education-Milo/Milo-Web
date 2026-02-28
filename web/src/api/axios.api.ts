@@ -45,7 +45,14 @@ export const APIRoutes = {
   PUT_Update_user: (userId: string) => `/users/${userId}`,
   POST_Add_User_Interest: (userId: string) => `/users/${userId}/interests/`,
   DELETE_User_Interest: (userId: string, interestId: string) => `/users/${userId}/interests/${interestId}`,
-  POST_CREATE_QCM: '/qcm',
+
+  // Course API
+  GET_Subjects: '/get_subjects',
+  GET_Courses: '/get_courses',
+  GET_Chapters: '/get_chapters',
+  GET_Lessons: '/get_lessons',
+  POST_Chat_Lesson: '/chat_lesson',
+  POST_QCM_Lesson: '/qcm_lesson',
 };
 
 export default APIAxios;
