@@ -14,6 +14,8 @@ import CoursesPage from '@screens/CoursesScreen';
 import CourseDetailScreen from '@screens/CourseDetailScreen';
 import MissionsPage from '@screens/MissionsScreen';
 import DuelsPage from '@screens/DuelsScreen';
+import ExerciseResultScreen from '@screens/ExerciseResultScreen';
+import ExerciseScreen from '@screens/ExerciseScreen';
 
 // Pages Parent
 import ParentDashboard from '@screens/Parent/Dashboard';
@@ -85,6 +87,18 @@ const AuthNavigator: React.FC = () => {
       <Route path="/duels" element={
         <ProtectedRoute allowedRoles={['Enfant']}>
           <DuelsPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/qcm/:lessonId" element={
+        <ProtectedRoute allowedRoles={['Enfant']}>
+          <ExerciseScreen />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/exercise-result" element={
+        <ProtectedRoute allowedRoles={['Enfant']}>
+          <ExerciseResultScreen />
         </ProtectedRoute>
       } />
 
