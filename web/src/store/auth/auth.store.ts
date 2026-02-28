@@ -15,11 +15,9 @@ export const useAuthStore = create<AuthStore>()(
       isTokenExpired: () => {
         const { accessToken } = get();
         if (!accessToken) return true;
-
         try {
           const decoded: any = jwtDecode(accessToken);
           const currentTime = Date.now() / 1000;
-
           return decoded.exp < currentTime + 60;
         } catch (error) {
           console.error('Erreur décodage token:', error);
@@ -111,7 +109,6 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       register: async (email, password, lastName, firstName, role, classe) => {
-        console.log('Registering user with data:', { email, password, lastName, firstName, role, classe });
         try {
           const response = await APIAxios.post(APIRoutes.POST_Register, {
             email,

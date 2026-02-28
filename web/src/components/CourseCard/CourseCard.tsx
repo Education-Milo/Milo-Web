@@ -1,36 +1,27 @@
 import React from 'react';
-import type { Course } from '@constants/courses';
+import { SUBJECTS_CONFIG } from '@constants/courses';
 import './CourseCard.css';
 
 interface CourseCardProps {
-  course: Course;
-  onClick: (id: string) => void;
-  // Ajoute un délai d'animation pour l'effet de cascade
-  animationDelay: string; 
+  subjectId: number,
+  onClick: (id: number) => void;
+  animationDelay: string;
 }
 
-const CourseCard: React.FC<CourseCardProps> = ({ course, onClick, animationDelay }) => {
+const CourseCard: React.FC<CourseCardProps> = ({ subjectId, onClick, animationDelay }) => {
+  const config = SUBJECTS_CONFIG[subjectId];
+
+  if (!config) return null;
+
   return (
-    <div 
-      className={`course-card ${course.colorTheme}`} 
-      onClick={() => onClick(course.id)}
-      style={{ animationDelay }} // Applique le délai
+    <div
+      className={`course-card ${config.colorTheme}`}
+      onClick={() => onClick(subjectId)}
+      style={{ animationDelay }}
     >
       <div className="course-card-header">
-        <span className="course-card-icon">{course.emoji}</span>
-        <h3 className="course-card-title">{course.title}</h3>
-      </div>
-      <p className="course-card-description">{course.description}</p>
-      
-      {/* Ce conteneur est caché par CSS, mais on le garde pour la sémantique */}
-      <div className="course-progress-container">
-        <div className="course-progress-bar">
-          <div 
-            className="course-progress-fill" 
-            style={{ width: `${course.progress}%` }}
-          ></div>
-        </div>
-        <span className="course-progress-label">{course.progress}% complété</span>
+        <span className="course-card-icon">{config.emoji}</span>
+        <h3 className="course-card-title">{config.title}</h3>
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ export const useLoginForm = () => {
       setIsLoading(true);
       try {
         await login(formData.email.trim(), formData.password);
-        navigate(ROUTES.ROOT, { replace: true });
+        navigate(ROUTES.HOME, { replace: true });
       } catch (error: any) {
         console.error('❌ Erreur de connexion:', error);
         const errorMessage = error?.response?.data?.detail ||

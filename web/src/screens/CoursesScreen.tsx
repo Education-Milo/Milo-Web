@@ -1,15 +1,17 @@
-import React from 'react';
 import CourseCard from '@components/CourseCard/CourseCard';
 import { useCoursesScreen } from '@hooks/useCoursesScreen';
 import '@styles/CoursesScreen.css';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
+import type { ClassType } from '@store/user/user.model';
 
 const CoursesScreen: React.FC = () => {
   const {
     user,
     currentClass,
     setCurrentClass,
-    courses,
+    subjects,
+    loading,
+    error,
     handleCourseClick,
   } = useCoursesScreen();
 
@@ -37,7 +39,7 @@ const CoursesScreen: React.FC = () => {
             <select
               className="class-level-dropdown"
               value={currentClass}
-              onChange={(e) => setCurrentClass(e.target.value)}
+              onChange={(e) => setCurrentClass(e.target.value as ClassType)}
             >
               <option value="6eme">6ème</option>
               <option value="5eme">5ème</option>
@@ -47,14 +49,18 @@ const CoursesScreen: React.FC = () => {
           </div>
 
           <div className="courses-grid">
-            {courses.map((course, index) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onClick={handleCourseClick}
-                animationDelay={`${0.3 + index * 0.05}s`}
-              />
-            ))}
+            {loading && <p>Chargement...</p>}
+            {error && <p className="error">{error}</p>}
+            {!loading && subjects.map((subject, index) => {
+              return (
+                <CourseCard
+                  key={subject.id}
+                  subjectId={subject.id}
+                  onClick={handleCourseClick}
+                  animationDelay={`${0.3 + index * 0.05}s`}
+                />
+              );
+            })}
           </div>
         </div>
         </ScreenLayout>

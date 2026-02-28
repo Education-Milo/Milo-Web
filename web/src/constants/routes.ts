@@ -12,7 +12,11 @@ export const ROUTES = {
 
     HOME: '/home',
     MILO: '/milo',
+    COURSE_MILO: '/course-milo/:lessonId',
+    QCM: '/qcm/:lessonId',
+    EXERCISE_RESULT: '/exercise-result',
     COURSES: '/courses',
+    COURSE_DETAIL: '/courses/:subjectId',
     MISSIONS: '/missions',
     DUELS: '/duels',
 

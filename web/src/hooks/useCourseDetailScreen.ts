@@ -1,51 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserStore } from '@store/user/user.store';
-import courseChapterData from '@constants/chapterData';
-import type { CourseDetails } from '@constants/chapterData';
+import { ROUTES } from '@constants/routes';
+import { useCourseStore } from '@store/course/course.store';
 
 export const useCourseDetailScreen = () => {
   const navigate = useNavigate();
-  const { courseId } = useParams<{ courseId: string }>(); // Récupère 'francais' de l'URL
-
-  // Logique pour Sidebar/TopBar (copiée de useCoursesScreen)
+  const { subjectId } = useParams<{ subjectId: string }>();
+  const { coursesWithChapters, load_course_detail, loading, error } = useCourseStore()
   const user = useUserStore(state => state.user);
 
-  const [courseData, setCourseData] = useState<CourseDetails | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Récupère les données du cours en fonction de l'ID de l'URL
   useEffect(() => {
-    if (courseId && courseChapterData[courseId]) {
-      setCourseData(courseChapterData[courseId]);
-    } else {
-      // Gérer le cas où l'ID n'existe pas (ex: rediriger)
-      navigate('/courses'); 
+    if (!subjectId) {
+      navigate(ROUTES.COURSES);
+      return;
     }
-    setIsLoading(false);
-  }, [courseId, navigate]);
 
-  // Logique de navigation (Sidebar + bouton "retour")
-  const handleNavigation = (page: string) => {
-    switch (page) {
-      case 'Accueil': navigate('/home'); break;
-      case 'Cours': navigate('/courses'); break;
-      case 'Missions': navigate('/missions'); break;
-      case 'Duels': navigate('/duels'); break;
-      default: navigate('/home'); break;
-    }
-  };
+    load_course_detail(Number(subjectId));
+
+  }, [subjectId, navigate]);
 
   const handleGoBack = () => {
-    navigate('/courses'); // Retourne à la page de liste des cours
+    navigate(ROUTES.COURSES);
   };
 
 
   return {
     user,
-    courseData,
-    isLoading,
-    handleNavigation,
+    coursesWithChapters,
+    loading,
+    error,
     handleGoBack
   };
 };

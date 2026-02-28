@@ -77,11 +77,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
         first_name: first_name || currentUser.first_name,
         last_name: last_name || currentUser.last_name,
       };
-      console.log('Updating user with data:', dataForBackend);
       const response = await APIAxios.put(
         APIRoutes.PUT_Update_user(currentUser.id),
         dataForBackend);
-      console.log('User updated successfully:', response.data); // Debug log
       set({
         user: { ...currentUser, ...response.data},
         loading: false,

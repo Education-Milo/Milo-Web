@@ -1,77 +1,45 @@
-// Définition du type pour nos objets de cours
-export interface Course {
-  id: string;
+export interface CourseVisuals {
   title: string;
   emoji: string;
-  description: string;
-  progress: number;
   colorTheme: 'orange' | 'blue' | 'green' | 'red' | 'purple' | 'yellow' | 'teal' | 'pink';
 }
 
-// Données statiques pour les cours
-export const coursesData: Course[] = [
-  { 
-    id: 'maths', 
-    title: 'Mathématiques', 
-    emoji: '🧮', 
-    description: 'Nombres, algèbre, géométrie et fonctions.', 
-    progress: 60,
+// Le mapping par ID
+export const SUBJECTS_CONFIG: Record<string | number, CourseVisuals> = {
+  "1": {
+    title: 'Mathématiques',
+    emoji: '🧮',
     colorTheme: 'blue'
   },
-  { 
-    id: 'francais', 
-    title: 'Français', 
-    emoji: '🇫🇷', 
-    description: 'Grammaire, conjugaison, lecture et écriture.', 
-    progress: 45,
+  "2": {
+    title: 'Français',
+    emoji: '🇫🇷',
     colorTheme: 'red'
   },
-  { 
-    id: 'histoire', 
-    title: 'Histoire', 
+  "3": {
+    title: 'Histoire-Géographie',
     emoji: '🏛️',
-    description: 'De l\'Antiquité à l\'époque contemporaine.', 
-    progress: 30,
     colorTheme: 'yellow'
   },
-  { 
-    id: 'geo', 
-    title: 'Géographie', 
-    emoji: '🗺️',
-    description: 'Cartes, pays, climats et phénomènes naturels.', 
-    progress: 15,
-    colorTheme: 'green'
-  },
-  { 
-    id: 'anglais', 
-    title: 'Anglais', 
-    emoji: '🇬🇧', 
-    description: 'Vocabulaire, verbes irréguliers et discussion.', 
-    progress: 75,
+  "4": {
+    title: 'Anglais',
+    emoji: '🇬🇧',
     colorTheme: 'purple'
   },
-  { 
-    id: 'physique', 
-    title: 'Physique-Chimie', 
-    emoji: '🧪', 
-    description: 'Atomes, énergie, réactions et lois de l\'univers.', 
-    progress: 10,
+  "5": {
+    title: 'Physique-Chimie',
+    emoji: '🧪',
     colorTheme: 'orange'
   },
-  { 
-    id: 'svt', 
-    title: 'SVT', 
-    emoji: '🌱', 
-    description: 'Sciences de la Vie et de la Terre.', 
-    progress: 20,
+  "6" :{
+    title: 'SVT',
+    emoji: '🌱',
     colorTheme: 'teal'
   },
-  { 
-    id: 'techno', 
-    title: 'Technologie', 
-    emoji: '🤖', 
-    description: 'Conception, objets techniques et numérique.', 
-    progress: 5,
-    colorTheme: 'pink'
-  },
-];
+};
+
+export const DEFAULT_VISUALS: CourseVisuals = {
+  title: 'Matière',
+  emoji: '📚',
+  colorTheme: 'teal'
+};

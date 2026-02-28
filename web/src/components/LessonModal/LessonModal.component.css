@@ -1,0 +1,181 @@
+/* Overlay */
+.lesson-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 20, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: overlay-in 0.2s ease;
+  }
+
+  @keyframes overlay-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Modal card */
+  .lesson-modal {
+    position: relative;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 36px 32px 32px;
+    width: 100%;
+    max-width: 440px;
+    margin: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+    animation: modal-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Close button */
+  .lesson-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: background 0.15s, color 0.15s;
+  }
+  .lesson-modal-close:hover {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  /* Header */
+  .lesson-modal-header {
+    margin-bottom: 20px;
+  }
+  .lesson-modal-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin: 0 0 6px;
+  }
+  .lesson-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .lesson-modal-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 20px;
+  }
+
+  /* Choice cards */
+  .lesson-modal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lesson-modal-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    background: #f9fafb;
+  }
+  .lesson-modal-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  .lesson-modal-card:active {
+    transform: translateY(0);
+  }
+
+  /* QCM */
+  .lesson-modal-card.qcm {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+  .lesson-modal-card.qcm:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+  }
+  .lesson-modal-card.qcm .lesson-modal-card-icon {
+    color: #3b82f6;
+    background: #dbeafe;
+    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Cours avec Milo */
+  .lesson-modal-card.milo {
+    background: #fdf4ff;
+    border-color: #e9d5ff;
+  }
+  .lesson-modal-card.milo:hover {
+    border-color: #a855f7;
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+  }
+  .lesson-modal-card.milo .lesson-modal-card-icon {
+    color: #a855f7;
+    background: #f3e8ff;
+    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Text inside card */
+  .lesson-modal-card-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 3px;
+  }
+  .lesson-modal-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+  }
+  .lesson-modal-card-desc {
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  /* Arrow */
+  .lesson-modal-card-arrow {
+    font-size: 18px;
+    color: #d1d5db;
+    transition: transform 0.15s, color 0.15s;
+  }
+  .lesson-modal-card:hover .lesson-modal-card-arrow {
+    transform: translateX(4px);
+    color: #9ca3af;
+  }
