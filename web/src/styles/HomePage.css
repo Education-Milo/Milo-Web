@@ -291,38 +291,46 @@ body {
     color: white;
 }
 
-/* Dashboard Content */
 .dashboard {
     padding: 2rem;
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Adjusted for new layout */
+    grid-template-columns: 1.6fr 1fr;
     gap: 2rem;
-    max-width: 1600px;
-    margin: 0 auto;
+    align-items: start;
 }
 
 .main-column {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .sidebar-column {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
-/* Welcome Section */
 .welcome-section {
-    background: linear-gradient(135deg, #ff6b35, #f7931e);
-    border-radius: 24px;
-    padding: 3rem;
+    margin-bottom: 0;
+    height: 237px;
+    background: linear-gradient(135deg, #FF914D 0%, #FF6B35 100%);
+    border-radius: 30px;
+    padding: 2.5rem;
     color: white;
     position: relative;
     overflow: hidden;
-    margin-bottom: 1rem;
-    animation: slideInUp 0.8s ease-out forwards;
+    margin-bottom: 0.5rem; 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+}
+
+.welcome-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
 }
 
 .welcome-section::before {
@@ -341,17 +349,18 @@ body {
     z-index: 2;
 }
 
-.welcome-title {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
-}
-
 .welcome-subtitle {
     font-size: 1.2rem;
     opacity: 0.9;
     margin-bottom: 2rem;
+}
+
+.welcome-img {
+    width: 100%;
+    max-width: 30%;
+    position: absolute;
+    bottom: -100px;
+    left: 550px;
 }
 
 .quick-action-buttons {
@@ -381,7 +390,7 @@ body {
 .section-card {
     background: white;
     border-radius: 20px;
-    padding: 2rem;
+    padding: 1rem;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     animation: slideInRight 0.8s ease-out forwards;
@@ -432,6 +441,7 @@ body {
 .mission-card {
     background: #f8fafc;
     border-radius: 16px;
+    margin-top: 5px;
     padding: 1.5rem;
     border-left: 4px solid;
     transition: all 0.3s ease;
@@ -442,7 +452,6 @@ body {
     opacity: 0;
 }
 
-/* Staggered animation for mission cards */
 .mission-card:nth-child(1) {
     animation-delay: 1s;
 }
@@ -545,149 +554,6 @@ body {
 
 .mission-card.green .mission-check {
     animation: pulse 2s infinite;
-}
-
-/* Chat with Milo */
-.chat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
-    padding: 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    animation: slideInRight 0.8s ease-out forwards;
-}
-
-.chat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-}
-
-.chat-content {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.chat-icon {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    padding: 1rem;
-    backdrop-filter: blur(10px);
-    font-size: 2rem;
-}
-
-.chat-text h3 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.chat-text p {
-    opacity: 0.9;
-    font-size: 0.95rem;
-}
-
-.chat-milo-central {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 24px;
-    padding: 3rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    min-height: 250px;
-    animation: slideInUp 1s ease-out 0.4s forwards;
-    opacity: 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.chat-milo-central::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-.chat-milo-central:hover {
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 20px 50px rgba(102, 126, 234, 0.4);
-}
-
-.chat-milo-central:hover::before {
-    opacity: 1;
-}
-
-.chat-milo-central:active {
-    transform: translateY(-3px) scale(1.01);
-    transition: all 0.1s ease;
-}
-
-.chat-content-with-milo {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    min-height: 250px;
-    overflow: hidden;
-    z-index: 2;
-}
-
-.milo-3d-fullscreen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-    transition: transform 0.3s ease;
-}
-
-.chat-milo-central:hover .milo-3d-fullscreen {
-    transform: scale(1.05);
-}
-
-.chat-text-overlay {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    z-index: 3;
-    color: white;
-    text-align: right;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
-}
-
-.chat-milo-central:hover .chat-text-overlay {
-    transform: scale(1.05);
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.chat-text-overlay h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    opacity: 0.95;
-}
-
-.chat-text-overlay p {
-    font-size: 1.1rem;
-    opacity: 0.9;
 }
 
 /* Achievements */
@@ -877,45 +743,154 @@ html {
 }
 
 
-/* Milo 3D Container */
-.milo-3d-container {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
+
+.milo-banner-clickable {
+    background: #f3be81; 
+    border-radius: 24px;
+    padding: 0;
+    position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: float 3s ease-in-out infinite;
+    min-height: 300px; 
+    cursor: pointer;
+    animation: slideInUp 1s ease-out 0.4s forwards;
+    opacity: 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+    border: none;
 }
 
-.chat-milo-central .chat-content {
-    flex-direction: row;
-    gap: 2rem;
-    align-items: center;
-    text-align: left;
+.milo-banner-clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
 }
 
-.chat-milo-central .milo-3d-container {
-    flex-shrink: 0;
+.milo-banner-clickable:active {
+    transform: translateY(2px) scale(0.98);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-.chat-milo-central .chat-text {
+.milo-image-container {
+    width: 100%;
+    height: 100%;
+}
+
+.milo-display-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease, filter 0.3s ease;
+}
+
+.milo-banner-clickable:hover .milo-display-img {
+    transform: scale(1.02);
+    filter: brightness(1.1);
+}
+
+.milo-banner-clickable::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+    transform: skewX(-25deg);
+    transition: 0.7s;
+}
+
+.milo-banner-clickable:hover::after {
+    left: 150%;
+}
+
+.milo-banner-clickable {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Section Actualités "Pimpée" & Enfantine --- */
+.announcements-section {
+    height: 237px; 
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem; /* Un peu plus d'espace interne */
+    background: #ffffff;
+    border: 2px solid #f1f5f9; /* Bordure légère pour définir le bloc */
+    position: relative;
+}
+
+/* Badge Nouveau : Plus voyant et animé */
+.badge-new {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+    animation: pulse-green 2s infinite; /* Animation pour attirer l'oeil */
+}
+
+.announcements-scroll {
+    overflow-y: auto;
     flex: 1;
+    padding-right: 8px;
+    margin-top: 1rem;
 }
 
-/* Responsive adjustments for Milo 3D */
-@media (max-width: 768px) {
-    .chat-milo-central .chat-content {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .milo-3d-container {
-        width: 150px;
-        height: 150px;
-    }
+.announcement-item {
+    padding: 1rem;
+    background: #fffcf9; /* Fond très légèrement orangé */
+    border-radius: 16px;
+    border: 1px solid #ffe7d6;
+    border-left: 5px solid #ff6b35; /* Bordure colorée plus épaisse */
+    margin-bottom: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
+
+.announcement-date {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #ff6b35; /* Date en couleur pour le peps */
+    margin-bottom: 0.3rem;
+    display: block;
+    opacity: 0.8;
+}
+
+.announcement-content h4 {
+    font-size: 1rem;
+    color: #2d3748;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+
+.announcement-content p {
+    font-size: 0.85rem;
+    color: #718096;
+    line-height: 1.4;
+}
+
+/* Scrollbar stylisée "Bonbon" */
+.announcements-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.announcements-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.announcements-scroll::-webkit-scrollbar-thumb {
+    background: #fed7aa;
+    border-radius: 10px;
+}
+
+.announcements-scroll::-webkit-scrollbar-thumb:hover {
+    background: #ff6b35;
+}
+
+/* Animation pour le badge Nouveau */
+@keyframes pulse-green {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(72, 187, 120, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
 }
