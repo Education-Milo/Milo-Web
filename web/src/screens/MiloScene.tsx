@@ -22,6 +22,7 @@ function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloMod
   const group = useRef<THREE.Group>(null);
   const { scene, animations } = useGLTF(modelPath);
   const { actions } = useAnimations(animations, group);
+  const prevAnimation = useRef<string | null>(null);
 
   useEffect(() => {
     if (!scene) return;
@@ -35,11 +36,29 @@ function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloMod
   }, [scene]);
 
   useEffect(() => {
-    if (!actions) return;
-    Object.values(actions).forEach(action => action?.stop());
-    if (activeAnimation && actions[activeAnimation]) {
-      actions[activeAnimation]!.reset().play().setLoop(THREE.LoopRepeat, Infinity);
+    if (!actions || !activeAnimation) return;
+
+    const CROSSFADE_DURATION = 0.5; // seconds
+    const nextAction = actions[activeAnimation];
+    if (!nextAction) return;
+
+    const prevName = prevAnimation.current;
+    const prevAction = prevName ? actions[prevName] : null;
+
+    // Configure the incoming animation
+    nextAction.reset();
+    nextAction.setLoop(THREE.LoopRepeat, Infinity);
+    nextAction.play();
+
+    if (prevAction && prevAction !== nextAction) {
+      // Smooth crossfade from previous to next
+      prevAction.crossFadeTo(nextAction, CROSSFADE_DURATION, true);
+    } else {
+      // First animation – just fade in
+      nextAction.fadeIn(CROSSFADE_DURATION);
     }
+
+    prevAnimation.current = activeAnimation;
   }, [actions, activeAnimation]);
 
   useEffect(() => {
@@ -324,7 +343,7 @@ const Scene3D: React.FC<{
 
       <Classroom modelPath="/classroom.glb" />
       <MiloModel
-        modelPath="/MiloV1.glb"
+        modelPath="/MiloV2.glb"
         activeAnimation={activeAnimation}
         showHat={showHat}
         showGlasses={showGlasses}
@@ -348,7 +367,7 @@ const Scene3D: React.FC<{
    UI Components
    ============================ */
 
-const ANIMATIONS = ['Idle', 'IdleFoot', 'Explaining'] as const;
+const ANIMATIONS = ['Idle', 'Thinking', 'Explaining'] as const;
 
 const AnimationControls: React.FC<{
   activeAnimation: string;
@@ -536,24 +555,25 @@ const MiloScene: React.FC = () => {
     setReply('');
     setIsLoading(true);
 
-    // Milo starts explaining
-    setActiveAnimation('Explaining');
+    // Milo starts thinking while waiting for the response
+    setActiveAnimation('Thinking');
 
     // Camera back up & exit edit mode
     setDown(true);
     setCameraY(0);
     setIsEditing(false);
 
-    // After 3s of explaining, show result and go back to Idle
+    // Simulate response delay – once the reply appears, switch to Explaining
     setTimeout(() => {
       setIsLoading(false);
       setReply(`Vous avez dit : "${msg}"`);
-    }, 2000);
+      setActiveAnimation('Explaining');
 
-    // Milo stops explaining after 4s
-    setTimeout(() => {
-      setActiveAnimation('Idle');
-    }, 4000);
+      // After a few seconds of explaining, return to Idle
+      setTimeout(() => {
+        setActiveAnimation('Idle');
+      }, 4000);
+    }, 2000);
   }, [text]);
 
   // Keyboard handler when editing the sheet
