@@ -7,9 +7,6 @@ import {
   ChevronDown, 
   ChevronLeft, 
   ChevronRight,
-    Instagram,
-    Twitter,
-    Linkedin
 } from 'lucide-react';
 import '../styles/Vitrine.css';
 
