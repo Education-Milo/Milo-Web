@@ -4,11 +4,10 @@ import '@styles/Dashboard.css';
 import { useDashboard } from '@hooks/useDashboard';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 
-// --- COMPOSANT INTERNE POUR LE GRAPHIQUE CIRCULAIRE (SVG) ---
 const CircularProgress = ({ value, max, color, icon, label, sublabel }: any) => {
     const radius = 35;
     const circumference = 2 * Math.PI * radius;
-    const percentage = Math.min((value / max) * 100, 100); // Pour éviter de dépasser 100%
+    const percentage = Math.min((value / max) * 100, 100);
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
     return (
