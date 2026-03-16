@@ -343,7 +343,7 @@ const Scene3D: React.FC<{
 
       <Classroom modelPath="/classroom.glb" />
       <MiloModel
-        modelPath="/MiloV2.glb"
+        modelPath="/MiloV3.glb"
         activeAnimation={activeAnimation}
         showHat={showHat}
         showGlasses={showGlasses}
