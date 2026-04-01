@@ -34,6 +34,7 @@ const ProfilePage: React.FC = () => {
                 <h1 className="profile-name">{profile.first_name} {profile.last_name}</h1>
                 <p className="profile-level">Niveau 1</p>
                 <p className="profile-classe">Classe {profile.classe?.toLowerCase()}</p>
+                <p className="profile-username">@{profile.username}</p>
               </div>
 
               <div className="profile-actions">
@@ -118,52 +119,66 @@ const ProfilePage: React.FC = () => {
               <h2 className="section-title">🧡 Mes centres d'intérêt</h2>
             </div>
 
-            <div className="interests-content">
+            {/* On ajoute une classe 'disabled-overlay' si on n'est pas en mode édition */}
+            <div className={`interests-content ${!isEditing ? 'content-disabled' : ''}`}>
               <div className="interests-grid">
                 {user?.Interests && user.Interests.length > 0 ? (
                   user.Interests.map((interest) => (
                     <div key={interest.id} className="interest-item-tag">
                       {interest.name}
-                      <button
-                        className="interest-delete-btn"
-                        onClick={() => handleDelete(interest.id)}
-                        title="Supprimer"
-                      >
-                        ✕
-                      </button>
+                      {/* On cache ou désactive aussi la croix de suppression */}
+                      {isEditing && (
+                        <button
+                          className="interest-delete-btn"
+                          onClick={() => handleDelete(interest.id)}
+                          title="Supprimer"
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
                   ))
                 ) : (
                   <p className="no-interests">Aucun intérêt renseigné pour le moment.</p>
                 )}
               </div>
+
+              {/* Input et Bouton + désactivés si pas isEditing */}
               <div className="interest-add-container">
                 <input
                   type="text"
                   className="interest-input"
-                  placeholder="Ajouter un centre d'intérêt..."
+                  placeholder={isEditing ? "Ajouter un centre d'intérêt..." : "Cliquez sur modifier pour ajouter"}
                   value={newInterest}
                   onChange={(e) => setNewInterest(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                  disabled={!isEditing} 
                 />
-                <button className="interest-plus-btn" onClick={() => handleAdd()}>
+                <button 
+                  className="interest-plus-btn" 
+                  onClick={() => handleAdd()}
+                  disabled={!isEditing}
+                >
                   +
                 </button>
               </div>
-              <div className="interest-suggestions">
-                <p className="suggestions-label">Suggestions :</p>
-                <div className="suggestions-flex">
-                  {['Jeux Vidéo', 'Football', 'Mangas', 'Histoire'].map((name) => (
-                    <button
-                      key={name}
-                      className="suggestion-tag"
-                      onClick={() => handleAdd(name)}
-                    >
-                      + {name}
-                    </button>
-                  ))}
+              {/* Section suggestions : On peut la cacher complètement ou la griser */}
+              {isEditing && (
+                <div className="interest-suggestions">
+                  <p className="suggestions-label">Suggestions :</p>
+                  <div className="suggestions-flex">
+                    {['Jeux Vidéo', 'Football', 'Mangas', 'Histoire'].map((name) => (
+                      <button
+                        key={name}
+                        className="suggestion-tag"
+                        onClick={() => handleAdd(name)}
+                      >
+                        + {name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
           <section className="profile-stats-section">

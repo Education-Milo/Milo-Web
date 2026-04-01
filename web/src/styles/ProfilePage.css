@@ -4,7 +4,6 @@
 @import url('./HomePage.css');
 
 
-
 /* Section Container */
 .interests-section {
     background: white;
@@ -371,11 +370,43 @@
     font-weight: 600;
 }
 
-.profile-bio {
-    font-size: 1rem;
+.profile-username {
+    font-size: 1.2rem;
     opacity: 0.8;
-    line-height: 1.5;
-    max-width: 400px;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* Style pour le conteneur désactivé */
+.content-disabled {
+    opacity: 0.6;
+    pointer-events: none; /* Empêche tout clic sur les suggestions/boutons */
+    user-select: none;
+}
+
+/* Style spécifique pour l'input désactivé */
+.interest-input:disabled {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+    cursor: not-allowed;
+    color: #888;
+}
+
+/* Style pour le bouton plus désactivé */
+.interest-plus-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none !important; /* Désactive l'effet de scale au hover */
+}
+
+/* On cache la petite croix de suppression quand on ne modifie pas */
+.interest-delete-btn {
+    display: none;
+}
+
+/* On ne l'affiche que si le parent est en mode édition (si tu ne l'as pas fait en JS) */
+.is-editing .interest-delete-btn {
+    display: flex;
 }
 
 /* Profile Actions */

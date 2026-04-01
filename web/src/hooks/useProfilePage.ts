@@ -11,6 +11,7 @@ export const useProfilePage = () => {
     last_name: user?.last_name || '',
     email: user?.email || '',
     classe: user?.classe,
+    username: user?.username || '',
   });
   const [tempProfile, setTempProfile] = useState<UserProfile>(profile);
 
@@ -30,6 +31,8 @@ export const useProfilePage = () => {
         last_name: user.last_name,
         email: user.email,
         classe: user.classe || '',
+        username: user.username || '',
+
       };
       setProfile(updatedProfile);
       setTempProfile(updatedProfile);

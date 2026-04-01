@@ -133,9 +133,12 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
     try {
       set({ loading: true });
-      await APIAxios.delete(`${APIRoutes.POST_Add_User_Interest(currentUser.id)}${interestId}/`);
+        await APIAxios.delete(`${APIRoutes.DELETE_User_Interest(currentUser.id, interestId)}`);
       set({
-        user: { ...currentUser},
+        user: { 
+          ...currentUser,
+          Interests: currentUser.Interests?.filter(i => i.id !== interestId)
+          },
         loading: false,
       });
     }

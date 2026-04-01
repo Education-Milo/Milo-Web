@@ -8,7 +8,7 @@ export interface User extends UserProfile {
     xp: number;
     created_at: string;
   }
-
+  
   export interface Interest {
     id: string;
     name: string;
@@ -28,10 +28,11 @@ export interface User extends UserProfile {
     lastUserFetch: number;
     lastStatsFetch: number;
   }
-
+  
   export interface UserProfile {
     email: string;
     last_name: string;
+    username: string;
     first_name: string;
     role?: UserRole;
     classe?: ClassType;
