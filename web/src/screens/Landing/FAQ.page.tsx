@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown, MessageCircle, HelpCircle, ArrowLeft } from 'lucide-react';
 import Footer from '@components/Footer';
-import '../styles/FAQ.css';
+import '@styles/FAQ.css';
 
 const FAQ_DATA = [
-  { id: 1, cat: 'Général', q: "C'est quoi exactement Milo ?", a: "Milo est une plateforme ludo-éducative qui transforme les révisions scolaires en une aventure épique pour les enfants du CP au CM2." },
+  { id: 1, cat: 'Général', q: "C'est quoi exactement Milo ?", a: "Milo est une plateforme ludo-éducative qui transforme les révisions scolaires en une aventure épique pour les enfants de la Sixième à la Troisième." },
   { id: 2, cat: 'Compte', q: "Puis-je utiliser Milo sur plusieurs tablettes ?", a: "Oui ! Votre abonnement permet de connecter votre compte sur tous vos appareils (iOS, Android, Web)." },
   { id: 3, cat: 'Sécurité', q: "Mes données sont-elles sécurisées ?", a: "Absolument. Milo est 100% conforme RGPD et nous ne diffusons aucune publicité, jamais." },
   { id: 4, cat: 'Général', q: "Quelles matières sont disponibles ?", a: "Mathématiques, Français, Histoire-Géo, Sciences et même une introduction au code !" },

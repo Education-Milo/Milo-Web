@@ -8,7 +8,7 @@ import {
   ChevronLeft, 
   ChevronRight,
 } from 'lucide-react';
-import '../styles/Vitrine.css';
+import '@styles/Vitrine.css';
 
 const kidsFeatures = [
   {
