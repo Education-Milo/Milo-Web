@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { useAuth } from "@shared/hooks/useAuth";
 import AuthNavigator from "@navigation/AuthNavigator";
 import PublicNavigator from "@navigation/PublicNavigator";
-import LoadingScreen from "@components/LoadingScreen.component";
+import LoadingScreen from "@shared/components/LoadingScreen.component";
 
 const App: React.FC = () => {
 	const { isAuthenticated, isLoading } = useAuth();

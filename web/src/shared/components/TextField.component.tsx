@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import '@styles/TextField.component.css';
+import '@shared/styles/TextField.component.css';
 
 interface TextFieldComponentProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;

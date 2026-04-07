@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import ProtectedRoute from "@components/ProtectedRoute.component";
+import ProtectedRoute from "@shared/components/ProtectedRoute.component";
 import RedirectScreen from "@features/auth/pages/Redirect.page";
 
 // Pages communes

@@ -7,7 +7,7 @@ import {
 	HelpCircle,
 	ArrowLeft,
 } from "lucide-react";
-import Footer from "@components/Footer.component";
+import Footer from "@features/landing/components/Footer.component";
 import "@features/landing/styles/FAQ.css";
 
 const FAQ_DATA = [

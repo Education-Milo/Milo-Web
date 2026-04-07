@@ -1,10 +1,10 @@
 import React from "react";
 import { Mail, Lock } from "lucide-react";
 import { useLoginForm } from "@features/auth/hooks/useLoginForm";
-import TextFieldComponent from "@components/ui/common/TextField.component";
+import TextFieldComponent from "@shared/components/TextField.component";
 import "@features/auth/styles/Login.css";
 import miloLogo from "/milo-logo.png";
-import MainButtonComponent from "@components/ui/common/MainButton.component";
+import MainButtonComponent from "@shared/components/MainButton.component";
 
 const Login: React.FC = () => {
 	const {

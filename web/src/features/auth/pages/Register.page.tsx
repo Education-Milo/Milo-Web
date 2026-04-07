@@ -1,14 +1,14 @@
 import React from "react";
 import { User, Mail, Lock } from "lucide-react";
 import { useRegisterForm } from "@features/auth/hooks/useRegisterForm";
-import TextField from "@components/ui/common/TextField.component";
-import { RoleSelector } from "@components/ui/auth/RoleSelector.component";
-import { AuthErrorMessage } from "@components/ui/auth/AuthErrorMessage.component";
-import { BackButton } from "@components/ui/common/BackButton.component";
+import TextField from "@shared/components/TextField.component";
+import { RoleSelector } from "@features/auth/components/RoleSelector.component";
+import { AuthErrorMessage } from "@features/auth/components/AuthErrorMessage.component";
+import { BackButton } from "@shared/components/BackButton.component";
 import "@features/auth/styles/Register.css";
 import miloLogo from "/milo-logo.png";
-import MainButtonComponent from "@components/ui/common/MainButton.component";
-import { ClassSelector } from "@components/ClassSelector.component";
+import MainButtonComponent from "@shared/components/MainButton.component";
+import { ClassSelector } from "@features/auth/components/ClassSelector.component";
 
 const Register: React.FC = () => {
 	const {

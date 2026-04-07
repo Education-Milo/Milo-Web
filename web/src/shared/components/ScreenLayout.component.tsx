@@ -1,6 +1,6 @@
 import React from "react";
-import Sidebar from "@components/Sidebar.component";
-import TopBar from "@components/TopBar.component";
+import Sidebar from "@shared/components/Sidebar.component";
+import TopBar from "@shared/components/TopBar.component";
 import { useUserStore } from "@shared/store/user/user.store";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useNavigate } from "react-router-dom";

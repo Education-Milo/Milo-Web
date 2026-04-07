@@ -2,8 +2,8 @@ import React from "react";
 import { Mail, CheckCircle } from "lucide-react";
 import "@features/auth/styles/ForgotPassword.css";
 import miloLogo from "/milo-logo.png";
-import TextFieldComponent from "@components/ui/common/TextField.component";
-import MainButtonComponent from "@components/ui/common/MainButton.component";
+import TextFieldComponent from "@shared/components/TextField.component";
+import MainButtonComponent from "@shared/components/MainButton.component";
 import useForgotPassword from "@features/auth/hooks/userForgotPassword";
 
 const ForgotPassword: React.FC = () => {

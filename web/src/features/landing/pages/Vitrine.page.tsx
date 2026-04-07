@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import Footer from "@components/Footer.component";
+import Footer from "@features/landing/components/Footer.component";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import HeroSection from "@features/landing/components/HeroSection.component";
 import ParentFaqCard from "@features/landing/components/ParentFaqCard.component";

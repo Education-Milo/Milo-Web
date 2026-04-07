@@ -1,7 +1,7 @@
 import React from "react";
-import "@styles/HomePage.css";
+import "@features/home/styles/Home.css";
 import { useHomePage } from "@features/home/hooks/useHomePage";
-import ScreenLayout from "@components/ui/common/ScreenLayout.component";
+import ScreenLayout from "@shared/components/ScreenLayout.component";
 
 const HomePage: React.FC = () => {
 	const {

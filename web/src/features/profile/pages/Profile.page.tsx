@@ -1,7 +1,7 @@
 import React from "react";
 import "@features/profile/styles/ProfilePage.css";
 import { useProfilePage } from "@features/profile/hooks/useProfilePage";
-import ScreenLayout from "@components/ui/common/ScreenLayout.component";
+import ScreenLayout from "@shared/components/ScreenLayout.component";
 
 const ProfilePage: React.FC = () => {
 	const {

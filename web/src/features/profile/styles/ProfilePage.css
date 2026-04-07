@@ -1,8 +1,6 @@
 /* ProfilePage.css */
 
-/* Import base styles from HomePage.css */
-@import url("../../../styles/HomePage.css");
-
+@import '@shared/styles/animations.css';
 /* Section Container */
 .interests-section {
 	background: white;

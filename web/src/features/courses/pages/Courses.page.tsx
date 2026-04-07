@@ -1,7 +1,7 @@
 import CourseCard from "@features/courses/components/courseCard/CourseCard.component";
 import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
 import "@features/courses/styles/CoursesScreen.css";
-import ScreenLayout from "@components/ui/common/ScreenLayout.component";
+import ScreenLayout from "@shared/components/ScreenLayout.component";
 import type { ClassType } from "@shared/store/user/user.model";
 
 const CoursesScreen: React.FC = () => {

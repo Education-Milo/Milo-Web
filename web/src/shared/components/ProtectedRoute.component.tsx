@@ -3,6 +3,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useUserStore } from "@shared/store/user/user.store";
+import LoadingScreen from "./LoadingScreen.component";
 
 type UserRole = "Enfant" | "Prof" | "Parent" | "Admin";
 
@@ -27,11 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 	}
 
 	if (loading || (accessToken && !user)) {
-		return (
-			<div className="flex justify-center items-center h-screen">
-				<div className="w-10 h-10 border-4 border-gray-200 border-t-orange-500 rounded-full animate-spin" />
-			</div>
-		);
+		return <LoadingScreen />;
 	}
 
 	if (allowedRoles && allowedRoles.length > 0 && user) {

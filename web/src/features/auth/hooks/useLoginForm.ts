@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
-import type {
-	LoginFormData,
-	FormErrors,
-} from "@shared/types/auth.types";
+import { useUserStore } from "@shared/store/user/user.store";
+import type { LoginFormData, FormErrors } from "@shared/types/auth.types";
 import { ROUTES } from "@shared/constants/routes";
+import type { UserRole } from "@shared/store/user/user.model";
 
 export const useLoginForm = () => {
 	const [formData, setFormData] = useState<LoginFormData>({
@@ -18,6 +17,22 @@ export const useLoginForm = () => {
 	const [generalError, setGeneralError] = useState("");
 	const navigate = useNavigate();
 	const login = useAuthStore((state) => state.login);
+	const user = useUserStore((state) => state.user);
+
+	const getRedirectPath = (role?: UserRole | null) => {
+		switch (role) {
+			case "Parent":
+				return ROUTES.PARENT.DASHBOARD;
+			case "Enfant":
+				return ROUTES.HOME;
+			case "Prof":
+				return ROUTES.UNAUTHORIZED;
+			case "Admin":
+				return ROUTES.UNAUTHORIZED;
+			default:
+				return ROUTES.UNAUTHORIZED;
+		}
+	};
 
 	const handleInputChange = (field: keyof LoginFormData, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
@@ -52,7 +67,8 @@ export const useLoginForm = () => {
 			setIsLoading(true);
 			try {
 				await login(formData.email.trim(), formData.password);
-				navigate(ROUTES.HOME, { replace: true });
+				const role = useUserStore.getState().user?.role ?? user?.role;
+				navigate(getRedirectPath(role), { replace: true });
 			} catch (error: any) {
 				console.error("❌ Erreur de connexion:", error);
 				const errorMessage =

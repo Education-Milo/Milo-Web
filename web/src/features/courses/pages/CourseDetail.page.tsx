@@ -1,5 +1,5 @@
 import React from "react";
-import ScreenLayout from "@components/ui/common/ScreenLayout.component";
+import ScreenLayout from "@shared/components/ScreenLayout.component";
 import ChapterAccordion from "@features/courses/components/chapterAccordion/ChapterAccordion.component";
 import { useCourseDetailScreen } from "@features/courses/hooks/useCourseDetailPage";
 import { ArrowLeft } from "lucide-react";

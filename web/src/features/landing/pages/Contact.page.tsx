@@ -13,7 +13,7 @@ import {
 	Heart,
 } from "lucide-react";
 import "@features/landing/styles/Contact.css";
-import Footer from "@components/Footer.component";
+import Footer from "@features/landing/components/Footer.component";
 
 const ContactPage: React.FC = () => {
 	const [focused, setFocused] = useState<string | null>(null);

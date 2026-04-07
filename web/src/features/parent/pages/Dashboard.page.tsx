@@ -1,8 +1,8 @@
 import React from "react";
-import "@styles/HomePage.css";
 import "@features/parent/styles/Dashboard.css";
+import "@shared/styles/HomePage.css";
 import { useDashboard } from "@features/parent/hooks/useDashboard";
-import ScreenLayout from "@components/ui/common/ScreenLayout.component";
+import ScreenLayout from "@shared/components/ScreenLayout.component";
 
 const CircularProgress = ({
 	value,
