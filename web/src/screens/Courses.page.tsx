@@ -1,5 +1,5 @@
 import CourseCard from '@components/CourseCard/CourseCard';
-import { useCoursesScreen } from '@hooks/useCoursesScreen';
+import { useCoursesScreen } from '@hooks/useCoursesPage';
 import '@styles/CoursesScreen.css';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 import type { ClassType } from '@store/user/user.model';

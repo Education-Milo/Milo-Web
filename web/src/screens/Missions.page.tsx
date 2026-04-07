@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMissionsScreen } from '@hooks/useMissionsScreen';
+import { useMissionsScreen } from '@hooks/useMissionsPage';
 import MissionItem from '@components/MissionItem/MissionItem';
 import BadgeItem from '@components/BadgeItem/BadgeItem';
 import '@styles/MissionsScreen.css';

@@ -1,7 +1,7 @@
 import React from 'react';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
 import ChapterAccordion from '@components/ChapterAccordion/ChapterAccordion';
-import { useCourseDetailScreen } from '@hooks/useCourseDetailScreen';
+import { useCourseDetailScreen } from '@hooks/useCourseDetailPage';
 import { ArrowLeft } from 'lucide-react';
 import '@styles/CourseDetailScreen.css';
 import miloFoxImage from '/miloBook.webp';

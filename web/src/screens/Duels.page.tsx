@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDuelsScreen } from '@hooks/useDuelsScreen';
+import { useDuelsScreen } from '@hooks/useDuelsPage';
 import FriendList from '@components/Duel/FriendList';
 import DuelCard from '@components/Duel/DuelCard';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
