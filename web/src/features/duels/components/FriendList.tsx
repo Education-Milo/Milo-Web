@@ -1,6 +1,6 @@
 import React from "react";
-import type { Friend } from "../../shared/types/duels";
-import "@styles/DuelsScreen.css"; // We will create this next
+import type { Friend } from "@shared/types/duels";
+import "@features/duels/styles/DuelsScreen.css"; // We will create this next
 
 interface FriendListProps {
 	friends: Friend[];

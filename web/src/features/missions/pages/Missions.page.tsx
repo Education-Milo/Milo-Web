@@ -1,8 +1,8 @@
 import React from "react";
-import { useMissionsScreen } from "@hooks/useMissionsPage";
-import MissionItem from "@components/MissionItem/MissionItem.component";
-import BadgeItem from "@components/BadgeItem/BadgeItem.component";
-import "@styles/MissionsScreen.css";
+import { useMissionsScreen } from "@features/missions/hooks/useMissionsPage";
+import MissionItem from "@features/missions/components/missionItem/MissionItem.component";
+import BadgeItem from "@features/missions/components/badgeItem/BadgeItem.component";
+import "@features/missions/styles/MissionsScreen.css";
 import "@styles/HomePage.css";
 import ScreenLayout from "@components/ui/common/ScreenLayout.component";
 

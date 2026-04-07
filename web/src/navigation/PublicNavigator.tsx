@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginScreen from '@screens/Auth/Login.page';
-import RegisterScreen from '@screens/Auth/Register.page';
-import ForgotPasswordScreen from '@screens/Auth/ForgotPassword.page';
+import LoginScreen from '@features/auth/pages/Login.page';
+import RegisterScreen from '@features/auth/pages/Register.page';
+import ForgotPasswordScreen from '@features/auth/pages/ForgotPassword.page';
 import VitrinePage from '@features/landing/pages/Vitrine.page';
 import ContactPage from '@features/landing/pages/Contact.page';
 import FAQPage from '@features/landing/pages/FAQ.page';

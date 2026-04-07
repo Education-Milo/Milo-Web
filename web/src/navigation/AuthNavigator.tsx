@@ -1,25 +1,25 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@components/ProtectedRoute.component";
-import RedirectScreen from "@screens/Redirect.page";
+import RedirectScreen from "@features/auth/pages/Redirect.page";
 
 // Pages communes
-import HomeScreen from "@screens/Home.page";
+import HomeScreen from "@features/home/pages/Home.page";
 import ProfilePage from "@features/profile/pages/Profile.page";
-import UnauthorizedPage from "@screens/Unauthorized.page";
+import UnauthorizedPage from "@features/auth/pages/Unauthorized.page";
 
 // Pages User (Enfant/Élève)
-import MiloScene from "@screens/MiloScene";
+import MiloScene from "@features/milo-scene/pages/MiloScene";
 import CoursesPage from "@features/courses/pages/Courses.page";
 import CourseDetailScreen from "@features/courses/pages/CourseDetail.page";
-import MissionsPage from "@screens/Missions.page";
-import DuelsPage from "@screens/Duels.page";
+import MissionsPage from "@features/missions/pages/Missions.page";
+import DuelsPage from "@features/duels/pages/Duels.page";
 import ExerciseResultScreen from "@features/exercices/pages/ExerciseResult.page";
 import ExerciseScreen from "@features/exercices/pages/Exercise.page";
 
 // Pages Parent
-import ParentDashboard from "@screens/Parent/Dashboard.page";
-import SubscriptionPage from "@screens/Parent/Subscription.page";
+import ParentDashboard from "@features/parent/pages/Dashboard.page";
+import SubscriptionPage from "@features/parent/pages/Subscription.page";
 // import ChildrenManagement from '@screens/Parent/ChildrenManagement';
 // import ProgressTracking from '@screens/Parent/ProgressTracking';
 // import ParentalControls from '@screens/Parent/ParentalControls';

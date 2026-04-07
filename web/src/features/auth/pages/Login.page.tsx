@@ -1,8 +1,8 @@
 import React from "react";
 import { Mail, Lock } from "lucide-react";
-import { useLoginForm } from "@hooks/useLoginForm";
+import { useLoginForm } from "@features/auth/hooks/useLoginForm";
 import TextFieldComponent from "@components/ui/common/TextField.component";
-import "@styles/Login.css";
+import "@features/auth/styles/Login.css";
 import miloLogo from "/milo-logo.png";
 import MainButtonComponent from "@components/ui/common/MainButton.component";
 

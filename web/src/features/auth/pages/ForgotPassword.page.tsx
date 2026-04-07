@@ -1,10 +1,10 @@
 import React from "react";
 import { Mail, CheckCircle } from "lucide-react";
-import "@styles/ForgotPassword.css";
-import miloLogo from "/milo-logo.png"; // Adjust the path according to your project structure
+import "@features/auth/styles/ForgotPassword.css";
+import miloLogo from "/milo-logo.png";
 import TextFieldComponent from "@components/ui/common/TextField.component";
 import MainButtonComponent from "@components/ui/common/MainButton.component";
-import useForgotPassword from "@hooks/userForgotPassword";
+import useForgotPassword from "@features/auth/hooks/userForgotPassword";
 
 const ForgotPassword: React.FC = () => {
 	const {
@@ -109,22 +109,6 @@ const ForgotPassword: React.FC = () => {
 							marginBottom: "2rem",
 						}}
 					>
-						{/* <button 
-              onClick={handleBackToLogin}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer', 
-                marginRight: '1rem',
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            >
-              <ArrowLeft size={24} style={{ color: '#374151' }} />
-            </button> */}
 						<h1
 							style={{
 								fontSize: "1.5rem",
@@ -153,16 +137,6 @@ const ForgotPassword: React.FC = () => {
 						{/* Email Field */}
 						<div className="input-group">
 							<div className="input-container">
-								{/* <div className="input-icon">
-                  <Mail size={20} />
-                </div> */}
-								{/* <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`input ${emailError ? 'error' : ''}`}
-                  placeholder="Votre adresse email"
-                /> */}
 								<TextFieldComponent
 									type="email"
 									placeholder="Votre adresse email"
@@ -173,14 +147,6 @@ const ForgotPassword: React.FC = () => {
 							</div>
 							{emailError && <p className="error-message">{emailError}</p>}
 						</div>
-
-						{/* Submit Button */}
-						{/* <button
-              onClick={handleSubmit}
-              className="submit-button"
-            >
-              Envoyer le lien de réinitialisation
-            </button> */}
 						<MainButtonComponent
 							title="Envoyer le lien de connexion"
 							onPress={handleSubmit}

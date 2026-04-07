@@ -3,7 +3,7 @@ import type {
 	DailyMission,
 	MonthlyChallenge,
 	MonthlyBadge,
-} from "../shared/types/missions";
+} from "@shared/types/missions";
 
 // Types pour nos données de mission (DailyMission & MonthlyChallenge restent les mêmes)
 

@@ -22,11 +22,11 @@ import {
 	FiArrowLeft,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import HelpModal from "@components/HelpModal.component";
-import "@styles/MiloScene.css";
+import HelpModal from "@features/milo-scene/components/HelpModal.component";
+import "@features/milo-scene/styles/MiloScene.css";
 
 /* ============================
-   3D Models
+	3D Models
    ============================ */
 
 interface MiloModelProps {

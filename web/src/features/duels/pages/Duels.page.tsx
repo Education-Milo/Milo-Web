@@ -1,9 +1,9 @@
 import React from 'react';
-import { useDuelsScreen } from '@hooks/useDuelsPage';
-import FriendList from '@components/Duel/FriendList';
-import DuelCard from '@components/Duel/DuelCard';
+import { useDuelsScreen } from '@features/duels/hooks/useDuelsPage';
+import FriendList from '@features/duels/components/FriendList';
+import DuelCard from '@features/duels/components/DuelCard';
 import ScreenLayout from '@components/ui/common/ScreenLayout.component';
-import '@styles/DuelsScreen.css';
+import '@features/duels/styles/DuelsScreen.css';
 
 const DuelsScreen: React.FC = () => {
   const {

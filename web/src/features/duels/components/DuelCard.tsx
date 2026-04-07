@@ -1,6 +1,6 @@
 import React from "react";
-import type { Duel } from "../../shared/types/duels";
-import "@styles/DuelsScreen.css";
+import type { Duel } from "@shared/types/duels";
+import "@features/duels/styles/DuelsScreen.css";
 
 interface DuelCardProps {
 	duel?: Duel;

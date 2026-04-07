@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
-import type { LoginFormData, FormErrors } from "../shared/types/auth.types";
+import type {
+	LoginFormData,
+	FormErrors,
+} from "@shared/types/auth.types";
 import { ROUTES } from "@shared/constants/routes";
 
 export const useLoginForm = () => {

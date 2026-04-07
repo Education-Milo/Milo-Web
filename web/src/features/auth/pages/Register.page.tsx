@@ -1,11 +1,11 @@
 import React from "react";
 import { User, Mail, Lock } from "lucide-react";
-import { useRegisterForm } from "@hooks/useRegisterForm";
+import { useRegisterForm } from "@features/auth/hooks/useRegisterForm";
 import TextField from "@components/ui/common/TextField.component";
 import { RoleSelector } from "@components/ui/auth/RoleSelector.component";
 import { AuthErrorMessage } from "@components/ui/auth/AuthErrorMessage.component";
 import { BackButton } from "@components/ui/common/BackButton.component";
-import "@styles/Register.css";
+import "@features/auth/styles/Register.css";
 import miloLogo from "/milo-logo.png";
 import MainButtonComponent from "@components/ui/common/MainButton.component";
 import { ClassSelector } from "@components/ClassSelector.component";

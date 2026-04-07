@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
-import type { RegisterFormData, FormErrors } from "../shared/types/auth.types";
+import type {
+	RegisterFormData,
+	FormErrors,
+} from "@shared/types/auth.types";
 import type { UserRole, ClassType } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
 
