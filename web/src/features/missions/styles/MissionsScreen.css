@@ -29,10 +29,8 @@
   gap: 1.5rem;
 }
 .missions-top-row .monthly-challenge-card {
-  flex: 2;
-  /* Animation de la carte #1 */
-  opacity: 0;
-  animation: fadeInUp 0.5s ease-out 0.1s forwards;
+    background: linear-gradient(105deg, #f97316 0%, #fdba74 100%);
+    color: white;
 }
 .missions-top-row .section-card { /* Cible la carte des missions du jour */
   flex: 1;
