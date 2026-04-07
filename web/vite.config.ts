@@ -23,7 +23,6 @@ export default defineConfig({
       "@shared": resolve(__dirname, "src/shared"),
 			// '@fonts': resolve(__dirname, 'src/fonts'),
 			// '@locales': resolve(__dirname, 'src/locales'),
-			"@store": resolve(__dirname, "src/store"),
 			"@types": resolve(__dirname, "src/types"),
 			"@styles": resolve(__dirname, "src/styles"),
 			"@constants": resolve(__dirname, "src/constants"),

@@ -33,7 +33,6 @@
       "@navigation/*": ["src/navigation/*"],
       "@theme/*": ["src/theme/*"],
       "@constants/*": ["src/constants/*"],
-      "@store/*": ["src/store/*"],
       "@api/*": ["src/api/*"],
       "@types/*": ["src/types/*"],
       "@styles/*": ["src/styles/*"]
