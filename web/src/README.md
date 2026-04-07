@@ -26,7 +26,6 @@ src/
 		store/
 		styles/
 		types/
-	styles/              # styles globaux historiques (en cours de découpage)
 	App.tsx
 	main.tsx
 ```
