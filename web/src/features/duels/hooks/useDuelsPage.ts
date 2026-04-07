@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Friend, Duel } from "../shared/types/duels";
+import type { Friend, Duel } from "@shared/types/duels";
 
 export const useDuelsScreen = () => {
 	const navigate = useNavigate();

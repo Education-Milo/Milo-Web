@@ -403,16 +403,6 @@
 	transform: none !important; /* Désactive l'effet de scale au hover */
 }
 
-/* On cache la petite croix de suppression quand on ne modifie pas */
-.interest-delete-btn {
-	display: none;
-}
-
-/* On ne l'affiche que si le parent est en mode édition (si tu ne l'as pas fait en JS) */
-.is-editing .interest-delete-btn {
-	display: flex;
-}
-
 /* Profile Actions */
 .profile-actions {
 	animation: slideInUp 0.6s ease-out 0.8s forwards;

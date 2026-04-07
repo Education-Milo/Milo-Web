@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { UserStore, User } from '@store/user/user.model';
+import type { UserStore, User } from '@shared/store/user/user.model';
 import APIAxios, { APIRoutes } from '@api/axios.api';
 
 const CACHE_DURATION = 5 * 60 * 1000;
@@ -135,7 +135,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       set({ loading: true });
         await APIAxios.delete(`${APIRoutes.DELETE_User_Interest(currentUser.id, interestId)}`);
       set({
-        user: { 
+        user: {
           ...currentUser,
           Interests: currentUser.Interests?.filter(i => i.id !== interestId)
           },
