@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Home, RefreshCcw, Trophy } from 'lucide-react';
-import '@styles/ExerciseScreen.css';
+import '@features/exercices/styles/ExerciseScreen.css';
 
 const ExerciseResultScreen: React.FC = () => {
   const location = useLocation();

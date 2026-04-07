@@ -1,87 +1,117 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type { Friend, Duel } from '../types/duels';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import type { Friend, Duel } from "../shared/types/duels";
 
 export const useDuelsScreen = () => {
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
-    const [friends, setFriends] = useState<Friend[]>([]);
-    const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
+	const [friends, setFriends] = useState<Friend[]>([]);
+	const [activeDuels, setActiveDuels] = useState<Duel[]>([]);
+	const [isSearching, setIsSearching] = useState(false);
 
-    useEffect(() => {
-        const mockFriends: Friend[] = [
-            { id: '1', firstName: 'Alice', lastName: 'Kate', level: 5, status: 'online' },
-            { id: '2', firstName: 'Bob', lastName: 'Bardy', level: 3, status: 'offline' },
-            { id: '3', firstName: 'Charlie', lastName: 'Stark', level: 7, status: 'in-game' },
-            { id: '4', firstName: 'David', lastName: 'Williams', level: 2, status: 'online' },
-        ];
-        setFriends(mockFriends);
+	useEffect(() => {
+		const mockFriends: Friend[] = [
+			{
+				id: "1",
+				firstName: "Alice",
+				lastName: "Kate",
+				level: 5,
+				status: "online",
+			},
+			{
+				id: "2",
+				firstName: "Bob",
+				lastName: "Bardy",
+				level: 3,
+				status: "offline",
+			},
+			{
+				id: "3",
+				firstName: "Charlie",
+				lastName: "Stark",
+				level: 7,
+				status: "in-game",
+			},
+			{
+				id: "4",
+				firstName: "David",
+				lastName: "Williams",
+				level: 2,
+				status: "online",
+			},
+		];
+		setFriends(mockFriends);
 
-        const mockDuels: Duel[] = [
-            // { id: 'd1', opponent: mockFriends[0], status: 'pending', type: 'friend' }
-        ];
-        setActiveDuels(mockDuels);
-    }, []);
+		const mockDuels: Duel[] = [
+			// { id: 'd1', opponent: mockFriends[0], status: 'pending', type: 'friend' }
+		];
+		setActiveDuels(mockDuels);
+	}, []);
 
-    const handleNavigation = (page: string) => {
-        switch (page) {
-            case 'Accueil':
-                navigate('/home');
-                break;
-            case 'Cours':
-                navigate('/courses');
-                break;
-            case 'Missions':
-                navigate('/missions');
-                break;
-            case 'Duels':
-                navigate('/duels');
-                break;
-            case 'Profil':
-                navigate('/profile');
-                break;
-            default:
-                navigate('/home');
-        }
-    };
+	const handleNavigation = (page: string) => {
+		switch (page) {
+			case "Accueil":
+				navigate("/home");
+				break;
+			case "Cours":
+				navigate("/courses");
+				break;
+			case "Missions":
+				navigate("/missions");
+				break;
+			case "Duels":
+				navigate("/duels");
+				break;
+			case "Profil":
+				navigate("/profile");
+				break;
+			default:
+				navigate("/home");
+		}
+	};
 
-    const handleDuelRequest = (friendId: string) => {
-        // Mock adding a pending duel
-        const friend = friends.find(f => f.id === friendId);
-        if (friend) {
-            const newDuel: Duel = {
-                id: `d-${Date.now()}`,
-                opponent: friend,
-                status: 'pending',
-                type: 'friend'
-            };
-            setActiveDuels([...activeDuels, newDuel]);
-        }
-    };
+	const handleDuelRequest = (friendId: string) => {
+		// Mock adding a pending duel
+		const friend = friends.find((f) => f.id === friendId);
+		if (friend) {
+			const newDuel: Duel = {
+				id: `d-${Date.now()}`,
+				opponent: friend,
+				status: "pending",
+				type: "friend",
+			};
+			setActiveDuels([...activeDuels, newDuel]);
+		}
+	};
 
-    const handleRandomDuel = () => {
-        setIsSearching(true);
-        // Mock search delay
-        setTimeout(() => {
-            setIsSearching(false);
-            const randomOpponent: Friend = { id: 'r1', firstName: 'Random', lastName: 'Player', level: 4, status: 'online' };
-            const newDuel: Duel = {
-                id: `d-${Date.now()}`,
-                opponent: randomOpponent,
-                status: 'active',
-                type: 'random'
-            };
-            setActiveDuels([...activeDuels, newDuel]);
-        }, 2000);
-    };
+	const handleRandomDuel = () => {
+		setIsSearching(true);
+		// Mock search delay
+		setTimeout(() => {
+			setIsSearching(false);
+			const randomOpponent: Friend = {
+				id: "r1",
+				firstName: "Random",
+				lastName: "Player",
+				level: 4,
+				status: "online",
+			};
+			const newDuel: Duel = {
+				id: `d-${Date.now()}`,
+				opponent: randomOpponent,
+				status: "active",
+				type: "random",
+			};
+			setActiveDuels([...activeDuels, newDuel]);
+		}, 2000);
+	};
 
-    return {
-        friends,
-        activeDuels,
-        isSearching,
-        handleNavigation,
-        handleDuelRequest,
-        handleRandomDuel
-    };
+	return {
+		friends,
+		activeDuels,
+		isSearching,
+		handleNavigation,
+		handleDuelRequest,
+		handleRandomDuel,
+	};
 };

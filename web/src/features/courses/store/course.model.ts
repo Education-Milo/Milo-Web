@@ -1,4 +1,4 @@
-import type { ClassType } from "@store/user/user.model";
+import type { ClassType } from "@shared/store/user/user.model";
 
 export interface Subject {
     id: number;

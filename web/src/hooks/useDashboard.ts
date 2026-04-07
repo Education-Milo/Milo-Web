@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useUserStore } from '@store/user/user.store';
+import { useUserStore } from '@shared/store/user/user.store';
 
 export const useDashboard = () => {
   const user = useUserStore(state => state.user);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useUserStore } from '@store/user/user.store';
-import type { UserProfile } from '@/store/user/user.model';
+import { useUserStore } from '@shared/store/user/user.store';
+import type { UserProfile } from '@shared/store/user/user.model';
 
 export const useProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);

@@ -28,6 +28,7 @@
     "paths": {
       "@/*": ["src/*"],
       "@features/*": ["src/features/*"],
+      "@shared/*": ["src/shared/*"],
       "@hooks/*": ["src/hooks/*"],
       "@screens/*": ["src/screens/*"],
       "@components/*": ["src/components/*"],

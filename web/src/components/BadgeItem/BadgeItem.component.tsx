@@ -1,5 +1,5 @@
 import React from "react";
-import type { MonthlyBadge } from "../../types/missions";
+import type { MonthlyBadge } from "../../shared/types/missions";
 import "./BadgeItem.css";
 
 interface BadgeItemProps {

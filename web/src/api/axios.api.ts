@@ -1,5 +1,5 @@
 import axios, { type CreateAxiosDefaults } from 'axios';
-import { useAuthStore } from '@store/auth/auth.store';
+import { useAuthStore } from '@shared/store/auth/auth.store';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 

@@ -1,10 +1,10 @@
 import React from "react";
 import Sidebar from "@components/Sidebar.component";
 import TopBar from "@components/TopBar.component";
-import { useUserStore } from "@store/user/user.store";
-import { useAuthStore } from "@store/auth/auth.store";
+import { useUserStore } from "@shared/store/user/user.store";
+import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@constants/routes";
+import { ROUTES } from "@shared/constants/routes";
 
 interface PageLayoutProps {
 	children: React.ReactNode;

@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import type {
 	ChapterWithLessons,
 	LessonWithStatus,
-} from "@store/course/course.model";
+} from "@/features/courses/store/course.model";
 import { ChevronDown, CheckCircle, Lock, PlayCircle } from "lucide-react";
-import LessonModal from "@/features/courses/components/lessonModal/LessonModal.component";
+import LessonModal from "@features/courses/components/lessonModal/LessonModal.component";
 import "./ChapterAccordion.css";
 
 interface ChapterAccordionProps {

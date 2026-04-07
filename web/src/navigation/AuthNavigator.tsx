@@ -10,12 +10,12 @@ import UnauthorizedPage from "@screens/Unauthorized.page";
 
 // Pages User (Enfant/Élève)
 import MiloScene from "@screens/MiloScene";
-import CoursesPage from "@/features/courses/pages/Courses.page";
-import CourseDetailScreen from "@/features/courses/pages/CourseDetail.page";
+import CoursesPage from "@features/courses/pages/Courses.page";
+import CourseDetailScreen from "@features/courses/pages/CourseDetail.page";
 import MissionsPage from "@screens/Missions.page";
 import DuelsPage from "@screens/Duels.page";
-import ExerciseResultScreen from "@screens/ExerciseResult.page";
-import ExerciseScreen from "@screens/Exercise.page";
+import ExerciseResultScreen from "@features/exercices/pages/ExerciseResult.page";
+import ExerciseScreen from "@features/exercices/pages/Exercise.page";
 
 // Pages Parent
 import ParentDashboard from "@screens/Parent/Dashboard.page";

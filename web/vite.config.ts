@@ -20,6 +20,7 @@ export default defineConfig({
 			"@components": resolve(__dirname, "src/components"),
 			"@features": resolve(__dirname, "src/features"),
 			"@navigation": resolve(__dirname, "src/navigation"),
+      "@shared": resolve(__dirname, "src/shared"),
 			// '@fonts': resolve(__dirname, 'src/fonts'),
 			// '@locales': resolve(__dirname, 'src/locales'),
 			"@screens": resolve(__dirname, "src/screens"),

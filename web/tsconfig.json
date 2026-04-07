@@ -20,6 +20,7 @@
       "@features/*": ["src/features/*"],
       "@styles/*": ["src/styles/*"],
       "@store/*": ["src/store/*"],
+      "@shared/*": ["src/shared/*"],
       "@api/*": ["src/api/*"]
     }
   }

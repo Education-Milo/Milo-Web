@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import qs from 'qs';
-import type { AuthStore } from '@store/auth/auth.model';
+import type { AuthStore } from '@shared/store/auth/auth.model';
 import APIAxios, { APIRoutes } from '@api/axios.api';
 import { jwtDecode } from 'jwt-decode';
 
@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             accessToken: token,
           });
-          const { useUserStore } = await import('@store/user/user.store');
+          const { useUserStore } = await import('@shared/store/user/user.store');
           await useUserStore.getState().getMe(true);
         } catch (error) {
           throw error;
@@ -125,7 +125,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             accessToken: token,
           });
-          const { useUserStore } = await import('@store/user/user.store');
+          const { useUserStore } = await import('@shared/store/user/user.store');
           await useUserStore.getState().getMe(true);
         } catch (error) {
           console.error('Register error:', error);
@@ -145,7 +145,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         get().stopTokenValidation();
-        const { useUserStore } = await import('@store/user/user.store');
+        const { useUserStore } = await import('@shared/store/user/user.store');
         useUserStore.getState().clearUserData();
         set({
           accessToken: '',

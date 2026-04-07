@@ -1,8 +1,8 @@
 import React from "react";
 import { LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import type { UserProfile } from "@store/user/user.model";
-import { ROUTES } from "@constants/routes";
+import type { UserProfile } from "@shared/store/user/user.model";
+import { ROUTES } from "@shared/constants/routes";
 import "@styles/SideBar.css";
 
 interface SidebarProps {

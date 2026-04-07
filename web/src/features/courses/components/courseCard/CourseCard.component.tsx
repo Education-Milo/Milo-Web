@@ -1,5 +1,5 @@
 import React from "react";
-import { SUBJECTS_CONFIG } from "@constants/courses";
+import { SUBJECTS_CONFIG } from "@shared/constants/courses";
 import "./CourseCard.css";
 
 interface CourseCardProps {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { useExerciseScreen } from '@hooks/useExercisePage';
-import "@styles/ExerciseScreen.css";
+import { useExerciseScreen } from '@features/exercices/hooks/useExercisePage';
+import "@features/exercices/styles/ExerciseScreen.css";
 
 const ExerciseScreen: React.FC = () => {
   const navigate = useNavigate();

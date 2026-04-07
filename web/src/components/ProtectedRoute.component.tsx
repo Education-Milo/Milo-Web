@@ -1,8 +1,8 @@
 // src/components/ProtectedRoute.component.tsx
 import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuthStore } from "@store/auth/auth.store";
-import { useUserStore } from "@store/user/user.store";
+import { useAuthStore } from "@shared/store/auth/auth.store";
+import { useUserStore } from "@shared/store/user/user.store";
 
 type UserRole = "Enfant" | "Prof" | "Parent" | "Admin";
 
