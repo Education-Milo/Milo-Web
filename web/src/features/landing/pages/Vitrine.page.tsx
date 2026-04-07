@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import Footer from "@components/Footer.component";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import HeroSection from "@components/Landing/HeroSection.component";
-import ParentFaqCard from "@components/Landing/ParentFaqCard.component";
-import "@styles/Vitrine.css";
+import HeroSection from "@features/landing/components/HeroSection.component";
+import ParentFaqCard from "@features/landing/components/ParentFaqCard.component";
+import "@features/landing/styles/Vitrine.css";
 
 // ─── Données ────────────────────────────────────────────────────────────────
 // À déplacer dans vitrine/data/kids-features.data.ts quand tu es prêt

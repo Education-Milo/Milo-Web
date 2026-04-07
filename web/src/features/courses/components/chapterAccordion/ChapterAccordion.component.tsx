@@ -4,7 +4,7 @@ import type {
 	LessonWithStatus,
 } from "@store/course/course.model";
 import { ChevronDown, CheckCircle, Lock, PlayCircle } from "lucide-react";
-import LessonModal from "@components/LessonModal/LessonModal.component";
+import LessonModal from "@/features/courses/components/lessonModal/LessonModal.component";
 import "./ChapterAccordion.css";
 
 interface ChapterAccordionProps {

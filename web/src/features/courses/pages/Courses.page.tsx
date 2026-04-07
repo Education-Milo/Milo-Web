@@ -1,6 +1,6 @@
-import CourseCard from "@components/CourseCard/CourseCard.component";
-import { useCoursesScreen } from "@hooks/useCoursesPage";
-import "@styles/CoursesScreen.css";
+import CourseCard from "@/features/courses/components/courseCard/CourseCard.component";
+import { useCoursesScreen } from "@/features/courses/hooks/useCoursesPage";
+import "@features/courses/styles/CoursesScreen.css";
 import ScreenLayout from "@components/ui/common/ScreenLayout.component";
 import type { ClassType } from "@store/user/user.model";
 

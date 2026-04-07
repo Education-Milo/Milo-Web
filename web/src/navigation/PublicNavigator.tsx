@@ -3,9 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginScreen from '@screens/Auth/Login.page';
 import RegisterScreen from '@screens/Auth/Register.page';
 import ForgotPasswordScreen from '@screens/Auth/ForgotPassword.page';
-import VitrinePage from '@screens/Landing/Vitrine.page';
-import ContactPage from '@screens/Landing/Contact.page';
-import FAQPage from '@screens/Landing/FAQ.page';
+import VitrinePage from '@features/landing/pages/Vitrine.page';
+import ContactPage from '@features/landing/pages/Contact.page';
+import FAQPage from '@features/landing/pages/FAQ.page';
 
 const PublicNavigator: React.FC = () => {
   return (

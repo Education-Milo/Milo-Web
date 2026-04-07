@@ -12,7 +12,7 @@ import {
 	Star,
 	Heart,
 } from "lucide-react";
-import "@styles/Contact.css";
+import "@features/landing/styles/Contact.css";
 import Footer from "@components/Footer.component";
 
 const ContactPage: React.FC = () => {

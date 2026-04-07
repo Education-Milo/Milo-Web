@@ -8,7 +8,7 @@ import {
 	ArrowLeft,
 } from "lucide-react";
 import Footer from "@components/Footer.component";
-import "@styles/FAQ.css";
+import "@features/landing/styles/FAQ.css";
 
 const FAQ_DATA = [
 	{

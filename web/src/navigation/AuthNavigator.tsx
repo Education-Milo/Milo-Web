@@ -5,13 +5,13 @@ import RedirectScreen from "@screens/Redirect.page";
 
 // Pages communes
 import HomeScreen from "@screens/Home.page";
-import ProfilePage from "@screens/Profile.page";
+import ProfilePage from "@features/profile/pages/Profile.page";
 import UnauthorizedPage from "@screens/Unauthorized.page";
 
 // Pages User (Enfant/Élève)
 import MiloScene from "@screens/MiloScene";
-import CoursesPage from "@screens/Courses.page";
-import CourseDetailScreen from "@screens/CourseDetail.page";
+import CoursesPage from "@/features/courses/pages/Courses.page";
+import CourseDetailScreen from "@/features/courses/pages/CourseDetail.page";
 import MissionsPage from "@screens/Missions.page";
 import DuelsPage from "@screens/Duels.page";
 import ExerciseResultScreen from "@screens/ExerciseResult.page";
