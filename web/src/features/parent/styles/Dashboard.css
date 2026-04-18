@@ -1,0 +1,301 @@
+@import "@shared/styles/animations.css";
+@import "@shared/styles/layout.css";
+@import "@shared/styles/scrollbar.css";
+
+/* ─── Achievements ──────────────────────────────────────────────────────────
+  Utilisé dans la colonne latérale "Activité récente"
+*/
+.achievements-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.achievement-item {
+	display: flex;
+	align-items: center;
+	padding: 1rem;
+	background: #f8fafc;
+	border-radius: 12px;
+	transition: all 0.3s ease;
+	cursor: pointer;
+	animation: slideInUp 0.6s ease-out forwards;
+	opacity: 0;
+}
+
+.achievement-item:nth-child(1) { animation-delay: 1.2s; }
+.achievement-item:nth-child(2) { animation-delay: 1.4s; }
+.achievement-item:nth-child(3) { animation-delay: 1.6s; }
+
+.achievement-item:hover {
+	background: #ff6b35;
+	color: white;
+	transform: translateX(8px);
+}
+
+.achievement-icon {
+	font-size: 2rem;
+	width: 48px;
+	height: 48px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 1rem;
+	flex-shrink: 0;
+}
+
+.achievement-info h4 {
+	font-weight: 600;
+	color: #2d3748;
+	margin-bottom: 0.25rem;
+	font-size: 0.95rem;
+}
+
+.achievement-info p {
+	font-size: 0.8rem;
+	color: #718096;
+}
+
+.achievement-item:hover .achievement-info h4,
+.achievement-item:hover .achievement-info p {
+	color: white;
+}
+
+/* ─── Graphical Cards ───────────────────────────────────────────────────────
+   Cartes visuelles avec jauges et graphiques
+*/
+.graphical-card {
+	background: white;
+	border-radius: 24px;
+	padding: 1.5rem;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.graphical-card:hover {
+	transform: translateY(-3px);
+}
+
+.graphical-card.vibrant {
+	color: white;
+}
+
+.graphical-card.vibrant h3 {
+	color: white !important;
+	opacity: 0.9;
+}
+
+.card-decoration-icon {
+	position: absolute;
+	right: -10px;
+	bottom: -20px;
+	font-size: 8rem;
+	opacity: 0.1;
+	transform: rotate(-15deg);
+	pointer-events: none;
+}
+
+/* ─── Children Cards ────────────────────────────────────────────────────────
+   Sélecteur d'enfant dans le dashboard parent
+*/
+.children-section {
+	margin-bottom: 3rem;
+}
+
+.children-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 1.5rem;
+}
+
+.child-card {
+	background: white;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	transition: all 0.3s;
+	border: 2px solid transparent;
+}
+
+.child-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.child-card.selected {
+	border-color: #f97316;
+	box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
+}
+
+.child-header {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+.child-avatar {
+	font-size: 3rem;
+}
+
+.child-info h3 {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #1e293b;
+}
+
+.child-info p {
+	margin: 0;
+	font-size: 0.875rem;
+	color: #64748b;
+}
+
+.child-stats {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.stat-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex: 1;
+	padding: 0.75rem;
+	background: #f1f5f9;
+	border-radius: 0.5rem;
+}
+
+.stat-details {
+	display: flex;
+	flex-direction: column;
+}
+
+.stat-value {
+	font-weight: 700;
+	color: #1e293b;
+	font-size: 1rem;
+}
+
+.stat-label {
+	font-size: 0.75rem;
+	color: #64748b;
+}
+
+.child-progress {
+	margin-bottom: 1rem;
+}
+
+.progress-bar {
+	height: 8px;
+	background: #e2e8f0;
+	border-radius: 4px;
+	overflow: hidden;
+	margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+	transition: width 0.3s;
+}
+
+.progress-text {
+	font-size: 0.75rem;
+	color: #64748b;
+}
+
+.child-actions {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px solid #e2e8f0;
+}
+
+.action-btn {
+	width: 100%;
+	padding: 0.75rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.action-btn.primary {
+	background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+	color: white;
+}
+
+.action-btn.primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+/* ─── Stats Cards ───────────────────────────────────────────────────────────*/
+.stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 1.5rem;
+}
+
+.stat-card {
+	background: white;
+	border-radius: 1rem;
+	padding: 1.5rem;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	transition: all 0.3s;
+}
+
+.stat-card:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card-icon {
+	font-size: 2.5rem;
+}
+
+.stat-card-content h3 {
+	font-size: 0.875rem;
+	color: #64748b;
+	margin: 0 0 0.5rem 0;
+	font-weight: 500;
+}
+
+.stat-card-content .stat-value {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: #1e293b;
+}
+
+.welcome-content {
+	position: relative;
+	z-index: 2;
+}
+
+.welcome-title {
+	font-size: 2.2rem;
+	font-weight: 800;
+	letter-spacing: -0.5px;
+	margin-bottom: 0.5rem;
+	line-height: 1.2;
+}
+
+.welcome-subtitle {
+	font-size: 1.2rem;
+	opacity: 0.9;
+	margin-bottom: 2rem;
+}
+
+.quick-action-buttons {
+	display: flex;
+	gap: 1rem;
+}

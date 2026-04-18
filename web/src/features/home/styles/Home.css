@@ -1,0 +1,169 @@
+@import "@shared/styles/animations.css";
+@import "@shared/styles/layout.css";
+@import "@shared/styles/scrollbar.css";
+
+.welcome-img {
+	width: 100%;
+	max-width: 30%;
+	position: absolute;
+	bottom: -100px;
+	left: 550px;
+}
+
+.missions-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.mission-card {
+	background: #f8fafc;
+	border-radius: 16px;
+	margin-top: 5px;
+	padding: 1.5rem;
+	border-left: 4px solid;
+	transition: all 0.3s ease;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	animation: slideInUp 0.6s ease-out forwards;
+	opacity: 0;
+}
+
+.mission-card:nth-child(1) {
+	animation-delay: 1s;
+}
+
+.mission-card:nth-child(2) {
+	animation-delay: 1.2s;
+}
+
+.mission-card:nth-child(3) {
+	animation-delay: 1.4s;
+}
+
+.mission-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(
+		135deg,
+		transparent 0%,
+		rgba(255, 255, 255, 0.5) 100%
+	);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.mission-card:hover::before {
+	opacity: 1;
+}
+
+.mission-card:hover {
+	transform: translateY(-4px) scale(1.02);
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.mission-card.green {
+	border-left-color: #48bb78;
+}
+
+.mission-card.orange {
+	border-left-color: #ff6b35;
+}
+
+.mission-card.green .mission-check {
+	animation: pulse 2s infinite;
+}
+
+.milo-banner-clickable {
+	background: #f3be81;
+	border-radius: 24px;
+	padding: 0;
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	min-height: 300px;
+	cursor: pointer;
+	animation: slideInUp 1s ease-out 0.4s forwards;
+	opacity: 0;
+	transition:
+		transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+		box-shadow 0.2s ease;
+	border: none;
+}
+
+.milo-banner-clickable:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+}
+
+.milo-banner-clickable:active {
+	transform: translateY(2px) scale(0.98);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.milo-banner-clickable:hover .milo-display-img {
+	transform: scale(1.02);
+	filter: brightness(1.1);
+}
+
+.milo-banner-clickable::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 50%;
+	height: 100%;
+	background: linear-gradient(
+		to right,
+		transparent,
+		rgba(255, 255, 255, 0.3),
+		transparent
+	);
+	transform: skewX(-25deg);
+	transition: 0.7s;
+}
+
+.milo-banner-clickable:hover::after {
+	left: 150%;
+}
+
+.milo-banner-clickable {
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.announcements-section {
+	height: 237px;
+	display: flex;
+	flex-direction: column;
+	padding: 1.5rem;
+	background: #ffffff;
+	border: 2px solid #f1f5f9;
+	position: relative;
+}
+
+.badge-new {
+	background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+	color: white;
+	font-size: 0.65rem;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-weight: 800;
+	text-transform: uppercase;
+	box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+	animation: pulse-green 2s infinite;
+}
+
+.announcement-item {
+	padding: 1rem;
+	background: #fffcf9;
+	border-radius: 16px;
+	border: 1px solid #ffe7d6;
+	border-left: 5px solid #ff6b35;
+	margin-bottom: 0.8rem;
+	transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	cursor: pointer;
+}

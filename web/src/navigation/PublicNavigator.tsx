@@ -1,11 +1,11 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginScreen from '@screens/Auth/Login';
-import RegisterScreen from '@screens/Auth/Register';
-import ForgotPasswordScreen from '@screens/Auth/ForgotPassword';
-import VitrinePage from '@screens/VitrinePage';
-import ContactPage from '@screens/ContactPage';
-import FAQPage from '@screens/FAQPage';
+import LoginScreen from '@features/auth/pages/Login.page';
+import RegisterScreen from '@features/auth/pages/Register.page';
+import ForgotPasswordScreen from '@features/auth/pages/ForgotPassword.page';
+import VitrinePage from '@features/landing/pages/Vitrine.page';
+import ContactPage from '@features/landing/pages/Contact.page';
+import FAQPage from '@features/landing/pages/FAQ.page';
 
 const PublicNavigator: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const PublicNavigator: React.FC = () => {
 
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/faq" element={<FAQPage />} />
-      <Route path="/contact" element={<ContactPage />} /> 
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
 

@@ -1,0 +1,164 @@
+/*
+ * Styles pour la page Missions
+*/
+
+/* Définition de l'animation d'apparition */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layout */
+.missions-page-container {
+  display: flex;
+  flex-direction: column; 
+  gap: 1.5rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem 2.5rem;
+}
+.missions-top-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+.missions-top-row .monthly-challenge-card {
+    background: linear-gradient(105deg, #f97316 0%, #fdba74 100%);
+    color: white;
+}
+.missions-top-row .section-card { /* Cible la carte des missions du jour */
+  flex: 1;
+  /* Animation de la carte #2 */
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.2s forwards;
+}
+
+
+/* Carte Défi Mensuel */
+.monthly-challenge-card {
+  background: linear-gradient(105deg, #f97316 0%, #fdba74 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem 0 1.5rem;
+  min-height: 240px; 
+}
+.monthly-challenge-top-content {
+  text-align: center;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.monthly-challenge-header {
+  margin-bottom: 1rem; 
+}
+.monthly-challenge-header h3 { 
+  font-size: 1.8rem;
+  font-weight: 700; 
+  margin: 0; 
+}
+.monthly-challenge-body { 
+  max-width: 100%;
+}
+.monthly-challenge-body p { 
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.9); 
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+.monthly-challenge-bottom-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.monthly-challenge-days-left-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+}
+.monthly-challenge-fox-img {
+  position: relative;
+  bottom: -15px;
+  right: auto;
+  margin: 0 auto;
+  width: 220px;
+  height: 220px;
+}
+.monthly-challenge-fox-img img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; 
+}
+
+/* Carte Missions du Jour (layout) */
+.missions-timer { 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  color: #4a5568; 
+}
+.daily-missions-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 1rem; 
+}
+
+/* Barre de progression (spécifique au défi mensuel) */
+.monthly-challenge-body .mission-progress-container {
+  max-width: 500px;
+  margin: 0 auto;
+}
+.monthly-challenge-body .mission-progress-bar { 
+  background-color: rgba(0, 0, 0, 0.2); 
+  height: 16px;
+}
+.monthly-challenge-body .mission-progress-fill { 
+  background-color: white; 
+}
+.monthly-challenge-body .mission-progress-container span { 
+  color: white; 
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Calendrier des Badges (layout) */
+.badge-calendar-card {
+  width: 100%;
+  /* Animation de la carte #3 */
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.3s forwards;
+}
+.badge-calendar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.badge-year-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); 
+  gap: 2rem 1rem;
+}
