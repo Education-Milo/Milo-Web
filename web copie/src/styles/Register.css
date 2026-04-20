@@ -1,0 +1,392 @@
+/* Register.css - Styles pour le formulaire d'inscription */
+
+/* Reset global pour éviter les décalages */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%) !important;
+}
+
+#root {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  width: 100%;
+}
+
+.form-page-wrapper {
+  position: relative !important;
+  min-height: 100vh !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.form-page-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: visible;
+  padding-top: 2rem;
+  padding-bottom: 6rem;
+}
+
+.form-content {
+  padding: 3rem;
+  width: 90%;
+  max-width: 600px;
+  z-index: 2;
+  position: relative;
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+/* Garder les cercles décoratifs */
+.decorative-circle-1 {
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+.decorative-circle-2 {
+  position: absolute;
+  bottom: -15%;
+  left: -15%;
+  width: 25rem;
+  height: 25rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+/* Logo et branding */
+.logo-container {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-milo {
+  height: 6rem;
+  width: auto;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+  display: block;
+}
+
+/* En-tête du formulaire */
+.form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.form-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.form-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Formulaire */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #9ca3af;
+  z-index: 2;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding-left: 3rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  color: #111827;
+  background-color: #f9fafb;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: #f97316;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
+
+.input.error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.input.error:focus {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* Styles spécifiques pour la sélection de rôle */
+.role-selection {
+  margin-top: 1.5rem;
+}
+
+.role-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.role-button {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 2px solid #e5e7eb;
+  background-color: white;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+}
+
+.role-button:hover {
+  border-color: #d1d5db;
+}
+
+.role-button.selected {
+  border-color: #f97316;
+  background-color: #fff7ed;
+  color: #ea580c;
+}
+
+/* Bouton principal */
+.submit-button {
+  width: 100%;
+  background-color: #f97316;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button:hover {
+  background-color: #ea580c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(249, 115, 22, 0.5);
+}
+
+.submit-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Section d'inscription/liens */
+.signup-section {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.signup-text {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.signup-link {
+  color: #f97316;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.signup-link:hover {
+  color: #ea580c;
+}
+
+/* Pied de page */
+.footer {
+  position: relative;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  text-align: center;
+  z-index: 1;
+}
+
+/* Styles pour le texte légal */
+.legal-text {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.legal-text a {
+  color: #f97316;
+  text-decoration: underline;
+}
+
+.legal-text a:hover {
+  color: #ea580c;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .form-page-container {
+    padding: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 4rem;
+  }
+  
+  .form-content {
+    padding: 2rem;
+    max-width: 100%;
+    width: 95%;
+  }
+  
+  .logo-milo {
+    height: 5rem;
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
+  }
+  
+  .form {
+    gap: 1rem;
+  }
+  
+  .form-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .role-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .decorative-circle-1,
+  .decorative-circle-2 {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-page-container {
+    padding: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+  }
+  
+  .form-content {
+    padding: 1.5rem;
+  }
+  
+  .logo-milo {
+    height: 4rem;
+  }
+  
+  .form-title {
+    font-size: 1.25rem;
+  }
+  
+  .input {
+    padding-left: 2.5rem;
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+  }
+  
+  .input-icon {
+    left: 0.75rem;
+  }
+  
+  .role-button {
+    padding: 0.625rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Styles pour les grilles de rôles sur tablette */
+@media (min-width: 481px) and (max-width: 768px) {
+  .role-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

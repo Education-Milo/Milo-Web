@@ -1,0 +1,82 @@
+/* --- FONTS & CONFIG --- */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+:root { --sidebar-w: 280px; --accent: #E28743; --accent-light: #FFB37B; --text-main: #4A3F35; --font-milo: 'Outfit', sans-serif; }
+
+/* --- ANIMATIONS CORE & FX --- */
+@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+@keyframes rotate-glow { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes pulse-bg { 0% { opacity: 0.3; } 50% { opacity: 0.6; } 100% { opacity: 0.3; } }
+@keyframes glint { 0% { left: -150%; opacity: 0; } 50% { opacity: 0.5; } 100% { left: 150%; opacity: 0; } }
+
+/* --- VIEWPORT & FONDS --- */
+.shop-viewport { display: flex; gap: 40px; padding: 40px; height: 100vh; background: radial-gradient(circle at 0% 0%, #F6EBDF 0%, #F1D2B2 100%); overflow: hidden; position: relative; font-family: var(--font-milo); }
+.shop-viewport::before { content: ''; position: absolute; inset: 0; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.03; pointer-events: none; }
+
+/* --- SIDEBAR FLOTTANTE & NAVBAR --- */
+.shop-logo-section { display: flex; align-items: center; gap: 15px; margin-bottom: 50px; padding: 0 15px; }
+.shop-icon-wrapper { background: linear-gradient(180deg, var(--accent-light), var(--accent)); color: white; padding: 12px; border-radius: 18px; box-shadow: 0 8px 0 #B66A32, 0 8px 15px rgba(226, 135, 67, 0.3); }
+.shop-logo-section h2 { font-size: 1.5rem; font-weight: 900; color: var(--text-main); letter-spacing: -1px; }
+.shop-nav-list { display: flex; flex-direction: column; gap: 12px; flex: 1; position: relative; }
+.shop-nav-item { border: none; background: #FFF; display: flex; align-items: center; gap: 15px; padding: 18px 25px; border-radius: 25px; cursor: pointer; color: #8B7E74; font-weight: 800; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2; border-bottom: 5px solid #EADED5; overflow: hidden; }
+.shop-nav-item:hover { color: var(--text-main); transform: scale(1.02) translateX(8px); border-bottom-color: #D1C7C0; }
+.shop-nav-item::after { content: ''; position: absolute; top: 0; left: -100%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.6s; }
+.shop-nav-item:hover::after { left: 150%; }
+.shop-nav-item.is-active { color: white; background: var(--text-main); border-bottom: 5px solid #1A1613; transform: scale(1.05); }
+.nav-bullet { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.shop-btn-customize { background: linear-gradient(180deg, #4A3F35 0%, #2A2420 100%); color: white; border: none; padding: 22px; border-radius: 24px; display: flex; align-items: center; justify-content: center; gap: 12px; font-weight: 800; cursor: pointer; margin-top: 20px; box-shadow: 0 8px 0 #1A1613; transition: 0.2s; position: relative; overflow: hidden; }
+.shop-btn-customize:hover { transform: translateY(-3px); box-shadow: 0 11px 0 #1A1613; }
+.shop-btn-customize:active { transform: translateY(4px); box-shadow: 0 4px 0 #1A1613; }
+
+/* --- GRILLE & CONTENU --- */
+.shop-content-area { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+.shop-top-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+.shop-view-title { font-size: 3.5rem; font-weight: 900; color: var(--text-main); letter-spacing: -3px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.05)); }
+
+/* --- BOUTON COINS (ENFANTIN & MODERNE) --- */
+.shop-wallet-pill { background: linear-gradient(180deg, #FFF 0%, #F3EDE8 100%); padding: 14px 30px; border-radius: 100px; display: flex; align-items: center; gap: 15px; cursor: pointer; box-shadow: 0 10px 25px rgba(0,0,0,0.08), inset 0 -4px 0 #EADED5; border: 3px solid #FFF; transition: 0.3s; }
+.shop-wallet-pill:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 20px 40px var(--accent-glow), inset 0 -4px 0 #EADED5; }
+.shop-wallet-pill svg { animation: rotate-glow 10s linear infinite; filter: drop-shadow(0 2px 4px var(--accent-glow)); }
+.coin-count { font-weight: 900; font-size: 1.4rem; color: var(--text-main); text-shadow: 0 2px 0 #FFF; }
+.shop-grid-container { flex: 1; overflow-y: auto; padding-right: 15px; scroll-behavior: smooth; }
+.shop-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px; padding: 10px; }
+
+/* --- CARTE PRODUIT (GLOSSY) --- */
+.shop-item-card { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border-radius: 45px; padding: 30px; border: 2px solid #FFF; transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1); position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.03); }
+.shop-item-card:hover {box-shadow: 0 40px 80px rgba(139, 92, 63, 0.15); border-color: rgba(0,0,0,0.5); scale: 1.05; }
+.shop-item-preview { height: 200px; background: radial-gradient(circle, #FFF 0%, #FDF1E8 100%); border-radius: 35px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; position: relative; overflow: hidden; box-shadow: inset 0 10px 20px rgba(0,0,0,0.02); transition: 0.5s; }
+.shop-item-card:hover .shop-item-preview { transform: scale(1.02); }
+.shop-item-icon { font-size: 5.5rem; z-index: 2; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.15)); transition: 0.4s; }
+.shop-item-card:hover .shop-item-icon { transform: scale(1.1) rotate(8deg); }
+.shop-item-glow { position: absolute; inset: 0; background: linear-gradient(45deg, transparent, rgba(255,255,255,0.6), transparent); animation: glint 4s infinite ease-in-out; transform: skewX(-20deg); }
+.shop-item-rarity { font-size: 0.8rem; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; color: #B0A49C; }
+.shop-item-card h3 { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin: 8px 0 25px; }
+
+/* --- BOUTONS ACHAT CANDY 3D --- */
+.shop-buy-btn { width: 100%; padding: 20px; border-radius: 22px; border: none; background: linear-gradient(180deg, #F9F3EE 0%, #EADED5 100%); color: var(--text-main); font-weight: 900; font-size: 1.1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 0 #D1C7C0, 0 15px 25px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+.shop-buy-btn:hover:not(:disabled) { background: linear-gradient(180deg, var(--accent-light), var(--accent)); color: white; box-shadow: 0 8px 0 #1A1613 0 20px 40px var(--accent-glow); transform: translateY(-2px); }
+.shop-buy-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 #B66A32; }
+.shop-buy-btn.is-owned { background: #EAFCF1 !important; color: #1A874B !important; cursor: default; box-shadow: 0 8px 0 #B7E4C7 !important; transform: none !important; }
+.shop-sale-badge { position: absolute; top: 20px; right: 20px; background: #F87171; color: white; font-size: 0.75rem; font-weight: 900; padding: 8px 18px; border-radius: 50px; z-index: 5; box-shadow: 0 10px 20px rgba(248, 113, 113, 0.3); }
+
+/* --- MODALES & OVERLAYS --- */
+.shop-overlay { position: fixed; inset: 0; background: rgba(74, 63, 53, 0.4); backdrop-filter: blur(15px); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.shop-modal { background: white; padding: 60px; border-radius: 60px; width: 480px; text-align: center; box-shadow: 0 50px 100px rgba(0,0,0,0.3); position: relative; overflow: hidden; border: 4px solid #F3EDE8; }
+.modal-glow { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at center, rgba(226, 135, 67, 0.15) 0%, transparent 50%); animation: rotate-glow 10s linear infinite; }
+.shop-modal-preview { font-size: 7rem; margin-bottom: 25px; position: relative; z-index: 2; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2)); }
+.shop-btn-confirm { flex: 2; padding: 22px; border-radius: 22px; border: none; background: linear-gradient(180deg, #4A3F35 0%, #2A2420 100%); color: white; font-weight: 900; cursor: pointer; box-shadow: 0 8px 0 #1A1613; }
+.shop-btn-confirm:hover { background: var(--accent); box-shadow: 0 8px 0 #B66A32; transform: translateY(-2px); }
+.shop-btn-cancel { flex: 1; padding: 22px; border-radius: 22px; border: none; background: #F7FAFC; color: #2D3748; font-weight: 800; cursor: pointer; margin-left: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+
+/* --- RARETÉ COLORS --- */
+.rarity-rare { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #3B82F6, #1E40AF); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-rare .shop-item-rarity { color: #3B82F6; text-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+
+.rarity-épique { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #A855F7, #6B21A8); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-épique .shop-item-rarity { color: #A855F7; text-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+
+.rarity-légendaire { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #FFD700, #E28743); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-légendaire .shop-item-rarity { color: #E28743; text-shadow: 0 0 10px rgba(226, 135, 67, 0.2); }
+
+/* --- SCROLLBAR --- */
+.shop-grid-container::-webkit-scrollbar { width: 10px; }
+.shop-grid-container::-webkit-scrollbar-thumb { background: #EADED5; border-radius: 20px; border: 3px solid #FDF8F5; }

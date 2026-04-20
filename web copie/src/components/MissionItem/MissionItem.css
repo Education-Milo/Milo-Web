@@ -1,0 +1,80 @@
+/* Styles pour le composant MissionItem */
+
+/* Définition de l'animation d'apparition */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mission-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  /* Application de l'animation */
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.mission-item-icon {
+  font-size: 1.8rem;
+  background-color: #f3f4f6;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mission-item-info { 
+  flex-grow: 1; 
+}
+.mission-item-info h4 { 
+  margin: 0 0 0.5rem 0; 
+  font-size: 1rem; 
+  color: #a20c;
+}
+
+.mission-item-reward {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #f97316;
+  background-color: #ffedd5;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+/* Styles pour la barre de progression (partagés) */
+.mission-progress-container { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.75rem; 
+}
+.mission-progress-container span { 
+  font-size: 0.85rem; 
+  font-weight: 500; 
+  color: #4a5568; 
+}
+.mission-progress-bar { 
+  flex-grow: 1; 
+  height: 12px; 
+  background-color: #e9ecef; 
+  border-radius: 99px; 
+  overflow: hidden; 
+}
+.mission-progress-fill { 
+  height: 100%; 
+  background-color: #f97316; 
+  border-radius: 99px; 
+  transition: width 0.5s ease; 
+}

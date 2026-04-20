@@ -1,4 +1,4 @@
-.faq-root { min-height: 100vh; background: #FDF8F3; font-family: 'Plus Jakarta Sans', sans-serif; position: relative; padding-bottom: 100px; overflow-x: hidden; }
+.faq-root { min-height: 100vh; background: #FDF8F3; font-family: 'Plus Jakarta Sans', sans-serif; position: relative; padding-bottom: 100px; overflow-x: hidden; padding-top: 180px;}
 .faq-bg-gradient { position: absolute; top: 0; width: 100%; height: 500px; background: radial-gradient(circle at 50% -100px, rgba(244,146,42,0.15) 0%, transparent 70%); z-index: 0; }
 .faq-main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 40px 20px; }
 .faq-header { text-align: center; margin-bottom: 60px; }

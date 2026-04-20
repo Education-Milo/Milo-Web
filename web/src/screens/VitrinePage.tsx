@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Footer from '@components/Footer';
+import Navbar from '@components/Navbar';
 import { 
   ArrowRight, 
   ChevronDown, 
@@ -13,23 +14,23 @@ import '../styles/Vitrine.css';
 const kidsFeatures = [
   {
     id: 1,
-    title: "Pour les <span>Enfants</span>",
-    desc: "Explore des mondes fantastiques tout en révisant tes leçons. Milo transforme chaque exercice en une quête épique !",
-    items: ["✨ Avatars personnalisables", "🎮 Mini-jeux éducatifs", "🏆 Trophées et récompenses"],
+    title: "Apprends à <span>ta façon</span>",
+    desc: "Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre !",
+    items: ["📚 Import de cours", "🧠 Exercices sur mesure", "🗂️ Flashcards intelligentes"],
     img: "/screen1.png"
   },
   {
     id: 2,
-    title: "Apprendre en <span>Jouant</span>",
-    desc: "Débloque des nouveaux niveaux en réussissant tes quiz. Plus tu apprends, plus ton monde Milo s'agrandit !",
-    items: ["🗺️ Cartes interactives", "⚔️ Défis entre amis", "🛡️ Équipements rares"],
+    title: "Défie tes <span>Amis</span>",
+    desc: "Rien de tel qu'un peu de compétition pour progresser ! Participe à des duels en temps réel, réponds aux quiz quotidiens et grimpe tout en haut de la ligue.",
+    items: ["⚔️ Duels en direct", "🏆 Ligues Bronze à Diamant", "🎯 Quizz quotidiens"],
     img: "/screen2.png"
   },
   {
     id: 3,
-    title: "Suivi des <span>Progrès</span>",
-    desc: "Visualise tes victoires et gagne des badges de mérite. Chaque effort est récompensé par des cristaux magiques !",
-    items: ["📈 Graphiques rigolos", "💎 Cristaux d'XP", "📜 Parchemins de réussite"],
+    title: "Ton Milo, <span>ton Style</span>",
+    desc: "Gagne des pièces en réussissant tes quêtes et tes leçons. Utilise-les dans la boutique pour acheter des cosmétiques et personnaliser ton compagnon renard !", 
+    items: ["🦊 Mascotte unique", "💰 Système de Coins", "👕 Cosmétiques exclusifs"], 
     img: "/screen3.png"
   }
 ];
@@ -47,59 +48,12 @@ const VitrinePage: React.FC = () => {
 
   return (
     <div className="vitrine-root">
-      {/* FOND DYNAMIQUE */}
       <div className="mesh-gradient">
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
       </div>
 
-      {/* NAVBAR ORGANIQUE TRES LARGE */}
-      <motion.header 
-        className="nav-container-organic"
-        initial={{ y: -200 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 40, damping: 15 }}
-      >
-        <div className="nav-wave-bg">
-          <svg viewBox="0 0 1440 320" className="wave-svg wave-orange" preserveAspectRatio="none">
-            <path d="M0,64L80,80C160,96,320,128,480,133.3C640,139,800,117,960,101.3C1120,85,1280,75,1360,69.3L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
-          </svg>
-          <svg viewBox="0 0 1440 280" className="wave-svg wave-beige" preserveAspectRatio="none">
-            <path d="M0,100L60,95.3C120,100,240,140,360,128.7C480,128,600,96,720,90.7C840,85,960,107,1080,117.3C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-          </svg>
-        </div>
-
-        <nav className="nav-content">
-          <div className="nav-left">
-            <img src="/milo-logo2.png" alt="Milo" className="nav-logo-v2" />
-          </div>
-          <div className="nav-center">
-            <div className="nav-pills">
-              <a href="#" className="pill-link active">Concept</a>
-              <a href="#enfants" className="pill-link">Pour les Enfants</a>
-              <a href="#parents" className="pill-link">Pour les Parents</a>
-              
-              <Link to="/faq" className="pill-link">FAQ</Link>
-              <Link to="/contact" className="pill-link">Contact</Link>
-            </div>
-          </div>
-          <div className="nav-right">
-            <Link to="/login" style={{ textDecoration: 'none' }}>
-                <button className="btn-login-v2">Connexion</button>
-            </Link>
-
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-                <motion.button 
-                className="btn-signup-v2"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                >
-                Adopter Milo
-                </motion.button>
-            </Link>
-            </div>
-        </nav>
-      </motion.header>
+      <Navbar />
 
       <div className="hero-spacer"></div>
 
@@ -232,10 +186,25 @@ const VitrinePage: React.FC = () => {
         {/* PARTIE 1 : FONCTIONNALITÉS PARENTS */}
         <div className="parents-grid">
             {[
-                { title: "Tableau de Bord", desc: "Suivez les points forts et les notions à revoir en un clin d'œil.", icon: "📈", color: "#FFEDD5" },
-                { title: "Temps d'écran", desc: "Définissez des limites pour un apprentissage sain et équilibré.", icon: "⌛", color: "#E0F2FE" },
-                { title: "Rapports Hebdo", desc: "Recevez les exploits de votre enfant directement par email.", icon: "📩", color: "#F0FDF4" }
-            ].map((feat, idx) => (
+                { 
+                  title: "Suivi des Progrès", 
+                  desc: "Gardez un œil sur le classement de votre enfant dans sa ligue et visualisez ses points forts en un clin d'œil.", 
+                  icon: "📊", 
+                  color: "#FFEDD5" 
+                },
+                { 
+                  title: "Planning Intelligent", 
+                  desc: "Une IA analyse son emploi du temps scolaire pour lui proposer des sessions de révision parfaitement calibrées.", 
+                  icon: "📅", 
+                  color: "#E0F2FE" 
+                },
+                { 
+                  title: "Contrôle Parental", 
+                  desc: "Gérez jusqu'à 4 profils enfants et supervisez leur activité 24h/24 en toute sécurité sur votre tableau de bord.", 
+                  icon: "🛡️", 
+                  color: "#F0FDF4" 
+                }
+              ].map((feat, idx) => (
                 <motion.div 
                 key={idx}
                 className="parent-card-dynamic"

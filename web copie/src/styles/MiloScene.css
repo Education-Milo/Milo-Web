@@ -1,0 +1,565 @@
+/* ============================================
+   MiloScene – Full UI/UX Styles
+   ============================================ */
+
+/* ---------- Root Container ---------- */
+.milo-scene-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: rgb(88, 189, 230)
+}
+
+/* ---------- Glassmorphism Panel Base ---------- */
+.glass-panel {
+  background: rgba(15, 15, 20, 0.65);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Animation Controls Panel ---------- */
+.controls-panel {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  padding: 24px;
+  color: #fff;
+  z-index: 10;
+  min-width: 240px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease;
+  animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.controls-panel.collapsed {
+  transform: translateX(-260px);
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+
+/* Panel toggle button */
+.panel-toggle-btn {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 15, 20, 0.7);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11;
+  transition: all 0.25s ease;
+  opacity: 0;
+  animation: fadeIn 0.4s 0.6s ease both;
+}
+
+.panel-toggle-btn:hover {
+  background: rgba(255, 140, 0, 0.25);
+  border-color: rgba(255, 140, 0, 0.4);
+  transform: scale(1.05);
+}
+
+.panel-toggle-btn.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Section titles */
+.controls-panel h3 {
+  margin: 0 0 14px 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.controls-panel hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin: 18px 0;
+}
+
+/* Radio / Checkbox labels */
+.control-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.control-label:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.control-label.active {
+  background: rgba(255, 140, 0, 0.15);
+  color: #FF8C00;
+}
+
+/* Custom radio */
+.custom-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.custom-radio.selected {
+  border-color: #FF8C00;
+}
+
+.custom-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FF8C00;
+  transform: scale(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-radio.selected .custom-radio-dot {
+  transform: scale(1);
+}
+
+/* Custom toggle switch */
+.toggle-switch {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.25s ease;
+}
+
+.toggle-switch.on {
+  background: rgba(255, 140, 0, 0.5);
+}
+
+.toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-switch.on .toggle-knob {
+  transform: translateX(18px);
+}
+
+/* ---------- Chat Input Area ---------- */
+.chat-input-area {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: min(600px, 90vw);
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.chat-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 20px;
+  border-radius: 50px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.chat-input-wrapper:focus-within {
+  border-color: rgba(255, 140, 0, 0.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 140, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.chat-send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #FF8C00, #FF6B00);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.3);
+}
+
+.chat-send-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.45);
+}
+
+.chat-send-btn:active {
+  transform: scale(0.95);
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- Reply Bubble ---------- */
+.reply-bubble {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  max-width: min(550px, 85vw);
+  padding: 16px 24px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.6;
+  animation: dropIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reply-bubble.hidden {
+  animation: fadeOutUp 0.3s ease both;
+  pointer-events: none;
+}
+
+/* ---------- Help Button ---------- */
+.help-btn {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 15, 20, 0.65);
+  backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.25s ease;
+  animation: fadeIn 0.4s 0.5s ease both;
+}
+
+.help-btn:hover {
+  background: rgba(255, 140, 0, 0.2);
+  color: #FF8C00;
+  border-color: rgba(255, 140, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* ---------- Back Button ---------- */
+.back-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 15, 20, 0.65);
+  backdrop-filter: blur(14px);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.25s ease;
+  animation: fadeIn 0.4s 0.5s ease both;
+}
+
+.back-btn:hover {
+  background: rgba(255, 140, 0, 0.2);
+  color: #FF8C00;
+  border-color: rgba(255, 140, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* ---------- Loading Overlay ---------- */
+.scene-loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  z-index: 50;
+  gap: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-video {
+  width: 175px;
+  height: 175px;
+  object-fit: contain;
+}
+
+.loading-text {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+/* ---------- Typing indicator ---------- */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ---------- Help Modal (revamped) ---------- */
+.help-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  cursor: pointer;
+  animation: fadeIn 0.25s ease;
+}
+
+.help-modal-overlay.closing {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+.help-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 20px;
+  padding: 10px;
+  cursor: default;
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+  background: rgba(20, 20, 25, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.help-modal-overlay.closing .help-modal-content {
+  animation: scaleOut 0.25s ease forwards;
+}
+
+.help-modal-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 101;
+  transition: transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.help-modal-close:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+.help-modal-img {
+  max-width: 100%;
+  max-height: 80vh;
+  display: block;
+  border-radius: 12px;
+}
+
+.help-modal-error {
+  padding: 60px 40px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 15px;
+}
+
+/* ============================================
+   Keyframes
+   ============================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scaleOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.92); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translate(-50%, -16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes fadeOutUp {
+  from { opacity: 1; transform: translate(-50%, 0); }
+  to   { opacity: 0; transform: translate(-50%, -12px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-6px); }
+}
+
+/* ---------- Intro Overlay ---------- */
+.intro-overlay {
+  margin-top: -325px;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  pointer-events: none;
+  animation: introFadeOut 1s 3.5s ease forwards;
+}
+
+.intro-content {
+  text-align: center;
+  animation: introSlideUp 1.2s 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.intro-title {
+  font-size: clamp(24px, 5vw, 48px);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 12px 0;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.5px;
+}
+
+.intro-subtitle {
+  font-size: clamp(14px, 2.5vw, 20px);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+}
+
+.intro-image {
+  max-width: 60vw;
+  max-height: 50vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 40px rgba(0, 0, 0, 0.5));
+}
+
+@keyframes introSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes introFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}

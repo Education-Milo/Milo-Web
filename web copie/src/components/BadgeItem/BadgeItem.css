@@ -1,0 +1,70 @@
+/* Styles pour le composant BadgeItem */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Application de l'animation */
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.badge-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 4px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.badge-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-lock-icon {
+  font-size: 2.5rem;
+  color: #a0aec0;
+}
+
+.badge-month-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+/* États des badges */
+.badge-item.missed .badge-circle,
+.badge-item.in-progress .badge-circle {
+  filter: grayscale(100%);
+  border-color: #e9ecef;
+}
+
+.badge-item.earned .badge-circle {
+  border-color: #f97316; 
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
+
+.badge-item.locked .badge-circle {
+  background-color: #e9ecef;
+  border-color: #e2e8f0;
+}

@@ -7,48 +7,45 @@ import {
   User, 
   Mail, 
   HelpCircle, 
-  ArrowLeft, 
   Sparkles, 
   Star, 
   Heart 
 } from 'lucide-react';
 import '../styles/Contact.css';
 import Footer from '@components/Footer';
+import Navbar from '@components/Navbar';
 
 const ContactPage: React.FC = () => {
   const [focused, setFocused] = useState<string | null>(null);
 
   return (
     <div className="contact-root">
-      {/* FOND DYNAMIQUE MILO */}
       <div className="contact-mesh">
-        <div className="contact-blob blob-orange"></div>
-        <div className="contact-blob blob-red"></div>
-        <div className="contact-blob blob-beige"></div>
       </div>
 
-      {/* NAVBAR DE CONTACT */}
-      <nav className="contact-nav">
-        <Link to="/" className="back-link-v2">
-          <div className="back-icon"><ArrowLeft size={18} /></div>
-          <span>Retour à l'aventure</span>
-        </Link>
-        <img src="/milo-logo2.png" alt="Milo" className="contact-logo-v2" />
-      </nav>
+      <Navbar />
 
       <main className="contact-main">
-        {/* BANNIÈRE FAQ INTELLIGENTE */}
-        <motion.div 
-          className="faq-suggestion-banner"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="faq-badge">ASTUCE</div>
-          <p>Une question pressante ? N'hésitez pas à jeter un œil à notre <strong><Link to="/faq">section FAQ</Link></strong>, la réponse s'y trouve peut-être déjà !</p>
-        </motion.div>
+      <motion.div 
+        className="faq-suggestion-banner"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="faq-badge">ASTUCE</div>
+        <p>
+          Une question pressante ? N'hésitez pas à jeter un œil à notre {" "}
+          <strong>
+          <Link 
+              to="/faq" 
+            >
+              FAQ
+          </Link>
+          </strong>
+          , la réponse s'y trouve peut-être déjà !
+        </p>
+      </motion.div>
 
-        {/* ÉLÉMENTS DÉCO FLOTTANTS */}
         <motion.div className="deco-star" animate={{ rotate: 360 }} transition={{ duration: 15, repeat: Infinity, ease: "linear" }}>
           <Star fill="#F4922A" color="#F4922A" size={40}/>
         </motion.div>
@@ -56,7 +53,6 @@ const ContactPage: React.FC = () => {
           <Heart fill="#EF4F1A" color="#EF4F1A" size={30}/>
         </motion.div>
 
-        {/* CARTE FORMULAIRE GLASSMORPHISM */}
         <motion.div 
           className="contact-glass-card"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -66,7 +62,7 @@ const ContactPage: React.FC = () => {
           <div className="contact-intro">
             <div className="badge-talk"><Sparkles size={14} /> On discute ?</div>
             <h1>Une question pour <span>Milo ?</span></h1>
-            <p>On adore recevoir du courrier. Que ce soit pour un bug, une idée de génie ou juste un petit "Coucou" !</p>
+            <p>On adore recevoir du courrier. Que ce soit pour un bug, une idée de génie ou tout autre demande n'hésite pas à nous contacter !</p>
           </div>
 
           <form className="pimped-form" onSubmit={(e) => e.preventDefault()}>
@@ -75,7 +71,7 @@ const ContactPage: React.FC = () => {
                 <label><User size={14} /> Ton nom</label>
                 <input 
                   type="text" 
-                  placeholder="Super Héros" 
+                  placeholder="Nom et prénom" 
                   onFocus={() => setFocused('name')} 
                   onBlur={() => setFocused(null)} 
                 />
@@ -84,7 +80,7 @@ const ContactPage: React.FC = () => {
                 <label><Mail size={14} /> Ton email</label>
                 <input 
                   type="email" 
-                  placeholder="hero@milo.com" 
+                  placeholder="ton-email@gmail.com" 
                   onFocus={() => setFocused('email')} 
                   onBlur={() => setFocused(null)} 
                 />
@@ -97,6 +93,7 @@ const ContactPage: React.FC = () => {
                 <option value="info">Informations générales</option>
                 <option value="support">Besoin d'aide (Support)</option>
                 <option value="press">Partenariats</option>
+                <option value="betatest">Programme Beta-Testeur</option>
               </select>
             </div>
 

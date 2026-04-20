@@ -1,0 +1,123 @@
+.chapter-accordion {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  position: relative;
+}
+
+.chapter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1.75rem;
+  background-color: #ffffff;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.chapter-header:hover {
+  background-color: #f8f9fa;
+}
+
+.chapter-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chapter-emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.chapter-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.chapter-number {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f97316; /* Thème orange */
+  text-transform: uppercase;
+}
+
+.chapter-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.chapter-chevron {
+  color: #64748b;
+  transition: transform 0.3s ease;
+}
+.chapter-accordion.open .chapter-chevron {
+  transform: rotate(180deg);
+}
+
+/* Contenu (liste des leçons) */
+.chapter-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+.chapter-accordion.open .chapter-content {
+  max-height: 500px; /* Hauteur max (s'adapte au contenu) */
+}
+
+.lessons-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.lesson-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+.lessons-list .lesson-item:last-child {
+  border-bottom: none;
+}
+
+.lesson-item.locked {
+  color: #94a3b8;
+}
+.lesson-item.completed {
+  color: #10b981;
+}
+.lesson-item.in-progress {
+  color: #f97316;
+}
+
+.lesson-icon {
+  display: flex;
+  align-items: center;
+}
+
+.lesson-item.clickable {
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.lesson-item.clickable:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+  border-radius: 8px;
+}
+
+.lesson-icon .icon-completed { color: #10b981; }
+.lesson-icon .icon-in-progress { color: #f97316; }
+.lesson-icon .icon-locked { color: #94a3b8; }

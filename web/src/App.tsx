@@ -4,6 +4,7 @@ import { useAuth } from '@hooks/useAuth';
 import AuthNavigator from '@navigation/AuthNavigator';
 import PublicNavigator from '@navigation/PublicNavigator';
 import LoadingScreen from '@components/LoadingScreen';
+import ScrollToTop from '@components/ScrollToTop';
 
 const App: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -16,6 +17,7 @@ const App: React.FC = () => {
 
   return (
       <Router>
+        <ScrollToTop />
         {isAuthenticated ? <AuthNavigator /> : <PublicNavigator />}
       </Router>
   );

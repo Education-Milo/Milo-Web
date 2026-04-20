@@ -1,0 +1,99 @@
+/* --- Définition de l'animation d'apparition --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CARTE DE COURS */
+.course-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border-left: 8px solid; /* Bordure gauche */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  opacity: 0; /* Caché par défaut pour l'animation */
+  animation: fadeInUp 0.5s ease-out forwards;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 2rem;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* EN-TÊTE DE LA CARTE */
+.course-card-header {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  gap: 0;
+  margin-bottom: 0.75rem;
+}
+
+/* ICÔNE DE LA CARTE */
+.course-card-icon {
+  font-size: 3rem;
+  background-color: #f3f4f6;
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1.25rem;
+}
+
+/* TITRE DE LA CARTE */
+.course-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+/* DESCRIPTION DE LA CARTE */
+.course-card-description {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.5;
+  flex-grow: 0;
+  margin-bottom: 0; 
+}
+
+/* Barre de progression cachée */
+.course-progress-container {
+  display: none;
+}
+
+/* Thèmes de couleur pour le FOND DES ICÔNES */
+.course-card.blue .course-card-icon { background-color: #e0e7ff; color: #3b82f6; }
+.course-card.red .course-card-icon { background-color: #fee2e2; color: #ef4444; }
+.course-card.yellow .course-card-icon { background-color: #fef9c3; color: #f59e0b; }
+.course-card.green .course-card-icon { background-color: #d1fae5; color: #10b981; }
+.course-card.purple .course-card-icon { background-color: #f3e8ff; color: #8b5cf6; }
+.course-card.orange .course-card-icon { background-color: #ffedd5; color: #f97316; }
+.course-card.teal .course-card-icon { background-color: #ccfbf1; color: #14b8a6; }
+.course-card.pink .course-card-icon { background-color: #fce7f3; color: #ec4899; }
+
+/* Thèmes de couleur pour la BORDURE GAUCHE */
+.course-card.blue { border-color: #3b82f6; }
+.course-card.red { border-color: #ef4444; }
+.course-card.yellow { border-color: #f59e0b; }
+.course-card.green { border-color: #10b981; }
+.course-card.purple { border-color: #8b5cf6; }
+.course-card.orange { border-color: #f97316; }
+.course-card.teal { border-color: #14b8a6; }
+.course-card.pink { border-color: #ec4899; }
