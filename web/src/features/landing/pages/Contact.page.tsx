@@ -7,39 +7,24 @@ import {
 	User,
 	Mail,
 	HelpCircle,
-	ArrowLeft,
 	Sparkles,
 	Star,
 	Heart,
 } from "lucide-react";
-import "@features/landing/styles/Contact.css";
+import "../styles/Contact.css";
 import Footer from "@features/landing/components/Footer.component";
+import Navbar from "@features/landing/components/Navbar/Navbar.component";
 
 const ContactPage: React.FC = () => {
 	const [focused, setFocused] = useState<string | null>(null);
 
 	return (
 		<div className="contact-root">
-			{/* FOND DYNAMIQUE MILO */}
-			<div className="contact-mesh">
-				<div className="contact-blob blob-orange"></div>
-				<div className="contact-blob blob-red"></div>
-				<div className="contact-blob blob-beige"></div>
-			</div>
+			<div className="contact-mesh"></div>
 
-			{/* NAVBAR DE CONTACT */}
-			<nav className="contact-nav">
-				<Link to="/" className="back-link-v2">
-					<div className="back-icon">
-						<ArrowLeft size={18} />
-					</div>
-					<span>Retour à l'aventure</span>
-				</Link>
-				<img src="/milo-logo2.png" alt="Milo" className="contact-logo-v2" />
-			</nav>
+			<Navbar />
 
 			<main className="contact-main">
-				{/* BANNIÈRE FAQ INTELLIGENTE */}
 				<motion.div
 					className="faq-suggestion-banner"
 					initial={{ opacity: 0, y: -20 }}
@@ -50,13 +35,12 @@ const ContactPage: React.FC = () => {
 					<p>
 						Une question pressante ? N'hésitez pas à jeter un œil à notre{" "}
 						<strong>
-							<Link to="/faq">section FAQ</Link>
+							<Link to="/faq">FAQ</Link>
 						</strong>
 						, la réponse s'y trouve peut-être déjà !
 					</p>
 				</motion.div>
 
-				{/* ÉLÉMENTS DÉCO FLOTTANTS */}
 				<motion.div
 					className="deco-star"
 					animate={{ rotate: 360 }}
@@ -72,7 +56,6 @@ const ContactPage: React.FC = () => {
 					<Heart fill="#EF4F1A" color="#EF4F1A" size={30} />
 				</motion.div>
 
-				{/* CARTE FORMULAIRE GLASSMORPHISM */}
 				<motion.div
 					className="contact-glass-card"
 					initial={{ opacity: 0, scale: 0.95 }}
@@ -88,7 +71,7 @@ const ContactPage: React.FC = () => {
 						</h1>
 						<p>
 							On adore recevoir du courrier. Que ce soit pour un bug, une idée
-							de génie ou juste un petit "Coucou" !
+							de génie ou tout autre demande n'hésite pas à nous contacter !
 						</p>
 					</div>
 
@@ -102,7 +85,7 @@ const ContactPage: React.FC = () => {
 								</label>
 								<input
 									type="text"
-									placeholder="Super Héros"
+									placeholder="Nom et prénom"
 									onFocus={() => setFocused("name")}
 									onBlur={() => setFocused(null)}
 								/>
@@ -115,7 +98,7 @@ const ContactPage: React.FC = () => {
 								</label>
 								<input
 									type="email"
-									placeholder="hero@milo.com"
+									placeholder="ton-email@gmail.com"
 									onFocus={() => setFocused("email")}
 									onBlur={() => setFocused(null)}
 								/>
@@ -135,6 +118,7 @@ const ContactPage: React.FC = () => {
 								<option value="info">Informations générales</option>
 								<option value="support">Besoin d'aide (Support)</option>
 								<option value="press">Partenariats</option>
+								<option value="betatest">Programme Beta-Testeur</option>
 							</select>
 						</div>
 

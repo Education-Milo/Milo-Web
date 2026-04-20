@@ -1,0 +1,55 @@
+/* --- LAYOUT & DYNAMIC BG --- */
+.mymilo-container { min-height: 100vh; padding: 40px 8%; display: flex; flex-direction: column; gap: 40px; position: relative; overflow: hidden; }
+.milo-bg-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 30%, rgba(244, 146, 42, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(239, 79, 26, 0.08) 0%, transparent 50%); z-index: 0; pointer-events: none; }
+.mymilo-header { display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+.page-title { font-size: 3.2rem; font-weight: 900; color: #2D3748; display: flex; align-items: center; gap: 15px; letter-spacing: -2px; }
+.sparkle-icon { color: #F4922A; animation: rotate-sparkle 4s linear infinite; }
+@keyframes rotate-sparkle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* --- HEADER ACTIONS --- */
+.header-actions { display: flex; align-items: center; gap: 20px; }
+.btn-shop-pimped { background: linear-gradient(135deg, #2D3748 0%, #1a202c 100%); color: white; border: none; padding: 14px 28px; border-radius: 20px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); transition: 0.3s; }
+.collection-score-pimped { background: white; padding: 12px 24px; border-radius: 20px; display: flex; align-items: center; gap: 12px; border: 2px solid #F6EBDF; box-shadow: 0 8px 25px rgba(244, 146, 42, 0.1); }
+.score-val { font-weight: 900; font-size: 1.4rem; color: #2D3748; font-family: 'Plus Jakarta Sans', sans-serif; }
+.icon-crown-animated { color: #F4922A; animation: crown-wiggle 3s ease-in-out infinite; }
+@keyframes crown-wiggle { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(15deg) scale(1.1); } }
+
+/* --- CONTENT GRID --- */
+.mymilo-content { display: grid; grid-template-columns: 1fr 1.6fr; gap: 50px; position: relative; z-index: 5; }
+
+/* MILO MODEL CARD */
+.milo-model-card { background: white; border-radius: 60px; padding: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 40px 80px rgba(244, 146, 42, 0.08); overflow: hidden; }
+.milo-light-ray { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(from 0deg, transparent, rgba(244, 146, 42, 0.05), transparent); animation: rotate-ray 10s linear infinite; }
+@keyframes rotate-ray { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.milo-main-img { width: 100%; max-width: 380px; z-index: 2; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.1)); }
+.milo-shadow { width: 180px; height: 30px; background: rgba(0,0,0,0.05); filter: blur(10px); border-radius: 50%; margin-top: -20px; }
+
+/* VESTIAIRE SECTION */
+.vestiaire-glass-box { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(30px); border-radius: 60px; padding: 45px; border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 30px 60px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 30px; }
+.vestiaire-header { display: flex; justify-content: space-between; align-items: center; }
+.locker-filters-pimped { display: flex; gap: 10px; background: rgba(0,0,0,0.03); padding: 8px; border-radius: 100px; }
+.filter-chip { padding: 10px 22px; border-radius: 100px; border: none; background: transparent; font-weight: 800; cursor: pointer; color: #718096; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+.filter-chip.active { background: white; color: #2D3748; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+/* ITEMS GRID */
+.locker-grid-pimped { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 25px; }
+.item-card-v2 { background: white; border-radius: 35px; padding: 25px; position: relative; border: 2px solid transparent; box-shadow: 0 10px 30px rgba(0,0,0,0.03); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 15px; transition: 0.3s; }
+.item-card-v2:hover { border-color: #F4922A; }
+.item-preview-circle { width: 85px; height: 85px; background: #FDF8F3; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; }
+.item-preview-circle svg { width: 42px; height: 42px; color: #2D3748; }
+
+/* RARITY & BUTTONS */
+.rarity-tag { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 50px; margin-top: 5px; }
+.rarity-tag.commun { background: #EDF2F7; color: #718096; }
+.rarity-tag.rare { background: #EBF8FF; color: #3182CE; }
+.rarity-tag.épique { background: #FAF5FF; color: #805AD5; }
+.rarity-tag.légendaire { background: #FFF7ED; color: #C05621; }
+.legendary-sparkle { position: absolute; top: 15px; right: 15px; color: #F4922A; animation: pulse-sparkle 1.5s infinite; }
+@keyframes pulse-sparkle { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.5; } }
+
+.btn-equip-pimped { width: 100%; padding: 12px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; }
+.btn-equip-pimped:not(.active) { background: #F7FAFC; color: #2D3748; }
+.btn-equip-pimped.active { background: #22C55E; color: white; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }
+
+/* RESPONSIVE */
+@media (max-width: 1200px) { .mymilo-content { grid-template-columns: 1fr; } .milo-model-card { max-width: 500px; margin: 0 auto; } }

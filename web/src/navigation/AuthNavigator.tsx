@@ -16,6 +16,8 @@ import MissionsPage from "@features/missions/pages/Missions.page";
 import DuelsPage from "@features/duels/pages/Duels.page";
 import ExerciseResultScreen from "@features/exercices/pages/ExerciseResult.page";
 import ExerciseScreen from "@features/exercices/pages/Exercise.page";
+import MyMiloPage from "@features/my-milo/pages/MyMilo.page";
+import BoutiquePage from "@features/milo-shop/pages/MiloShop.page";
 
 // Pages Parent
 import ParentDashboard from "@features/parent/pages/Dashboard.page";
@@ -127,6 +129,22 @@ const AuthNavigator: React.FC = () => {
 				element={
 					<ProtectedRoute allowedRoles={["Enfant"]}>
 						<ExerciseResultScreen />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/mon-milo"
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<MyMiloPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route
+				path="/boutique"
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<BoutiquePage />
 					</ProtectedRoute>
 				}
 			/>

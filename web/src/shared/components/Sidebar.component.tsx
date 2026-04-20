@@ -21,12 +21,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout, userProfile }) => {
 		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", badge: 3 },
 		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅" },
 		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️" },
+		{ label: 'Boutique', path: "/boutique", icon: '🛍️' },
+    	{ label: 'Mon Milo', path: "/mon-milo", icon: '🦊' },
 	];
 
 	const progressItems = [
 		{ label: "Succès", path: "/achievements", icon: "🏆", disabled: true },
 		{ label: "Statistiques", path: "/stats", icon: "📊", disabled: true },
-		{ label: "Objectifs", path: "/goals", icon: "🎯", disabled: true },
 	];
 
 	const socialItems = [
