@@ -28,7 +28,7 @@ const itemVariants = {
 		opacity: 1,
 		scale: 1,
 		transition: { type: "spring", stiffness: 100, damping: 12 },
-	},
+	} as const,
 };
 
 const BoutiquePage: React.FC = () => {

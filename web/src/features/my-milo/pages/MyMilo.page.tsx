@@ -5,7 +5,6 @@ import {
 	WandSparkles,
 	Shirt,
 	Clock,
-	Star,
 	Crown,
 	BookOpenText,
 	CheckCircle2,
