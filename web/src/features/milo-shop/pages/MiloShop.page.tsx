@@ -12,7 +12,6 @@ import {
 import "@features/milo-shop/styles/MiloShop.css";
 import { useNavigate } from "react-router-dom";
 
-// Variantes pour l'apparition en cascade
 const containerVariants = {
 	hidden: { opacity: 0 },
 	visible: {

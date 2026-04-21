@@ -3,11 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ChevronDown, MessageCircle, HelpCircle } from "lucide-react";
 import Navbar from "@features/landing/components/Navbar/Navbar.component";
-import Footer from "@features/landing/components/Footer.component";
+import Footer from "@features/landing/components/Footer/Footer.component";
 import "../styles/FAQ.css";
 
 const FAQ_DATA = [
-	// === SECTION : GÉNÉRAL (L'essentiel sur Milo) ===
 	{
 		id: 1,
 		cat: "Général",

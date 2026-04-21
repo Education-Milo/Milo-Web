@@ -12,7 +12,7 @@ import {
 	Heart,
 } from "lucide-react";
 import "../styles/Contact.css";
-import Footer from "@features/landing/components/Footer.component";
+import Footer from "@features/landing/components/Footer/Footer.component";
 import Navbar from "@features/landing/components/Navbar/Navbar.component";
 
 const ContactPage: React.FC = () => {

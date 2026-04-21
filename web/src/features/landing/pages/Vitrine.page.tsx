@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import Footer from "@features/landing/components/Footer.component";
+import Footer from "@features/landing/components/Footer/Footer.component";
 import Navbar from "@features/landing/components/Navbar/Navbar.component";
 import {
 	ArrowRight,
