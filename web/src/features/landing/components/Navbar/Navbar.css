@@ -1,0 +1,126 @@
+:root {
+	--milo-orange: #f4922a;
+	--milo-red: #ef4f1a;
+	--milo-dark: #2d3748;
+	--milo-gradient: linear-gradient(135deg, #f4922a 0%, #ef4f1a 100%);
+	--nav-height: 260px;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 150px;
+}
+
+.nav-container-organic {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+	height: var(--nav-height);
+}
+
+.nav-wave-bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.wave-svg {
+	position: absolute;
+	top: -2px;
+	left: 0;
+	width: 100%;
+	height: 120%;
+}
+
+.wave-orange {
+	fill: var(--milo-orange);
+	opacity: 0.16;
+	transform: translateY(16px);
+}
+.wave-beige {
+	fill: white;
+	filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.05));
+}
+
+.nav-content {
+	position: relative;
+	max-width: 1440px;
+	margin: 0 auto;
+	padding: 30px 5% 0 5%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	z-index: 10;
+}
+
+.nav-logo-v2 {
+	height: 58px;
+	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+	transition: transform 0.4s ease;
+	cursor: pointer;
+}
+
+.nav-logo-v2:hover {
+	transform: rotate(-6deg) scale(1.1);
+}
+
+.nav-pills {
+	background: rgba(246, 235, 223, 0.5);
+	backdrop-filter: blur(10px);
+	padding: 8px;
+	border-radius: 100px;
+	display: flex;
+	gap: 8px;
+	border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.pill-link {
+	padding: 12px 28px;
+	border-radius: 100px;
+	font-weight: 700;
+	font-size: 0.95rem;
+	color: var(--milo-dark);
+	text-decoration: none;
+	transition: all 0.3s ease;
+}
+
+.pill-link:hover {
+	background: white;
+	color: var(--milo-red);
+}
+.pill-link.active {
+	background: var(--milo-gradient);
+	color: white;
+	box-shadow: 0 6px 18px rgba(239, 79, 26, 0.3);
+}
+
+.nav-right {
+	display: flex;
+	align-items: center;
+	gap: 25px;
+}
+
+.btn-login-v2 {
+	font-weight: 800;
+	font-size: 1rem;
+	color: var(--milo-dark);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+}
+
+.btn-signup-v2 {
+	background: var(--milo-dark);
+	color: white;
+	padding: 16px 36px;
+	border-radius: 100px;
+	font-weight: 800;
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
