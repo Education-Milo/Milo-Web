@@ -198,10 +198,6 @@ const VitrinePage: React.FC = () => {
 					>
 						L'allié des <span>Parents</span>
 					</motion.h2>
-					<p className="section-desc center">
-						Suivez, accompagnez et sécurisez la progression de votre enfant en
-						toute sérénité.
-					</p>
 				</div>
 
 				{/* PARTIE 1 : FONCTIONNALITÉS PARENTS */}
