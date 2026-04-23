@@ -5,7 +5,6 @@ import {
 	Calendar,
 	CheckCircle2,
 	Clock,
-	MessageCircleHeart,
 	Sparkles,
 	Target,
 } from "lucide-react";
@@ -92,11 +91,6 @@ const HomePage: React.FC = () => {
 							<img src="/discuter_milo.jpg" alt="Discute avec Milo" className="hp-milo-banner-img" />
 							<div className="hp-milo-banner-shine" aria-hidden="true" />
 							<div className="hp-milo-banner-shine-2" aria-hidden="true" />
-							<Sparkles className="hp-milo-banner-sparkle s1" size={22} aria-hidden="true" />
-							<Sparkles className="hp-milo-banner-sparkle s2" size={14} aria-hidden="true" />
-							<Sparkles className="hp-milo-banner-sparkle s3" size={18} aria-hidden="true" />
-							<Sparkles className="hp-milo-banner-sparkle s4" size={16} aria-hidden="true" />
-							<Sparkles className="hp-milo-banner-sparkle s5" size={12} aria-hidden="true" />
 						</button>
 					</div>
 
