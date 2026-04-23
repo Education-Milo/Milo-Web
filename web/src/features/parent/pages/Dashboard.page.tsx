@@ -224,7 +224,7 @@ const Dashboard: React.FC = () => {
 								<button
 									className="quick-action-btn"
 									style={{
-										background: "#ff6b35",
+					
 										color: "white",
 										border: "none",
 										padding: "1rem 2rem",

@@ -1,7 +1,47 @@
 import React from "react";
-import "@features/home/styles/Home.css";
-import { useHomePage } from "@features/home/hooks/useHomePage";
+import {
+	BookOpenText,
+	Bell,
+	Calendar,
+	CheckCircle2,
+	Clock,
+	Sparkles,
+	Target,
+} from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import { useHomePage } from "@features/home/hooks/useHomePage";
+import "@features/home/styles/Home.css";
+
+const ANNOUNCEMENTS = [
+	{
+		id: 1,
+		date: "Aujourd'hui",
+		emoji: "🚀",
+		title: "Nouvelle leçon disponible !",
+		text: "Découvre les secrets des fractions avec Milo.",
+	},
+	{
+		id: 2,
+		date: "28 Fév. 2024",
+		emoji: "🏆",
+		title: "Tournoi de Duels",
+		text: "Inscris-toi pour le tournoi de mathématiques du week-end.",
+	},
+	{
+		id: 3,
+		date: "25 Fév. 2024",
+		emoji: "🛠️",
+		title: "Maintenance prévue",
+		text: "L'application sera mise à jour à 2h du matin.",
+	},
+	{
+		id: 4,
+		date: "20 Fév. 2024",
+		emoji: "✨",
+		title: "Milo s'est amélioré",
+		text: "L'IA parle désormais mieux l'anglais !",
+	},
+];
 
 const HomePage: React.FC = () => {
 	const {
@@ -14,139 +54,139 @@ const HomePage: React.FC = () => {
 
 	return (
 		<ScreenLayout>
-			<div className="dashboard">
-				<div className="main-column">
-					{/* Section Bienvenue */}
-					<section className="welcome-section">
-						<div className="welcome-content">
-							<h1 className="welcome-title">{welcomeMessage}</h1>
-							<p className="welcome-subtitle">
-								Prêt à conquérir de nouveaux défis aujourd'hui ?
-							</p>
-							<div className="quick-action-buttons">
-								<button className="quick-action-btn">
-									📚 Continuer le cours
-								</button>
-								<button className="quick-action-btn">
-									🎯 Nouvelle mission
-								</button>
-							</div>
-							<div className="welcome-illustration">
-								<img
-									src="/miloBook.webp"
-									alt="Bienvenue"
-									className="welcome-img"
-								/>
-							</div>
-						</div>
-					</section>
+			<div className="hp-page">
+				<div className="hp-grid">
+					{/* =============== COLONNE PRINCIPALE =============== */}
+					<div className="hp-main-col">
+						{/* --- Welcome Section --- */}
+						<section className="hp-welcome">
+							<div className="hp-welcome-halo" aria-hidden="true" />
+							<div className="hp-welcome-content">
+								<div className="hp-welcome-chip">
+									<Sparkles size={14} />
+									<span>Bienvenue</span>
+								</div>
+								<h1 className="hp-welcome-title">{welcomeMessage}</h1>
+								<p className="hp-welcome-sub">
+									Prêt à conquérir de nouveaux défis aujourd'hui ?
+								</p>
 
-					<section
-						className="section-card milo-banner-clickable"
-						onClick={handleMiloClick}
-					>
-						<div className="milo-image-container">
-							<img
-								src="/discuter_milo.png"
-								alt="Milo AI"
-								className="milo-display-img"
-							/>
-						</div>
-					</section>
-				</div>
-
-				<div className="sidebar-column">
-					{/* Section Annonces */}
-					<section className="section-card announcements-section">
-						<div className="section-header">
-							<h2 className="section-title">📢 Actualités</h2>
-							<span className="badge-new">Nouveau</span>
-						</div>
-
-						<div className="announcements-scroll">
-							{/* Annonce 1 */}
-							<div className="announcement-item">
-								<div className="announcement-date">Aujourd'hui</div>
-								<div className="announcement-content">
-									<h4>🚀 Nouvelle leçon disponible !</h4>
-									<p>Découvre les secrets des fractions avec Milo.</p>
+								<div className="hp-welcome-actions">
+									<button type="button" className="hp-action-btn primary">
+										<BookOpenText size={16} />
+										<span>Continuer le cours</span>
+									</button>
+									<button type="button" className="hp-action-btn secondary">
+										<Target size={16} />
+										<span>Nouvelle mission</span>
+									</button>
 								</div>
 							</div>
 
-							{/* Annonce 2 */}
-							<div className="announcement-item">
-								<div className="announcement-date">28 Fév. 2024</div>
-								<div className="announcement-content">
-									<h4>🏆 Tournoi de Duels</h4>
-									<p>
-										Inscris-toi pour le tournoi de mathématiques du week-end.
-									</p>
-								</div>
+							<div className="hp-welcome-illustration" aria-hidden="true">
+								<img src="/miloBook.webp" alt="" className="hp-welcome-img" />
 							</div>
+						</section>
+						<button type="button" className="hp-milo-banner" onClick={handleMiloClick} aria-label="Discuter avec Milo">
+							<img src="/discuter_milo.jpg" alt="Discute avec Milo" className="hp-milo-banner-img" />
+							<div className="hp-milo-banner-shine" aria-hidden="true" />
+							<div className="hp-milo-banner-shine-2" aria-hidden="true" />
+						</button>
+					</div>
 
-							{/* Annonce 3 */}
-							<div className="announcement-item">
-								<div className="announcement-date">25 Fév. 2024</div>
-								<div className="announcement-content">
-									<h4>🛠️ Maintenance prévue</h4>
-									<p>L'application sera mise à jour à 2h du matin.</p>
-								</div>
-							</div>
-
-							{/* Annonce 4 (Pour tester le scroll) */}
-							<div className="announcement-item">
-								<div className="announcement-date">20 Fév. 2024</div>
-								<div className="announcement-content">
-									<h4>✨ Milo s'est amélioré</h4>
-									<p>L'IA parle désormais mieux l'anglais !</p>
-								</div>
-							</div>
-						</div>
-					</section>
-
-					{/* Section Missions */}
-					<section className="section-card">
-						<div className="section-header">
-							<h2 className="section-title">🎯 Missions du jour</h2>
-							<div className="progress-indicator">
-								{completedMissionsCount}/{missions.length} complétées
-							</div>
-						</div>
-
-						<div className="missions-grid">
-							{missions.map((mission) => (
-								<div
-									key={mission.id}
-									className={`mission-card ${mission.status === "completed" ? "green" : "orange"}`}
-									onClick={() => handleMissionClick(mission.id)}
-								>
-									<div className="mission-content">
-										<div className="mission-info">
-											<h3 className="mission-title">{mission.title}</h3>
-											<p className="mission-description">
-												{mission.description}
-											</p>
-											<span className="mission-category">
-												{mission.category}
-											</span>
-										</div>
-										<div className="mission-meta">
-											<div className="mission-points">
-												+{mission.points} pts
-											</div>
-											{mission.status === "completed" ? (
-												<div className="mission-check">✅</div>
-											) : (
-												<div style={{ fontSize: "1.2rem", opacity: 0.7 }}>
-													⏰
-												</div>
-											)}
-										</div>
+					{/* =============== COLONNE SECONDAIRE =============== */}
+					<div className="hp-side-col">
+						{/* --- Actualités --- */}
+						<section className="hp-card hp-announcements">
+							<header className="hp-card-header">
+								<div className="hp-card-title-wrap">
+									<div className="hp-card-icon">
+										<Bell size={18} />
 									</div>
+									<h2 className="hp-card-title">Actualités</h2>
 								</div>
-							))}
-						</div>
-					</section>
+								<span className="hp-badge-new">Nouveau</span>
+							</header>
+
+							<div className="hp-announcements-scroll">
+								{ANNOUNCEMENTS.map((a, i) => (
+									<article
+										key={a.id}
+										className="hp-announcement"
+										style={{ animationDelay: `${0.4 + i * 0.08}s` }}
+									>
+										<div className="hp-announcement-emoji">{a.emoji}</div>
+										<div className="hp-announcement-body">
+											<div className="hp-announcement-date">
+												<Calendar size={11} />
+												<span>{a.date}</span>
+											</div>
+											<h4 className="hp-announcement-title">{a.title}</h4>
+											<p className="hp-announcement-text">{a.text}</p>
+										</div>
+									</article>
+								))}
+							</div>
+						</section>
+
+						{/* --- Missions du jour --- */}
+						<section className="hp-card hp-missions">
+							<header className="hp-card-header">
+								<div className="hp-card-title-wrap">
+									<div className="hp-card-icon">
+										<Target size={18} />
+									</div>
+									<h2 className="hp-card-title">Missions du jour</h2>
+								</div>
+								<div className="hp-progress-pill">
+									<span className="hp-progress-value">
+										{completedMissionsCount}
+									</span>
+									<span className="hp-progress-sep">/</span>
+									<span className="hp-progress-total">{missions.length}</span>
+								</div>
+							</header>
+
+							<div className="hp-missions-list">
+								{missions.map((mission, i) => {
+									const isDone = mission.status === "completed";
+									return (
+										<button
+											type="button"
+											key={mission.id}
+											className={`hp-mission ${isDone ? "done" : "pending"}`}
+											onClick={() => handleMissionClick(mission.id)}
+											style={{ animationDelay: `${0.5 + i * 0.1}s` }}
+										>
+											<div className="hp-mission-icon-wrap">
+												{isDone ? (
+													<CheckCircle2 size={20} />
+												) : (
+													<Clock size={20} />
+												)}
+											</div>
+											<div className="hp-mission-body">
+												<div className="hp-mission-top">
+													<h3 className="hp-mission-title">
+														{mission.title}
+													</h3>
+													<span className="hp-mission-points">
+														+{mission.points} pts
+													</span>
+												</div>
+												<p className="hp-mission-desc">
+													{mission.description}
+												</p>
+												<span className="hp-mission-category">
+													{mission.category}
+												</span>
+											</div>
+										</button>
+									);
+								})}
+							</div>
+						</section>
+					</div>
 				</div>
 			</div>
 		</ScreenLayout>

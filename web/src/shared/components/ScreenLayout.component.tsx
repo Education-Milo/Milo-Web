@@ -1,6 +1,5 @@
 import React from "react";
 import Sidebar from "@shared/components/Sidebar.component";
-import TopBar from "@shared/components/TopBar.component";
 import { useUserStore } from "@shared/store/user/user.store";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useNavigate } from "react-router-dom";
@@ -8,14 +7,14 @@ import { ROUTES } from "@shared/constants/routes";
 
 interface PageLayoutProps {
 	children: React.ReactNode;
-	energyPoints?: number;
 	streakDays?: number;
+	notificationCount?: number;
 }
 
 const PageLayout: React.FC<PageLayoutProps> = ({
 	children,
-	energyPoints = 0,
 	streakDays = 0,
+	notificationCount = 0,
 }) => {
 	const { user } = useUserStore();
 	const logout = useAuthStore((state) => state.logout);
@@ -37,11 +36,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 					classe: user?.classe,
 					role: user?.role,
 				}}
+				streakDays={streakDays}
+				notificationCount={notificationCount}
 			/>
-			<main className="main-container">
-				<TopBar energyPoints={energyPoints} streakDays={streakDays} />
-				{children}
-			</main>
+			<main className="main-container">{children}</main>
 		</>
 	);
 };

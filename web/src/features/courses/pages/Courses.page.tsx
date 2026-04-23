@@ -1,8 +1,18 @@
-import CourseCard from "@features/courses/components/courseCard/CourseCard.component";
-import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
-import "@features/courses/styles/CoursesScreen.css";
+import React from "react";
+import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
+import { SUBJECTS_CONFIG } from "@shared/constants/courses";
 import type { ClassType } from "@shared/store/user/user.model";
+import "@features/courses/styles/CoursesScreen.css";
+import miloGreeting from "/buttonGo.webp";
+
+const LEVELS: { value: ClassType; label: string }[] = [
+	{ value: "6eme", label: "6ème" },
+	{ value: "5eme", label: "5ème" },
+	{ value: "4eme", label: "4ème" },
+	{ value: "3eme", label: "3ème" },
+];
 
 const CoursesScreen: React.FC = () => {
 	const {
@@ -16,60 +26,110 @@ const CoursesScreen: React.FC = () => {
 	} = useCoursesScreen();
 
 	return (
-		<>
-			<ScreenLayout>
-				<div className="courses-content-area">
-					<section className="courses-welcome-card">
-						<div className="courses-welcome-milo-image-container">
-							<img
-								src="/buttonGo.webp"
-								alt="Milo greetings"
-								className="milo-greeting-image"
-							/>
-						</div>
-						<div className="courses-welcome-text">
-							<h1 className="welcome-card-title">
-								Bonjour {user?.first_name || ""} !
-							</h1>
-							<p className="welcome-card-subtitle">
-								Prêt à explorer de nouvelles matières ? Choisis un cours pour
-								commencer.
-							</p>
-						</div>
-					</section>
-
-					<div className="courses-title-container">
-						<h2 className="courses-grid-title">Matières générales</h2>
-						<select
-							className="class-level-dropdown"
-							value={currentClass}
-							onChange={(e) => setCurrentClass(e.target.value as ClassType)}
-						>
-							<option value="6eme">6ème</option>
-							<option value="5eme">5ème</option>
-							<option value="4eme">4ème</option>
-							<option value="3eme">3ème</option>
-						</select>
+		<ScreenLayout>
+			<div className="cs-page">
+				{/* --- HERO --- */}
+				<section className="cs-hero">
+					<div className="cs-hero-halo" aria-hidden="true" />
+					<div className="cs-hero-left">
+						<img src={miloGreeting} alt="Milo" className="cs-hero-mascot" />
 					</div>
+					<div className="cs-hero-center">
+						<div className="cs-hero-chip">
+							<Sparkles size={14} />
+							<span>Étape 1 / 4</span>
+						</div>
+						<h1 className="cs-hero-title">
+							Bonjour {user?.first_name || "toi"} !
+						</h1>
+						<p className="cs-hero-sub">
+							Choisis une matière pour commencer ton aventure avec Milo.
+						</p>
+					</div>
+					<div className="cs-level-selector" role="tablist" aria-label="Niveau de classe">
+						{LEVELS.map((level) => (
+							<button
+								key={level.value}
+								type="button"
+								role="tab"
+								aria-selected={currentClass === level.value}
+								className={`cs-level-chip ${currentClass === level.value ? "active" : ""}`}
+								onClick={() => setCurrentClass(level.value)}
+							>
+								{level.label}
+							</button>
+						))}
+					</div>
+				</section>
 
-					<div className="courses-grid">
-						{loading && <p>Chargement...</p>}
-						{error && <p className="error">{error}</p>}
-						{!loading &&
-							subjects.map((subject, index) => {
+				{/* --- TITRE SECTION --- */}
+				<header className="cs-section-header">
+					<div className="cs-section-title-wrap">
+						<BookOpen size={20} className="cs-section-icon" />
+						<h2 className="cs-section-title">Matières générales</h2>
+					</div>
+					<span className="cs-section-count">
+						{subjects.length} matière{subjects.length > 1 ? "s" : ""}
+					</span>
+				</header>
+
+				{/* --- GRILLE DE TUILES --- */}
+				<main className="cs-stage">
+					{loading && (
+						<div className="cs-state">
+							<div className="cs-loader" aria-hidden="true" />
+							<p>Chargement des matières...</p>
+						</div>
+					)}
+
+					{error && !loading && (
+						<div className="cs-state cs-state-error">
+							<p>Oups, une erreur est survenue : {error}</p>
+						</div>
+					)}
+
+					{!loading && !error && subjects.length === 0 && (
+						<div className="cs-state">
+							<p>Aucune matière disponible pour ce niveau.</p>
+						</div>
+					)}
+
+					{!loading && !error && subjects.length > 0 && (
+						<div className="cs-tiles">
+							{subjects.map((subject, index) => {
+								const config = SUBJECTS_CONFIG[subject.id];
+								if (!config) return null;
+
 								return (
-									<CourseCard
+									<button
 										key={subject.id}
-										subjectId={subject.id}
-										onClick={handleCourseClick}
-										animationDelay={`${0.3 + index * 0.05}s`}
-									/>
+										type="button"
+										className={`cs-tile cs-theme-${config.colorTheme}`}
+										onClick={() => handleCourseClick(subject.id)}
+										style={{ animationDelay: `${0.05 * index}s` }}
+									>
+										<div className="cs-tile-bg" aria-hidden="true" />
+										<div className="cs-tile-shine" aria-hidden="true" />
+
+										<div className="cs-tile-emoji-wrap">
+											<span className="cs-tile-emoji">{config.emoji}</span>
+										</div>
+
+										<div className="cs-tile-body">
+											<h3 className="cs-tile-title">{config.title}</h3>
+											<div className="cs-tile-cta">
+												<span>Démarrer</span>
+												<ChevronRight size={16} />
+											</div>
+										</div>
+									</button>
 								);
 							})}
-					</div>
-				</div>
-			</ScreenLayout>
-		</>
+						</div>
+					)}
+				</main>
+			</div>
+		</ScreenLayout>
 	);
 };
 

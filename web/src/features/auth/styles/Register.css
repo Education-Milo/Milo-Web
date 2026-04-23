@@ -13,12 +13,10 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%) !important;
 }
 
 #root {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
   width: 100%;
 }
 
@@ -30,6 +28,7 @@ html, body {
   padding: 0 !important;
   overflow-x: hidden;
   overflow-y: auto;
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
 }
 
 .form-page-container {
