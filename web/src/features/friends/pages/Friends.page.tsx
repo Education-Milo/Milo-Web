@@ -12,14 +12,20 @@ interface Friend {
 	streak: number;
 	isOnline: boolean;
 	isBestFriend: boolean;
+	interests: string[];
 }
 
 const INITIAL_FRIENDS: Friend[] = [
-	{ id: 1, name: "Léo", avatar: "🧑‍🦱", level: "6ème", streak: 12, isOnline: true, isBestFriend: true },
-	{ id: 2, name: "Emma", avatar: "👩‍🦰", level: "5ème", streak: 3, isOnline: false, isBestFriend: false },
-	{ id: 3, name: "Lucas", avatar: "👦", level: "6ème", streak: 25, isOnline: true, isBestFriend: true },
-	{ id: 4, name: "Chloé", avatar: "👧", level: "4ème", streak: 0, isOnline: false, isBestFriend: false },
-	{ id: 5, name: "Hugo", avatar: "👱", level: "3ème", streak: 7, isOnline: true, isBestFriend: false },
+	{ id: 1, name: "Léo", avatar: "🧑‍🦱", level: "6ème", streak: 12, isOnline: true, isBestFriend: true, interests: ["Football", "Jeux Vidéo"] },
+	{ id: 2, name: "Emma", avatar: "👩‍🦰", level: "5ème", streak: 3, isOnline: false, isBestFriend: false, interests: ["Lecture", "Dessin"] },
+	{ id: 3, name: "Lucas", avatar: "👦", level: "6ème", streak: 25, isOnline: true, isBestFriend: true, interests: ["Maths", "Échecs"] },
+	{ id: 4, name: "Chloé", avatar: "👧", level: "4ème", streak: 0, isOnline: false, isBestFriend: false, interests: ["Musique", "Animaux"] },
+	{ id: 5, name: "Hugo", avatar: "👱", level: "3ème", streak: 7, isOnline: true, isBestFriend: false, interests: ["Skate", "Manga"] },
+	{ id: 6, name: "Alice", avatar: "👩", level: "6ème", streak: 5, isOnline: true, isBestFriend: false, interests: ["Danse", "Cinéma"] },
+	{ id: 7, name: "Maxime", avatar: "👨", level: "5ème", streak: 10, isOnline: false, isBestFriend: true, interests: ["Science", "Programmation"] },
+	{ id: 8, name: "Juliette", avatar: "👱‍♀️", level: "4ème", streak: 2, isOnline: true, isBestFriend: false, interests: ["Voyages", "Photographie"] },
+	{ id: 9, name: "Thomas", avatar: "👦🏽", level: "3ème", streak: 18, isOnline: false, isBestFriend: false, interests: ["Histoire", "Bricolage"] },
+	{ id: 10, name: "Sarah", avatar: "👩🏽‍🦱", level: "6ème", streak: 1, isOnline: true, isBestFriend: false, interests: ["Pâtisserie", "Séries"] },
 ];
 
 const containerVariants = {
@@ -108,7 +114,9 @@ const FriendsPage: React.FC = () => {
 						transition={{ delay: 0.2 }}
 					>
 						<div className="friends-search-box">
-							<Search size={18} className="search-icon" />
+							<div className="search-icon-wrapper">
+								<Search size={18} className="search-icon" />
+							</div>
 							<input
 								type="text"
 								placeholder="Rechercher un ami..."
@@ -179,6 +187,16 @@ const FriendsPage: React.FC = () => {
 												</div>
 											</div>
 
+											{friend.interests && friend.interests.length > 0 && (
+												<div className="friend-interests">
+													{friend.interests.map((interest, idx) => (
+														<span key={idx} className="friend-interest-chip">
+															{interest}
+														</span>
+													))}
+												</div>
+											)}
+
 											<div className="friend-actions">
 												<button
 													className={`friend-btn-star ${friend.isBestFriend ? "active" : ""}`}
@@ -232,7 +250,9 @@ const FriendsPage: React.FC = () => {
 								<p>Recherche un ami par son pseudo pour l'ajouter à ta liste.</p>
 								
 								<div className="friends-modal-search">
-									<Search size={18} className="search-icon" />
+									<div className="search-icon-wrapper">
+										<Search size={18} className="search-icon" />
+									</div>
 									<input
 										type="text"
 										placeholder="Pseudo de ton ami..."
