@@ -1,32 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { Users, UserPlus, Search, Flame, MessageCircle, Star } from "lucide-react";
+import { Users, UserPlus, Search, Star } from "lucide-react";
+import FriendCard from "../components/FriendCard.component";
+import AddFriendModal from "../components/AddFriendModal.component";
+import { useFriends } from "../hooks/useFriends";
+import { FriendsTab } from "../hooks/useFriends";
 import "@features/friends/styles/Friends.css";
-
-interface Friend {
-	id: number;
-	name: string;
-	avatar: string;
-	level: string;
-	streak: number;
-	isOnline: boolean;
-	isBestFriend: boolean;
-	interests: string[];
-}
-
-const INITIAL_FRIENDS: Friend[] = [
-	{ id: 1, name: "Léo", avatar: "🧑‍🦱", level: "6ème", streak: 12, isOnline: true, isBestFriend: true, interests: ["Football", "Jeux Vidéo"] },
-	{ id: 2, name: "Emma", avatar: "👩‍🦰", level: "5ème", streak: 3, isOnline: false, isBestFriend: false, interests: ["Lecture", "Dessin"] },
-	{ id: 3, name: "Lucas", avatar: "👦", level: "6ème", streak: 25, isOnline: true, isBestFriend: true, interests: ["Maths", "Échecs"] },
-	{ id: 4, name: "Chloé", avatar: "👧", level: "4ème", streak: 0, isOnline: false, isBestFriend: false, interests: ["Musique", "Animaux"] },
-	{ id: 5, name: "Hugo", avatar: "👱", level: "3ème", streak: 7, isOnline: true, isBestFriend: false, interests: ["Skate", "Manga"] },
-	{ id: 6, name: "Alice", avatar: "👩", level: "6ème", streak: 5, isOnline: true, isBestFriend: false, interests: ["Danse", "Cinéma"] },
-	{ id: 7, name: "Maxime", avatar: "👨", level: "5ème", streak: 10, isOnline: false, isBestFriend: true, interests: ["Science", "Programmation"] },
-	{ id: 8, name: "Juliette", avatar: "👱‍♀️", level: "4ème", streak: 2, isOnline: true, isBestFriend: false, interests: ["Voyages", "Photographie"] },
-	{ id: 9, name: "Thomas", avatar: "👦🏽", level: "3ème", streak: 18, isOnline: false, isBestFriend: false, interests: ["Histoire", "Bricolage"] },
-	{ id: 10, name: "Sarah", avatar: "👩🏽‍🦱", level: "6ème", streak: 1, isOnline: true, isBestFriend: false, interests: ["Pâtisserie", "Séries"] },
-];
 
 const containerVariants = {
 	hidden: { opacity: 0 },
@@ -47,26 +27,18 @@ const itemVariants = {
 };
 
 const FriendsPage: React.FC = () => {
-	const [friends, setFriends] = useState<Friend[]>(INITIAL_FRIENDS);
-	const [searchQuery, setSearchQuery] = useState("");
-	const [activeTab, setActiveTab] = useState<"Tous" | "En ligne" | "Meilleurs amis">("Tous");
-	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [addSearchQuery, setAddSearchQuery] = useState("");
-
-	const filteredFriends = friends.filter((friend) => {
-		const matchesSearch = friend.name.toLowerCase().includes(searchQuery.toLowerCase());
-		const matchesTab =
-			activeTab === "Tous" ||
-			(activeTab === "En ligne" && friend.isOnline) ||
-			(activeTab === "Meilleurs amis" && friend.isBestFriend);
-		return matchesSearch && matchesTab;
-	});
-
-	const toggleBestFriend = (id: number) => {
-		setFriends((prev) =>
-			prev.map((f) => (f.id === id ? { ...f, isBestFriend: !f.isBestFriend } : f))
-		);
-	};
+	const {
+		friends,
+		filteredFriends,
+		searchQuery,
+		setSearchQuery,
+		activeTab,
+		setActiveTab,
+		isAddModalOpen,
+		setIsAddModalOpen,
+		toggleBestFriend,
+		simulateAddFriend,
+	} = useFriends();
 
 	return (
 		<ScreenLayout>
@@ -127,7 +99,7 @@ const FriendsPage: React.FC = () => {
 						</div>
 
 						<div className="friends-tabs">
-							{(["Tous", "En ligne", "Meilleurs amis"] as const).map((tab) => (
+							{(["Tous", "En ligne", "Meilleurs amis"] as FriendsTab[]).map((tab) => (
 								<button
 									key={tab}
 									className={`friends-tab ${activeTab === tab ? "active" : ""}`}
@@ -158,58 +130,12 @@ const FriendsPage: React.FC = () => {
 							>
 								<AnimatePresence mode="popLayout">
 									{filteredFriends.map((friend) => (
-										<motion.div
+										<FriendCard
 											key={friend.id}
-											layout
+											friend={friend}
+											onToggleBestFriend={toggleBestFriend}
 											variants={itemVariants}
-											className="friend-card"
-											whileHover={{ y: -5, scale: 1.02 }}
-										>
-											<div className="friend-card-bg" />
-											<div className="friend-avatar-wrap">
-												<span className="friend-avatar">{friend.avatar}</span>
-												<div
-													className={`friend-status ${
-														friend.isOnline ? "online" : "offline"
-													}`}
-												/>
-											</div>
-
-											<div className="friend-info">
-												<h3 className="friend-name">{friend.name}</h3>
-												<span className="friend-level">Classe : {friend.level}</span>
-											</div>
-
-											<div className="friend-stats">
-												<div className="friend-streak" title={`${friend.streak} jours de suite`}>
-													<Flame size={16} className={friend.streak > 0 ? "hot" : ""} />
-													<span>{friend.streak}</span>
-												</div>
-											</div>
-
-											{friend.interests && friend.interests.length > 0 && (
-												<div className="friend-interests">
-													{friend.interests.map((interest, idx) => (
-														<span key={idx} className="friend-interest-chip">
-															{interest}
-														</span>
-													))}
-												</div>
-											)}
-
-											<div className="friend-actions">
-												<button
-													className={`friend-btn-star ${friend.isBestFriend ? "active" : ""}`}
-													onClick={() => toggleBestFriend(friend.id)}
-													title="Meilleur ami"
-												>
-													<Star size={18} fill={friend.isBestFriend ? "currentColor" : "none"} />
-												</button>
-												<button className="friend-btn-msg" title="Envoyer un message">
-													<MessageCircle size={18} />
-												</button>
-											</div>
-										</motion.div>
+										/>
 									))}
 								</AnimatePresence>
 
@@ -231,58 +157,10 @@ const FriendsPage: React.FC = () => {
 				{/* --- MODAL AJOUTER UN AMI --- */}
 				<AnimatePresence>
 					{isAddModalOpen && (
-						<motion.div
-							className="friends-overlay"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							onClick={() => setIsAddModalOpen(false)}
-						>
-							<motion.div
-								className="friends-modal"
-								initial={{ scale: 0.8, y: 50, opacity: 0 }}
-								animate={{ scale: 1, y: 0, opacity: 1 }}
-								exit={{ scale: 0.8, opacity: 0 }}
-								onClick={(e) => e.stopPropagation()}
-							>
-								<div className="modal-glow" />
-								<h3>Ajouter un nouvel ami</h3>
-								<p>Recherche un ami par son pseudo pour l'ajouter à ta liste.</p>
-								
-								<div className="friends-modal-search">
-									<div className="search-icon-wrapper">
-										<Search size={18} className="search-icon" />
-									</div>
-									<input
-										type="text"
-										placeholder="Pseudo de ton ami..."
-										value={addSearchQuery}
-										onChange={(e) => setAddSearchQuery(e.target.value)}
-										autoFocus
-									/>
-								</div>
-
-								<div className="friends-modal-actions">
-									<button
-										className="friends-btn-cancel"
-										onClick={() => setIsAddModalOpen(false)}
-									>
-										Annuler
-									</button>
-									<button
-										className="friends-btn-confirm"
-										onClick={() => {
-											// Simulation d'ajout
-											setIsAddModalOpen(false);
-											setAddSearchQuery("");
-										}}
-										disabled={addSearchQuery.trim() === ""}
-									>
-										Rechercher
-									</button>
-								</div>
-							</motion.div>
-						</motion.div>
+						<AddFriendModal
+							onClose={() => setIsAddModalOpen(false)}
+							onAdd={simulateAddFriend}
+						/>
 					)}
 				</AnimatePresence>
 			</div>
