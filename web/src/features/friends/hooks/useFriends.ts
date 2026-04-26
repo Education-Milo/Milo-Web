@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Friend } from "../types";
+import type { Friend } from "../types";
 
 export type FriendsTab = "Tous" | "En ligne" | "Meilleurs amis";
 

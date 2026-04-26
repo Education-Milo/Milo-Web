@@ -5,7 +5,7 @@ import { Users, UserPlus, Search, Star } from "lucide-react";
 import FriendCard from "../components/FriendCard.component";
 import AddFriendModal from "../components/AddFriendModal.component";
 import { useFriends } from "../hooks/useFriends";
-import { FriendsTab } from "../hooks/useFriends";
+import type { FriendsTab } from "../hooks/useFriends";
 import "@features/friends/styles/Friends.css";
 
 const containerVariants = {

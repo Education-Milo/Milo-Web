@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Flame, MessageCircle, Star } from "lucide-react";
-import { Friend } from "../types";
+import type { Friend } from "../types";
 
 interface FriendCardProps {
 	friend: Friend;
