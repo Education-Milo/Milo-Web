@@ -1,51 +1,127 @@
 import { useState, useMemo } from "react";
-import type { Friend } from "../types";
+import {
+	useFriends as useFriendsQuery,
+	useDeleteFriend,
+	useAcceptFriendRequest,
+	useSendFriendRequest,
+	useBlockFriend,
+} from "@features/friends/store/friend.queries";
+import type { FriendEnriched } from "@features/friends/store/friend.model";
+import { useFriendDetails } from "@features/friends/hooks/useFriendDetails";
 
-export type FriendsTab = "Tous" | "En ligne" | "Meilleurs amis";
+export type FriendsTab = "Tous" | "En attente" | "Meilleurs amis";
 
-const INITIAL_FRIENDS: Friend[] = [
-	{ id: 1, name: "Léo", avatar: "🧑‍🦱", level: "6ème", streak: 12, isOnline: true, isBestFriend: true, interests: ["Football", "Jeux Vidéo"] },
-	{ id: 2, name: "Emma", avatar: "👩‍🦰", level: "5ème", streak: 3, isOnline: false, isBestFriend: false, interests: ["Lecture", "Dessin"] },
-	{ id: 3, name: "Lucas", avatar: "👦", level: "6ème", streak: 25, isOnline: true, isBestFriend: true, interests: ["Maths", "Échecs"] },
-	{ id: 4, name: "Chloé", avatar: "👧", level: "4ème", streak: 0, isOnline: false, isBestFriend: false, interests: ["Musique", "Animaux"] },
-	{ id: 5, name: "Hugo", avatar: "👱", level: "3ème", streak: 7, isOnline: true, isBestFriend: false, interests: ["Skate", "Manga"] },
-	{ id: 6, name: "Alice", avatar: "👩", level: "6ème", streak: 5, isOnline: true, isBestFriend: false, interests: ["Danse", "Cinéma"] },
-	{ id: 7, name: "Maxime", avatar: "👨", level: "5ème", streak: 10, isOnline: false, isBestFriend: true, interests: ["Science", "Programmation"] },
-	{ id: 8, name: "Juliette", avatar: "👱‍♀️", level: "4ème", streak: 2, isOnline: true, isBestFriend: false, interests: ["Voyages", "Photographie"] },
-	{ id: 9, name: "Thomas", avatar: "👦🏽", level: "3ème", streak: 18, isOnline: false, isBestFriend: false, interests: ["Histoire", "Bricolage"] },
-	{ id: 10, name: "Sarah", avatar: "👩🏽‍🦱", level: "6ème", streak: 1, isOnline: true, isBestFriend: false, interests: ["Pâtisserie", "Séries"] },
-];
+// ─── Persistance locale des favoris ─────────────────────────────────────────
+const loadBestFriends = (): Set<number> => {
+	try {
+		const stored = localStorage.getItem("bestFriends");
+		return stored ? new Set(JSON.parse(stored)) : new Set();
+	} catch {
+		return new Set();
+	}
+};
 
+const saveBestFriends = (ids: Set<number>) => {
+	localStorage.setItem("bestFriends", JSON.stringify([...ids]));
+};
+
+// ─── Hook principal ──────────────────────────────────────────────────────────
 export const useFriends = () => {
-	const [friends, setFriends] = useState<Friend[]>(INITIAL_FRIENDS);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeTab, setActiveTab] = useState<FriendsTab>("Tous");
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [bestFriendIds, setBestFriendIds] =
+		useState<Set<number>>(loadBestFriends);
+
+	// Queries friends
+	const { data: allFriends = [], isLoading: isLoadingFriends } =
+		useFriendsQuery();
+	const deleteFriendMutation = useDeleteFriend();
+	const acceptFriendMutation = useAcceptFriendRequest();
+	const sendFriendMutation = useSendFriendRequest();
+	const blockFriendMutation = useBlockFriend();
+
+	// Séparer acceptés / en attente
+	const acceptedFriends = useMemo(
+		() => allFriends.filter((f) => f.status === "accepted"),
+		[allFriends],
+	);
+
+	const pendingFriends = useMemo(
+		() => allFriends.filter((f) => f.status === "pending"),
+		[allFriends],
+	);
+
+	// Enrichir avec isBestFriend (localStorage)
+	const enrichedFriends: FriendEnriched[] = useMemo(
+		() =>
+			acceptedFriends.map((f) => ({
+				...f,
+				isBestFriend: bestFriendIds.has(f.id),
+			})),
+		[acceptedFriends, bestFriendIds],
+	);
+
+	// Enrichir avec les détails utilisateur (classe, xp, interests)
+	const { friendsWithDetails, isLoading: isLoadingDetails } =
+		useFriendDetails(enrichedFriends);
+
+	// Demandes reçues en attente
+	const pendingReceived = useMemo(
+		() => pendingFriends.filter((f) => f.direction === "received"),
+		[pendingFriends],
+	);
+
+	// Enrichir les pending avec isBestFriend: false pour éviter les erreurs de type
+	const enrichedPending: FriendEnriched[] = useMemo(
+		() => pendingReceived.map((f) => ({ ...f, isBestFriend: false })),
+		[pendingReceived],
+	);
 
 	const filteredFriends = useMemo(() => {
-		return friends.filter((friend) => {
-			const matchesSearch = friend.name.toLowerCase().includes(searchQuery.toLowerCase());
+		const base =
+			activeTab === "En attente" ? enrichedPending : friendsWithDetails;
+		return base.filter((f) => {
+			const fullName =
+				`${f.friend_first_name} ${f.friend_last_name}`.toLowerCase();
+			const matchesSearch = fullName.includes(searchQuery.toLowerCase());
 			const matchesTab =
 				activeTab === "Tous" ||
-				(activeTab === "En ligne" && friend.isOnline) ||
-				(activeTab === "Meilleurs amis" && friend.isBestFriend);
+				activeTab === "En attente" ||
+				(activeTab === "Meilleurs amis" && f.isBestFriend);
 			return matchesSearch && matchesTab;
 		});
-	}, [friends, searchQuery, activeTab]);
+	}, [friendsWithDetails, enrichedPending, searchQuery, activeTab]);
 
 	const toggleBestFriend = (id: number) => {
-		setFriends((prev) =>
-			prev.map((f) => (f.id === id ? { ...f, isBestFriend: !f.isBestFriend } : f))
-		);
+		setBestFriendIds((prev) => {
+			const next = new Set(prev);
+			next.has(id) ? next.delete(id) : next.add(id);
+			saveBestFriends(next);
+			return next;
+		});
 	};
 
-	const simulateAddFriend = (pseudo: string) => {
-		console.log(`Demande d'ami envoyée à ${pseudo}`);
+	const sendFriendRequest = (friendId: number) => {
+		sendFriendMutation.mutate(friendId);
 		setIsAddModalOpen(false);
 	};
 
+	const acceptFriend = (friendId: number) => {
+		acceptFriendMutation.mutate(friendId);
+	};
+
+	const deleteFriend = (friendId: number) => {
+		deleteFriendMutation.mutate(friendId);
+	};
+
+	const blockFriend = (friendId: number) => {
+		blockFriendMutation.mutate(friendId);
+	};
+
 	return {
-		friends,
+		friends: friendsWithDetails,
+		pendingFriends: pendingReceived,
 		filteredFriends,
 		searchQuery,
 		setSearchQuery,
@@ -54,6 +130,10 @@ export const useFriends = () => {
 		isAddModalOpen,
 		setIsAddModalOpen,
 		toggleBestFriend,
-		simulateAddFriend,
+		sendFriendRequest,
+		acceptFriend,
+		deleteFriend,
+		blockFriend,
+		isLoading: isLoadingFriends || isLoadingDetails,
 	};
 };

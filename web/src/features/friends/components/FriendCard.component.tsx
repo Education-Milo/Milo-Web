@@ -1,66 +1,119 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Flame, MessageCircle, Star } from "lucide-react";
-import type { Friend } from "../types";
+import { Star, UserCheck, UserX, Flame } from "lucide-react";
+import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
+import type { FriendEnriched } from "@features/friends/store/friend.model";
 
 interface FriendCardProps {
-	friend: Friend;
+	friend: FriendWithDetails | FriendEnriched;
 	onToggleBestFriend: (id: number) => void;
+	onAccept: (id: number) => void;
+	onDelete: (id: number) => void;
+	isPending?: boolean;
 	variants?: any;
 }
 
-const FriendCard: React.FC<FriendCardProps> = ({ friend, onToggleBestFriend, variants }) => {
+const FriendCard: React.FC<FriendCardProps> = ({
+	friend,
+	onToggleBestFriend,
+	onAccept,
+	onDelete,
+	isPending = false,
+	variants,
+}) => {
+	const initials =
+		`${friend.friend_first_name[0] ?? ""}${friend.friend_last_name[0] ?? ""}`.toUpperCase();
+
+	const isBestFriend = friend.isBestFriend;
+
+	const details = "classe" in friend ? friend as FriendWithDetails : null;
+
 	return (
 		<motion.div
 			layout
 			variants={variants}
-			className="friend-card"
+			className={`friend-card ${isPending ? "friend-card--pending" : ""}`}
 			whileHover={{ y: -5, scale: 1.02 }}
 		>
 			<div className="friend-card-bg" />
+
+			{/* AVATAR */}
 			<div className="friend-avatar-wrap">
-				<span className="friend-avatar">{friend.avatar}</span>
-				<div
-					className={`friend-status ${
-						friend.isOnline ? "online" : "offline"
-					}`}
-				/>
+				<span className="friend-avatar">{initials}</span>
 			</div>
 
+			{/* INFOS */}
 			<div className="friend-info">
-				<h3 className="friend-name">{friend.name}</h3>
-				<span className="friend-level">Classe : {friend.level}</span>
+				<h3 className="friend-name">
+					{friend.friend_first_name} {friend.friend_last_name}
+				</h3>
+
+				{details?.classe && (
+					<span className="friend-level">Classe : {details.classe[0]}ème</span>
+				)}
 			</div>
 
-			<div className="friend-stats">
-				<div className="friend-streak" title={`${friend.streak} jours de suite`}>
-					<Flame size={16} className={friend.streak > 0 ? "hot" : ""} />
-					<span>{friend.streak}</span>
+				{/* Retirer la streak remplacer par l'xp parce qu'existe pas encore dans le back */}
+				{details?.xp !== undefined && (
+					<div className="friend-stats" >
+						<div className="friend-streak">
+							<Flame size={14} className={details.xp > 0 ? "hot" : ""} />
+							<span>{details.xp}</span>
+						</div>
+					</div>
+				)}
+
+				{ details?.interests && details.interests.length > 0 ? (
+					<div className="friend-interests">
+						{details.interests.map((interest) => (
+							<span key={interest.id} className="friend-interest-chip">
+								{interest.name}
+							</span>
+						))}
+					</div>
+				) : (
+					<div className="friend-interests friend-interests--empty">
+						Aucun intérêt renseigné
+					</div>
+				)}
+
+			{/* ACTIONS selon état */}
+			{isPending ? (
+				<div className="friend-actions friend-actions--pending">
+					<button
+						className="friend-btn-accept"
+						onClick={() => onAccept(friend.id)}
+						title="Accepter"
+					>
+						<UserCheck size={18} />
+						<span>Accepter</span>
+					</button>
+					<button
+						className="friend-btn-decline"
+						onClick={() => onDelete(friend.id)}
+						title="Refuser"
+					>
+						<UserX size={18} />
+					</button>
 				</div>
-			</div>
-
-			{friend.interests && friend.interests.length > 0 && (
-				<div className="friend-interests">
-					{friend.interests.map((interest, idx) => (
-						<span key={idx} className="friend-interest-chip">
-							{interest}
-						</span>
-					))}
+			) : (
+				<div className="friend-actions">
+					<button
+						className={`friend-btn-star ${isBestFriend ? "active" : ""}`}
+						onClick={() => onToggleBestFriend(friend.id)}
+						title={isBestFriend ? "Retirer des favoris" : "Meilleur ami"}
+					>
+						<Star size={18} fill={isBestFriend ? "currentColor" : "none"} />
+					</button>
+					<button
+						className="friend-btn-decline"
+						onClick={() => onDelete(friend.id)}
+						title="Supprimer l'ami"
+					>
+						<UserX size={18} />
+					</button>
 				</div>
 			)}
-
-			<div className="friend-actions">
-				<button
-					className={`friend-btn-star ${friend.isBestFriend ? "active" : ""}`}
-					onClick={() => onToggleBestFriend(friend.id)}
-					title="Meilleur ami"
-				>
-					<Star size={18} fill={friend.isBestFriend ? "currentColor" : "none"} />
-				</button>
-				<button className="friend-btn-msg" title="Envoyer un message">
-					<MessageCircle size={18} />
-				</button>
-			</div>
 		</motion.div>
 	);
 };
