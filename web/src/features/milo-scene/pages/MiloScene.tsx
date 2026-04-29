@@ -20,13 +20,16 @@ import {
 	FiX,
 	FiHelpCircle,
 	FiArrowLeft,
+	FiChevronRight,
+	FiMessageCircle,
 } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
+import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
 
 /* ============================
-	3D Models
+   3D Models — inchangés
    ============================ */
 
 interface MiloModelProps {
@@ -36,12 +39,7 @@ interface MiloModelProps {
 	showGlasses: boolean;
 }
 
-function MiloModel({
-	modelPath,
-	activeAnimation,
-	showHat,
-	showGlasses,
-}: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
 	const { scene, animations } = useGLTF(modelPath);
 	const { actions } = useAnimations(animations, group);
@@ -51,7 +49,6 @@ function MiloModel({
 		if (!scene) return;
 		scene.traverse((child) => {
 			if ((child as THREE.Mesh).isMesh) {
-				// Only Milo casts shadows (perf)
 				child.castShadow = true;
 				child.receiveShadow = false;
 			}
@@ -60,27 +57,19 @@ function MiloModel({
 
 	useEffect(() => {
 		if (!actions || !activeAnimation) return;
-
-		const CROSSFADE_DURATION = 0.5; // seconds
+		const CROSSFADE_DURATION = 0.5;
 		const nextAction = actions[activeAnimation];
 		if (!nextAction) return;
-
 		const prevName = prevAnimation.current;
 		const prevAction = prevName ? actions[prevName] : null;
-
-		// Configure the incoming animation
 		nextAction.reset();
 		nextAction.setLoop(THREE.LoopRepeat, Infinity);
 		nextAction.play();
-
 		if (prevAction && prevAction !== nextAction) {
-			// Smooth crossfade from previous to next
 			prevAction.crossFadeTo(nextAction, CROSSFADE_DURATION, true);
 		} else {
-			// First animation – just fade in
 			nextAction.fadeIn(CROSSFADE_DURATION);
 		}
-
 		prevAnimation.current = activeAnimation;
 	}, [actions, activeAnimation]);
 
@@ -94,43 +83,24 @@ function MiloModel({
 
 	return (
 		<group ref={group}>
-			<primitive
-				object={scene}
-				scale={[0.45, 0.45, 0.45]}
-				position={[2.2, -2.3, 1.4]}
-				rotation={[0, -0.4, 0]}
-			/>
+			<primitive object={scene} scale={[0.45, 0.45, 0.45]} position={[2.2, -2.3, 1.4]} rotation={[0, -0.4, 0]} />
 		</group>
 	);
 }
 
 function Classroom({ modelPath }: { modelPath: string }) {
 	const { scene } = useGLTF(modelPath);
-
 	useEffect(() => {
 		if (!scene) return;
 		scene.traverse((child) => {
 			if ((child as THREE.Mesh).isMesh) {
-				// Classroom only receives shadows, never casts (huge perf gain)
 				child.castShadow = false;
 				child.receiveShadow = true;
 			}
 		});
 	}, [scene]);
-
-	return (
-		<primitive
-			object={scene}
-			scale={[1, 1, 1]}
-			position={[-2, -2.5, 6.95]}
-			rotation={[0, 0, 0]}
-		/>
-	);
+	return <primitive object={scene} scale={[1, 1, 1]} position={[-2, -2.5, 6.95]} rotation={[0, 0, 0]} />;
 }
-
-/* ============================
-   3D Text Elements
-   ============================ */
 
 interface TextPanelProps {
 	text: string;
@@ -141,126 +111,56 @@ const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
 	const displayText = text || (isEditing ? "|" : "");
 	return (
 		<group position={[0, 0, 0.5]}>
-			<Text
-				position={[-3.8, 1.6, 0.01]}
-				fontSize={0.15}
-				color="white"
-				anchorX="left"
-				anchorY="top"
-				maxWidth={4.5}
-				overflowWrap="break-word"
-				clipRect={[-0.2, -2.8, 5, 0.2]}
-			>
+			<Text position={[-3.8, 1.6, 0.01]} fontSize={0.15} color="white" anchorX="left" anchorY="top" maxWidth={4.5} overflowWrap="break-word" clipRect={[-0.2, -2.8, 5, 0.2]}>
 				{displayText}
 			</Text>
 		</group>
 	);
 };
 
-/* --- Interactive Sheet (Feuille) --- */
-
-const Feuille: React.FC<TextPanelProps & { onPanelClick: () => void }> = ({
-	text,
-	isEditing,
-	onPanelClick,
-}) => {
-	const displayText = text || (isEditing ? "|" : "Cliquez pour ecrire...");
+const Feuille: React.FC<TextPanelProps & { onPanelClick: () => void }> = ({ text, isEditing, onPanelClick }) => {
+	const displayText = text || (isEditing ? "|" : "Cliquez pour poser une question...");
 	const [isHovered, setIsHovered] = useState(false);
 	const meshRef = useRef<THREE.Mesh>(null);
 	const glowRef = useRef<THREE.Mesh>(null);
 	const glowOpacity = useRef(0);
 
 	useFrame((_, delta) => {
-		// Smooth glow transition
 		const target = isHovered ? 1 : 0;
-		glowOpacity.current = THREE.MathUtils.lerp(
-			glowOpacity.current,
-			target,
-			delta * 8,
-		);
+		glowOpacity.current = THREE.MathUtils.lerp(glowOpacity.current, target, delta * 8);
 		if (glowRef.current) {
-			(glowRef.current.material as THREE.MeshBasicMaterial).opacity =
-				glowOpacity.current * 0.55;
+			(glowRef.current.material as THREE.MeshBasicMaterial).opacity = glowOpacity.current * 0.55;
 		}
 	});
 
-	// Disable raycasting on non-interactive meshes
 	const noRaycast = useCallback(() => null, []);
 
 	return (
-		<group
-			position={[0, -0.65, 4.2]}
-			rotation={[-Math.PI / 2, 0, 0]}
-			scale={0.55}
-		>
-			{/* Glow border (visible on hover) – not raycastable */}
+		<group position={[0, -0.65, 4.2]} rotation={[-Math.PI / 2, 0, 0]} scale={0.55}>
 			<mesh ref={glowRef} position={[0, 0, -0.005]} raycast={noRaycast}>
 				<planeGeometry args={[2.7, 2.7]} />
-				<meshBasicMaterial
-					color="#60b0ff"
-					transparent
-					opacity={0}
-					side={THREE.DoubleSide}
-				/>
+				<meshBasicMaterial color="#60b0ff" transparent opacity={0} side={THREE.DoubleSide} />
 			</mesh>
-
-			{/* Sheet surface – main interactive target */}
-			<mesh
-				ref={meshRef}
-				position={[0, 0, 0.01]}
-				onPointerOver={(e) => {
-					e.stopPropagation();
-					setIsHovered(true);
-					document.body.style.cursor = "pointer";
-				}}
-				onPointerOut={() => {
-					setIsHovered(false);
-					document.body.style.cursor = "auto";
-				}}
-				onClick={(e) => {
-					e.stopPropagation();
-					onPanelClick();
-				}}
+			<mesh ref={meshRef} position={[0, 0, 0.01]}
+				onPointerOver={(e) => { e.stopPropagation(); setIsHovered(true); document.body.style.cursor = "pointer"; }}
+				onPointerOut={() => { setIsHovered(false); document.body.style.cursor = "auto"; }}
+				onClick={(e) => { e.stopPropagation(); onPanelClick(); }}
 			>
 				<planeGeometry args={[2.5, 2.5]} />
-				<meshStandardMaterial
-					color={isHovered ? "#c4c4c4" : "white"}
-					side={THREE.DoubleSide}
-					emissive={isHovered ? "#aaccff" : "#000000"}
-					emissiveIntensity={isHovered ? 0.15 : 0}
-				/>
+				<meshStandardMaterial color={isHovered ? "#c4c4c4" : "white"} side={THREE.DoubleSide} emissive={isHovered ? "#aaccff" : "#000000"} emissiveIntensity={isHovered ? 0.15 : 0} />
 			</mesh>
-
-			{/* Text – not raycastable so it doesn't block the sheet */}
-			<Text
-				position={[-1.05, 1.05, 0.02]}
-				fontSize={0.12}
-				color="black"
-				anchorX="left"
-				anchorY="top"
-				maxWidth={2.1}
-				lineHeight={1.4}
-				overflowWrap="break-word"
-				raycast={noRaycast}
-				clipRect={[-0.2, -2.25, 2.3, 0.2]}
-			>
+			<Text position={[-1.05, 1.05, 0.02]} fontSize={0.12} color="black" anchorX="left" anchorY="top" maxWidth={2.1} lineHeight={1.4} overflowWrap="break-word" raycast={noRaycast} clipRect={[-0.2, -2.25, 2.3, 0.2]}>
 				{displayText}
 			</Text>
 		</group>
 	);
 };
 
-/* ============================
-   Optimized Lighting - Bright Afternoon
-   ============================ */
-
 const ClassroomLighting: React.FC = () => {
 	const sunRef = useRef<THREE.DirectionalLight>(null);
-
 	useEffect(() => {
 		if (!sunRef.current) return;
 		const light = sunRef.current;
-		// Optimized shadow map: 512px, tight frustum for sharper shadows
 		light.shadow.mapSize.set(512, 512);
 		light.shadow.camera.near = 2;
 		light.shadow.camera.far = 22;
@@ -272,57 +172,31 @@ const ClassroomLighting: React.FC = () => {
 		light.shadow.normalBias = 0.04;
 		light.shadow.camera.updateProjectionMatrix();
 	}, []);
-
 	return (
 		<>
-			{/* Soft ambient – bright enough to see the room */}
 			<ambientLight intensity={0.7} color="#cdcbc8" />
-
-			{/* Hemisphere: sky + soft ground bounce */}
 			<hemisphereLight args={["#ffffff", "#d9c7a7", 0.4]} />
-
-			{/* Main sun – neutral warm white, primary shadow caster */}
-			<directionalLight
-				ref={sunRef}
-				position={[10, 12, 4]}
-				intensity={2.4}
-				color="#fffffe"
-				castShadow
-			/>
-
-			{/* Gentle fill from opposite side (no shadow) */}
+			<directionalLight ref={sunRef} position={[10, 12, 4]} intensity={2.4} color="#fffffe" castShadow />
 			<directionalLight position={[-5, 6, 6]} intensity={0.5} color="#fdfbf9" />
 		</>
 	);
 };
 
-/* ============================
-   Camera Controller
-   ============================ */
-
 const CameraController: React.FC<{ targetY: number }> = ({ targetY }) => {
 	const { camera } = useThree();
 	const lookAtVec = useRef(new THREE.Vector3(0, 0, 0));
-
 	useFrame(() => {
 		const cur = lookAtVec.current;
 		cur.y = THREE.MathUtils.lerp(cur.y, targetY, 0.05);
 		camera.lookAt(cur);
 	});
-
 	return null;
 };
-
-/* ============================
-   Intro Camera Animation
-   ============================ */
 
 const IntroCamera: React.FC<{ onDone: () => void }> = ({ onDone }) => {
 	const { camera } = useThree();
 	const progress = useRef(0);
 	const done = useRef(false);
-
-	// Start position: far back and slightly high
 	const startPos = useRef(new THREE.Vector3(0, 2, 12));
 	const endPos = useRef(new THREE.Vector3(0, 0, 5));
 	const startLookAt = useRef(new THREE.Vector3(0, 1, 0));
@@ -331,28 +205,19 @@ const IntroCamera: React.FC<{ onDone: () => void }> = ({ onDone }) => {
 	useFrame((_, delta) => {
 		if (done.current) return;
 		progress.current = Math.min(progress.current + delta * 0.4, 1);
-		const t = 1 - Math.pow(1 - progress.current, 3); // ease-out cubic
-
+		const t = progress.current < 0.5
+			? 4 * progress.current ** 3
+			: 1 - Math.pow(-2 * progress.current + 2, 3) / 2;
 		camera.position.lerpVectors(startPos.current, endPos.current, t);
-		const lookAt = new THREE.Vector3().lerpVectors(
-			startLookAt.current,
-			endLookAt.current,
-			t,
-		);
+		const lookAt = new THREE.Vector3().lerpVectors(startLookAt.current, endLookAt.current, t);
 		camera.lookAt(lookAt);
-
 		if (progress.current >= 1) {
 			done.current = true;
 			onDone();
 		}
 	});
-
 	return null;
 };
-
-/* ============================
-   Main 3D Scene
-   ============================ */
 
 const Scene3D: React.FC<{
 	cameraY: number;
@@ -365,60 +230,19 @@ const Scene3D: React.FC<{
 	onPanelClick: () => void;
 	introActive: boolean;
 	onIntroDone: () => void;
-}> = ({
-	cameraY,
-	reply,
-	activeAnimation,
-	showHat,
-	showGlasses,
-	text,
-	isEditing,
-	onPanelClick,
-	introActive,
-	onIntroDone,
-}) => (
-	<Canvas
-		camera={{ position: [0, 2, 12], fov: 80 }}
-		shadows="basic"
-		gl={{
-			antialias: false,
-			toneMapping: THREE.ACESFilmicToneMapping,
-			toneMappingExposure: 0.95,
-			outputColorSpace: THREE.SRGBColorSpace,
-			powerPreference: "high-performance",
-		}}
-		dpr={[1, 1.5]}
-		performance={{ min: 0.5 }}
-	>
+	displayedText: string;
+}> = ({ cameraY, reply, activeAnimation, showHat, showGlasses, text, isEditing, onPanelClick, introActive, onIntroDone,displayedText }) => (
+<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
 		<Suspense fallback={null}>
 			<ClassroomLighting />
-
+			<Environment preset="park" />
 			<Classroom modelPath="/classroom.glb" />
-			<MiloModel
-				modelPath="/MiloV3.glb"
-				activeAnimation={activeAnimation}
-				showHat={showHat}
-				showGlasses={showGlasses}
-			/>
-			<Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
-			<Tableau text={reply} isEditing={isEditing} />
-
-			<OrbitControls
-				enableZoom={false}
-				enablePan={false}
-				enableRotate={false}
-			/>
-			<Environment
-				preset="park"
-				background={false}
-				environmentIntensity={0.3}
-			/>
-
-			{introActive ? (
-				<IntroCamera onDone={onIntroDone} />
-			) : (
-				<CameraController targetY={cameraY} />
-			)}
+			<MiloModel modelPath="/MiloV3.glb" activeAnimation={activeAnimation} showHat={showHat} showGlasses={showGlasses} />
+            {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
+            <Tableau text={reply || displayedText} isEditing={false} />
+            <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
+			<OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.8} minAzimuthAngle={-Math.PI / 6} maxAzimuthAngle={Math.PI / 6} />
+			{introActive ? <IntroCamera onDone={onIntroDone} /> : <CameraController targetY={cameraY} />}
 		</Suspense>
 	</Canvas>
 );
@@ -438,114 +262,135 @@ const AnimationControls: React.FC<{
 	onGlassesToggle: () => void;
 	visible: boolean;
 	onClose: () => void;
-}> = ({
-	activeAnimation,
-	onAnimationChange,
-	showHat,
-	onHatToggle,
-	showGlasses,
-	onGlassesToggle,
-	visible,
-	onClose,
-}) => (
+}> = ({ activeAnimation, onAnimationChange, showHat, onHatToggle, showGlasses, onGlassesToggle, visible, onClose }) => (
 	<div className={`controls-panel glass-panel ${!visible ? "collapsed" : ""}`}>
-		<div
-			style={{
-				display: "flex",
-				justifyContent: "space-between",
-				alignItems: "center",
-				marginBottom: 6,
-			}}
-		>
+		<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
 			<h3 style={{ margin: 0 }}>Animations</h3>
-			<button
-				onClick={onClose}
-				style={{
-					background: "none",
-					border: "none",
-					color: "rgba(255,255,255,0.4)",
-					cursor: "pointer",
-					padding: 4,
-					display: "flex",
-					transition: "color 0.2s",
-				}}
+			<button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: 4, display: "flex", transition: "color 0.2s" }}
 				onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-				onMouseLeave={(e) =>
-					(e.currentTarget.style.color = "rgba(255,255,255,0.4)")
-				}
-			>
+				onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}>
 				<FiX size={16} />
 			</button>
 		</div>
-
 		{ANIMATIONS.map((anim) => (
-			<label
-				key={anim}
-				className={`control-label ${activeAnimation === anim ? "active" : ""}`}
-				onClick={() => onAnimationChange(anim)}
-			>
-				<div
-					className={`custom-radio ${activeAnimation === anim ? "selected" : ""}`}
-				>
-					<div className="custom-radio-dot" />
-				</div>
+			<label key={anim} className={`control-label ${activeAnimation === anim ? "active" : ""}`} onClick={() => onAnimationChange(anim)}>
+				<div className={`custom-radio ${activeAnimation === anim ? "selected" : ""}`}><div className="custom-radio-dot" /></div>
 				{anim}
 			</label>
 		))}
-
 		<hr />
 		<h3>Accessoires</h3>
-
 		<label className="control-label" onClick={onHatToggle}>
-			<div className={`toggle-switch ${showHat ? "on" : ""}`}>
-				<div className="toggle-knob" />
-			</div>
+			<div className={`toggle-switch ${showHat ? "on" : ""}`}><div className="toggle-knob" /></div>
 			Chapeau
 		</label>
-
 		<label className="control-label" onClick={onGlassesToggle}>
-			<div className={`toggle-switch ${showGlasses ? "on" : ""}`}>
-				<div className="toggle-knob" />
-			</div>
+			<div className={`toggle-switch ${showGlasses ? "on" : ""}`}><div className="toggle-knob" /></div>
 			Lunettes
 		</label>
 	</div>
 );
 
+/* ── Barre de progression du cours ── */
+const LessonProgressBar: React.FC<{ current: number; total: number; percent: number }> = ({ current, total, percent }) => (
+	<div className="lesson-progress-bar glass-panel">
+		<span className="lesson-progress-label">Partie {current} / {total}</span>
+		<div className="lesson-progress-track">
+			<div className="lesson-progress-fill" style={{ width: `${percent}%` }} />
+		</div>
+	</div>
+);
+
+/* ── Panneau de cours affiché sur le tableau ── */
+// const LessonPanel: React.FC<{
+// 	title: string;
+// 	content: string;
+// 	phase: string;
+// 	reply: string;
+// }> = ({ title, content, phase, reply }) => (
+// 	<div className="lesson-panel glass-panel">
+// 		<h3 className="lesson-panel-title">{title}</h3>
+// 		<p className="lesson-panel-content">{content}</p>
+// 		{reply && phase === "waiting" && (
+// 			<div className="lesson-reply">
+// 				<span className="lesson-reply-label">🦊 Milo :</span>
+// 				<p>{reply}</p>
+// 			</div>
+// 		)}
+// 	</div>
+// );
+
+/* ── Boutons d'action en bas ── */
+const LessonActions: React.FC<{
+	phase: string;
+	isLastPart: boolean;
+	onNext: () => void;
+	onAskQuestion: () => void;
+	onBackToLessons: () => void;
+}> = ({ phase, isLastPart, onNext, onAskQuestion, onBackToLessons }) => {
+	if (phase === "loading") {
+		return (
+			<div className="lesson-actions glass-panel">
+				<span className="lesson-loading-text">Milo prépare ton cours...</span>
+			</div>
+		);
+	}
+
+	if (phase === "finished") {
+		return (
+			<div className="lesson-actions glass-panel lesson-finished">
+				<p>🎉 Bravo ! Tu as terminé cette leçon !</p>
+				<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
+					<FiArrowLeft size={16} /> Retour aux leçons
+				</button>
+			</div>
+		);
+	}
+
+	if (phase === "waiting") {
+		return (
+			<div className="lesson-actions glass-panel">
+				<button className="lesson-btn lesson-btn--secondary" onClick={onAskQuestion}>
+					<FiMessageCircle size={16} />
+					<span>J'ai une question</span>
+				</button>
+				<button className="lesson-btn lesson-btn--primary" onClick={onNext}>
+					<span>{isLastPart ? "Terminer le cours" : "Partie suivante"}</span>
+					<FiChevronRight size={16} />
+				</button>
+			</div>
+		);
+	}
+
+	return null;
+};
+
+/* ── Chat input pour poser une question ── */
 const ChatInput: React.FC<{
 	value: string;
 	onChange: (val: string) => void;
 	onSend: () => void;
 	disabled: boolean;
 }> = ({ value, onChange, onSend, disabled }) => {
-	const inputRef = useRef<HTMLInputElement>(null);
-
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && !e.shiftKey && value.trim()) {
 			e.preventDefault();
 			onSend();
 		}
 	};
-
 	return (
 		<div className="chat-input-area">
 			<div className="chat-input-wrapper glass-panel">
 				<input
-					ref={inputRef}
 					className="chat-input"
 					type="text"
-					placeholder="Posez une question a Milo..."
+					placeholder="Pose une question à Milo..."
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 					onKeyDown={handleKeyDown}
 					autoFocus
 				/>
-				<button
-					className="chat-send-btn"
-					onClick={onSend}
-					disabled={disabled || !value.trim()}
-					aria-label="Envoyer"
-				>
+				<button className="chat-send-btn" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Envoyer">
 					<FiSend size={16} />
 				</button>
 			</div>
@@ -555,21 +400,10 @@ const ChatInput: React.FC<{
 
 const LoadingOverlay: React.FC = () => (
 	<div className="scene-loading-overlay">
-		<video
-			className="loading-video"
-			src="/loading.webm"
-			autoPlay
-			loop
-			muted
-			playsInline
-		/>
-		<span className="loading-text">Chargement de la scene...</span>
+		<video className="loading-video" src="/loading.webm" autoPlay loop muted playsInline />
+		<span className="loading-text">Chargement de la scène...</span>
 	</div>
 );
-
-/* ============================
-   Intro Overlay
-   ============================ */
 
 const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
 	if (!visible) return null;
@@ -587,89 +421,46 @@ const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
    ============================ */
 
 const MiloScene: React.FC = () => {
-	const navigate = useNavigate();
-	const [cameraY, setCameraY] = useState(0);
-	const [, setDown] = useState(true);
-	const [text, setText] = useState("");
-	const [isEditing, setIsEditing] = useState(false);
-	const [reply, setReply] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
-	const [activeAnimation, setActiveAnimation] = useState("Idle");
-	const [showHat, setShowHat] = useState(true);
-	const [showGlasses, setShowGlasses] = useState(true);
-	const [showHelp, setShowHelp] = useState(false);
-	const [showControls, setShowControls] = useState(true);
-	const [sceneReady, setSceneReady] = useState(false);
-	const [introActive, setIntroActive] = useState(true);
-	const [showIntroText, setShowIntroText] = useState(true);
+	// Récupère l'id de la leçon depuis les params de route
+	const { lessonId } = useParams<{ lessonId: string }>();
 
-	useEffect(() => {
-		const t = setTimeout(() => setSceneReady(true), 800);
-		return () => clearTimeout(t);
-	}, []);
+	const {
+		// Lesson
+		phase,
+		displayedText,
+		isLastPart,
+		progressPercent,
+		parts,
+		currentPartIndex,
 
-	// Fade out intro text after camera finishes
-	const handleIntroDone = useCallback(() => {
-		setTimeout(() => {
-			setShowIntroText(false);
-			setIntroActive(false);
-		}, 1500);
-	}, []);
+		// Chat
+		question,
+		setQuestion,
+		reply,
+		handleSendQuestion,
+		handleAskQuestion,
+		handleNextPart,
+		handleBackToLessons,
 
-	const handlePanelClick = useCallback(() => {
-		setDown((prev) => {
-			setCameraY(prev ? -3 : 0);
-			return !prev;
-		});
-		setIsEditing((prev) => !prev);
-	}, []);
-
-	const handleSend = useCallback(() => {
-		if (!text.trim()) return;
-		const msg = text;
-		setText("");
-		setReply("");
-		setIsLoading(true);
-
-		// Milo starts thinking while waiting for the response
-		setActiveAnimation("Thinking");
-
-		// Camera back up & exit edit mode
-		setDown(true);
-		setCameraY(0);
-		setIsEditing(false);
-
-		// Simulate response delay – once the reply appears, switch to Explaining
-		setTimeout(() => {
-			setIsLoading(false);
-			setReply(`Vous avez dit : "${msg}"`);
-			setActiveAnimation("Explaining");
-
-			// After a few seconds of explaining, return to Idle
-			setTimeout(() => {
-				setActiveAnimation("Idle");
-			}, 4000);
-		}, 2000);
-	}, [text]);
-
-	// Keyboard handler when editing the sheet
-	useEffect(() => {
-		if (!isEditing) return;
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Enter") {
-				e.preventDefault();
-				handleSend();
-			} else if (e.key === "Backspace") {
-				e.preventDefault();
-				setText((prev) => prev.slice(0, -1));
-			} else if (e.key.length === 1) {
-				e.preventDefault();
-				setText((prev) => prev + e.key);
-			}
-		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isEditing, handleSend]);
+		// 3D
+		activeAnimation,
+		setActiveAnimation,
+		cameraY,
+		isEditing,
+		handlePanelClick,
+		handleIntroDone,
+		showHat,
+		setShowHat,
+		showGlasses,
+		setShowGlasses,
+		showControls,
+		setShowControls,
+		showHelp,
+		setShowHelp,
+		sceneReady,
+		introActive,
+		showIntroText,
+	} = useMiloScene(Number(lessonId));
 
 	return (
 		<div className="milo-scene-root">
@@ -681,15 +472,53 @@ const MiloScene: React.FC = () => {
 				activeAnimation={activeAnimation}
 				showHat={showHat}
 				showGlasses={showGlasses}
-				text={text}
+				text={question}
 				isEditing={isEditing}
 				onPanelClick={handlePanelClick}
 				introActive={introActive}
 				onIntroDone={handleIntroDone}
+				displayedText={displayedText}
 			/>
 
-			{/* Intro overlay text */}
 			<IntroOverlay visible={showIntroText && sceneReady} />
+
+			{/* Barre de progression */}
+			{parts.length > 0 && phase !== "loading" && (
+				<LessonProgressBar
+					current={currentPartIndex + 1}
+					total={parts.length}
+					percent={progressPercent}
+				/>
+			)}
+
+			{/* Panneau de cours */}
+			{/* {currentPart && phase !== "loading" && (
+				<LessonPanel
+					title={currentPart.title}
+					content={displayedText}
+					phase={phase}
+					reply={reply}
+				/>
+			)} */}
+
+			{/* Actions (suite / question / fin) */}
+			<LessonActions
+				phase={phase}
+				isLastPart={isLastPart}
+				onNext={handleNextPart}
+				onAskQuestion={handleAskQuestion}
+				onBackToLessons={handleBackToLessons}
+			/>
+
+			{/* Input question — visible uniquement en mode questioning */}
+			{(phase === "questioning" || phase === "answering") && (
+				<ChatInput
+					value={question}
+					onChange={setQuestion}
+					onSend={handleSendQuestion}
+					disabled={phase === "answering"}
+				/>
+			)}
 
 			{/* Controls panel */}
 			<AnimationControls
@@ -704,43 +533,20 @@ const MiloScene: React.FC = () => {
 			/>
 
 			{!showControls && (
-				<button
-					className="panel-toggle-btn"
-					onClick={() => setShowControls(true)}
-					aria-label="Ouvrir les parametres"
-				>
+				<button className="panel-toggle-btn" onClick={() => setShowControls(true)} aria-label="Ouvrir les paramètres">
 					<FiSettings size={18} />
 				</button>
 			)}
 
-			<button
-				className="help-btn"
-				onClick={() => setShowHelp(true)}
-				aria-label="Aide"
-			>
+			<button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Aide">
 				<FiHelpCircle size={22} />
 			</button>
 
-			<button
-				className="back-btn"
-				onClick={() => navigate(-1)}
-				aria-label="Retour"
-			>
+			<button className="back-btn" onClick={handleBackToLessons} aria-label="Retour">
 				<FiArrowLeft size={22} />
 			</button>
 
-			<ChatInput
-				value={text}
-				onChange={setText}
-				onSend={handleSend}
-				disabled={isLoading}
-			/>
-
-			<HelpModal
-				isOpen={showHelp}
-				onClose={() => setShowHelp(false)}
-				imageUrl="/help.webp"
-			/>
+			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
 		</div>
 	);
 };

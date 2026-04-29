@@ -11,6 +11,166 @@
   background: rgb(88, 189, 230)
 }
 
+/* Le canvas doit être en dessous */
+.three-canvas {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* Tous les éléments UI au dessus */
+.lesson-progress-bar {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1.5rem;
+    min-width: 300px;
+}
+
+.lesson-progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.lesson-progress-fill {
+    height: 100%;
+    background: #ff6b35;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+}
+
+.lesson-progress-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+}
+
+/* Panneau de cours — à gauche du tableau */
+.lesson-panel {
+    position: absolute;
+    top: 5rem;
+    left: 2rem;
+    width: 420px;
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 10;
+    padding: 1.5rem;
+}
+
+.lesson-panel-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.lesson-panel-content {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.lesson-reply {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lesson-reply-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ff6b35;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.lesson-reply p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+}
+
+/* Boutons d'action — en bas au centre */
+.lesson-actions {
+    position: absolute;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+}
+
+.lesson-finished {
+    flex-direction: column;
+    text-align: center;
+}
+
+.lesson-finished p {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.lesson-loading-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.lesson-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lesson-btn--primary {
+    background: #ff6b35;
+    color: white;
+}
+
+.lesson-btn--primary:hover {
+    background: #ea580c;
+    transform: translateY(-2px);
+}
+
+.lesson-btn--secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.lesson-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+
+
 /* ---------- Glassmorphism Panel Base ---------- */
 .glass-panel {
   background: rgba(15, 15, 20, 0.65);
