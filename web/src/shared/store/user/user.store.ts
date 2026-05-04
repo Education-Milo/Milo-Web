@@ -156,6 +156,21 @@ export const useUserStore = create<UserStore>((set, get) => ({
   //   await Promise.all(promises);
   // },
 
+  getUserById: async (userId: string) => {
+    try {
+      const response = await APIAxios.get(APIRoutes.GET_User_By_Id(userId));
+      const backData = response.data;
+      const userData: User = {
+        ...backData,
+        classe : backData.class_,
+        Interests: backData.interests || [],
+      };
+      return userData;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getFullName: () => {
     const user = get().user;
     if (!user) return '';

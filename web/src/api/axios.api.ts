@@ -41,10 +41,22 @@ export const APIRoutes = {
   POST_Register: '/register',
   POST_Login: '/token',
   POST_ForgotPassword: '/auth/forgot-password',
+
+  // User API
   GET_Me: '/users/me',
   PUT_Update_user: (userId: string) => `/users/${userId}`,
   POST_Add_User_Interest: (userId: string) => `/users/${userId}/interests/`,
   DELETE_User_Interest: (userId: string, interestId: string) => `/users/${userId}/interests/${interestId}`,
+  GET_User_By_Id: (userId: string) => `/users/${userId}`,
+  GET_User_Search: '/users/search',
+  GET_User_By_Username: (username: string) => `/users/by-username/${username}`,
+
+  // Friend API
+  GET_Friends: '/friends',
+  DELETE_FRIEND: (friendId: number) => `/friends/${friendId}`,
+  POST_SEND_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}`,
+  PATCH_ACCEPT_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}/accept`,
+  PATCH_BLOCK_FRIEND: (friendId: number) => `/friends/${friendId}/block`,
 
   // Course API
   GET_Subjects: '/get_subjects',

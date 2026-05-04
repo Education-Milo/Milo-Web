@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	];
 
 	const socialItems = [
-		{ label: "Amis", path: "/friends", icon: "👥", disabled: true },
+		{ label: "Amis", path: "/friends", icon: "👥", disabled: false },
 		{ label: "Classements", path: "/leaderboard", icon: "🌟", disabled: true },
 	];
 

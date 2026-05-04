@@ -41,6 +41,7 @@ export interface User extends UserProfile {
 
   export interface UserActions {
     getMe: (forceRefresh?: boolean) => Promise<User>;
+    getUserById: (userId: string) => Promise<User>;
     // getUserStats: (forceRefresh?: boolean) => Promise<UserStats>;
     updateUser: (userData: Partial<User>) => Promise<User>;
     addUserInterest: (interestName: string) => Promise<void>;
