@@ -326,12 +326,12 @@
 	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.friend-avatar {
+.friend-card-avatar-text {
 	line-height: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transform: translateY(2px); /* Ajustement optique pour emoji */
+	transform: translateY(2px);
 }
 
 

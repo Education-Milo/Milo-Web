@@ -40,7 +40,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 
 			{/* AVATAR */}
 			<div className="friend-avatar-wrap">
-				<span className="friend-avatar">{initials}</span>
+				<span className="friend-card-avatar-text">{initials}</span>
 			</div>
 
 			{/* INFOS */}
