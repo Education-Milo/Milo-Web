@@ -48,18 +48,23 @@ export const useMiloScene = (lessonId: number) => {
 
 	// ─── Chargement du cours ─────────────────────────────────────────────────
 	useEffect(() => {
+		const controller = new AbortController();
+
 		const load = async () => {
 			try {
 				setPhase("loading");
-				const lessonParts = await fetchLessonParts(lessonId);
+				const lessonParts = await fetchLessonParts(lessonId, "", controller.signal);
 				setParts(lessonParts);
 				setCurrentPartIndex(0);
 				setPhase("reading");
-			} catch (err) {
-				console.error("Erreur chargement du cours :", err);
+			} catch (err: any) {
+				if (err.name === 'CanceledError') return;
+            	console.error("Erreur :", err);
 			}
 		};
+
 		load();
+		return () => { controller.abort(); }; // Nettoyage
 	}, [lessonId]);
 
 	// ─── Typewriter : affiche le texte de la partie courante caractère par caractère
