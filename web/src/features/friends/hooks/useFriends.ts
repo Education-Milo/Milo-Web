@@ -9,7 +9,7 @@ import {
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 import { useFriendDetails } from "@features/friends/hooks/useFriendDetails";
 
-export type FriendsTab = "Tous" | "En attente" | "Meilleurs amis";
+export type FriendsTab = "Tous" | "Invitations" | "En attente" | "Meilleurs amis";
 
 // ─── Persistance locale des favoris ─────────────────────────────────────────
 const loadBestFriends = (): Set<number> => {
@@ -72,26 +72,39 @@ export const useFriends = () => {
 		[pendingFriends],
 	);
 
+	// Demandes envoyées en attente
+	const pendingSent = useMemo(
+		() => pendingFriends.filter((f) => f.direction === "sent"),
+		[pendingFriends],
+	);
+
 	// Enrichir les pending avec isBestFriend: false pour éviter les erreurs de type
-	const enrichedPending: FriendEnriched[] = useMemo(
+	const enrichedPendingReceived: FriendEnriched[] = useMemo(
 		() => pendingReceived.map((f) => ({ ...f, isBestFriend: false })),
 		[pendingReceived],
 	);
 
+	const enrichedPendingSent: FriendEnriched[] = useMemo(
+		() => pendingSent.map((f) => ({ ...f, isBestFriend: false })),
+		[pendingSent],
+	);
+
 	const filteredFriends = useMemo(() => {
 		const base =
-			activeTab === "En attente" ? enrichedPending : friendsWithDetails;
+			activeTab === "Invitations" ? enrichedPendingReceived :
+			activeTab === "En attente" ? enrichedPendingSent : friendsWithDetails;
 		return base.filter((f) => {
 			const fullName =
 				`${f.friend_first_name} ${f.friend_last_name}`.toLowerCase();
 			const matchesSearch = fullName.includes(searchQuery.toLowerCase());
 			const matchesTab =
 				activeTab === "Tous" ||
+				activeTab === "Invitations" ||
 				activeTab === "En attente" ||
 				(activeTab === "Meilleurs amis" && f.isBestFriend);
 			return matchesSearch && matchesTab;
 		});
-	}, [friendsWithDetails, enrichedPending, searchQuery, activeTab]);
+	}, [friendsWithDetails, enrichedPendingReceived, enrichedPendingSent, searchQuery, activeTab]);
 
 	const toggleBestFriend = (id: number) => {
 		setBestFriendIds((prev) => {
@@ -121,7 +134,8 @@ export const useFriends = () => {
 
 	return {
 		friends: friendsWithDetails,
-		pendingFriends: pendingReceived,
+		pendingReceived,
+		pendingSent,
 		filteredFriends,
 		searchQuery,
 		setSearchQuery,

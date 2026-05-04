@@ -28,13 +28,14 @@ const itemVariants = {
 	},
 };
 
-const TABS: FriendsTab[] = ["Tous", "En attente", "Meilleurs amis"];
+const TABS: FriendsTab[] = ["Tous", "Invitations", "En attente", "Meilleurs amis"];
 
 const FriendsPage: React.FC = () => {
 	const {
 		friends,
 		filteredFriends,
-		pendingFriends,
+		pendingReceived,
+		pendingSent,
 		searchQuery,
 		setSearchQuery,
 		activeTab,
@@ -115,9 +116,12 @@ const FriendsPage: React.FC = () => {
 										<Star size={14} className="tab-icon" />
 									)}
 									{tab}
-									{/* Badge sur "En attente" si des demandes existent */}
-									{tab === "En attente" && pendingFriends.length > 0 && (
-										<span className="tab-badge">{pendingFriends.length}</span>
+									{/* Badge sur "Invitations" et "En attente" */}
+									{tab === "Invitations" && pendingReceived.length > 0 && (
+										<span className="tab-badge">{pendingReceived.length}</span>
+									)}
+									{tab === "En attente" && pendingSent.length > 0 && (
+										<span className="tab-badge">{pendingSent.length}</span>
 									)}
 									{activeTab === tab && (
 										<motion.div
@@ -158,7 +162,7 @@ const FriendsPage: React.FC = () => {
 												onToggleBestFriend={toggleBestFriend}
 												onAccept={acceptFriend}
 												onDelete={deleteFriend}
-												isPending={activeTab === "En attente"}
+												isPending={activeTab === "En attente" || activeTab === "Invitations"}
 												variants={itemVariants}
 											/>
 										))}
@@ -170,10 +174,15 @@ const FriendsPage: React.FC = () => {
 											initial={{ opacity: 0 }}
 											animate={{ opacity: 1 }}
 										>
-											{activeTab === "En attente" ? (
+											{activeTab === "Invitations" ? (
 												<>
 													<Clock size={48} className="empty-icon" />
-													<p>Aucune demande d'ami en attente.</p>
+													<p>Aucune invitation reçue.</p>
+												</>
+											) : activeTab === "En attente" ? (
+												<>
+													<Clock size={48} className="empty-icon" />
+													<p>Aucune demande envoyée en attente.</p>
 												</>
 											) : (
 												<>
