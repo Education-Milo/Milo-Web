@@ -8,7 +8,6 @@ export const fetchFriends = async (
 	const response = await APIAxios.get(APIRoutes.GET_Friends, {
 		params: status ? { status } : null,
 	});
-	console.log("Fetched friends:", response.data);
 	return response.data;
 };
 

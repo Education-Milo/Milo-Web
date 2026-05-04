@@ -83,7 +83,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 				<div className="friend-actions friend-actions--pending">
 					<button
 						className="friend-btn-accept"
-						onClick={() => onAccept(otherUserId)}
+						onClick={() => onAccept(friend.id)}
 						title="Accepter"
 					>
 						<UserCheck size={18} />
