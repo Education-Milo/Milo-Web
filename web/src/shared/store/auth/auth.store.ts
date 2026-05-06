@@ -108,7 +108,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      register: async (email, password, lastName, firstName, role, classe) => {
+      register: async (email, password, lastName, firstName, role, classe, username) => {
         try {
           const response = await APIAxios.post(APIRoutes.POST_Register, {
             email,
@@ -117,6 +117,7 @@ export const useAuthStore = create<AuthStore>()(
             last_name: lastName,
             role,
             class_: classe,
+            username,
           });
           const token = response.data.access_token || response.data.accessToken;
           if (!token) {
