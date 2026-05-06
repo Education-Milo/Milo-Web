@@ -48,6 +48,12 @@ export const useRegisterForm = () => {
 		}
 	};
 
+	const create_username = (first_name: string, last_name: string) => {
+		const baseUsername = `${first_name.toLowerCase()}.${last_name.toLowerCase()}`;
+		const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+		return `${baseUsername}${randomSuffix}`;
+	};
+
 	const validateForm = (): FormErrors => {
 		const newErrors: FormErrors = {};
 
@@ -110,6 +116,7 @@ export const useRegisterForm = () => {
 					formData.first_name.trim(),
 					roleToSend,
 					classeToSend,
+					create_username(formData.first_name, formData.last_name),
 				);
 				const route = ROLE_ROUTES[roleToSend] || ROUTES.HOME;
 				navigate(route, { replace: true });
