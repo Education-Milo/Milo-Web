@@ -18,11 +18,11 @@ export const sendChatMessage = async (
     partContent: string,
     question: string,
     conversation_id?: string
-): Promise<string> => {
+): Promise<{ reply: string; conversation_id: string }> => {
     const response = await APIAxios.post(APIRoutes.POST_Lesson_Question, {
         part_content: partContent,
         question: question,
         conversation_id: conversation_id
     });
-    return response.data.reply || response.data.content;
+    return response.data;
 };

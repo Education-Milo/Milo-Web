@@ -27,6 +27,7 @@ export const useMiloScene = (lessonId: number) => {
 	// ── Chat state ────────────────────────────────────────────────────────────
 	const [question, setQuestion] = useState("");
 	const [reply, setReply] = useState("");
+	const [conversationId, setConversationId] = useState<string | null>(null);
 
 	// ── 3D state ──────────────────────────────────────────────────────────────
 	const [activeAnimation, setActiveAnimation] = useState("Idle");
@@ -124,10 +125,10 @@ export const useMiloScene = (lessonId: number) => {
 		setIsEditing(false);
 
 		try {
-			const response = await sendChatMessage(currentPart.content, question);
-			setReply(response);
+			const response = await sendChatMessage(currentPart.content, question, conversationId || undefined);
+			setConversationId(response.conversation_id);
+			setReply(response.reply);
 			setActiveAnimation("Explaining");
-
 			setTimeout(() => {
 				setActiveAnimation("Idle");
 				setPhase("waiting");
@@ -140,7 +141,7 @@ export const useMiloScene = (lessonId: number) => {
 		}
 
 		setQuestion("");
-	}, [question, parts, currentPartIndex]);
+	}, [question, parts, currentPartIndex, conversationId]);
 
 	// ─── Clic sur la feuille 3D ───────────────────────────────────────────────
 	const handlePanelClick = useCallback(() => {
