@@ -65,6 +65,7 @@ export const APIRoutes = {
   GET_Lessons: '/get_lessons',
   POST_Chat_Lesson: '/chat_lesson',
   POST_QCM_Lesson: '/qcm_lesson',
+  POST_Lesson_Question: '/chat_lesson_question',
 };
 
 export default APIAxios;
