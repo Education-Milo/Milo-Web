@@ -1,6 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useRef } from "react";
+import {
+	useGLTF,
+	Environment,
+	useAnimations,
+} from "@react-three/drei";
 import {
 	WandSparkles,
 	Shirt,
@@ -14,6 +22,51 @@ import {
 } from "lucide-react";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
+
+const MiloModel3D = () => {
+	const { scene, animations } = useGLTF("/MiloV5.glb");
+	const { actions, mixer } = useAnimations(animations, scene);
+	const groupRef = useRef<THREE.Group>(null);
+
+	useEffect(() => {
+		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
+		const arrivalAction = arrivalName ? actions[arrivalName] : null;
+		
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (arrivalAction && idleAction) {
+			arrivalAction.setLoop(THREE.LoopOnce, 1);
+			arrivalAction.clampWhenFinished = true;
+			arrivalAction.reset().play();
+
+			const onFinished = (e: any) => {
+				if (e.action === arrivalAction) {
+					idleAction.reset().crossFadeFrom(arrivalAction, 0.3, true).play();
+				}
+			};
+
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		} else if (idleAction) {
+			idleAction.reset().play();
+		}
+	}, [actions, mixer]);
+
+	useFrame((_state, delta) => {	
+		if (groupRef.current) {
+			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
+		}
+	});
+
+	return (
+		<group ref={groupRef} position={[-20, -4, -7]}>
+			<primitive object={scene} position={[0, 0, 0]} scale={1} rotation={[0, 0, 0]} />
+		</group>
+	);
+};
 
 interface OwnedItem {
 	id: number;
@@ -152,13 +205,22 @@ const MyMiloPage: React.FC = () => {
 						transition={{ delay: 0.2 }}
 					>
 						<div className="milo-light-ray"></div>
-						<motion.img
-							src="/coursMilobg.png"
-							alt="Milo"
-							className="milo-main-img"
-							animate={{ y: [0, -15, 0] }}
-							transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-						/>
+
+						<div style={{ height: "400px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
+							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+								<Environment preset="city" environmentIntensity={1.2} />
+								<directionalLight
+									position={[5, 5, 5]}
+									intensity={0.8}
+									color="#ffffff"
+									castShadow
+								/>
+								{/* Lumière d'appoint (pour déboucher les ombres) */}
+								<ambientLight intensity={0.2} />
+									<MiloModel3D />
+							</Canvas>
+						</div>
+
 						<div className="milo-shadow"></div>
 					</motion.div>
 
