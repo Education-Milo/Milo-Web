@@ -23,10 +23,39 @@ import {
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
 
-const MiloModel3D = () => {
-	const { scene, animations } = useGLTF("/MiloV5.glb");
+interface MiloModel3DProps {
+	hatTrigger: number;
+}
+
+const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
+	const { scene, animations } = useGLTF("/MiloV6.glb");
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
+
+	useEffect(() => {
+		if (hatTrigger === 0) return;
+		const hatName = Object.keys(actions).find((n) => n.toLowerCase() === "hatlook"); //METTRE ANIMATION CHAPEAU
+		const hatAction = hatName ? actions[hatName] : null;
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (hatAction && idleAction) {
+			hatAction.reset().setLoop(THREE.LoopOnce, 1);
+			hatAction.clampWhenFinished = true;
+			hatAction.play().crossFadeFrom(idleAction, 0.3, true);
+
+			const onFinished = (e: any) => {
+				if (e.action === hatAction) {
+					idleAction.reset().play().crossFadeFrom(hatAction, 0.3, true);
+				}
+			};
+
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		}
+	}, [hatTrigger, actions, mixer]);
 
 	useEffect(() => {
 		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
@@ -63,7 +92,7 @@ const MiloModel3D = () => {
 
 	return (
 		<group ref={groupRef} position={[-20, -4, -7]}>
-			<primitive object={scene} position={[0, 0, 0]} scale={1} rotation={[0, 0, 0]} />
+			<primitive object={scene} position={[0, 0, -1]} scale={1} rotation={[0, -0.05, 0]} />
 		</group>
 	);
 };
@@ -134,8 +163,14 @@ const MyMiloPage: React.FC = () => {
 	const [activeCategory, setActiveCategory] = useState<
 		"Personnalisation" | "Classe"
 	>("Personnalisation");
+	const [hatTrigger, setHatTrigger] = useState(0);
 
 	const toggleEquip = (itemId: number) => {
+		const targetItem = lockerItems.find((i) => i.id === itemId);
+		if (targetItem && targetItem.category === "Chapeau") {
+			setHatTrigger((prev) => prev + 1);
+		}
+
 		setLockerItems((prev) =>
 			prev.map((item) => {
 				if (item.id === itemId && item.equipped) {
@@ -206,7 +241,7 @@ const MyMiloPage: React.FC = () => {
 					>
 						<div className="milo-light-ray"></div>
 
-						<div style={{ height: "400px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
+						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
 							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
 								<Environment preset="city" environmentIntensity={1.2} />
 								<directionalLight
@@ -217,7 +252,7 @@ const MyMiloPage: React.FC = () => {
 								/>
 								{/* Lumière d'appoint (pour déboucher les ombres) */}
 								<ambientLight intensity={0.2} />
-									<MiloModel3D />
+									<MiloModel3D hatTrigger={hatTrigger} />
 							</Canvas>
 						</div>
 

@@ -237,7 +237,7 @@ const Scene3D: React.FC<{
 			<ClassroomLighting />
 			<Environment preset="park" />
 			<Classroom modelPath="/classroom.glb" />
-			<MiloModel modelPath="/MiloV5.glb" activeAnimation={activeAnimation} showHat={showHat} showGlasses={showGlasses} />
+			<MiloModel modelPath="/MiloV6.glb" activeAnimation={activeAnimation} showHat={showHat} showGlasses={showGlasses} />
             {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
             <Tableau text={reply || displayedText} isEditing={false} />
             <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
