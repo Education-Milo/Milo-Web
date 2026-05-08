@@ -4,6 +4,7 @@ import React, {
 	useState,
 	useEffect,
 	useCallback,
+	useMemo,
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
@@ -27,6 +28,8 @@ import { useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
+import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
+import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
 
 /* ============================
    3D Models — inchangés
@@ -35,15 +38,21 @@ import "@features/milo-scene/styles/MiloScene.css";
 interface MiloModelProps {
 	modelPath: string;
 	activeAnimation: string;
-	showHat: boolean;
-	showGlasses: boolean;
 }
 
-function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
 	const { scene, animations } = useGLTF(modelPath);
 	const { actions } = useAnimations(animations, group);
 	const prevAnimation = useRef<string | null>(null);
+
+	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
+
+	const equippedMeshNames = useMemo(() => {
+		return equippedItemIds
+			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
+			.filter(Boolean) as string[];
+	}, [equippedItemIds]);
 
 	useEffect(() => {
 		if (!scene) return;
@@ -75,11 +84,14 @@ function MiloModel({ modelPath, activeAnimation, showHat, showGlasses }: MiloMod
 
 	useEffect(() => {
 		if (!scene) return;
+		const knownMeshNames = MILO_ITEMS.map((i) => i.meshName).filter(Boolean) as string[];
+		
 		scene.traverse((child) => {
-			if (child.name === "Hat") child.visible = showHat;
-			if (child.name === "Glasses") child.visible = showGlasses;
+			if (knownMeshNames.includes(child.name)) {
+				child.visible = equippedMeshNames.includes(child.name);
+			}
 		});
-	}, [scene, showHat, showGlasses]);
+	}, [scene, equippedMeshNames]);
 
 	return (
 		<group ref={group}>
@@ -223,21 +235,19 @@ const Scene3D: React.FC<{
 	cameraY: number;
 	reply: string;
 	activeAnimation: string;
-	showHat: boolean;
-	showGlasses: boolean;
 	text: string;
 	isEditing: boolean;
 	onPanelClick: () => void;
 	introActive: boolean;
 	onIntroDone: () => void;
 	displayedText: string;
-}> = ({ cameraY, reply, activeAnimation, showHat, showGlasses, text, isEditing, onPanelClick, introActive, onIntroDone,displayedText }) => (
+}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText }) => (
 <Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
 		<Suspense fallback={null}>
 			<ClassroomLighting />
 			<Environment preset="park" />
 			<Classroom modelPath="/classroom.glb" />
-			<MiloModel modelPath="/MiloV6.glb" activeAnimation={activeAnimation} showHat={showHat} showGlasses={showGlasses} />
+			<MiloModel modelPath="/MiloV7.glb" activeAnimation={activeAnimation} />
             {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
             <Tableau text={reply || displayedText} isEditing={false} />
             <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
@@ -256,13 +266,9 @@ const ANIMATIONS = ["Idle", "Thinking", "Explaining", "Wrong", "Disapointed"] as
 const AnimationControls: React.FC<{
 	activeAnimation: string;
 	onAnimationChange: (anim: string) => void;
-	showHat: boolean;
-	onHatToggle: () => void;
-	showGlasses: boolean;
-	onGlassesToggle: () => void;
 	visible: boolean;
 	onClose: () => void;
-}> = ({ activeAnimation, onAnimationChange, showHat, onHatToggle, showGlasses, onGlassesToggle, visible, onClose }) => (
+}> = ({ activeAnimation, onAnimationChange, visible, onClose }) => (
 	<div className={`controls-panel glass-panel ${!visible ? "collapsed" : ""}`}>
 		<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
 			<h3 style={{ margin: 0 }}>Animations</h3>
@@ -278,16 +284,6 @@ const AnimationControls: React.FC<{
 				{anim}
 			</label>
 		))}
-		<hr />
-		<h3>Accessoires</h3>
-		<label className="control-label" onClick={onHatToggle}>
-			<div className={`toggle-switch ${showHat ? "on" : ""}`}><div className="toggle-knob" /></div>
-			Chapeau
-		</label>
-		<label className="control-label" onClick={onGlassesToggle}>
-			<div className={`toggle-switch ${showGlasses ? "on" : ""}`}><div className="toggle-knob" /></div>
-			Lunettes
-		</label>
 	</div>
 );
 
@@ -449,10 +445,6 @@ const MiloScene: React.FC = () => {
 		isEditing,
 		handlePanelClick,
 		handleIntroDone,
-		showHat,
-		setShowHat,
-		showGlasses,
-		setShowGlasses,
 		showControls,
 		setShowControls,
 		showHelp,
@@ -470,8 +462,6 @@ const MiloScene: React.FC = () => {
 				cameraY={cameraY}
 				reply={reply}
 				activeAnimation={activeAnimation}
-				showHat={showHat}
-				showGlasses={showGlasses}
 				text={question}
 				isEditing={isEditing}
 				onPanelClick={handlePanelClick}
@@ -524,10 +514,6 @@ const MiloScene: React.FC = () => {
 			<AnimationControls
 				activeAnimation={activeAnimation}
 				onAnimationChange={setActiveAnimation}
-				showHat={showHat}
-				onHatToggle={() => setShowHat((h) => !h)}
-				showGlasses={showGlasses}
-				onGlassesToggle={() => setShowGlasses((g) => !g)}
 				visible={showControls}
 				onClose={() => setShowControls(false)}
 			/>

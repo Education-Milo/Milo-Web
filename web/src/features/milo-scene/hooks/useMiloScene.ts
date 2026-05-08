@@ -32,8 +32,6 @@ export const useMiloScene = (lessonId: number) => {
 	const [activeAnimation, setActiveAnimation] = useState("Idle");
 	const [cameraY, setCameraY] = useState(0);
 	const [isEditing, setIsEditing] = useState(false);
-	const [showHat, setShowHat] = useState(true);
-	const [showGlasses, setShowGlasses] = useState(true);
 	const [showControls, setShowControls] = useState(true);
 	const [showHelp, setShowHelp] = useState(false);
 	const [sceneReady, setSceneReady] = useState(false);
@@ -199,10 +197,6 @@ export const useMiloScene = (lessonId: number) => {
 		isEditing,
 		handlePanelClick,
 		handleIntroDone,
-		showHat,
-		setShowHat,
-		showGlasses,
-		setShowGlasses,
 		showControls,
 		setShowControls,
 		showHelp,

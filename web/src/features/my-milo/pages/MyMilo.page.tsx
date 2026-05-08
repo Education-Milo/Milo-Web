@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useRef } from "react";
 import {
 	useGLTF,
 	Environment,
@@ -22,15 +21,37 @@ import {
 } from "lucide-react";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
+import { useMiloInventoryStore } from "../store/miloInventory.store";
+import { MILO_ITEMS } from "../data/miloItems.data";
 
 interface MiloModel3DProps {
 	hatTrigger: number;
 }
 
 const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
-	const { scene, animations } = useGLTF("/MiloV6.glb");
+	const { scene, animations } = useGLTF("/MiloV7.glb");
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
+
+	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
+
+	const equippedMeshNames = React.useMemo(() => {
+		return equippedItemIds
+			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
+			.filter(Boolean) as string[];
+	}, [equippedItemIds]);
+
+	useEffect(() => {
+		if (!scene) return;
+		
+		const knownMeshNames = MILO_ITEMS.map(i => i.meshName).filter(Boolean) as string[];
+
+		scene.traverse((child) => {
+			if (knownMeshNames.includes(child.name)) {
+				child.visible = equippedMeshNames.includes(child.name);
+			}
+		});
+	}, [scene, equippedMeshNames]);
 
 	useEffect(() => {
 		if (hatTrigger === 0) return;
@@ -97,100 +118,25 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 	);
 };
 
-interface OwnedItem {
-	id: number;
-	name: string;
-	category: "Chapeau" | "Vêtement" | "Mobilier" | "Classe";
-	icon: React.ReactNode;
-	rarity: "Commun" | "Rare" | "Épique" | "Légendaire";
-	equipped: boolean;
-}
-
-const initialLocker: OwnedItem[] = [
-	{
-		id: 1,
-		name: "Casquette Milo Orange",
-		category: "Chapeau",
-		icon: "🧢",
-		rarity: "Commun",
-		equipped: true,
-	},
-	{
-		id: 2,
-		name: "T-Shirt Aventurier",
-		category: "Vêtement",
-		icon: "👕",
-		rarity: "Rare",
-		equipped: true,
-	},
-	{
-		id: 3,
-		name: "Lunettes Pixel",
-		category: "Chapeau",
-		icon: "🕶️",
-		rarity: "Épique",
-		equipped: false,
-	},
-	{
-		id: 4,
-		name: "Horloge Moderne Milo",
-		category: "Mobilier",
-		icon: <Clock />,
-		rarity: "Rare",
-		equipped: false,
-	},
-	{
-		id: 5,
-		name: "Cahier de Révisions Milo",
-		category: "Classe",
-		icon: <BookOpenText />,
-		rarity: "Commun",
-		equipped: false,
-	},
-	{
-		id: 6,
-		name: "Couronne Royale",
-		category: "Chapeau",
-		icon: "👑",
-		rarity: "Légendaire",
-		equipped: false,
-	},
-];
-
 const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [lockerItems, setLockerItems] = useState<OwnedItem[]>(initialLocker);
+	const { toggleEquip, isEquipped } = useMiloInventoryStore();
 	const [activeCategory, setActiveCategory] = useState<
 		"Personnalisation" | "Classe"
 	>("Personnalisation");
 	const [hatTrigger, setHatTrigger] = useState(0);
 
-	const toggleEquip = (itemId: number) => {
-		const targetItem = lockerItems.find((i) => i.id === itemId);
+	const handleToggleEquip = (itemId: number) => {
+		const targetItem = MILO_ITEMS.find((i) => i.id === itemId);
 		if (targetItem && targetItem.category === "Chapeau") {
 			setHatTrigger((prev) => prev + 1);
 		}
-
-		setLockerItems((prev) =>
-			prev.map((item) => {
-				if (item.id === itemId && item.equipped) {
-					return { ...item, equipped: false };
-				}
-				if (item.id === itemId && !item.equipped) {
-					return { ...item, equipped: true };
-				}
-				const clickedItem = prev.find((i) => i.id === itemId);
-				if (clickedItem && item.category === clickedItem.category) {
-					return { ...item, equipped: false };
-				}
-				return item;
-			}),
-		);
+		toggleEquip(itemId);
 	};
 
-	const filteredItems = lockerItems.filter((item) => {
+	const filteredItems = MILO_ITEMS.filter((item) => {
 		if (activeCategory === "Personnalisation") {
-			return ["Chapeau", "Vêtement"].includes(item.category);
+			return ["Chapeau", "Lunettes", "Vêtement"].includes(item.category);
 		}
 		return ["Mobilier", "Classe"].includes(item.category);
 	});
@@ -226,7 +172,7 @@ const MyMiloPage: React.FC = () => {
 						</motion.button>
 						<div className="collection-score-pimped">
 							<Crown className="icon-crown-animated" size={22} />
-							<span className="score-val">{lockerItems.length}</span>
+							<span className="score-val">{MILO_ITEMS.length}</span>
 						</div>
 					</div>
 				</motion.header>
@@ -311,10 +257,10 @@ const MyMiloPage: React.FC = () => {
 												</div>
 											</div>
 											<button
-												className={`btn-equip-pimped ${item.equipped ? "active" : ""}`}
-												onClick={() => toggleEquip(item.id)}
+												className={`btn-equip-pimped ${isEquipped(item.id) ? "active" : ""}`}
+												onClick={() => handleToggleEquip(item.id)}
 											>
-												{item.equipped ? (
+												{isEquipped(item.id) ? (
 													<CheckCircle2 size={18} />
 												) : (
 													"Utiliser"
