@@ -9,7 +9,7 @@ export interface OwnedItemDef {
   category: ItemCategory;
   icon: React.ReactNode;
   rarity: ItemRarity;
-  meshName?: string; // Optional: The exact name of the object in the GLTF 3D model
+  meshName?: string;
 }
 
 export const MILO_ITEMS: OwnedItemDef[] = [

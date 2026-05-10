@@ -11,7 +11,6 @@ import {
 import {
 	WandSparkles,
 	Shirt,
-	Clock,
 	Crown,
 	BookOpenText,
 	CheckCircle2,
