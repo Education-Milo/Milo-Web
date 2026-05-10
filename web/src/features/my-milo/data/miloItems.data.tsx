@@ -1,5 +1,4 @@
 import React from "react";
-import { Clock, BookOpenText } from "lucide-react";
 
 export type ItemCategory = "Chapeau" | "Lunettes" | "Vêtement" | "Mobilier" | "Classe";
 export type ItemRarity = "Commun" | "Rare" | "Épique" | "Légendaire";
@@ -16,47 +15,26 @@ export interface OwnedItemDef {
 export const MILO_ITEMS: OwnedItemDef[] = [
   {
     id: 1,
-    name: "Casquette Milo Orange",
+    name: "Haut de forme",
     category: "Chapeau",
-    icon: "🧢",
+    icon: "🎩",
     rarity: "Commun",
     meshName: "tophat",
   },
   {
     id: 2,
-    name: "T-Shirt Aventurier",
-    category: "Vêtement",
-    icon: "👕",
-    rarity: "Rare",
-    meshName: "tie",
-  },
-  {
-    id: 3,
-    name: "Lunettes Pixel",
-    category: "Chapeau",
-    icon: "🕶️",
-    rarity: "Épique",
+    name: "Lunette",
+    category: "Lunettes",
+    icon: "👓",
+    rarity: "Commun",
     meshName: "glasses",
   },
   {
-    id: 4,
-    name: "Horloge Moderne Milo",
-    category: "Mobilier",
-    icon: <Clock />,
+    id: 3,
+    name: "Noeud papillon Noir",
+    category: "Vêtement",
+    icon: <img src="black-bowtie.png" alt="Black-Tie" style={{ width: "76px", height: "76px" }} />,
     rarity: "Rare",
-  },
-  {
-    id: 5,
-    name: "Cahier de Révisions Milo",
-    category: "Classe",
-    icon: <BookOpenText />,
-    rarity: "Commun",
-  },
-  {
-    id: 6,
-    name: "Couronne Royale",
-    category: "Chapeau",
-    icon: "👑",
-    rarity: "Légendaire",
-  },
+    meshName: "tie",
+  }
 ];
