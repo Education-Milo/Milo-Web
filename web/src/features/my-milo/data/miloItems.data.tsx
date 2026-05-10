@@ -36,5 +36,13 @@ export const MILO_ITEMS: OwnedItemDef[] = [
     icon: <img src="black-bowtie.png" alt="Black-Tie" style={{ width: "76px", height: "76px" }} />,
     rarity: "Rare",
     meshName: "tie",
-  }
+  },
+  {
+    id: 4,
+    name: "Lunette 3D",
+    category: "Lunettes",
+    icon: <img src="3dglasses.png" alt="Lunette 3D" style={{ width: "76px", height: "76px" }} />,
+    rarity: "Épique",
+    meshName: "3dglasses",
+  },
 ];
