@@ -127,7 +127,8 @@ const MyMiloPage: React.FC = () => {
 
 	const handleToggleEquip = (itemId: number) => {
 		const targetItem = MILO_ITEMS.find((i) => i.id === itemId);
-		if (targetItem && targetItem.category === "Chapeau") {
+		const isCurrentlyEquipped = isEquipped(itemId);
+		if (targetItem && targetItem.category === "Chapeau" && !isCurrentlyEquipped) {
 			setHatTrigger((prev) => prev + 1);
 		}
 		toggleEquip(itemId);
