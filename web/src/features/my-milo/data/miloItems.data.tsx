@@ -42,7 +42,15 @@ export const MILO_ITEMS: OwnedItemDef[] = [
     name: "Lunette 3D",
     category: "Lunettes",
     icon: <img src="3dglasses.png" alt="Lunette 3D" style={{ width: "76px", height: "76px" }} />,
-    rarity: "Épique",
+    rarity: "Rare",
     meshName: "3dglasses",
+  },
+  {
+    id: 5,
+    name: "Lunette Pixélisée",
+    category: "Lunettes",
+    icon: "🕶️",
+    rarity: "Épique",
+    meshName: "pixelglasses",
   },
 ];

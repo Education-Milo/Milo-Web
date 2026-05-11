@@ -28,7 +28,7 @@ interface MiloModel3DProps {
 }
 
 const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
-	const { scene, animations } = useGLTF("/MiloV8.glb");
+	const { scene, animations } = useGLTF("/MiloV9.glb");
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
 
@@ -189,7 +189,7 @@ const MyMiloPage: React.FC = () => {
 
 						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
 							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-								<Environment preset="city" environmentIntensity={1.2} />
+								<Environment preset="sunset" environmentIntensity={1.2} />
 								<directionalLight
 									position={[5, 5, 5]}
 									intensity={0.8}
