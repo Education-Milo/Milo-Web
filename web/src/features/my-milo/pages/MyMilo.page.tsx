@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import {
+	useGLTF,
+	Environment,
+	useAnimations,
+} from "@react-three/drei";
 import {
 	WandSparkles,
 	Shirt,
-	Clock,
 	Crown,
 	BookOpenText,
 	CheckCircle2,
@@ -14,95 +20,123 @@ import {
 } from "lucide-react";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
+import { useMiloInventoryStore } from "../store/miloInventory.store";
+import { MILO_ITEMS } from "../data/miloItems.data";
 
-interface OwnedItem {
-	id: number;
-	name: string;
-	category: "Chapeau" | "Vêtement" | "Mobilier" | "Classe";
-	icon: React.ReactNode;
-	rarity: "Commun" | "Rare" | "Épique" | "Légendaire";
-	equipped: boolean;
+interface MiloModel3DProps {
+	hatTrigger: number;
 }
 
-const initialLocker: OwnedItem[] = [
-	{
-		id: 1,
-		name: "Casquette Milo Orange",
-		category: "Chapeau",
-		icon: "🧢",
-		rarity: "Commun",
-		equipped: true,
-	},
-	{
-		id: 2,
-		name: "T-Shirt Aventurier",
-		category: "Vêtement",
-		icon: "👕",
-		rarity: "Rare",
-		equipped: true,
-	},
-	{
-		id: 3,
-		name: "Lunettes Pixel",
-		category: "Chapeau",
-		icon: "🕶️",
-		rarity: "Épique",
-		equipped: false,
-	},
-	{
-		id: 4,
-		name: "Horloge Moderne Milo",
-		category: "Mobilier",
-		icon: <Clock />,
-		rarity: "Rare",
-		equipped: false,
-	},
-	{
-		id: 5,
-		name: "Cahier de Révisions Milo",
-		category: "Classe",
-		icon: <BookOpenText />,
-		rarity: "Commun",
-		equipped: false,
-	},
-	{
-		id: 6,
-		name: "Couronne Royale",
-		category: "Chapeau",
-		icon: "👑",
-		rarity: "Légendaire",
-		equipped: false,
-	},
-];
+const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
+	const { scene, animations } = useGLTF("/MiloV9.glb");
+	const { actions, mixer } = useAnimations(animations, scene);
+	const groupRef = useRef<THREE.Group>(null);
+
+	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
+
+	const equippedMeshNames = React.useMemo(() => {
+		return equippedItemIds
+			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
+			.filter(Boolean) as string[];
+	}, [equippedItemIds]);
+
+	useEffect(() => {
+		if (!scene) return;
+		
+		const knownMeshNames = MILO_ITEMS.map(i => i.meshName).filter(Boolean) as string[];
+
+		scene.traverse((child) => {
+			if (knownMeshNames.includes(child.name)) {
+				child.visible = equippedMeshNames.includes(child.name);
+			}
+		});
+	}, [scene, equippedMeshNames]);
+
+	useEffect(() => {
+		if (hatTrigger === 0) return;
+		const hatName = Object.keys(actions).find((n) => n.toLowerCase() === "hatlook"); //METTRE ANIMATION CHAPEAU
+		const hatAction = hatName ? actions[hatName] : null;
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (hatAction && idleAction) {
+			hatAction.reset().setLoop(THREE.LoopOnce, 1);
+			hatAction.clampWhenFinished = true;
+			hatAction.play().crossFadeFrom(idleAction, 0.3, true);
+
+			const onFinished = (e: any) => {
+				if (e.action === hatAction) {
+					idleAction.reset().play().crossFadeFrom(hatAction, 0.3, true);
+				}
+			};
+
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		}
+	}, [hatTrigger, actions, mixer]);
+
+	useEffect(() => {
+		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
+		const arrivalAction = arrivalName ? actions[arrivalName] : null;
+		
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (arrivalAction && idleAction) {
+			arrivalAction.setLoop(THREE.LoopOnce, 1);
+			arrivalAction.clampWhenFinished = true;
+			arrivalAction.reset().play();
+
+			const onFinished = (e: any) => {
+				if (e.action === arrivalAction) {
+					idleAction.reset().crossFadeFrom(arrivalAction, 0.3, true).play();
+				}
+			};
+
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		} else if (idleAction) {
+			idleAction.reset().play();
+		}
+	}, [actions, mixer]);
+
+	useFrame((_state, delta) => {	
+		if (groupRef.current) {
+			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
+		}
+	});
+
+	return (
+		<group ref={groupRef} position={[-20, -4, -7]}>
+			<primitive object={scene} position={[0, 0, -1]} scale={1} rotation={[0, -0.05, 0]} />
+		</group>
+	);
+};
 
 const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [lockerItems, setLockerItems] = useState<OwnedItem[]>(initialLocker);
+	const { toggleEquip, isEquipped } = useMiloInventoryStore();
 	const [activeCategory, setActiveCategory] = useState<
 		"Personnalisation" | "Classe"
 	>("Personnalisation");
+	const [hatTrigger, setHatTrigger] = useState(0);
 
-	const toggleEquip = (itemId: number) => {
-		setLockerItems((prev) =>
-			prev.map((item) => {
-				if (item.id === itemId && item.equipped) {
-					return { ...item, equipped: false };
-				}
-				if (item.id === itemId && !item.equipped) {
-					return { ...item, equipped: true };
-				}
-				const clickedItem = prev.find((i) => i.id === itemId);
-				if (clickedItem && item.category === clickedItem.category) {
-					return { ...item, equipped: false };
-				}
-				return item;
-			}),
-		);
+	const handleToggleEquip = (itemId: number) => {
+		const targetItem = MILO_ITEMS.find((i) => i.id === itemId);
+		const isCurrentlyEquipped = isEquipped(itemId);
+		if (targetItem && targetItem.category === "Chapeau" && !isCurrentlyEquipped) {
+			setHatTrigger((prev) => prev + 1);
+		}
+		toggleEquip(itemId);
 	};
 
-	const filteredItems = lockerItems.filter((item) => {
+	const filteredItems = MILO_ITEMS.filter((item) => {
 		if (activeCategory === "Personnalisation") {
-			return ["Chapeau", "Vêtement"].includes(item.category);
+			return ["Chapeau", "Lunettes", "Vêtement"].includes(item.category);
 		}
 		return ["Mobilier", "Classe"].includes(item.category);
 	});
@@ -138,7 +172,7 @@ const MyMiloPage: React.FC = () => {
 						</motion.button>
 						<div className="collection-score-pimped">
 							<Crown className="icon-crown-animated" size={22} />
-							<span className="score-val">{lockerItems.length}</span>
+							<span className="score-val">{MILO_ITEMS.length}</span>
 						</div>
 					</div>
 				</motion.header>
@@ -152,13 +186,22 @@ const MyMiloPage: React.FC = () => {
 						transition={{ delay: 0.2 }}
 					>
 						<div className="milo-light-ray"></div>
-						<motion.img
-							src="/coursMilobg.png"
-							alt="Milo"
-							className="milo-main-img"
-							animate={{ y: [0, -15, 0] }}
-							transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-						/>
+
+						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
+							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+								<Environment preset="sunset" environmentIntensity={1.2} />
+								<directionalLight
+									position={[5, 5, 5]}
+									intensity={0.8}
+									color="#ffffff"
+									castShadow
+								/>
+								{/* Lumière d'appoint (pour déboucher les ombres) */}
+								<ambientLight intensity={0.2} />
+									<MiloModel3D hatTrigger={hatTrigger} />
+							</Canvas>
+						</div>
+
 						<div className="milo-shadow"></div>
 					</motion.div>
 
@@ -214,10 +257,10 @@ const MyMiloPage: React.FC = () => {
 												</div>
 											</div>
 											<button
-												className={`btn-equip-pimped ${item.equipped ? "active" : ""}`}
-												onClick={() => toggleEquip(item.id)}
+												className={`btn-equip-pimped ${isEquipped(item.id) ? "active" : ""}`}
+												onClick={() => handleToggleEquip(item.id)}
 											>
-												{item.equipped ? (
+												{isEquipped(item.id) ? (
 													<CheckCircle2 size={18} />
 												) : (
 													"Utiliser"
