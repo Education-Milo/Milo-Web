@@ -2,6 +2,8 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "@shared/components/ProtectedRoute.component";
 import RedirectScreen from "@features/auth/pages/Redirect.page";
+import { DuelProvider } from "@features/duels/context/DuelContext";
+import ChallengeNotification from "@features/duels/components/ChallengeNotification";
 
 // Pages communes
 import HomeScreen from "@features/home/pages/Home.page";
@@ -37,6 +39,8 @@ import SubscriptionPage from "@features/parent/pages/Subscription.page";
 
 const AuthNavigator: React.FC = () => {
 	return (
+		<DuelProvider>
+			<ChallengeNotification />
 		<Routes>
 			{/* ==================== PAGE DE REDIRECTION ==================== */}
 
@@ -244,6 +248,7 @@ const AuthNavigator: React.FC = () => {
 
 			<Route path="*" element={<Navigate to="/" replace />} />
 		</Routes>
+		</DuelProvider>
 	);
 };
 
