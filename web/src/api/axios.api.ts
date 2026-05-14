@@ -50,6 +50,7 @@ export const APIRoutes = {
   GET_User_By_Id: (userId: string) => `/users/${userId}`,
   GET_User_Search: '/users/search',
   GET_User_By_Username: (username: string) => `/users/by-username/${username}`,
+  GET_Users_Presence: (ids: string) => `/users/presence?ids=${ids}`,
 
   // Friend API
   GET_Friends: '/friends',
@@ -57,6 +58,14 @@ export const APIRoutes = {
   POST_SEND_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}`,
   PATCH_ACCEPT_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}/accept`,
   PATCH_BLOCK_FRIEND: (friendId: number) => `/friends/${friendId}/block`,
+
+  // Duel API
+  POST_Challenge: (targetUserId: number) => `/duels/challenge/${targetUserId}`,
+  POST_AcceptChallenge: (challengeId: string) => `/duels/challenge/${challengeId}/accept`,
+  POST_DeclineChallenge: (challengeId: string) => `/duels/challenge/${challengeId}/decline`,
+  GET_PendingChallenges: '/duels/pending',
+  GET_DuelHistory: '/duels/history',
+  GET_DuelStats: '/duels/stats',
 
   // Course API
   GET_Subjects: '/get_subjects',
