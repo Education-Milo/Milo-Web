@@ -24,12 +24,16 @@ import {
 	FiChevronRight,
 	FiMessageCircle,
 } from "react-icons/fi";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
 import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
 import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import {
+	useMiloFreeChatStore,
+	type MiloFreeChatSession,
+} from "@features/milo-scene/store/freeChat.store";
 
 /* ============================
    3D Models — inchangés
@@ -320,14 +324,24 @@ const LessonProgressBar: React.FC<{ current: number; total: number; percent: num
 const LessonActions: React.FC<{
 	phase: string;
 	isLastPart: boolean;
+	isFreeChatMode: boolean;
 	onNext: () => void;
 	onAskQuestion: () => void;
 	onBackToLessons: () => void;
-}> = ({ phase, isLastPart, onNext, onAskQuestion, onBackToLessons }) => {
+}> = ({
+	phase,
+	isLastPart,
+	isFreeChatMode,
+	onNext,
+	onAskQuestion,
+	onBackToLessons,
+}) => {
 	if (phase === "loading") {
 		return (
 			<div className="lesson-actions glass-panel">
-				<span className="lesson-loading-text">Milo prépare ton cours...</span>
+				<span className="lesson-loading-text">
+					{isFreeChatMode ? "Milo prépare la discussion..." : "Milo prépare ton cours..."}
+				</span>
 			</div>
 		);
 	}
@@ -335,9 +349,14 @@ const LessonActions: React.FC<{
 	if (phase === "finished") {
 		return (
 			<div className="lesson-actions glass-panel lesson-finished">
-				<p>🎉 Bravo ! Tu as terminé cette leçon !</p>
+				<p>
+					{isFreeChatMode
+						? "Discussion terminée."
+						: "🎉 Bravo ! Tu as terminé cette leçon !"}
+				</p>
 				<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
-					<FiArrowLeft size={16} /> Retour aux leçons
+					<FiArrowLeft size={16} />
+					{isFreeChatMode ? "Retour" : "Retour aux leçons"}
 				</button>
 			</div>
 		);
@@ -351,7 +370,13 @@ const LessonActions: React.FC<{
 					<span>J'ai une question</span>
 				</button>
 				<button className="lesson-btn lesson-btn--primary" onClick={onNext}>
-					<span>{isLastPart ? "Terminer le cours" : "Partie suivante"}</span>
+					<span>
+						{isFreeChatMode
+							? "Terminer la discussion"
+							: isLastPart
+								? "Terminer le cours"
+								: "Partie suivante"}
+					</span>
 					<FiChevronRight size={16} />
 				</button>
 			</div>
@@ -419,6 +444,12 @@ const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
 const MiloScene: React.FC = () => {
 	// Récupère l'id de la leçon depuis les params de route
 	const { lessonId } = useParams<{ lessonId: string }>();
+	const location = useLocation();
+	const storedFreeChatSession = useMiloFreeChatStore((state) => state.session);
+	const routedFreeChatSession = (
+		location.state as { freeChatSession?: MiloFreeChatSession } | null
+	)?.freeChatSession;
+	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
 
 	const {
 		// Lesson
@@ -428,6 +459,7 @@ const MiloScene: React.FC = () => {
 		progressPercent,
 		parts,
 		currentPartIndex,
+		isFreeChatMode,
 
 		// Chat
 		question,
@@ -452,7 +484,7 @@ const MiloScene: React.FC = () => {
 		sceneReady,
 		introActive,
 		showIntroText,
-	} = useMiloScene(Number(lessonId));
+	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession);
 
 	return (
 		<div className="milo-scene-root">
@@ -495,6 +527,7 @@ const MiloScene: React.FC = () => {
 			<LessonActions
 				phase={phase}
 				isLastPart={isLastPart}
+				isFreeChatMode={isFreeChatMode}
 				onNext={handleNextPart}
 				onAskQuestion={handleAskQuestion}
 				onBackToLessons={handleBackToLessons}

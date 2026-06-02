@@ -21,6 +21,9 @@ import ExerciseScreen from "@features/exercices/pages/Exercise.page";
 import MyMiloPage from "@features/my-milo/pages/MyMilo.page";
 import BoutiquePage from "@features/milo-shop/pages/MiloShop.page";
 import FriendsPage from "@features/friends/pages/Friends.page";
+import OcrPage from "@features/ocr/pages/OcrPage";
+import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
+import { ROUTES } from "@shared/constants/routes";
 
 // Pages Parent
 import ParentDashboard from "@features/parent/pages/Dashboard.page";
@@ -85,7 +88,7 @@ const AuthNavigator: React.FC = () => {
 			/>
 
 			<Route
-				path="/courses"
+				path={ROUTES.COURSES}
 				element={
 					<ProtectedRoute allowedRoles={["Enfant"]}>
 						<CoursesPage />
@@ -112,6 +115,24 @@ const AuthNavigator: React.FC = () => {
 			/>
 
 			<Route
+				path={ROUTES.OCR}
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<OcrPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path={ROUTES.GENERATED_EXERCISE}
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<GeneratedExercisePage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
 				path="/missions"
 				element={
 					<ProtectedRoute allowedRoles={["Enfant"]}>
@@ -125,6 +146,15 @@ const AuthNavigator: React.FC = () => {
 				element={
 					<ProtectedRoute allowedRoles={["Enfant"]}>
 						<DuelsPage />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
+				path={ROUTES.QCM_GENERATED}
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ExerciseScreen />
 					</ProtectedRoute>
 				}
 			/>

@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useExerciseStore } from "@features/exercices/store/exercise.store";
 import { ROUTES } from "@shared/constants/routes";
 import type { QcmQuestion } from "@features/exercices/store/exercise.model";
 
+interface QcmLocationState {
+	qcmQuestions?: QcmQuestion[];
+}
+
 export const useExerciseScreen = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { lessonId } = useParams<{ lessonId: string }>();
+	const generatedQuestions = (location.state as QcmLocationState | null)
+		?.qcmQuestions;
 
-	const { post_qcm } = useExerciseStore();
+	const { post_qcm, questions: storedQuestions } = useExerciseStore();
 
 	const [questions, setQuestions] = useState<QcmQuestion[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -22,9 +29,22 @@ export const useExerciseScreen = () => {
 
 	useEffect(() => {
 		if (!lessonId) {
-			navigate(ROUTES.COURSES);
+			const ocrQuestions = Array.isArray(generatedQuestions)
+				? generatedQuestions
+				: Array.isArray(storedQuestions)
+					? storedQuestions
+					: [];
+
+			if (ocrQuestions.length === 0) {
+				setError("Aucun QCM généré à afficher.");
+			} else {
+				setQuestions(ocrQuestions);
+				setError(null);
+			}
+			setLoading(false);
 			return;
 		}
+
 		let isIgnore = false;
 		const fetchQcm = async () => {
 			try {
@@ -44,7 +64,7 @@ export const useExerciseScreen = () => {
 		return () => {
 			isIgnore = true;
 		};
-	}, [lessonId]);
+	}, [generatedQuestions, lessonId, post_qcm, storedQuestions]);
 
 	// Données courantes
 	const totalQuestions = questions.length;

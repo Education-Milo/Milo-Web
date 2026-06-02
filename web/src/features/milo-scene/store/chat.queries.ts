@@ -26,3 +26,19 @@ export const sendChatMessage = async (
     });
     return response.data.reply || response.data.content;
 };
+
+export const sendFreeChatMessage = async (
+    question: string,
+    conversationId: string,
+    context: string = ""
+): Promise<string> => {
+    const formData = new FormData();
+    formData.append("chat_request", question);
+    formData.append("conversation_id", conversationId);
+    formData.append("context", context);
+
+    const response = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data.reply || response.data.content || response.data.message;
+};

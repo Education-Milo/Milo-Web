@@ -1,0 +1,208 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+.backButton,
+.deleteButton,
+.sendButton {
+	border: 0;
+	border-radius: 8px;
+	font-weight: 800;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.backButton {
+	padding: 0.75rem 1rem;
+	background: rgba(255, 255, 255, 0.85);
+	color: #4a3f35;
+}
+
+.typeTag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.65rem 0.9rem;
+	border-radius: 999px;
+	background: rgba(255, 145, 77, 0.14);
+	color: #9a3e16;
+	font-weight: 800;
+}
+
+.dropzone {
+	display: grid;
+	min-height: 360px;
+	place-items: center;
+	padding: 2rem;
+	border: 2px dashed rgba(255, 107, 53, 0.38);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.76);
+	cursor: pointer;
+	transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.dropzone:hover,
+.dragging {
+	border-color: #ff6b35;
+	background: rgba(255, 255, 255, 0.94);
+	transform: translateY(-2px);
+}
+
+.hiddenInput {
+	display: none;
+}
+
+.dropzoneContent {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.8rem;
+	text-align: center;
+}
+
+.dropzoneIcon {
+	font-size: 2.5rem;
+	line-height: 1;
+}
+
+.dropzoneText {
+	color: #2d3748;
+	font-size: 1.1rem;
+	font-weight: 800;
+}
+
+.dropzoneLink {
+	color: #ff6b35;
+}
+
+.dropzoneFormats {
+	color: #77695e;
+	font-size: 0.9rem;
+}
+
+.preview {
+	overflow: hidden;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow: 0 10px 26px rgba(74, 63, 53, 0.08);
+}
+
+.previewImage,
+.previewPdf {
+	display: block;
+	width: 100%;
+	height: min(62vh, 620px);
+	border: 0;
+	object-fit: contain;
+	background: #ffffff;
+}
+
+.previewMeta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem;
+	border-top: 1px solid rgba(74, 63, 53, 0.1);
+}
+
+.previewFileName {
+	overflow: hidden;
+	color: #2d3748;
+	font-weight: 800;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.previewFileSize {
+	flex: 0 0 auto;
+	color: #77695e;
+	font-size: 0.9rem;
+	font-weight: 700;
+}
+
+.errorMessage {
+	padding: 0.9rem 1rem;
+	border-radius: 8px;
+	background: rgba(254, 242, 242, 0.95);
+	color: #991b1b;
+	font-weight: 700;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+}
+
+.deleteButton,
+.sendButton {
+	padding: 0.9rem 1.15rem;
+}
+
+.deleteButton {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.sendButton {
+	min-width: 190px;
+	background: linear-gradient(135deg, #ff914d 0%, #ff6b35 100%);
+	color: #ffffff;
+}
+
+.backButton:hover,
+.deleteButton:hover,
+.sendButton:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 24px rgba(74, 63, 53, 0.12);
+}
+
+.deleteButton:disabled,
+.sendButton:disabled {
+	cursor: not-allowed;
+	opacity: 0.65;
+	transform: none;
+}
+
+.loadingSpinner {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	border: 3px solid rgba(255, 255, 255, 0.45);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 768px) {
+	.header,
+	.actions,
+	.previewMeta {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.typeTag,
+	.backButton,
+	.deleteButton,
+	.sendButton {
+		justify-content: center;
+		width: 100%;
+	}
+}

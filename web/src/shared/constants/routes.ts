@@ -12,6 +12,8 @@ export const ROUTES = {
 
     HOME: '/home',
     MILO: '/milo',
+    QCM_GENERATED: '/qcm',
+    GENERATED_EXERCISE: '/exercice-genere',
     COURSE_MILO: '/course-milo/:lessonId',
     QCM: '/qcm/:lessonId',
     EXERCISE_RESULT: '/exercise-result',
@@ -19,6 +21,7 @@ export const ROUTES = {
     COURSE_DETAIL: '/courses/:subjectId',
     MISSIONS: '/missions',
     DUELS: '/duels',
+    OCR: '/ocr',
 
     PARENT: {
       DASHBOARD: '/parent/dashboard',

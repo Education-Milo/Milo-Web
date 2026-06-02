@@ -1,0 +1,88 @@
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: grid;
+	place-items: center;
+	padding: 1rem;
+	background: rgba(33, 27, 22, 0.48);
+	backdrop-filter: blur(6px);
+}
+
+.modal {
+	width: min(100%, 620px);
+	padding: 1.5rem;
+	border-radius: 8px;
+	background: #ffffff;
+	box-shadow: 0 24px 70px rgba(33, 27, 22, 0.24);
+}
+
+.modalHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-bottom: 1.25rem;
+}
+
+.modalTitle {
+	color: #2d3748;
+	font-size: 1.35rem;
+	font-weight: 800;
+}
+
+.closeButton {
+	display: grid;
+	width: 36px;
+	height: 36px;
+	place-items: center;
+	border: 0;
+	border-radius: 50%;
+	background: #f3f0ec;
+	color: #4a3f35;
+	cursor: pointer;
+	font-weight: 900;
+}
+
+.actionsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 1rem;
+}
+
+.actionCard {
+	display: flex;
+	min-height: 170px;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.65rem;
+	padding: 1.25rem;
+	border: 1px solid rgba(255, 145, 77, 0.22);
+	border-radius: 8px;
+	background: #fffaf5;
+	color: #2d3748;
+	text-align: left;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.actionCard:hover {
+	transform: translateY(-2px);
+	border-color: rgba(255, 107, 53, 0.45);
+	box-shadow: 0 12px 28px rgba(74, 63, 53, 0.12);
+}
+
+.actionIcon {
+	font-size: 2rem;
+	line-height: 1;
+}
+
+.actionLabel {
+	font-size: 1.05rem;
+	font-weight: 800;
+}
+
+.actionDescription {
+	color: #5b5048;
+	line-height: 1.45;
+}
