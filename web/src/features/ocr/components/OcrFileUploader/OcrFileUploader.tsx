@@ -6,7 +6,8 @@ import {
 	MAX_FILE_SIZE_MB,
 	MAX_FILE_SIZE_BYTES,
 } from "@features/ocr/constants/ocr.constants";
-import styles from "./OcrFileUploader.module.css";
+import { ArrowLeft, Trash2, Send } from "lucide-react";
+import "@features/ocr/styles/OcrScreen.css";
 
 interface OcrFileUploaderProps {
 	documentType: OcrDocumentType;
@@ -95,17 +96,18 @@ export const OcrFileUploader: React.FC<OcrFileUploaderProps> = ({
 	const isPdf = selectedFile?.type === "application/pdf";
 
 	return (
-		<div className={styles.container}>
+		<div className="ocr-uploader">
 			{/* ─── Header avec bouton retour ─── */}
-			<div className={styles.header}>
+			<div className="ocr-uploader-header">
 				<button
-					className={styles.backButton}
+					className="ocr-btn-back"
 					onClick={onBack}
 					aria-label="Retour"
 				>
-					← Retour
+					<ArrowLeft size={18} />
+					<span>Retour</span>
 				</button>
-				<div className={styles.typeTag}>
+				<div className="ocr-type-tag">
 					<span>{docOption?.icon}</span>
 					<span>{docOption?.label}</span>
 				</div>
@@ -114,7 +116,7 @@ export const OcrFileUploader: React.FC<OcrFileUploaderProps> = ({
 			{/* ─── Zone d'upload ou prévisualisation ─── */}
 			{!selectedFile ? (
 				<div
-					className={`${styles.dropzone} ${isDragging ? styles.dragging : ""}`}
+					className={`ocr-dropzone ${isDragging ? "ocr-dropzone-dragging" : ""}`}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
@@ -129,39 +131,39 @@ export const OcrFileUploader: React.FC<OcrFileUploaderProps> = ({
 						type="file"
 						accept={ACCEPTED_FILE_FORMATS}
 						onChange={handleInputChange}
-						className={styles.hiddenInput}
+						className="ocr-hidden-input"
 						aria-hidden="true"
 					/>
-					<div className={styles.dropzoneContent}>
-						<span className={styles.dropzoneIcon}>📎</span>
-						<p className={styles.dropzoneText}>
+					<div className="ocr-dropzone-content">
+						<span className="ocr-dropzone-icon">📎</span>
+						<p className="ocr-dropzone-text">
 							Glisse-dépose ton fichier ici ou{" "}
-							<span className={styles.dropzoneLink}>clique pour parcourir</span>
+							<span className="ocr-dropzone-link">clique pour parcourir</span>
 						</p>
-						<p className={styles.dropzoneFormats}>
+						<p className="ocr-dropzone-formats">
 							Formats : {ACCEPTED_FILE_FORMATS} · Max {MAX_FILE_SIZE_MB} Mo
 						</p>
 					</div>
 				</div>
 			) : (
-				<div className={styles.preview}>
+				<div className="ocr-preview">
 					{isImage && previewUrl && (
 						<img
 							src={previewUrl}
 							alt="Prévisualisation du document"
-							className={styles.previewImage}
+							className="ocr-preview-image"
 						/>
 					)}
 					{isPdf && previewUrl && (
 						<iframe
 							src={previewUrl}
 							title="Prévisualisation PDF"
-							className={styles.previewPdf}
+							className="ocr-preview-pdf"
 						/>
 					)}
-					<div className={styles.previewMeta}>
-						<span className={styles.previewFileName}>{selectedFile.name}</span>
-						<span className={styles.previewFileSize}>
+					<div className="ocr-preview-meta">
+						<span className="ocr-preview-filename">{selectedFile.name}</span>
+						<span className="ocr-preview-filesize">
 							{(selectedFile.size / 1024 / 1024).toFixed(2)} Mo
 						</span>
 					</div>
@@ -170,35 +172,39 @@ export const OcrFileUploader: React.FC<OcrFileUploaderProps> = ({
 
 			{/* ─── Erreur ─── */}
 			{fileError && (
-				<p className={styles.errorMessage} role="alert">
+				<p className="ocr-error-message" role="alert">
 					{fileError}
 				</p>
 			)}
 
 			{/* ─── Actions (visibles uniquement si un fichier est sélectionné) ─── */}
 			{selectedFile && (
-				<div className={styles.actions}>
+				<div className="ocr-actions">
 					<button
-						className={styles.deleteButton}
+						className="ocr-btn-delete"
 						onClick={onDelete}
 						disabled={isLoading}
 						aria-label="Supprimer le fichier"
 					>
-						🗑 Supprimer
+						<Trash2 size={18} />
+						<span>Supprimer</span>
 					</button>
 					<button
-						className={styles.sendButton}
+						className="ocr-btn-send"
 						onClick={onSend}
 						disabled={isLoading}
 						aria-label="Envoyer le document"
 					>
 						{isLoading ? (
 							<span
-								className={styles.loadingSpinner}
+								className="ocr-loading-spinner"
 								aria-label="Chargement..."
 							/>
 						) : (
-							"✉ Envoyer le document"
+							<>
+								<Send size={18} />
+								<span>Envoyer le document</span>
+							</>
 						)}
 					</button>
 				</div>

@@ -4,7 +4,9 @@ import { OcrTypeSelector } from "@features/ocr/components/OcrTypeSelector/OcrTyp
 import { OcrFileUploader } from "@features/ocr/components/OcrFileUploader/OcrFileUploader";
 import { OcrActionModal } from "../components/OcrActionModal/OcrActionModal";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import styles from "./OcrPage.module.css";
+import { Sparkles } from "lucide-react";
+import miloGreeting from "/buttonGo.webp";
+import "@features/ocr/styles/OcrScreen.css";
 
 /**
  * Page principale du workflow OCR.
@@ -34,8 +36,26 @@ const OcrPage: React.FC = () => {
 
 	return (
 		<ScreenLayout>
-			<section className={styles.page}>
-				<div className={styles.content}>
+			<div className="ocr-page">
+				<div className="ocr-content">
+					{/* ─── Hero ─── */}
+					<section className="ocr-hero">
+						<div className="ocr-hero-halo" aria-hidden="true" />
+						<div className="ocr-hero-left">
+							<img src={miloGreeting} alt="Milo" className="ocr-hero-mascot" />
+						</div>
+						<div className="ocr-hero-center">
+							<div className="ocr-hero-chip">
+								<Sparkles size={14} />
+								<span>Import intelligent</span>
+							</div>
+							<h1 className="ocr-hero-title">Importer un document</h1>
+							<p className="ocr-hero-sub">
+								Scanne tes cours, exercices ou bulletins et laisse Milo les analyser pour toi.
+							</p>
+						</div>
+					</section>
+
 					{/* ─── Étape 1 : Sélection du type ─── */}
 					{step === "select_type" && (
 						<OcrTypeSelector onSelect={handleTypeSelect} />
@@ -67,7 +87,7 @@ const OcrPage: React.FC = () => {
 
 					{/* ─── Erreur globale ─── */}
 					{error && (
-						<div className={styles.errorBanner} role="alert">
+						<div className="ocr-error-banner" role="alert">
 							<span>⚠️</span>
 							<span>
 								{error.message || "Une erreur est survenue lors de l'envoi."}
@@ -75,7 +95,7 @@ const OcrPage: React.FC = () => {
 						</div>
 					)}
 				</div>
-			</section>
+			</div>
 		</ScreenLayout>
 	);
 };

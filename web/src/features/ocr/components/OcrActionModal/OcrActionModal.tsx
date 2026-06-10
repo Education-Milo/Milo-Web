@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import type { OcrAction, OcrDocumentType } from "@features/ocr/types/ocr.types";
 import { OCR_ACTIONS_BY_TYPE } from "@features/ocr/constants/ocr.constants";
-import styles from "./OcrActionModal.module.css";
+import "@features/ocr/styles/OcrScreen.css";
 
 interface OcrActionModalProps {
 	isOpen: boolean;
@@ -51,20 +51,20 @@ export const OcrActionModal: React.FC<OcrActionModalProps> = ({
 
 	return (
 		<div
-			className={styles.overlay}
+			className="ocr-modal-overlay"
 			onClick={(e) => e.target === e.currentTarget && onClose()}
 			role="dialog"
 			aria-modal="true"
 			aria-label="Choisir une action"
 		>
-			<div className={styles.modal} ref={dialogRef}>
+			<div className="ocr-modal" ref={dialogRef}>
 				{/* ─── Header ─── */}
-				<div className={styles.modalHeader}>
-					<h2 className={styles.modalTitle}>
+				<div className="ocr-modal-header">
+					<h2 className="ocr-modal-title">
 						{titleByType[documentType as "cours" | "exercice"]}
 					</h2>
 					<button
-						className={styles.closeButton}
+						className="ocr-modal-close"
 						onClick={onClose}
 						aria-label="Fermer"
 					>
@@ -73,16 +73,17 @@ export const OcrActionModal: React.FC<OcrActionModalProps> = ({
 				</div>
 
 				{/* ─── Actions ─── */}
-				<div className={styles.actionsGrid}>
+				<div className="ocr-modal-grid">
 					{actions.map((option) => (
 						<button
 							key={option.action}
-							className={styles.actionCard}
+							className="ocr-action-card"
 							onClick={() => onConfirm(option.action)}
 						>
-							<span className={styles.actionIcon}>{option.icon}</span>
-							<span className={styles.actionLabel}>{option.label}</span>
-							<span className={styles.actionDescription}>
+							<div className="ocr-action-card-shine" aria-hidden="true" />
+							<div className="ocr-action-icon">{option.icon}</div>
+							<span className="ocr-action-label">{option.label}</span>
+							<span className="ocr-action-description">
 								{option.description}
 							</span>
 						</button>

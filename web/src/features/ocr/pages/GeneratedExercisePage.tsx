@@ -6,7 +6,7 @@ import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
 import { useGeneratedExerciseStore } from "../store/generatedExercise.store";
 import type { GeneratedExercise } from "../types/ocr.types";
-import styles from "./GeneratedExercisePage.module.css";
+import "@features/ocr/styles/OcrScreen.css";
 
 interface GeneratedExerciseLocationState {
 	generatedExercise?: GeneratedExercise;
@@ -140,67 +140,67 @@ const GeneratedExercisePage: React.FC = () => {
 	if (!generatedExercise) {
 		return (
 			<ScreenLayout>
-				<section className={styles.page}>
-					<div className={styles.emptyState}>
+				<div className="ocr-page">
+					<div className="ocr-empty-state">
 						<h1>Aucun exercice généré</h1>
 						<p>Importe d'abord un exercice pour générer un énoncé similaire.</p>
 						<button type="button" onClick={() => navigate(ROUTES.OCR)}>
 							Retour à l'import
 						</button>
 					</div>
-				</section>
+				</div>
 			</ScreenLayout>
 		);
 	}
 
 	return (
 		<ScreenLayout>
-			<section className={styles.page}>
-				<div className={`${styles.toolbar} ${styles.noPrint}`}>
+			<div className="ocr-page">
+				<div className={`ocr-ex-toolbar ocr-no-print`}>
 					<button
 						type="button"
-						className={styles.secondaryButton}
+						className="ocr-btn-secondary"
 						onClick={() => navigate(ROUTES.OCR)}
 					>
 						<ArrowLeft size={18} />
 						<span>Nouvel import</span>
 					</button>
-					<button type="button" className={styles.primaryButton} onClick={printExercise}>
+					<button type="button" className="ocr-btn-primary" onClick={printExercise}>
 						<Download size={18} />
 						<span>Exporter en PDF</span>
 					</button>
 				</div>
 
-				<div className={styles.layout}>
-					<article className={styles.exerciseSheet}>
-						<header className={styles.sheetHeader}>
+				<div className="ocr-ex-layout">
+					<article className="ocr-ex-sheet">
+						<header className="ocr-ex-sheet-header">
 							<div>
-								<p className={styles.sheetEyebrow}>Exercice similaire</p>
+								<p className="ocr-ex-eyebrow">Exercice similaire</p>
 								<h1>Travail à faire</h1>
 							</div>
-							<div className={styles.sheetMeta}>
+							<div className="ocr-ex-sheet-meta">
 								<span>Nom :</span>
 								<span>Date :</span>
 								<span>Classe :</span>
 							</div>
 						</header>
 
-						<div className={styles.instructions}>
+						<div className="ocr-ex-instructions">
 							<p>
 								Lis attentivement l'énoncé, rédige les étapes de ton raisonnement
 								et justifie les résultats obtenus.
 							</p>
 						</div>
 
-						<div className={styles.statement}>
+						<div className="ocr-ex-statement">
 							{exerciseParagraphs.map((paragraph, index) => (
 								<p key={`${paragraph}-${index}`}>{paragraph}</p>
 							))}
 						</div>
 					</article>
 
-					<aside className={`${styles.helpPanel} ${styles.noPrint}`}>
-						<section className={styles.answerBox}>
+					<aside className={`ocr-ex-help ocr-no-print`}>
+						<section className="ocr-ex-answer-box">
 							<h2>Ma réponse</h2>
 							<textarea
 								value={studentAnswer}
@@ -209,9 +209,9 @@ const GeneratedExercisePage: React.FC = () => {
 							/>
 						</section>
 
-						<section className={styles.hintsBox}>
+						<section className="ocr-ex-hints-box">
 							<h2>Indices de Milo</h2>
-							{hintError && <p className={styles.errorMessage}>{hintError}</p>}
+							{hintError && <p className="ocr-hint-error">{hintError}</p>}
 
 							{hints.map((hint, index) => {
 								const lockedUntil = hint.unlockAt ? hint.unlockAt - now : 0;
@@ -223,17 +223,17 @@ const GeneratedExercisePage: React.FC = () => {
 								return (
 									<div
 										key={`hint-${index + 1}`}
-										className={`${styles.hintCard} ${isLocked ? styles.locked : ""}`}
+										className={`ocr-hint-card ${isLocked ? "ocr-hint-card-locked" : ""}`}
 									>
-										<div className={styles.hintHeader}>
+										<div className="ocr-hint-header">
 											<div>
-												<span className={styles.hintIcon}>
+												<span className="ocr-hint-icon">
 													<Lightbulb size={16} />
 												</span>
 												<strong>Indice {index + 1}</strong>
 											</div>
 											{isLocked && lockedUntil > 0 && (
-												<span className={styles.timer}>
+												<span className="ocr-hint-timer">
 													<Clock size={14} />
 													{formatTimeLeft(lockedUntil)}
 												</span>
@@ -241,13 +241,13 @@ const GeneratedExercisePage: React.FC = () => {
 										</div>
 
 										{hint.content ? (
-											<p className={styles.hintContent}>{hint.content}</p>
+											<p className="ocr-hint-content">{hint.content}</p>
 										) : (
 											<button
 												type="button"
 												onClick={() => getHint(index)}
 												disabled={!canUseHint(index)}
-												className={styles.hintButton}
+												className="ocr-btn-hint"
 											>
 												{hint.isLoading ? "Milo réfléchit..." : "Afficher l'indice"}
 											</button>
@@ -259,7 +259,7 @@ const GeneratedExercisePage: React.FC = () => {
 							{canShowAnswer && !showAnswer && (
 								<button
 									type="button"
-									className={styles.answerButton}
+									className="ocr-btn-show-answer"
 									onClick={() => setShowAnswer(true)}
 								>
 									<Eye size={18} />
@@ -268,7 +268,7 @@ const GeneratedExercisePage: React.FC = () => {
 							)}
 
 							{showAnswer && (
-								<div className={styles.solutionBox}>
+								<div className="ocr-ex-solution-box">
 									<h3>Correction</h3>
 									{answerParagraphs.map((paragraph, index) => (
 										<p key={`${paragraph}-${index}`}>{paragraph}</p>
@@ -278,7 +278,7 @@ const GeneratedExercisePage: React.FC = () => {
 						</section>
 					</aside>
 				</div>
-			</section>
+			</div>
 		</ScreenLayout>
 	);
 };
