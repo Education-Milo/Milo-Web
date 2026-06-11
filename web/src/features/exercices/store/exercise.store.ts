@@ -26,6 +26,14 @@ export const useExerciseStore = create<ExerciseStore>((set) => ({
 		}
 	},
 
+	set_qcm: (questions: QcmQuestion[]) => {
+		set({
+			questions: Array.isArray(questions) ? questions : [],
+			loading: false,
+			error: null,
+		});
+	},
+
 	reset: () => {
 		set({ questions: [], loading: false, error: null });
 	},

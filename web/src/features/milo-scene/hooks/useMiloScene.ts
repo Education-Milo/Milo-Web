@@ -1,7 +1,12 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchLessonParts, sendChatMessage } from "@features/milo-scene/store/chat.queries";
+import {
+	fetchLessonParts,
+	sendChatMessage,
+	sendFreeChatMessage,
+} from "@features/milo-scene/store/chat.queries";
 import type { LessonPart } from "@features/milo-scene/store/chat.model";
+import type { MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -15,8 +20,12 @@ export type LessonPhase =
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
-export const useMiloScene = (lessonId: number) => {
+export const useMiloScene = (
+	lessonId?: number,
+	freeChatSession?: MiloFreeChatSession | null,
+) => {
 	const navigate = useNavigate();
+	const isFreeChatMode = Boolean(freeChatSession);
 
 	// ── Lesson state ──────────────────────────────────────────────────────────
 	const [parts, setParts] = useState<LessonPart[]>([]);
@@ -46,6 +55,12 @@ export const useMiloScene = (lessonId: number) => {
 
 	// ─── Chargement du cours ─────────────────────────────────────────────────
 	useEffect(() => {
+		if (isFreeChatMode) return;
+		if (!lessonId || Number.isNaN(lessonId)) {
+			setPhase("waiting");
+			return;
+		}
+
 		const controller = new AbortController();
 
 		const load = async () => {
@@ -63,7 +78,23 @@ export const useMiloScene = (lessonId: number) => {
 
 		load();
 		return () => { controller.abort(); }; // Nettoyage
-	}, [lessonId]);
+	}, [lessonId, isFreeChatMode]);
+
+	// ─── Session OCR / chat libre ─────────────────────────────────────────────
+	useEffect(() => {
+		if (!freeChatSession) return;
+
+		setParts([
+			{
+				id: 1,
+				title: freeChatSession.sourceLabel,
+				content: freeChatSession.initialReply,
+			},
+		]);
+		setCurrentPartIndex(0);
+		setReply("");
+		setPhase("reading");
+	}, [freeChatSession]);
 
 	// ─── Typewriter : affiche le texte de la partie courante caractère par caractère
 	useEffect(() => {
@@ -92,6 +123,12 @@ export const useMiloScene = (lessonId: number) => {
 	// ─── Passer à la partie suivante ─────────────────────────────────────────
 	const handleNextPart = useCallback(() => {
 		const nextIndex = currentPartIndex + 1;
+		if (isFreeChatMode) {
+			setPhase("finished");
+			setActiveAnimation("Idle");
+			return;
+		}
+
 		if (nextIndex >= parts.length) {
 			setPhase("finished");
 			setActiveAnimation("Idle");
@@ -100,7 +137,7 @@ export const useMiloScene = (lessonId: number) => {
 			setReply("");
 			setPhase("reading");
 		}
-	}, [currentPartIndex, parts.length]);
+	}, [currentPartIndex, parts.length, isFreeChatMode]);
 
 	// ─── Ouvrir le mode question ──────────────────────────────────────────────
 	const handleAskQuestion = useCallback(() => {
@@ -113,16 +150,23 @@ export const useMiloScene = (lessonId: number) => {
 	const handleSendQuestion = useCallback(async () => {
 		if (!question.trim()) return;
 
-		const currentPart = parts[currentPartIndex];
-		if (!currentPart) return;
-
 		setPhase("answering");
 		setActiveAnimation("Thinking");
 		setCameraY(0);
 		setIsEditing(false);
 
 		try {
-			const response = await sendChatMessage(currentPart.content, question);
+			const currentPart = parts[currentPartIndex];
+			if (!isFreeChatMode && !currentPart) return;
+
+			const response =
+				isFreeChatMode && freeChatSession
+					? await sendFreeChatMessage(
+							question,
+							freeChatSession.conversationId,
+							freeChatSession.context,
+						)
+					: await sendChatMessage(currentPart?.content ?? "", question);
 			setReply(response);
 			setActiveAnimation("Explaining");
 
@@ -138,7 +182,7 @@ export const useMiloScene = (lessonId: number) => {
 		}
 
 		setQuestion("");
-	}, [question, parts, currentPartIndex]);
+	}, [question, parts, currentPartIndex, isFreeChatMode, freeChatSession]);
 
 	// ─── Clic sur la feuille 3D ───────────────────────────────────────────────
 	const handlePanelClick = useCallback(() => {
@@ -180,6 +224,8 @@ export const useMiloScene = (lessonId: number) => {
 		displayedText,
 		isLastPart,
 		progressPercent,
+		isFreeChatMode,
+		sourceLabel: freeChatSession?.sourceLabel,
 
 		// Chat
 		question,

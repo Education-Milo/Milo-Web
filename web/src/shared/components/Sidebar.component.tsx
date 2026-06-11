@@ -28,6 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const studentNavItems = [
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠" },
 		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", badge: 3 },
+		{ label: "Import document", path: ROUTES.OCR, icon: "📄" },
 		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅" },
 		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️" },
 		{ label: "Boutique", path: "/boutique", icon: "🛍️" },

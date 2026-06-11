@@ -16,6 +16,7 @@ export interface ExerciseState {
 
 export interface ExerciseActions {
     post_qcm: (lessonId: number) => Promise<QcmQuestion[]>;
+    set_qcm: (questions: QcmQuestion[]) => void;
     reset: () => void;
 }
 
