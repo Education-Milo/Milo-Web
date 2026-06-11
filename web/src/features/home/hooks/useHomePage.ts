@@ -3,15 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@shared/store/user/user.store";
 import { ROUTES } from "@shared/constants/routes";
 
-export interface Mission {
-	id: number;
-	title: string;
-	description: string;
-	category: string;
-	points: number;
-	status: "completed" | "pending";
-}
-
 export const useHomePage = () => {
 	const { user, getMe } = useUserStore();
 	const navigate = useNavigate();
@@ -19,36 +10,6 @@ export const useHomePage = () => {
 	const [welcomeMessage, setWelcomeMessage] = useState(
 		"Bon retour, champion ! 🎉",
 	);
-	const [missions, setMissions] = useState<Mission[]>([
-		{
-			id: 1,
-			title: "Révision quotidienne",
-			description: "Mission accomplie avec brio !",
-			category: "GÉNÉRAL",
-			points: 50,
-			status: "completed",
-		},
-		{
-			id: 2,
-			title: "Vocabulaire anglais",
-			description: "Apprendre 10 nouveaux mots",
-			category: "ANGLAIS",
-			points: 30,
-			status: "pending",
-		},
-		{
-			id: 3,
-			title: "Exercices de mathématiques",
-			description: "Résoudre 5 problèmes de géométrie",
-			category: "MATHÉMATIQUES",
-			points: 40,
-			status: "pending",
-		},
-	]);
-
-	const completedMissionsCount = missions.filter(
-		(m) => m.status === "completed",
-	).length;
 
 	useEffect(() => {
 		const hour = new Date().getHours();
@@ -69,29 +30,12 @@ export const useHomePage = () => {
 		}
 	}, [user, getMe]);
 
-	const handleMissionClick = (missionId: number) => {
-		setMissions((prevMissions) =>
-			prevMissions.map((mission) =>
-				mission.id === missionId && mission.status === "pending"
-					? {
-							...mission,
-							status: "completed",
-							description: "Mission accomplie avec brio !",
-						}
-					: mission,
-			),
-		);
-	};
-
 	const handleMiloClick = () => {
 		navigate(ROUTES.MILO);
 	};
 
 	return {
 		welcomeMessage,
-		missions,
-		completedMissionsCount,
-		handleMissionClick,
 		handleMiloClick,
 	};
 };

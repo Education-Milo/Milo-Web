@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
 	BookOpenText,
 	Bell,
@@ -10,6 +11,8 @@ import {
 } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { useHomePage } from "@features/home/hooks/useHomePage";
+import { useDailyMissions } from "@features/missions/store/dailyMissions.store";
+import { ROUTES } from "@shared/constants/routes";
 import "@features/home/styles/Home.css";
 
 const ANNOUNCEMENTS = [
@@ -44,13 +47,16 @@ const ANNOUNCEMENTS = [
 ];
 
 const HomePage: React.FC = () => {
-	const {
-		welcomeMessage,
-		missions,
-		completedMissionsCount,
-		handleMissionClick,
-		handleMiloClick,
-	} = useHomePage();
+	const navigate = useNavigate();
+	const { welcomeMessage, handleMiloClick } = useHomePage();
+	const missions = useDailyMissions();
+	const completedMissionsCount = missions.filter(
+		(mission) => mission.progressCurrent >= mission.progressTotal,
+	).length;
+
+	const handleMissionClick = () => {
+		navigate(ROUTES.COURSES);
+	};
 
 	return (
 		<ScreenLayout>
@@ -87,8 +93,17 @@ const HomePage: React.FC = () => {
 								<img src="/miloBook.webp" alt="" className="hp-welcome-img" />
 							</div>
 						</section>
-						<button type="button" className="hp-milo-banner" onClick={handleMiloClick} aria-label="Discuter avec Milo">
-							<img src="/discuter_milo.jpg" alt="Discute avec Milo" className="hp-milo-banner-img" />
+						<button
+							type="button"
+							className="hp-milo-banner"
+							onClick={handleMiloClick}
+							aria-label="Discuter avec Milo"
+						>
+							<img
+								src="/discuter_milo.jpg"
+								alt="Discute avec Milo"
+								className="hp-milo-banner-img"
+							/>
 							<div className="hp-milo-banner-shine" aria-hidden="true" />
 							<div className="hp-milo-banner-shine-2" aria-hidden="true" />
 						</button>
@@ -149,13 +164,14 @@ const HomePage: React.FC = () => {
 
 							<div className="hp-missions-list">
 								{missions.map((mission, i) => {
-									const isDone = mission.status === "completed";
+									const isDone =
+										mission.progressCurrent >= mission.progressTotal;
 									return (
 										<button
 											type="button"
 											key={mission.id}
 											className={`hp-mission ${isDone ? "done" : "pending"}`}
-											onClick={() => handleMissionClick(mission.id)}
+											onClick={handleMissionClick}
 											style={{ animationDelay: `${0.5 + i * 0.1}s` }}
 										>
 											<div className="hp-mission-icon-wrap">
@@ -171,14 +187,18 @@ const HomePage: React.FC = () => {
 														{mission.title}
 													</h3>
 													<span className="hp-mission-points">
-														+{mission.points} pts
+														{isDone
+															? "Terminé"
+															: `+${mission.rewardPoints} pts`}
 													</span>
 												</div>
 												<p className="hp-mission-desc">
-													{mission.description}
+													{isDone
+														? "Mission accomplie avec brio !"
+														: `${Math.min(mission.progressCurrent, mission.progressTotal)}/${mission.progressTotal} réalisé`}
 												</p>
 												<span className="hp-mission-category">
-													{mission.category}
+													QCM
 												</span>
 											</div>
 										</button>
