@@ -8,14 +8,21 @@ interface QcmLocationState {
 	qcmQuestions?: QcmQuestion[];
 }
 
+const createAttemptId = () => {
+	if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+		return crypto.randomUUID();
+	}
+
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 export const useExerciseScreen = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { lessonId } = useParams<{ lessonId: string }>();
 	const generatedQuestions = (location.state as QcmLocationState | null)
 		?.qcmQuestions;
-
-	const { post_qcm, questions: storedQuestions } = useExerciseStore();
+	const postQcm = useExerciseStore((state) => state.post_qcm);
 
 	const [questions, setQuestions] = useState<QcmQuestion[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -26,9 +33,11 @@ export const useExerciseScreen = () => {
 	const [streak, setStreak] = useState(0);
 	const [showStreakAnimation, setShowStreakAnimation] = useState(false);
 	const [showFireworks, setShowFireworks] = useState(false);
+	const [attemptId] = useState(createAttemptId);
 
 	useEffect(() => {
 		if (!lessonId) {
+			const storedQuestions = useExerciseStore.getState().questions;
 			const ocrQuestions = Array.isArray(generatedQuestions)
 				? generatedQuestions
 				: Array.isArray(storedQuestions)
@@ -49,7 +58,8 @@ export const useExerciseScreen = () => {
 		const fetchQcm = async () => {
 			try {
 				setLoading(true);
-				const data = await post_qcm(Number(lessonId));
+				setError(null);
+				const data = await postQcm(Number(lessonId));
 				if (!isIgnore) {
 					setQuestions(data);
 				}
@@ -64,7 +74,7 @@ export const useExerciseScreen = () => {
 		return () => {
 			isIgnore = true;
 		};
-	}, [generatedQuestions, lessonId, post_qcm, storedQuestions]);
+	}, [generatedQuestions, lessonId, postQcm]);
 
 	// Données courantes
 	const totalQuestions = questions.length;
@@ -108,7 +118,7 @@ export const useExerciseScreen = () => {
 			setSelectedAnswer(null);
 		} else {
 			navigate(ROUTES.EXERCISE_RESULT, {
-				state: { score, total: totalQuestions },
+				state: { score, total: totalQuestions, attemptId },
 			});
 		}
 	};

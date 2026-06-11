@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Home, RefreshCcw, Trophy } from 'lucide-react';
+import { recordQcmMissionProgress } from '@features/missions/store/dailyMissions.store';
 import '@features/exercices/styles/ExerciseScreen.css';
+
+const createFallbackAttemptId = () =>
+  `result-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 const ExerciseResultScreen: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { score, total, theme } = location.state || {};
+  const { score, total, theme, attemptId } = location.state || {};
+  const fallbackAttemptId = useRef(createFallbackAttemptId());
 
-  if (typeof score === 'undefined') return <Navigate to="/home" replace />;
+  useEffect(() => {
+    if (typeof score !== 'number' || typeof total !== 'number') return;
+
+    recordQcmMissionProgress({
+      attemptId: typeof attemptId === 'string' ? attemptId : fallbackAttemptId.current,
+      score,
+      total,
+    });
+  }, [attemptId, score, total]);
+
+  if (typeof score === 'undefined' || typeof total === 'undefined') {
+    return <Navigate to="/home" replace />;
+  }
 
   const percentage = Math.round((score / total) * 100);
   let message = "";
