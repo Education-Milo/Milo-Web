@@ -121,6 +121,7 @@
 .lesson-finished {
     flex-direction: column;
     text-align: center;
+    width: min(760px, calc(100vw - 2rem));
 }
 
 .lesson-finished p {
@@ -128,6 +129,14 @@
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
+}
+
+.lesson-finished-choices {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
 }
 
 .lesson-loading-text {
@@ -146,6 +155,7 @@
     font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .lesson-btn--primary {
@@ -167,6 +177,31 @@
 .lesson-btn--secondary:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: translateY(-2px);
+}
+
+.lesson-btn--active {
+    background: rgba(255, 107, 53, 0.9);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: white;
+}
+
+@media (max-width: 640px) {
+    .lesson-actions {
+        width: min(100% - 2rem, 420px);
+        flex-direction: column;
+        bottom: 4.5rem;
+    }
+
+    .lesson-btn {
+        justify-content: center;
+        width: 100%;
+        white-space: normal;
+    }
+
+    .lesson-progress-bar {
+        min-width: 0;
+        width: min(100% - 2rem, 420px);
+    }
 }
 
 
@@ -351,6 +386,29 @@
   z-index: 10;
   width: min(600px, 90vw);
   animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+.review-board-btn {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.review-board-btn:hover {
+  background: rgba(255, 107, 53, 0.85);
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .chat-input-wrapper {

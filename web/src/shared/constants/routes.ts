@@ -15,6 +15,7 @@ export const ROUTES = {
     QCM_GENERATED: '/qcm',
     GENERATED_EXERCISE: '/exercice-genere',
     COURSE_MILO: '/course-milo/:lessonId',
+    COURSE_MILO_OPEN_QUESTION: '/course-milo/:lessonId/question-ouverte',
     QCM: '/qcm/:lessonId',
     EXERCISE_RESULT: '/exercise-result',
     COURSES: '/courses',

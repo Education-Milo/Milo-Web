@@ -42,3 +42,33 @@ export const sendFreeChatMessage = async (
     });
     return response.data.reply || response.data.content || response.data.message;
 };
+
+const extractChatText = (data: any) =>
+    String(data?.reply ?? data?.content ?? data?.message ?? "").trim();
+
+const extractConversationId = (data: any) =>
+    String(data?.conversation_id ?? data?.conversationId ?? "").trim();
+
+export const sendOpenQuestionChatMessage = async ({
+    chatRequest,
+    conversationId,
+}: {
+    chatRequest: string;
+    conversationId?: string;
+}): Promise<{ text: string; conversationId: string }> => {
+    const formData = new FormData();
+    formData.append("chat_request", chatRequest);
+
+    if (conversationId) {
+        formData.append("conversation_id", conversationId);
+    }
+
+    const response = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return {
+        text: extractChatText(response.data),
+        conversationId: extractConversationId(response.data),
+    };
+};

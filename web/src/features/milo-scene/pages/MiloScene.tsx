@@ -21,8 +21,12 @@ import {
 	FiX,
 	FiHelpCircle,
 	FiArrowLeft,
+	FiArrowUp,
 	FiChevronRight,
 	FiMessageCircle,
+	FiCheckCircle,
+	FiEdit3,
+	FiRefreshCw,
 } from "react-icons/fi";
 import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
@@ -325,22 +329,52 @@ const LessonActions: React.FC<{
 	phase: string;
 	isLastPart: boolean;
 	isFreeChatMode: boolean;
+	isOpenQuestionMode: boolean;
+	openQuestionPhase: string;
+	openQuestionInputMode: "answer" | "help";
 	onNext: () => void;
 	onAskQuestion: () => void;
+	onOpenQuestionModeChange: (mode: "answer" | "help") => void;
 	onBackToLessons: () => void;
+	onStartQcm: () => void;
+	onStartOpenQuestion: () => void;
+	onOpenQuestionNewQuestion: () => void;
 }> = ({
 	phase,
 	isLastPart,
 	isFreeChatMode,
+	isOpenQuestionMode,
+	openQuestionPhase,
+	openQuestionInputMode,
 	onNext,
 	onAskQuestion,
+	onOpenQuestionModeChange,
 	onBackToLessons,
+	onStartQcm,
+	onStartOpenQuestion,
+	onOpenQuestionNewQuestion,
 }) => {
 	if (phase === "loading") {
 		return (
 			<div className="lesson-actions glass-panel">
 				<span className="lesson-loading-text">
-					{isFreeChatMode ? "Milo prépare la discussion..." : "Milo prépare ton cours..."}
+					{isFreeChatMode
+						? "Milo prépare la discussion..."
+						: isOpenQuestionMode
+							? "Milo prépare une question..."
+						: "Milo prépare ton cours..."}
+				</span>
+			</div>
+		);
+	}
+
+	if (isOpenQuestionMode && phase === "answering") {
+		return (
+			<div className="lesson-actions glass-panel">
+				<span className="lesson-loading-text">
+					{openQuestionPhase === "helping"
+						? "Milo prépare une aide..."
+						: "Milo corrige ta réponse..."}
 				</span>
 			</div>
 		);
@@ -352,17 +386,72 @@ const LessonActions: React.FC<{
 				<p>
 					{isFreeChatMode
 						? "Discussion terminée."
+						: isOpenQuestionMode
+							? "Tu peux continuer la discussion ou revenir aux cours."
 						: "🎉 Bravo ! Tu as terminé cette leçon !"}
 				</p>
-				<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
-					<FiArrowLeft size={16} />
-					{isFreeChatMode ? "Retour" : "Retour aux leçons"}
-				</button>
+				{isFreeChatMode || isOpenQuestionMode ? (
+					<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
+						<FiArrowLeft size={16} />
+						Retour
+					</button>
+				) : (
+					<div className="lesson-finished-choices">
+						<button className="lesson-btn lesson-btn--primary" onClick={onStartQcm}>
+							<FiCheckCircle size={16} />
+							Faire un QCM
+						</button>
+						<button className="lesson-btn lesson-btn--secondary" onClick={onStartOpenQuestion}>
+							<FiEdit3 size={16} />
+							Question ouverte
+						</button>
+						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToLessons}>
+							<FiArrowLeft size={16} />
+							Choisir un nouveau cours
+						</button>
+					</div>
+				)}
 			</div>
 		);
 	}
 
 	if (phase === "waiting") {
+		if (isOpenQuestionMode) {
+			if (openQuestionPhase === "feedback") {
+				return (
+					<div className="lesson-actions glass-panel">
+						<button className="lesson-btn lesson-btn--primary" onClick={onOpenQuestionNewQuestion}>
+							<FiRefreshCw size={16} />
+							<span>Nouvelle question</span>
+						</button>
+						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToLessons}>
+							<FiArrowLeft size={16} />
+							<span>Retour au cours</span>
+						</button>
+					</div>
+				);
+			}
+
+			return (
+				<div className="lesson-actions glass-panel">
+					<button
+						className={`lesson-btn lesson-btn--secondary ${openQuestionInputMode === "answer" ? "lesson-btn--active" : ""}`}
+						onClick={() => onOpenQuestionModeChange("answer")}
+					>
+						<FiEdit3 size={16} />
+						<span>Répondre</span>
+					</button>
+					<button
+						className={`lesson-btn lesson-btn--secondary ${openQuestionInputMode === "help" ? "lesson-btn--active" : ""}`}
+						onClick={() => onOpenQuestionModeChange("help")}
+					>
+						<FiHelpCircle size={16} />
+						<span>Demander de l'aide</span>
+					</button>
+				</div>
+			);
+		}
+
 		return (
 			<div className="lesson-actions glass-panel">
 				<button className="lesson-btn lesson-btn--secondary" onClick={onAskQuestion}>
@@ -392,7 +481,8 @@ const ChatInput: React.FC<{
 	onChange: (val: string) => void;
 	onSend: () => void;
 	disabled: boolean;
-}> = ({ value, onChange, onSend, disabled }) => {
+	placeholder?: string;
+}> = ({ value, onChange, onSend, disabled, placeholder = "Pose une question à Milo..." }) => {
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && !e.shiftKey && value.trim()) {
 			e.preventDefault();
@@ -405,11 +495,12 @@ const ChatInput: React.FC<{
 				<input
 					className="chat-input"
 					type="text"
-					placeholder="Pose une question à Milo..."
+					placeholder={placeholder}
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 					onKeyDown={handleKeyDown}
 					autoFocus
+					disabled={disabled}
 				/>
 				<button className="chat-send-btn" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Envoyer">
 					<FiSend size={16} />
@@ -445,6 +536,7 @@ const MiloScene: React.FC = () => {
 	// Récupère l'id de la leçon depuis les params de route
 	const { lessonId } = useParams<{ lessonId: string }>();
 	const location = useLocation();
+	const isOpenQuestionRoute = location.pathname.includes("/question-ouverte");
 	const storedFreeChatSession = useMiloFreeChatStore((state) => state.session);
 	const routedFreeChatSession = (
 		location.state as { freeChatSession?: MiloFreeChatSession } | null
@@ -460,6 +552,11 @@ const MiloScene: React.FC = () => {
 		parts,
 		currentPartIndex,
 		isFreeChatMode,
+		isOpenQuestionMode,
+		openQuestionPhase,
+		openQuestionInputMode,
+		handleOpenQuestionInputModeChange,
+		handleOpenQuestionReviewBoard,
 
 		// Chat
 		question,
@@ -469,6 +566,9 @@ const MiloScene: React.FC = () => {
 		handleAskQuestion,
 		handleNextPart,
 		handleBackToLessons,
+		handleStartQcm,
+		handleStartOpenQuestion,
+		handleOpenQuestionNewQuestion,
 
 		// 3D
 		activeAnimation,
@@ -484,7 +584,24 @@ const MiloScene: React.FC = () => {
 		sceneReady,
 		introActive,
 		showIntroText,
-	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession);
+	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession, isOpenQuestionRoute);
+
+	const isOpenQuestionBusy =
+		openQuestionPhase === "submitted" || openQuestionPhase === "helping";
+	const showOpenQuestionInput =
+		isOpenQuestionMode &&
+		((openQuestionPhase === "answering" && isEditing) || isOpenQuestionBusy);
+	const showRegularChatInput =
+		!isOpenQuestionMode && (phase === "questioning" || phase === "answering");
+	const showReviewBoardButton =
+		isOpenQuestionMode && isEditing && openQuestionPhase === "answering";
+	const chatPlaceholder = isOpenQuestionMode
+		? isOpenQuestionBusy
+			? "Milo prépare..."
+			: openQuestionInputMode === "help"
+				? "Demande un indice ou une précision..."
+				: "Écris ta réponse..."
+		: "Pose une question à Milo...";
 
 	return (
 		<div className="milo-scene-root">
@@ -492,7 +609,7 @@ const MiloScene: React.FC = () => {
 
 			<Scene3D
 				cameraY={cameraY}
-				reply={reply}
+				reply={isOpenQuestionMode ? "" : reply}
 				activeAnimation={activeAnimation}
 				text={question}
 				isEditing={isEditing}
@@ -528,19 +645,38 @@ const MiloScene: React.FC = () => {
 				phase={phase}
 				isLastPart={isLastPart}
 				isFreeChatMode={isFreeChatMode}
+				isOpenQuestionMode={isOpenQuestionMode}
+				openQuestionPhase={openQuestionPhase}
+				openQuestionInputMode={openQuestionInputMode}
 				onNext={handleNextPart}
 				onAskQuestion={handleAskQuestion}
+				onOpenQuestionModeChange={handleOpenQuestionInputModeChange}
 				onBackToLessons={handleBackToLessons}
+				onStartQcm={handleStartQcm}
+				onStartOpenQuestion={handleStartOpenQuestion}
+				onOpenQuestionNewQuestion={handleOpenQuestionNewQuestion}
 			/>
 
-			{/* Input question — visible uniquement en mode questioning */}
-			{(phase === "questioning" || phase === "answering") && (
+			{/* Input question / réponse */}
+			{(showRegularChatInput || showOpenQuestionInput) && (
 				<ChatInput
 					value={question}
 					onChange={setQuestion}
 					onSend={handleSendQuestion}
 					disabled={phase === "answering"}
+					placeholder={chatPlaceholder}
 				/>
+			)}
+
+			{showReviewBoardButton && (
+				<button
+					className="review-board-btn glass-panel"
+					onClick={handleOpenQuestionReviewBoard}
+					aria-label="Revoir le tableau"
+					title="Revoir le tableau"
+				>
+					<FiArrowUp size={18} />
+				</button>
 			)}
 
 			{/* Controls panel */}
