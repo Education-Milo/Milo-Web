@@ -40,7 +40,7 @@ APIAxios.interceptors.response.use(
 export const APIRoutes = {
   POST_Register: '/register',
   POST_Login: '/token',
-  POST_ForgotPassword: '/auth/forgot-password',
+  POST_ForgotPassword: '/forgotPassword',
 
   // User API
   GET_Me: '/users/me',

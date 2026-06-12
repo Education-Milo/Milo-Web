@@ -11,6 +11,7 @@ const ForgotPassword: React.FC = () => {
 		email,
 		setEmail,
 		emailError,
+		isLoading,
 		isSubmitted,
 		handleSubmit,
 		handleBackToLogin,
@@ -76,12 +77,14 @@ const ForgotPassword: React.FC = () => {
 								Retour à la connexion
 							</button>
 							<div className="signup-section">
+								{emailError && <p className="error-message">{emailError}</p>}
 								<button
 									onClick={resend}
 									className="signup-link"
 									style={{ fontSize: "0.875rem" }}
+									disabled={isLoading}
 								>
-									Renvoyer l'email
+									{isLoading ? "Renvoi en cours..." : "Renvoyer l'email"}
 								</button>
 							</div>
 						</div>
@@ -148,8 +151,9 @@ const ForgotPassword: React.FC = () => {
 							{emailError && <p className="error-message">{emailError}</p>}
 						</div>
 						<MainButtonComponent
-							title="Envoyer le lien de connexion"
+							title={isLoading ? "Envoi en cours..." : "Envoyer le lien de connexion"}
 							onPress={handleSubmit}
+							loading={isLoading}
 						/>
 
 						{/* Back to Login */}
