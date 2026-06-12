@@ -115,6 +115,15 @@ const AuthNavigator: React.FC = () => {
 			/>
 
 			<Route
+				path="/course-milo/:lessonId/question-ouverte"
+				element={
+					<ProtectedRoute allowedRoles={["Enfant"]}>
+						<MiloScene />
+					</ProtectedRoute>
+				}
+			/>
+
+			<Route
 				path={ROUTES.OCR}
 				element={
 					<ProtectedRoute allowedRoles={["Enfant"]}>
