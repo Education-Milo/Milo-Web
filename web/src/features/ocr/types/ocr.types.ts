@@ -30,10 +30,29 @@ export interface OcrActionOption {
 
 // ─── API Response Types ───────────────────────────────────────────────────────
 
-export interface OcrReportCardResponse {
-	// À adapter selon la réponse réelle de l'API
-	data: unknown;
+export interface SubjectResult {
+	subject: string;
+	grade: number | null;
+	class_average: number | null;
+	comment: string;
 }
+
+export interface ApiSubjectResult {
+	subject_name?: string;
+	subject?: string;
+	grade?: number | string | null;
+	student_grade?: number | string | null;
+	average_class_grade?: number | string | null;
+	class_average?: number | string | null;
+	comment?: string;
+}
+
+export interface ScanReportCardResponse {
+	reply: ApiSubjectResult[];
+}
+
+// Alias pour compatibilité avec useOcrMutations
+export type OcrReportCardResponse = ScanReportCardResponse;
 
 export interface GeneratedExercise {
 	exercise: string;

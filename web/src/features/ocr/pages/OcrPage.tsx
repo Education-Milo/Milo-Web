@@ -3,8 +3,10 @@ import { useOcrWorkflow } from "../hooks/useOcrWorkflow";
 import { OcrTypeSelector } from "@features/ocr/components/OcrTypeSelector/OcrTypeSelector";
 import { OcrFileUploader } from "@features/ocr/components/OcrFileUploader/OcrFileUploader";
 import { OcrActionModal } from "../components/OcrActionModal/OcrActionModal";
+import { useOcrStore } from "../store/ocr.store";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { Sparkles } from "lucide-react";
+import { useEffect } from "react";
 import miloGreeting from "/buttonGo.webp";
 import "@features/ocr/styles/OcrScreen.css";
 
@@ -17,6 +19,7 @@ import "@features/ocr/styles/OcrScreen.css";
  *  2. upload_preview → OcrFileUploader + OcrActionModal (si Cours/Exercice)
  */
 const OcrPage: React.FC = () => {
+	const resetOcrWorkflow = useOcrStore((state) => state.reset);
 	const {
 		step,
 		selectedType,
@@ -33,6 +36,12 @@ const OcrPage: React.FC = () => {
 		handleBack,
 		closeModal,
 	} = useOcrWorkflow();
+
+	useEffect(() => {
+		return () => {
+			resetOcrWorkflow();
+		};
+	}, [resetOcrWorkflow]);
 
 	return (
 		<ScreenLayout>
@@ -51,7 +60,8 @@ const OcrPage: React.FC = () => {
 							</div>
 							<h1 className="ocr-hero-title">Importer un document</h1>
 							<p className="ocr-hero-sub">
-								Scanne tes cours, exercices ou bulletins et laisse Milo les analyser pour toi.
+								Scanne tes cours, exercices ou bulletins et laisse Milo les
+								analyser pour toi.
 							</p>
 						</div>
 					</section>
