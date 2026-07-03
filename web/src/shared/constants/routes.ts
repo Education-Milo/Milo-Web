@@ -1,43 +1,43 @@
 // src/constants/routes.ts
 
 export const ROUTES = {
-    LOGIN: '/login',
-    REGISTER: '/register',
-    FORGOT_PASSWORD: '/forgot-password',
+	LOGIN: "/login",
+	REGISTER: "/register",
+	FORGOT_PASSWORD: "/forgot-password",
 
-    ROOT: '/',
+	ROOT: "/",
 
-    PROFILE: '/profile',
-    UNAUTHORIZED: '/unauthorized',
+	PROFILE: "/profile",
+	UNAUTHORIZED: "/unauthorized",
 
-    HOME: '/home',
-    MILO: '/milo',
-    QCM_GENERATED: '/qcm',
-    GENERATED_EXERCISE: '/exercice-genere',
-    COURSE_MILO: '/course-milo/:lessonId',
-    COURSE_MILO_OPEN_QUESTION: '/course-milo/:lessonId/question-ouverte',
-    QCM: '/qcm/:lessonId',
-    EXERCISE_RESULT: '/exercise-result',
-    COURSES: '/courses',
-    COURSE_DETAIL: '/courses/:subjectId',
-    MISSIONS: '/missions',
-    DUELS: '/duels',
-    OCR: '/ocr',
+	HOME: "/home",
+	MILO: "/milo",
+	QCM_GENERATED: "/qcm",
+	GENERATED_EXERCISE: "/exercice-genere",
+	COURSE_MILO: "/course-milo/:lessonId",
+	COURSE_MILO_OPEN_QUESTION: "/course-milo/:lessonId/question-ouverte",
+	QCM: "/qcm/:lessonId",
+	EXERCISE_RESULT: "/exercise-result",
+	COURSES: "/courses",
+	COURSE_DETAIL: "/courses/:subjectId",
+	MISSIONS: "/missions",
+	DUELS: "/duels",
+	OCR: "/ocr",
 
-    PARENT: {
-      DASHBOARD: '/parent/dashboard',
-      CHILDREN: '/parent/children',
-      PROGRESS: '/parent/progress',
-      CONTROLS: '/parent/controls',
-    },
+	PARENT: {
+		DASHBOARD: "/parent/dashboard",
+		CHILDREN: "/parent/children",
+		PROGRESS: "/parent/progress",
+		CONTROLS: "/parent/controls",
+	},
 
-    PROF: {
-      DASHBOARD: '/prof/dashboard',
-      CLASSES: '/prof/classes',
-      STUDENTS: '/prof/students',
-    },
+	PROF: {
+		DASHBOARD: "/prof/dashboard",
+		CLASSES: "/prof/classes",
+		STUDENTS: "/prof/students",
+	},
 
-    ADMIN: {
-      DASHBOARD: '/admin',
-    },
-  } as const;
+	ADMIN: {
+		DASHBOARD: "/admin",
+	},
+} as const;

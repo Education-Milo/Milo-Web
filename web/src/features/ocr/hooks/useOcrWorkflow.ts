@@ -7,11 +7,42 @@ import {
 	useOcrCourseQcmMutation,
 	useOcrFreeChatMutation,
 } from "./useOcrMutations";
-import type { OcrAction, OcrDocumentType } from "../types/ocr.types";
+import type {
+	ApiSubjectResult,
+	OcrAction,
+	OcrDocumentType,
+	SubjectResult,
+} from "../types/ocr.types";
 import { ROUTES } from "@shared/constants/routes";
 import { useExerciseStore } from "@features/exercices/store/exercise.store";
 import { useGeneratedExerciseStore } from "../store/generatedExercise.store";
 import { useMiloFreeChatStore } from "@features/milo-scene/store/freeChat.store";
+import { useBulletinStore } from "../store/bulletin.store";
+
+const parseNullableNumber = (value: number | string | null | undefined) => {
+	if (typeof value === "number") {
+		return Number.isFinite(value) ? value : null;
+	}
+
+	if (typeof value === "string") {
+		const normalized = value.replace(",", ".").trim();
+		if (!normalized) return null;
+		const parsed = Number(normalized);
+		return Number.isFinite(parsed) ? parsed : null;
+	}
+
+	return null;
+};
+
+const normalizeReportCard = (items: ApiSubjectResult[]): SubjectResult[] =>
+	items.map((item) => ({
+		subject: item.subject_name ?? item.subject ?? "Matiere inconnue",
+		grade: parseNullableNumber(item.grade ?? item.student_grade),
+		class_average: parseNullableNumber(
+			item.class_average ?? item.average_class_grade,
+		),
+		comment: item.comment ?? "",
+	}));
 
 /**
  * Hook principal du workflow OCR.
@@ -24,7 +55,10 @@ export const useOcrWorkflow = () => {
 	const setGeneratedExercise = useGeneratedExerciseStore(
 		(state) => state.setGeneratedExercise,
 	);
-	const setMiloFreeChatSession = useMiloFreeChatStore((state) => state.setSession);
+	const setMiloFreeChatSession = useMiloFreeChatStore(
+		(state) => state.setSession,
+	);
+	const setReportCard = useBulletinStore((state) => state.setReportCard);
 
 	const reportCardMutation = useOcrReportCardMutation();
 	const exerciseMutation = useOcrExerciseGenerationMutation();
@@ -63,9 +97,9 @@ export const useOcrWorkflow = () => {
 		if (store.selectedType === "bulletin") {
 			// Bulletin : pas de modal, envoi direct
 			reportCardMutation.mutate(store.selectedFile, {
-				onSuccess: () => {
-					// TODO: naviguer vers la page de résultat bulletin
-					navigate("/ocr/result/bulletin");
+				onSuccess: (response) => {
+					setReportCard(normalizeReportCard(response.reply));
+					navigate(ROUTES.HOME);
 				},
 			});
 			return;
@@ -73,7 +107,7 @@ export const useOcrWorkflow = () => {
 
 		// Cours ou Exercice : ouvrir la modal de choix
 		store.openModal();
-	}, [store, reportCardMutation, navigate]);
+	}, [store, reportCardMutation, navigate, setReportCard]);
 
 	// ─── Confirmation de l'action depuis la modal ────────────────────────────────
 

@@ -44,193 +44,193 @@ const AuthNavigator: React.FC = () => {
 	return (
 		<DuelProvider>
 			<ChallengeNotification />
-		<Routes>
-			{/* ==================== PAGE DE REDIRECTION ==================== */}
+			<Routes>
+				{/* ==================== PAGE DE REDIRECTION ==================== */}
 
-			<Route
-				path="/"
-				element={
-					<ProtectedRoute>
-						<RedirectScreen />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/"
+					element={
+						<ProtectedRoute>
+							<RedirectScreen />
+						</ProtectedRoute>
+					}
+				/>
 
-			{/* ==================== ROUTES COMMUNES ==================== */}
+				{/* ==================== ROUTES COMMUNES ==================== */}
 
-			<Route
-				path="/profile"
-				element={
-					<ProtectedRoute>
-						<ProfilePage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/profile"
+					element={
+						<ProtectedRoute>
+							<ProfilePage />
+						</ProtectedRoute>
+					}
+				/>
 
-			{/* ==================== ROUTES USER (Élève) ==================== */}
+				{/* ==================== ROUTES USER (Élève) ==================== */}
 
-			<Route
-				path="/milo"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<MiloScene />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/milo"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<MiloScene />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/home"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<HomeScreen />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/home"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<HomeScreen />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path={ROUTES.COURSES}
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<CoursesPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path={ROUTES.COURSES}
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<CoursesPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/courses/:subjectId"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<CourseDetailScreen />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/courses/:subjectId"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<CourseDetailScreen />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/course-milo/:lessonId"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<MiloScene />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/course-milo/:lessonId"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<MiloScene />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/course-milo/:lessonId/question-ouverte"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<MiloScene />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/course-milo/:lessonId/question-ouverte"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<MiloScene />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path={ROUTES.OCR}
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<OcrPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path={ROUTES.OCR}
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<OcrPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path={ROUTES.GENERATED_EXERCISE}
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<GeneratedExercisePage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path={ROUTES.GENERATED_EXERCISE}
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<GeneratedExercisePage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/missions"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<MissionsPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/missions"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<MissionsPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/duels"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<DuelsPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/duels"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<DuelsPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path={ROUTES.QCM_GENERATED}
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<ExerciseScreen />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path={ROUTES.QCM_GENERATED}
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<ExerciseScreen />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/qcm/:lessonId"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<ExerciseScreen />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/qcm/:lessonId"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<ExerciseScreen />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/exercise-result"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<ExerciseResultScreen />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/mon-milo"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<MyMiloPage />
-					</ProtectedRoute>
-				}
-			/>
-			<Route
-				path="/boutique"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<BoutiquePage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/exercise-result"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<ExerciseResultScreen />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="/mon-milo"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<MyMiloPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path="/boutique"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<BoutiquePage />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/friends"
-				element={
-					<ProtectedRoute allowedRoles={["Enfant"]}>
-						<FriendsPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/friends"
+					element={
+						<ProtectedRoute allowedRoles={["Enfant"]}>
+							<FriendsPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			{/* ==================== ROUTES PARENT ==================== */}
-			<Route
-				path="/parent/dashboard"
-				element={
-					<ProtectedRoute allowedRoles={["Parent"]}>
-						<ParentDashboard />
-					</ProtectedRoute>
-				}
-			/>
+				{/* ==================== ROUTES PARENT ==================== */}
+				<Route
+					path="/parent/dashboard"
+					element={
+						<ProtectedRoute allowedRoles={["Parent"]}>
+							<ParentDashboard />
+						</ProtectedRoute>
+					}
+				/>
 
-			<Route
-				path="/parent/subscription"
-				element={
-					<ProtectedRoute allowedRoles={["Parent"]}>
-						<SubscriptionPage />
-					</ProtectedRoute>
-				}
-			/>
+				<Route
+					path="/parent/subscription"
+					element={
+						<ProtectedRoute allowedRoles={["Parent"]}>
+							<SubscriptionPage />
+						</ProtectedRoute>
+					}
+				/>
 
-			{/*
+				{/*
       <Route path="/parent/children" element={
         <ProtectedRoute allowedRoles={['Parent']}>
           <ChildrenManagement />
@@ -250,7 +250,7 @@ const AuthNavigator: React.FC = () => {
       } />
 
       {/* ==================== ROUTES PROF ==================== */}
-			{/* <Route path="/prof/dashboard" element={
+				{/* <Route path="/prof/dashboard" element={
         <ProtectedRoute allowedRoles={['Prof']}>
           <ProfDashboard />
         </ProtectedRoute>
@@ -268,25 +268,25 @@ const AuthNavigator: React.FC = () => {
         </ProtectedRoute>
       } /> */}
 
-			{/* ==================== ROUTES ADMIN ==================== */}
+				{/* ==================== ROUTES ADMIN ==================== */}
 
-			{/* <Route path="/admin" element={
+				{/* <Route path="/admin" element={
         <ProtectedRoute allowedRoles={['ADMIN']}>
           <AdminDashboard />
         </ProtectedRoute>
       } /> */}
 
-			{/* ==================== ROUTES SPÉCIALES ==================== */}
-			{/* Page non autorisé */}
-			<Route path="/unauthorized" element={<UnauthorizedPage />} />
+				{/* ==================== ROUTES SPÉCIALES ==================== */}
+				{/* Page non autorisé */}
+				<Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-			{/* Redirection des routes publiques */}
-			<Route path="/login" element={<Navigate to="/" replace />} />
-			<Route path="/register" element={<Navigate to="/" replace />} />
-			<Route path="/forgot-password" element={<Navigate to="/" replace />} />
+				{/* Redirection des routes publiques */}
+				<Route path="/login" element={<Navigate to="/" replace />} />
+				<Route path="/register" element={<Navigate to="/" replace />} />
+				<Route path="/forgot-password" element={<Navigate to="/" replace />} />
 
-			<Route path="*" element={<Navigate to="/" replace />} />
-		</Routes>
+				<Route path="*" element={<Navigate to="/" replace />} />
+			</Routes>
 		</DuelProvider>
 	);
 };

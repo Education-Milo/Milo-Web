@@ -8,10 +8,12 @@ import {
 	Clock,
 	Sparkles,
 	Target,
+	TrendingDown,
 } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { useHomePage } from "@features/home/hooks/useHomePage";
 import { useDailyMissions } from "@features/missions/store/dailyMissions.store";
+import { useBulletinStore } from "@features/ocr/store/bulletin.store";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/home/styles/Home.css";
 
@@ -50,12 +52,51 @@ const HomePage: React.FC = () => {
 	const navigate = useNavigate();
 	const { welcomeMessage, handleMiloClick } = useHomePage();
 	const missions = useDailyMissions();
+	const reportCard = useBulletinStore((state) => state.reportCard);
 	const completedMissionsCount = missions.filter(
 		(mission) => mission.progressCurrent >= mission.progressTotal,
 	).length;
 
+	const gradedSubjects =
+		reportCard?.filter((subject) => typeof subject.grade === "number") ?? [];
+
+	const belowClassAverageSubjects = gradedSubjects
+		.filter((subject) => {
+			if (typeof subject.class_average !== "number") return false;
+			return (subject.grade || 0) < subject.class_average;
+		})
+		.sort((a, b) => (a.grade || 0) - (b.grade || 0));
+
+	const studentAverage =
+		gradedSubjects.length > 0
+			? gradedSubjects.reduce((sum, subject) => sum + (subject.grade || 0), 0) /
+				gradedSubjects.length
+			: null;
+
+	const belowStudentAverageSubjects =
+		studentAverage === null
+			? []
+			: gradedSubjects
+					.filter((subject) => (subject.grade || 0) < studentAverage)
+					.sort((a, b) => (a.grade || 0) - (b.grade || 0));
+
+	/// Only get worst grade
+	const difficultSubjects = (
+		belowClassAverageSubjects.length > 0
+			? belowClassAverageSubjects
+			: belowStudentAverageSubjects.length > 0
+				? belowStudentAverageSubjects
+				: [...gradedSubjects].sort((a, b) => (a.grade || 0) - (b.grade || 0))
+	).slice(0, 3);
+
+	const hasBelowClassAverageSubjects = belowClassAverageSubjects.length > 0;
+
 	const handleMissionClick = () => {
 		navigate(ROUTES.COURSES);
+	};
+
+	const handleSelectSubject = (subject: string) => {
+		navigate(`${ROUTES.COURSES}`, { state: { subject } });
 	};
 
 	return (
@@ -111,7 +152,61 @@ const HomePage: React.FC = () => {
 
 					{/* =============== COLONNE SECONDAIRE =============== */}
 					<div className="hp-side-col">
-						{/* --- Actualités --- */}
+						{/* --- Résultats du bulletin --- */}
+						{reportCard && reportCard.length > 0 && (
+							<section className="hp-card hp-bulletin">
+								<header className="hp-card-header">
+									<div className="hp-card-title-wrap">
+										<div className="hp-card-icon">
+											<BookOpenText size={18} />
+										</div>
+										<h2 className="hp-card-title">Ton bulletin</h2>
+									</div>
+								</header>
+
+								<div className="hp-bulletin-content">
+									{difficultSubjects.length > 0 && (
+										<div className="hp-bulletin-alert">
+											<div className="hp-bulletin-alert-header">
+												<TrendingDown size={18} />
+												<span>
+													{hasBelowClassAverageSubjects
+														? "Matières à revoir"
+														: "Matières à renforcer"}
+												</span>
+											</div>
+											<div className="hp-bulletin-subjects">
+												{difficultSubjects.map((subject, i) => (
+													<button
+														key={i}
+														type="button"
+														className="hp-bulletin-subject-btn"
+														onClick={() => handleSelectSubject(subject.subject)}
+													>
+														<span className="hp-bulletin-subject-name">
+															{subject.subject}
+														</span>
+														{typeof subject.grade === "number" && (
+															<span className="hp-bulletin-grade">
+																{subject.grade.toFixed(1)}
+															</span>
+														)}
+													</button>
+												))}
+											</div>
+										</div>
+									)}
+
+									{reportCard.length > difficultSubjects.length && (
+										<div className="hp-bulletin-summary">
+											<span className="hp-bulletin-summary-text">
+												{reportCard.length} matières au total
+											</span>
+										</div>
+									)}
+								</div>
+							</section>
+						)}
 						<section className="hp-card hp-announcements">
 							<header className="hp-card-header">
 								<div className="hp-card-title-wrap">
@@ -183,9 +278,7 @@ const HomePage: React.FC = () => {
 											</div>
 											<div className="hp-mission-body">
 												<div className="hp-mission-top">
-													<h3 className="hp-mission-title">
-														{mission.title}
-													</h3>
+													<h3 className="hp-mission-title">{mission.title}</h3>
 													<span className="hp-mission-points">
 														{isDone
 															? "Terminé"
@@ -197,9 +290,7 @@ const HomePage: React.FC = () => {
 														? "Mission accomplie avec brio !"
 														: `${Math.min(mission.progressCurrent, mission.progressTotal)}/${mission.progressTotal} réalisé`}
 												</p>
-												<span className="hp-mission-category">
-													QCM
-												</span>
+												<span className="hp-mission-category">QCM</span>
 											</div>
 										</button>
 									);

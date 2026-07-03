@@ -46,7 +46,11 @@ const CoursesScreen: React.FC = () => {
 							Choisis une matière pour commencer ton aventure avec Milo.
 						</p>
 					</div>
-					<div className="cs-level-selector" role="tablist" aria-label="Niveau de classe">
+					<div
+						className="cs-level-selector"
+						role="tablist"
+						aria-label="Niveau de classe"
+					>
 						{LEVELS.map((level) => (
 							<button
 								key={level.value}
@@ -99,13 +103,17 @@ const CoursesScreen: React.FC = () => {
 							{subjects.map((subject, index) => {
 								const config = SUBJECTS_CONFIG[subject.id];
 								if (!config) return null;
+								const isLocked = config.locked === true;
 
 								return (
 									<button
 										key={subject.id}
 										type="button"
-										className={`cs-tile cs-theme-${config.colorTheme}`}
+										className={`cs-tile cs-theme-${config.colorTheme} ${isLocked ? "is-locked" : ""}`}
 										onClick={() => handleCourseClick(subject.id)}
+										disabled={isLocked}
+										aria-disabled={isLocked}
+										title={isLocked ? "Cours verrouillé" : undefined}
 										style={{ animationDelay: `${0.05 * index}s` }}
 									>
 										<div className="cs-tile-bg" aria-hidden="true" />
@@ -118,10 +126,15 @@ const CoursesScreen: React.FC = () => {
 										<div className="cs-tile-body">
 											<h3 className="cs-tile-title">{config.title}</h3>
 											<div className="cs-tile-cta">
-												<span>Démarrer</span>
+												<span>{isLocked ? "Verrouillé" : "Démarrer"}</span>
 												<ChevronRight size={16} />
 											</div>
 										</div>
+										{isLocked && (
+											<div className="cs-tile-lock-badge">
+												🔒 Bientôt disponible
+											</div>
+										)}
 									</button>
 								);
 							})}
