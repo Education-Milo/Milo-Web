@@ -77,6 +77,7 @@ export const useCourseStore = create<CourseStore>((set) => ({
 				params: { subject_id: subjectId },
 			});
 			const courses: Courses[] = coursesRes.data;
+			const isMathSubject = subjectId === 1;
 			const coursesWithChapters: CourseWithChapters[] = await Promise.all(
 				courses.map(async (course) => {
 					const chaptersRes = await APIAxios.get(APIRoutes.GET_Chapters, {
@@ -93,7 +94,11 @@ export const useCourseStore = create<CourseStore>((set) => ({
 							const lessonsWithStatus: LessonWithStatus[] = lessons.map(
 								(lesson, index) => ({
 									...lesson,
-									status: index === 0 ? "in-progress" : "locked",
+									status: isMathSubject
+										? "in-progress"
+										: index === 0
+											? "in-progress"
+											: "locked",
 								}),
 							);
 
