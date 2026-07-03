@@ -58,9 +58,7 @@ const HomePage: React.FC = () => {
 	).length;
 
 	const gradedSubjects =
-		reportCard?.filter(
-			(subject) => typeof subject.grade === "number",
-		) ?? [];
+		reportCard?.filter((subject) => typeof subject.grade === "number") ?? [];
 
 	const belowClassAverageSubjects = gradedSubjects
 		.filter((subject) => {
@@ -71,10 +69,8 @@ const HomePage: React.FC = () => {
 
 	const studentAverage =
 		gradedSubjects.length > 0
-			? gradedSubjects.reduce(
-					(sum, subject) => sum + (subject.grade || 0),
-					0,
-				) / gradedSubjects.length
+			? gradedSubjects.reduce((sum, subject) => sum + (subject.grade || 0), 0) /
+				gradedSubjects.length
 			: null;
 
 	const belowStudentAverageSubjects =
@@ -84,16 +80,14 @@ const HomePage: React.FC = () => {
 					.filter((subject) => (subject.grade || 0) < studentAverage)
 					.sort((a, b) => (a.grade || 0) - (b.grade || 0));
 
-/// Only get worst grade
-	const difficultSubjects =
+	/// Only get worst grade
+	const difficultSubjects = (
 		belowClassAverageSubjects.length > 0
 			? belowClassAverageSubjects
 			: belowStudentAverageSubjects.length > 0
 				? belowStudentAverageSubjects
-				: [...gradedSubjects]
-						.sort((a, b) => (a.grade || 0) - (b.grade || 0))
-						.slice(0, 2);
-
+				: [...gradedSubjects].sort((a, b) => (a.grade || 0) - (b.grade || 0))
+	).slice(0, 3);
 
 	const hasBelowClassAverageSubjects = belowClassAverageSubjects.length > 0;
 
