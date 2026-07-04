@@ -1,109 +1,232 @@
-# Milo - Frontend Web
+# Milo Web
 
-Interface web frontend du projet Milo, développée avec React, TypeScript et Vite pour une expérience utilisateur moderne et performante.
+Application web frontend de Milo, une plateforme d'apprentissage interactive construite avec React, TypeScript et Vite.
 
-## 🛠️ Technologies utilisées
+Le projet contient l'interface eleve, les parcours publics, l'espace parent, les interactions avec Milo en 3D, les cours, les QCM, les missions, les duels, les amis et les workflows OCR.
 
-### Framework et Build
-- **React 19** - Bibliothèque JavaScript pour construire des interfaces utilisateur
-- **TypeScript** - Superset typé de JavaScript pour un développement plus robuste
-- **Vite 6** - Outil de build ultra-rapide avec Hot Module Replacement (HMR)
+## Stack Technique
 
-### Routing et Navigation
-- **React Router DOM v6** - Gestion du routage et de la navigation
+- **React 19** et **React DOM** pour l'interface utilisateur
+- **TypeScript** pour le typage
+- **Vite 6** pour le serveur de developpement et le build
+- **React Router DOM** pour le routage
+- **Zustand** pour les stores locaux persistants
+- **TanStack React Query** pour les appels et etats serveur
+- **Axios** pour le client HTTP
+- **Three.js**, **React Three Fiber**, **Drei** et **Postprocessing** pour les scenes 3D
+- **Tailwind CSS 4**, CSS modules et CSS classiques pour le styling
+- **Radix UI**, **Lucide React** et **React Icons** pour les composants et icones
+- **Framer Motion** pour certaines animations
 
-### Gestion d'état
-- **Zustand** - Bibliothèque légère de gestion d'état globale avec persist middleware
+## Prerequis
 
-### Styling
-- **Tailwind CSS v4** - Framework CSS utility-first
-- **tailwind-merge** - Fusion intelligente des classes Tailwind
-- **class-variance-authority** - Gestion des variantes de composants
-- **CSS Modules** - Stylisation modulaire pour certains composants
+- Node.js 18+ recommande
+- npm
+- Une API Milo accessible via `VITE_API_BASE_URL`
 
-### Interface utilisateur
-- **Radix UI** - Composants UI accessibles et personnalisables
-- **Lucide React** - Bibliothèque d'icônes
-- **React Icons** - Icônes supplémentaires
+## Installation
 
-### 3D et Graphisme
-- **Three.js** - Bibliothèque JavaScript 3D
-- **React Three Fiber** - Renderer React pour Three.js
-- **React Three Drei** - Helpers et abstractions pour R3F
-
-### API et Services
-- **Axios** - Client HTTP pour les appels API
-- **jwt-decode** - Décodage des tokens JWT
-
-### Contextes
-- **Context API** - Gestion du thème (light/dark)
-
-## 🚀 Installation et démarrage
-
-### Prérequis
-
-Assurez-vous d'avoir Node.js installé sur votre machine (version 16+ recommandée).
-
-### Installation des dépendances
+Depuis la racine du depot:
 
 ```bash
+cd web
 npm install
 ```
 
-### Lancement du serveur de développement
+Créer ou completer ensuite le fichier `web/.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+Adaptez l'URL selon l'environnement backend utilise.
+
+## Lancement
+
+```bash
+cd web
+npm run dev
+```
+
+L'application est servie par Vite sur:
+
+```txt
+http://localhost:3000
+```
+
+La configuration active `host: true`, ce qui permet aussi de tester depuis le reseau local si necessaire.
+
+## Scripts Disponibles
+
+Depuis `web/`:
 
 ```bash
 npm run dev
 ```
 
-Le projet sera accessible à l'adresse `http://localhost:3000` (port configuré dans `vite.config.ts`).
+Lance le serveur de developpement Vite.
 
-## 📁 Structure du projet
-
-```
-src/
-├── api/              # Configuration Axios et endpoints API
-├── components/       # Composants réutilisables
-│   ├── ui/          # Composants UI de base (button, typography, etc.)
-│   │   ├── auth/    # Composants d'authentification
-│   │   └── common/  # Composants communs
-│   └── ...          # Autres composants (Navbar, Sidebar, TopBar, etc.)
-├── contexts/         # Contextes React (ThemeContext)
-├── hooks/           # Hooks personnalisés (useLoginForm, useRegisterForm, etc.)
-├── lib/             # Utilitaires et helpers
-├── navigation/       # Navigateurs de routing (AuthNavigator, PublicNavigator)
-├── screens/          # Écrans/Pages de l'application
-│   └── Auth/        # Pages d'authentification (Login, Register, ForgotPassword)
-├── store/            # Stores Zustand pour la gestion d'état
-│   ├── auth/        # Store d'authentification
-│   ├── user/        # Store utilisateur
-│   └── ia/          # Store IA
-├── styles/           # Fichiers de style CSS
-│   └── themes/      # Définitions de thèmes (colors, typography)
-└── types/            # Types TypeScript globaux
+```bash
+npm run build
 ```
 
-## 🔧 Scripts disponibles
+Compile TypeScript puis genere le build de production.
 
-- `npm run dev` - Lance le serveur de développement sur le port 3000
-- `npm run build` - Construit l'application pour la production (avec vérification TypeScript)
-- `npm run preview` - Prévisualise la version de production
-- `npm run lint` - Vérifie la qualité du code avec ESLint
+```bash
+npm run preview
+```
 
-## 📝 Configuration
+Previsualise localement le build de production.
 
-Ce projet utilise une configuration Vite optimisée avec :
-- Support complet de TypeScript avec configuration stricte
-- Hot Module Replacement pour un développement fluide
-- Règles ESLint pour maintenir la qualité du code
-- Path aliases configurés pour un import simplifié (`@components`, `@store`, `@screens`, etc.)
-- Configuration Tailwind CSS v4 avec support des thèmes light/dark
-- Serveur de développement configuré sur le port 3000 avec accès réseau (host: true)
+```bash
+npm run lint
+```
 
-## 🎨 Fonctionnalités
+Lance ESLint sur le projet.
 
-- **Authentification** : Login, Register, Forgot Password avec gestion JWT
-- **Navigation** : Routage conditionnel basé sur l'état d'authentification
-- **Thèmes** : Support du mode clair/sombre avec persistance ( a retirer )
-- **3D** : Affichage de modèles 3D (Milo) avec Three.js
-- **Gestion d'état** : Stores Zustand avec persistance locale pour l'auth
+## Structure Du Projet
+
+```txt
+.
+├── README.md
+└── web/
+    ├── public/                 # assets statiques, modeles 3D, images
+    ├── src/
+    │   ├── api/                # configuration Axios et routes API
+    │   ├── features/           # domaines fonctionnels de l'application
+    │   ├── navigation/         # routeurs public/authentifie
+    │   ├── shared/             # composants, hooks, stores et styles partages
+    │   ├── App.tsx             # bootstrap router + auth + react-query
+    │   └── main.tsx            # point d'entree React
+    ├── vite.config.ts
+    ├── eslint.config.js
+    ├── tsconfig*.json
+    └── package.json
+```
+
+La documentation d'architecture plus detaillee est disponible dans `web/src/README.md`.
+
+## Organisation Frontend
+
+Le code applicatif est organise par domaines metier dans `src/features`.
+
+Features principales:
+
+- `auth`: connexion, inscription, mot de passe oublie, redirection et pages d'erreur
+- `landing`: vitrine publique, FAQ et contact
+- `home`: accueil eleve
+- `milo-scene`: scene 3D et chat avec Milo
+- `courses`: matieres, chapitres, lecons et detail de cours
+- `exercices`: QCM et resultats
+- `ocr`: upload, generation d'exercices et QCM depuis documents
+- `missions`: missions quotidiennes et badges
+- `duels`: defis entre utilisateurs, historique et statistiques
+- `friends`: recherche et gestion des amis
+- `my-milo`: personnalisation de Milo
+- `milo-shop`: boutique
+- `profile`: profil utilisateur
+- `parent`: tableau de bord et abonnement parent
+
+Les elements transverses vivent dans `src/shared`:
+
+- `components`: layout, boutons, champs, top bar, sidebar, routes protegees
+- `constants`: routes et constantes globales
+- `hooks`: hooks partages
+- `store`: stores globaux, notamment auth et user
+- `styles`: styles et themes partages
+- `types`: types transverses
+- `lib`: utilitaires
+
+## Routage
+
+L'application choisit automatiquement le routeur selon l'etat d'authentification.
+
+- Utilisateur non connecte: `PublicNavigator`
+- Utilisateur connecte: `AuthNavigator`
+
+Routes publiques principales:
+
+- `/`
+- `/login`
+- `/register`
+- `/forgot-password`
+- `/faq`
+- `/contact`
+
+Routes authentifiees principales:
+
+- `/home`
+- `/milo`
+- `/courses`
+- `/courses/:subjectId`
+- `/course-milo/:lessonId`
+- `/qcm/:lessonId`
+- `/qcm`
+- `/exercise-result`
+- `/ocr`
+- `/exercice-genere`
+- `/missions`
+- `/duels`
+- `/friends`
+- `/mon-milo`
+- `/boutique`
+- `/profile`
+- `/parent/dashboard`
+- `/parent/subscription`
+
+Certaines routes sont protegees par role via `ProtectedRoute`, notamment `Enfant` et `Parent`.
+
+## API Et Authentification
+
+Le client HTTP est configure dans `web/src/api/axios.api.ts`.
+
+- `VITE_API_BASE_URL` definit l'URL de base du backend.
+- Les routes API sont centralisees dans `APIRoutes`.
+- Le token JWT est stocke via Zustand avec persistance `localStorage`.
+- Un intercepteur Axios ajoute automatiquement le header `Authorization: Bearer <token>`.
+- Les erreurs `401` hors login/register declenchent une deconnexion et une redirection vers `/login`.
+
+## Assets
+
+Les assets statiques sont dans `web/public`:
+
+- modeles 3D `.glb` de Milo et de la classroom
+- images de landing et d'interface
+- badges
+- medias de chargement
+
+Ces fichiers sont servis directement par Vite depuis la racine publique.
+
+## Conventions
+
+- Les features utilisent des dossiers `pages`, `components`, `hooks`, `store` et `styles` quand c'est pertinent.
+- Les pages suivent le format `PascalCase.page.tsx`.
+- Les composants partages suivent le format `PascalCase.component.tsx`.
+- Les stores Zustand utilisent `*.store.ts`.
+- Les modeles de store utilisent `*.model.ts`.
+- Les imports doivent privilegier les alias Vite/TypeScript:
+  - `@api/*`
+  - `@features/*`
+  - `@navigation/*`
+  - `@shared/*`
+  - `@styles/*`
+  - `@types/*`
+
+Exemple:
+
+```ts
+import ScreenLayout from "@shared/components/ScreenLayout.component";
+import MiloScene from "@features/milo-scene/pages/MiloScene";
+```
+
+## Verification Avant Livraison
+
+Avant d'ouvrir une PR ou de deployer:
+
+```bash
+cd web
+npm run lint
+npm run build
+```
+
+Le deploiement frontend peut ensuite utiliser le build Vite standard genere dans `web/dist`.
