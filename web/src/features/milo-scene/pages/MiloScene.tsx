@@ -27,6 +27,8 @@ import {
 	FiCheckCircle,
 	FiEdit3,
 	FiRefreshCw,
+	FiMaximize2,
+	FiChevronLeft,
 } from "react-icons/fi";
 import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
@@ -250,7 +252,7 @@ const Scene3D: React.FC<{
 	onIntroDone: () => void;
 	displayedText: string;
 }> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText }) => (
-<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
+	<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
 		<Suspense fallback={null}>
 			<ClassroomLighting />
 			<Environment preset="park" />
@@ -270,6 +272,9 @@ const Scene3D: React.FC<{
    ============================ */
 
 const ANIMATIONS = ["Idle", "Thinking", "Explaining", "Wrong", "Disapointed"] as const;
+const BOARD_FULL_TEXT_MIN_LENGTH = 650;
+const BOARD_PAGE_CHARS_PER_LINE = 54;
+const BOARD_PAGE_VISIBLE_LINES = 9;
 
 const AnimationControls: React.FC<{
 	activeAnimation: string;
@@ -510,12 +515,150 @@ const ChatInput: React.FC<{
 	);
 };
 
+const getBoardLineCount = (line: string) =>
+	Math.max(1, Math.ceil(line.length / BOARD_PAGE_CHARS_PER_LINE));
+
+const splitLongBoardLine = (line: string) => {
+	const chunks: string[] = [];
+	const maxChars = BOARD_PAGE_CHARS_PER_LINE * BOARD_PAGE_VISIBLE_LINES;
+
+	for (let index = 0; index < line.length; index += maxChars) {
+		chunks.push(line.slice(index, index + maxChars));
+	}
+
+	return chunks.length ? chunks : [line];
+};
+
+const splitBoardTextIntoPages = (text: string) => {
+	if (!text.trim()) return [text];
+
+	const pages: string[] = [];
+	let currentLines: string[] = [];
+	let currentLineCount = 0;
+
+	const pushPage = () => {
+		pages.push(currentLines.join("\n").trim());
+		currentLines = [];
+		currentLineCount = 0;
+	};
+
+	text.split("\n").forEach((line) => {
+		const lineCount = getBoardLineCount(line);
+
+		if (lineCount > BOARD_PAGE_VISIBLE_LINES) {
+			if (currentLines.length) pushPage();
+			splitLongBoardLine(line).forEach((chunk) => {
+				currentLines = [chunk];
+				currentLineCount = getBoardLineCount(chunk);
+				pushPage();
+			});
+			return;
+		}
+
+		if (
+			currentLines.length &&
+			currentLineCount + lineCount > BOARD_PAGE_VISIBLE_LINES
+		) {
+			pushPage();
+		}
+
+		currentLines.push(line);
+		currentLineCount += lineCount;
+	});
+
+	if (currentLines.length) pushPage();
+
+	return pages.length ? pages : [text];
+};
+
+const BoardPaginationControls: React.FC<{
+	currentPage: number;
+	totalPages: number;
+	onPageChange: (page: number) => void;
+}> = ({ currentPage, totalPages, onPageChange }) => {
+	if (totalPages <= 1) return null;
+
+	return (
+		<div className="board-pagination-controls glass-panel" aria-label="Pages du tableau">
+			<button
+				type="button"
+				onClick={() => onPageChange(currentPage - 1)}
+				disabled={currentPage === 0}
+				aria-label="Page precedente du tableau"
+				title="Page precedente"
+			>
+				<FiChevronLeft size={18} />
+			</button>
+			<span>
+				{currentPage + 1} / {totalPages}
+			</span>
+			<button
+				type="button"
+				onClick={() => onPageChange(currentPage + 1)}
+				disabled={currentPage >= totalPages - 1}
+				aria-label="Page suivante du tableau"
+				title="Page suivante"
+			>
+				<FiChevronRight size={18} />
+			</button>
+		</div>
+	);
+};
+
 const LoadingOverlay: React.FC = () => (
 	<div className="scene-loading-overlay">
 		<video className="loading-video" src="/loading.webm" autoPlay loop muted playsInline />
 		<span className="loading-text">Chargement de la scène...</span>
 	</div>
 );
+
+const BoardFullTextModal: React.FC<{
+	text: string;
+	isOpen: boolean;
+	onClose: () => void;
+}> = ({ text, isOpen, onClose }) => {
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				onClose();
+			}
+		};
+
+		document.body.style.overflow = "hidden";
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			document.body.style.overflow = "auto";
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [isOpen, onClose]);
+
+	if (!isOpen) return null;
+
+	return (
+		<div className="board-modal-overlay" onClick={onClose}>
+			<div
+				className="board-modal-content glass-panel"
+				onClick={(event) => event.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="board-modal-title"
+			>
+				<div className="board-modal-header">
+					<h2 id="board-modal-title">Tableau</h2>
+					<button className="board-modal-close" onClick={onClose} aria-label="Fermer">
+						<FiX size={20} />
+					</button>
+				</div>
+				<div className="board-modal-scroll">
+					<p>{text}</p>
+				</div>
+			</div>
+		</div>
+	);
+};
 
 const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
 	if (!visible) return null;
@@ -542,6 +685,8 @@ const MiloScene: React.FC = () => {
 		location.state as { freeChatSession?: MiloFreeChatSession } | null
 	)?.freeChatSession;
 	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
+	const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
+	const [boardPageIndex, setBoardPageIndex] = useState(0);
 
 	const {
 		// Lesson
@@ -595,6 +740,17 @@ const MiloScene: React.FC = () => {
 		!isOpenQuestionMode && (phase === "questioning" || phase === "answering");
 	const showReviewBoardButton =
 		isOpenQuestionMode && isEditing && openQuestionPhase === "answering";
+	const boardFullText = isOpenQuestionMode ? displayedText : reply || displayedText;
+	const boardPages = useMemo(() => splitBoardTextIntoPages(boardFullText), [boardFullText]);
+	const boardPageText = boardPages[boardPageIndex] ?? boardPages[0] ?? "";
+	const showBoardFullTextButton =
+		phase !== "loading" && boardFullText.trim().length > BOARD_FULL_TEXT_MIN_LENGTH;
+	const handleBoardPageChange = useCallback(
+		(page: number) => {
+			setBoardPageIndex(Math.min(boardPages.length - 1, Math.max(0, page)));
+		},
+		[boardPages.length],
+	);
 	const chatPlaceholder = isOpenQuestionMode
 		? isOpenQuestionBusy
 			? "Milo prépare..."
@@ -603,23 +759,49 @@ const MiloScene: React.FC = () => {
 				: "Écris ta réponse..."
 		: "Pose une question à Milo...";
 
+	useEffect(() => {
+		setBoardPageIndex(0);
+	}, [boardFullText]);
+
+	useEffect(() => {
+		setBoardPageIndex((current) => Math.min(current, boardPages.length - 1));
+	}, [boardPages.length]);
+
 	return (
 		<div className="milo-scene-root">
 			{!sceneReady && <LoadingOverlay />}
 
 			<Scene3D
 				cameraY={cameraY}
-				reply={isOpenQuestionMode ? "" : reply}
+				reply=""
 				activeAnimation={activeAnimation}
 				text={question}
 				isEditing={isEditing}
 				onPanelClick={handlePanelClick}
 				introActive={introActive}
 				onIntroDone={handleIntroDone}
-				displayedText={displayedText}
+				displayedText={boardPageText}
 			/>
 
 			<IntroOverlay visible={showIntroText && sceneReady} />
+
+			{showBoardFullTextButton && (
+				<button
+					className="board-full-text-btn glass-panel"
+					onClick={() => setIsBoardModalOpen(true)}
+					aria-label="Lire tout le tableau"
+					title="Lire tout le tableau"
+				>
+					<FiMaximize2 size={18} />
+					<span>Lire tout</span>
+				</button>
+			)}
+
+			<BoardPaginationControls
+				currentPage={boardPageIndex}
+				totalPages={boardPages.length}
+				onPageChange={handleBoardPageChange}
+			/>
 
 			{/* Barre de progression */}
 			{parts.length > 0 && phase !== "loading" && (
@@ -679,15 +861,17 @@ const MiloScene: React.FC = () => {
 				</button>
 			)}
 
-			{/* Controls panel */}
-			<AnimationControls
-				activeAnimation={activeAnimation}
-				onAnimationChange={setActiveAnimation}
-				visible={showControls}
-				onClose={() => setShowControls(false)}
-			/>
+			{/* Animation controls disabled for now. */}
+			{false && (
+				<AnimationControls
+					activeAnimation={activeAnimation}
+					onAnimationChange={setActiveAnimation}
+					visible={showControls}
+					onClose={() => setShowControls(false)}
+				/>
+			)}
 
-			{!showControls && (
+			{false && !showControls && (
 				<button className="panel-toggle-btn" onClick={() => setShowControls(true)} aria-label="Ouvrir les paramètres">
 					<FiSettings size={18} />
 				</button>
@@ -702,6 +886,11 @@ const MiloScene: React.FC = () => {
 			</button>
 
 			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
+			<BoardFullTextModal
+				text={boardFullText}
+				isOpen={isBoardModalOpen}
+				onClose={() => setIsBoardModalOpen(false)}
+			/>
 		</div>
 	);
 };
