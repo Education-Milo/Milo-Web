@@ -1,150 +1,150 @@
 # Milo Web
 
-Application web frontend de Milo, une plateforme d'apprentissage interactive construite avec React, TypeScript et Vite.
+Frontend web application for Milo, an interactive learning platform built with React, TypeScript, and Vite.
 
-Le projet contient l'interface élève, les parcours publics, l'espace parent, les interactions avec Milo en 3D, les cours, les QCM, les missions, les duels, les amis et les workflows OCR.
+The project includes the student interface, public journeys, the parent area, 3D interactions with Milo, courses, quizzes (MCQs), missions, duels, friends, and OCR workflows.
 
-## Stack Technique
+## Tech Stack
 
-- **React 19** et **React DOM** pour l'interface utilisateur
-- **TypeScript** pour le typage
-- **Vite 6** pour le serveur de développement et le build
-- **React Router DOM** pour le routage
-- **Zustand** pour les stores locaux persistants
-- **TanStack React Query** pour les appels et états serveur
-- **Axios** pour le client HTTP
-- **Three.js**, **React Three Fiber**, **Drei** et **Postprocessing** pour les scènes 3D
-- **Tailwind CSS 4**, CSS modules et CSS classiques pour le styling
-- **Radix UI**, **Lucide React** et **React Icons** pour les composants et icônes
-- **Framer Motion** pour certaines animations
+- **React 19** and **React DOM** for the user interface
+- **TypeScript** for typing
+- **Vite 6** for the development server and build
+- **React Router DOM** for routing
+- **Zustand** for persistent local stores
+- **TanStack React Query** for server calls and state
+- **Axios** as the HTTP client
+- **Three.js**, **React Three Fiber**, **Drei**, and **Postprocessing** for 3D scenes
+- **Tailwind CSS 4**, CSS modules, and plain CSS for styling
+- **Radix UI**, **Lucide React**, and **React Icons** for components and icons
+- **Framer Motion** for certain animations
 
-## Prérequis
+## Prerequisites
 
-- Node.js 18+ recommandé
+- Node.js 18+ recommended
 - npm
-- Une API Milo accessible via `VITE_API_BASE_URL`
+- A Milo API reachable via `VITE_API_BASE_URL`
 
 ## Installation
 
-Depuis la racine du dépôt:
+From the repository root:
 
 ```bash
 cd web
 npm install
 ```
 
-Créer ou compléter ensuite le fichier `web/.env`:
+Then create or complete the `web/.env` file:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-Adaptez l'URL selon l'environnement backend utilisé.
+Adjust the URL according to the backend environment in use.
 
-## Lancement
+## Running
 
 ```bash
 cd web
 npm run dev
 ```
 
-L'application est servie par Vite sur:
+The application is served by Vite at:
 
 ```txt
 http://localhost:3000
 ```
 
-La configuration active `host: true`, ce qui permet aussi de tester depuis le réseau local si nécessaire.
+The configuration enables `host: true`, which also allows testing from the local network if needed.
 
-## Scripts Disponibles
+## Available Scripts
 
-Depuis `web/`:
+From `web/`:
 
 ```bash
 npm run dev
 ```
 
-Lance le serveur de développement Vite.
+Starts the Vite development server.
 
 ```bash
 npm run build
 ```
 
-Compile TypeScript puis génère le build de production.
+Compiles TypeScript and then generates the production build.
 
 ```bash
 npm run preview
 ```
 
-Prévisualise localement le build de production.
+Previews the production build locally.
 
 ```bash
 npm run lint
 ```
 
-Lance ESLint sur le projet.
+Runs ESLint on the project.
 
-## Structure Du Projet
+## Project Structure
 
 ```txt
 .
 ├── README.md
 └── web/
-    ├── public/                 # assets statiques, modèles 3D, images
+    ├── public/                 # static assets, 3D models, images
     ├── src/
-    │   ├── api/                # configuration Axios et routes API
-    │   ├── features/           # domaines fonctionnels de l'application
-    │   ├── navigation/         # routeurs public/authentifié
-    │   ├── shared/             # composants, hooks, stores et styles partagés
-    │   ├── App.tsx             # bootstrap router + auth + react-query
-    │   └── main.tsx            # point d'entrée React
+    │   ├── api/                # Axios configuration and API routes
+    │   ├── features/           # application feature domains
+    │   ├── navigation/         # public/authenticated routers
+    │   ├── shared/             # shared components, hooks, stores, and styles
+    │   ├── App.tsx             # router + auth + react-query bootstrap
+    │   └── main.tsx            # React entry point
     ├── vite.config.ts
     ├── eslint.config.js
     ├── tsconfig*.json
     └── package.json
 ```
 
-La documentation d'architecture plus détaillée est disponible dans `web/src/README.md`.
+More detailed architecture documentation is available in `web/src/README.md`.
 
-## Organisation Frontend
+## Frontend Organization
 
-Le code applicatif est organisé par domaines métier dans `src/features`.
+The application code is organized by business domains in `src/features`.
 
-Features principales:
+Main features:
 
-- `auth`: connexion, inscription, mot de passe oublié, redirection et pages d'erreur
-- `landing`: vitrine publique, FAQ et contact
-- `home`: accueil élève
-- `milo-scene`: scène 3D et chat avec Milo
-- `courses`: matières, chapitres, leçons et détail de cours
-- `exercices`: QCM et résultats
-- `ocr`: upload, génération d'exercices et QCM depuis documents
-- `missions`: missions quotidiennes et badges
-- `duels`: défis entre utilisateurs, historique et statistiques
-- `friends`: recherche et gestion des amis
-- `my-milo`: personnalisation de Milo
-- `milo-shop`: boutique
-- `profile`: profil utilisateur
-- `parent`: tableau de bord et abonnement parent
+- `auth`: login, registration, forgot password, redirection, and error pages
+- `landing`: public showcase, FAQ, and contact
+- `home`: student home page
+- `milo-scene`: 3D scene and chat with Milo
+- `courses`: subjects, chapters, lessons, and course details
+- `exercices`: MCQs and results
+- `ocr`: upload, exercise generation, and MCQs from documents
+- `missions`: daily missions and badges
+- `duels`: challenges between users, history, and statistics
+- `friends`: friend search and management
+- `my-milo`: Milo customization
+- `milo-shop`: shop
+- `profile`: user profile
+- `parent`: parent dashboard and subscription
 
-Les éléments transverses vivent dans `src/shared`:
+Cross-cutting elements live in `src/shared`:
 
-- `components`: layout, boutons, champs, top bar, sidebar, routes protégées
-- `constants`: routes et constantes globales
-- `hooks`: hooks partagés
-- `store`: stores globaux, notamment auth et user
-- `styles`: styles et thèmes partagés
-- `types`: types transverses
-- `lib`: utilitaires
+- `components`: layout, buttons, fields, top bar, sidebar, protected routes
+- `constants`: routes and global constants
+- `hooks`: shared hooks
+- `store`: global stores, notably auth and user
+- `styles`: shared styles and themes
+- `types`: cross-cutting types
+- `lib`: utilities
 
-## Routage
+## Routing
 
-L'application choisit automatiquement le routeur selon l'état d'authentification.
+The application automatically selects the router based on authentication state.
 
-- Utilisateur non connecté: `PublicNavigator`
-- Utilisateur connecté: `AuthNavigator`
+- Unauthenticated user: `PublicNavigator`
+- Authenticated user: `AuthNavigator`
 
-Routes publiques principales:
+Main public routes:
 
 - `/`
 - `/login`
@@ -153,7 +153,7 @@ Routes publiques principales:
 - `/faq`
 - `/contact`
 
-Routes authentifiées principales:
+Main authenticated routes:
 
 - `/home`
 - `/milo`
@@ -174,37 +174,37 @@ Routes authentifiées principales:
 - `/parent/dashboard`
 - `/parent/subscription`
 
-Certaines routes sont protégées par rôle via `ProtectedRoute`, notamment `Enfant` et `Parent`.
+Some routes are role-protected via `ProtectedRoute`, notably `Enfant` (Child) and `Parent`.
 
-## API Et Authentification
+## API and Authentication
 
-Le client HTTP est configuré dans `web/src/api/axios.api.ts`.
+The HTTP client is configured in `web/src/api/axios.api.ts`.
 
-- `VITE_API_BASE_URL` définit l'URL de base du backend.
-- Les routes API sont centralisées dans `APIRoutes`.
-- Le token JWT est stocké via Zustand avec persistance `localStorage`.
-- Un intercepteur Axios ajoute automatiquement le header `Authorization: Bearer <token>`.
-- Les erreurs `401` hors login/register déclenchent une déconnexion et une redirection vers `/login`.
+- `VITE_API_BASE_URL` defines the backend base URL.
+- API routes are centralized in `APIRoutes`.
+- The JWT token is stored via Zustand with `localStorage` persistence.
+- An Axios interceptor automatically adds the `Authorization: Bearer <token>` header.
+- `401` errors outside of login/register trigger a logout and a redirect to `/login`.
 
 ## Assets
 
-Les assets statiques sont dans `web/public`:
+Static assets are located in `web/public`:
 
-- modèles 3D `.glb` de Milo et de la classroom
-- images de landing et d'interface
+- `.glb` 3D models of Milo and the classroom
+- landing and interface images
 - badges
-- médias de chargement
+- loading media
 
-Ces fichiers sont servis directement par Vite depuis la racine publique.
+These files are served directly by Vite from the public root.
 
 ## Conventions
 
-- Les features utilisent des dossiers `pages`, `components`, `hooks`, `store` et `styles` quand c'est pertinent.
-- Les pages suivent le format `PascalCase.page.tsx`.
-- Les composants partagés suivent le format `PascalCase.component.tsx`.
-- Les stores Zustand utilisent `*.store.ts`.
-- Les modèles de store utilisent `*.model.ts`.
-- Les imports doivent privilégier les alias Vite/TypeScript:
+- Features use `pages`, `components`, `hooks`, `store`, and `styles` folders where relevant.
+- Pages follow the `PascalCase.page.tsx` format.
+- Shared components follow the `PascalCase.component.tsx` format.
+- Zustand stores use `*.store.ts`.
+- Store models use `*.model.ts`.
+- Imports should favor the Vite/TypeScript aliases:
   - `@api/*`
   - `@features/*`
   - `@navigation/*`
@@ -212,16 +212,16 @@ Ces fichiers sont servis directement par Vite depuis la racine publique.
   - `@styles/*`
   - `@types/*`
 
-Exemple:
+Example:
 
 ```ts
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import MiloScene from "@features/milo-scene/pages/MiloScene";
 ```
 
-## Vérification Avant Livraison
+## Pre-Release Checks
 
-Avant d'ouvrir une PR ou de déployer:
+Before opening a PR or deploying:
 
 ```bash
 cd web
@@ -229,4 +229,4 @@ npm run lint
 npm run build
 ```
 
-Le déploiement frontend peut ensuite utiliser le build Vite standard généré dans `web/dist`.
+The frontend deployment can then use the standard Vite build generated in `web/dist`.
