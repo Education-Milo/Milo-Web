@@ -8,8 +8,10 @@ const ProfilePage: React.FC = () => {
 		isEditing,
 		profile,
 		tempProfile,
+		passwordData,
 		user,
 		handleInputChange,
+		handlePasswordChange,
 		handleSave,
 		handleCancel,
 		startEditing,
@@ -121,6 +123,51 @@ const ProfilePage: React.FC = () => {
 										<option value="4eme">4ème</option>
 										<option value="3eme">3ème</option>
 									</select>
+								</div>
+							</div>
+
+							{/* ── Changement de mot de passe (optionnel) ──
+							    Laisser les champs vides pour conserver le mot de
+							    passe actuel. Utile après une réinitialisation par
+							    email avec mot de passe temporaire. */}
+							<div className="form-row">
+								<div className="form-group">
+									<label className="form-label">Nouveau mot de passe</label>
+									<input
+										type="password"
+										className="form-input"
+										autoComplete="new-password"
+										placeholder={
+											isEditing
+												? "8 caractères minimum"
+												: "••••••••"
+										}
+										value={passwordData.new_password}
+										onChange={(e) =>
+											handlePasswordChange("new_password", e.target.value)
+										}
+										disabled={!isEditing}
+									/>
+								</div>
+								<div className="form-group">
+									<label className="form-label">
+										Confirmer le mot de passe
+									</label>
+									<input
+										type="password"
+										className="form-input"
+										autoComplete="new-password"
+										placeholder={
+											isEditing
+												? "Retape ton nouveau mot de passe"
+												: "••••••••"
+										}
+										value={passwordData.confirm_password}
+										onChange={(e) =>
+											handlePasswordChange("confirm_password", e.target.value)
+										}
+										disabled={!isEditing}
+									/>
 								</div>
 							</div>
 						</div>
