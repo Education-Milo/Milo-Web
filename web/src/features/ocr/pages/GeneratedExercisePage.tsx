@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Download, Eye, Lightbulb } from "lucide-react";
+import { ArrowLeft, Clock, Download, Eye, Lightbulb, Send } from "lucide-react";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
@@ -53,6 +53,10 @@ const GeneratedExercisePage: React.FC = () => {
 		})),
 	);
 	const [studentAnswer, setStudentAnswer] = useState("");
+	const [answerFeedback, setAnswerFeedback] = useState<string | null>(null);
+	const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
+	const [answerError, setAnswerError] = useState<string | null>(null);
+	const [hasSubmittedAnswer, setHasSubmittedAnswer] = useState(false);
 	const [hintError, setHintError] = useState<string | null>(null);
 	const [showAnswer, setShowAnswer] = useState(false);
 	const [now, setNow] = useState(Date.now());
@@ -120,6 +124,49 @@ const GeneratedExercisePage: React.FC = () => {
 		}
 	};
 
+	const submitAnswer = async () => {
+		if (!generatedExercise || !studentAnswer.trim() || isSubmittingAnswer) return;
+
+		setAnswerError(null);
+		setIsSubmittingAnswer(true);
+
+		try {
+			const formData = new FormData();
+			formData.append(
+				"chat_request",
+				`Tu es un professeur bienveillant qui corrige la réponse d'un élève.
+
+				Énoncé de l'exercice : "${generatedExercise.exercise}"
+				Réponse de l'élève : "${studentAnswer.trim()}"
+
+				Donne un retour constructif et encourageant en 3 parties :
+				1. Ce qui est bien dans la réponse
+				2. Ce qui pourrait être amélioré ou complété
+				3. Une piste courte pour finaliser, sans rédiger la solution complète
+
+				Continue la conversation en cours sans saluer l'élève.
+				Ne commence jamais par "Bonjour", "Salut" ou "Bonjour toi".
+				Sois chaleureux, bref et pédagogique.`,
+			);
+			formData.append("conversation_id", generatedExercise.conversationId);
+			formData.append("context", generatedExercise.exercise);
+
+			const { data } = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
+				headers: { "Content-Type": "multipart/form-data" },
+			});
+			const content =
+				data.reply ?? data.content ?? data.message ??
+				"Milo n'a pas réussi à corriger ta réponse.";
+
+			setAnswerFeedback(content);
+			setHasSubmittedAnswer(true);
+		} catch {
+			setAnswerError("Impossible d'envoyer ta réponse pour le moment. Réessaie !");
+		} finally {
+			setIsSubmittingAnswer(false);
+		}
+	};
+
 	const canUseHint = (index: number) => {
 		if (!generatedExercise) return false;
 		if (hints[index].content || hints[index].isLoading) return false;
@@ -131,7 +178,7 @@ const GeneratedExercisePage: React.FC = () => {
 	};
 
 	const canShowAnswer =
-		Boolean(hints[HINT_COUNT - 1].content) && studentAnswer.trim().length === 0;
+		hasSubmittedAnswer || Boolean(hints[HINT_COUNT - 1].content);
 
 	const printExercise = () => {
 		window.print();
@@ -206,7 +253,33 @@ const GeneratedExercisePage: React.FC = () => {
 								value={studentAnswer}
 								onChange={(event) => setStudentAnswer(event.target.value)}
 								placeholder="Écris ta réponse ici avant de demander trop d'aide..."
+								disabled={isSubmittingAnswer}
 							/>
+							{answerError && <p className="ocr-hint-error">{answerError}</p>}
+							<button
+								type="button"
+								className="ocr-btn-primary"
+								style={{ marginTop: "0.5rem", marginBottom: "0.5rem" }}
+								onClick={submitAnswer}
+								disabled={!studentAnswer.trim() || isSubmittingAnswer}
+							>
+								<Send size={18} />
+								<span>
+									{isSubmittingAnswer
+										? "Milo corrige..."
+										: answerFeedback
+											? "Renvoyer ma réponse"
+											: "Envoyer ma réponse à Milo"}
+								</span>
+							</button>
+							{answerFeedback && (
+								<div className="ocr-ex-feedback-box">
+									<h3>Correction de Milo</h3>
+									{splitParagraphs(answerFeedback).map((paragraph, index) => (
+										<p key={`feedback-${paragraph}-${index}`}>{paragraph}</p>
+									))}
+								</div>
+							)}
 						</section>
 
 						<section className="ocr-ex-hints-box">

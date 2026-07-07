@@ -8,7 +8,7 @@ interface RoleSelectorProps {
 
 const ROLES = [
 	{ id: "Élève", label: "Élève", active: true },
-	{ id: "Parent", label: "Parent", active: true },
+	{ id: "Parent", label: "Parent", active: false },
 	{ id: "Professeur", label: "Professeur", active: false },
 ];
 

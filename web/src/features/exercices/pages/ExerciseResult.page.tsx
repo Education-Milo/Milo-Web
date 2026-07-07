@@ -42,11 +42,9 @@ const ExerciseResultScreen: React.FC = () => {
             <Trophy size={64} color="#FFD700" />
         </div>
         <h1>{message} {emoji}</h1>
-        <p className="theme-subtitle">Thème : {theme}</p>
 
         <div className="score-display">
-          <span className="score-big">{score}</span>
-          <span className="score-total">/ {total}</span>
+          <span className="score-big">Votre score est : {score} / {total}</span>
         </div>
 
         <div className="result-actions">

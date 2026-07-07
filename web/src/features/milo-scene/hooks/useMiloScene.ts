@@ -446,6 +446,17 @@ export const useMiloScene = (
 		navigate(-1);
 	}, [navigate]);
 
+	// ─── Retour au détail du cours (COURSE_DETAIL) ────────────────────────────
+	const handleBackToCourseDetail = useCallback(() => {
+		if (!lessonId || Number.isNaN(lessonId)) {
+			navigate(-1);
+			return;
+		}
+		// ⚠️ Adapte le chemin à ta constante de route COURSE_DETAIL
+		// ex: navigate(ROUTES.COURSE_DETAIL.replace(":id", String(lessonId)));
+		navigate(`/course/${lessonId}`);
+	}, [lessonId, navigate]);
+
 	const handleStartQcm = useCallback(() => {
 		if (!lessonId || Number.isNaN(lessonId)) return;
 		navigate(`/qcm/${lessonId}`);
@@ -507,6 +518,7 @@ export const useMiloScene = (
 		handleAskQuestion,
 		handleNextPart,
 		handleBackToLessons,
+		handleBackToCourseDetail,
 		handleStartQcm,
 		handleStartOpenQuestion,
 		handleOpenQuestionNewQuestion,

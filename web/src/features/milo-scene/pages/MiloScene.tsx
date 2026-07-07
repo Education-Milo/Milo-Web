@@ -273,7 +273,7 @@ const Scene3D: React.FC<{
 
 const ANIMATIONS = ["Idle", "Thinking", "Explaining", "Wrong", "Disapointed"] as const;
 const BOARD_FULL_TEXT_MIN_LENGTH = 650;
-const BOARD_PAGE_CHARS_PER_LINE = 54;
+const BOARD_PAGE_CHARS_PER_LINE = 65; // marge de sécurité vs maxWidth du <Text> 3D
 const BOARD_PAGE_VISIBLE_LINES = 9;
 
 const AnimationControls: React.FC<{
@@ -341,6 +341,7 @@ const LessonActions: React.FC<{
 	onAskQuestion: () => void;
 	onOpenQuestionModeChange: (mode: "answer" | "help") => void;
 	onBackToLessons: () => void;
+	onBackToCourseDetail: () => void;
 	onStartQcm: () => void;
 	onStartOpenQuestion: () => void;
 	onOpenQuestionNewQuestion: () => void;
@@ -355,6 +356,7 @@ const LessonActions: React.FC<{
 	onAskQuestion,
 	onOpenQuestionModeChange,
 	onBackToLessons,
+	onBackToCourseDetail,
 	onStartQcm,
 	onStartOpenQuestion,
 	onOpenQuestionNewQuestion,
@@ -396,7 +398,10 @@ const LessonActions: React.FC<{
 						: "🎉 Bravo ! Tu as terminé cette leçon !"}
 				</p>
 				{isFreeChatMode || isOpenQuestionMode ? (
-					<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
+					<button
+						className="lesson-btn lesson-btn--primary"
+						onClick={isOpenQuestionMode ? onBackToCourseDetail : onBackToLessons}
+					>
 						<FiArrowLeft size={16} />
 						Retour
 					</button>
@@ -429,7 +434,7 @@ const LessonActions: React.FC<{
 							<FiRefreshCw size={16} />
 							<span>Nouvelle question</span>
 						</button>
-						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToLessons}>
+						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToCourseDetail}>
 							<FiArrowLeft size={16} />
 							<span>Retour au cours</span>
 						</button>
@@ -515,58 +520,61 @@ const ChatInput: React.FC<{
 	);
 };
 
-const getBoardLineCount = (line: string) =>
-	Math.max(1, Math.ceil(line.length / BOARD_PAGE_CHARS_PER_LINE));
+// Découpe une ligne en "rangées" de tableau en respectant les mots,
+// comme le ferait le retour à la ligne du rendu 3D (mais en plus strict).
+const wrapLineIntoRows = (
+	line: string,
+	maxChars = BOARD_PAGE_CHARS_PER_LINE,
+): string[] => {
+	if (!line.trim()) return [""];
 
-const splitLongBoardLine = (line: string) => {
-	const chunks: string[] = [];
-	const maxChars = BOARD_PAGE_CHARS_PER_LINE * BOARD_PAGE_VISIBLE_LINES;
+	const rows: string[] = [];
+	let current = "";
 
-	for (let index = 0; index < line.length; index += maxChars) {
-		chunks.push(line.slice(index, index + maxChars));
+	for (const rawWord of line.split(/\s+/)) {
+		let word = rawWord;
+
+		// Mot plus long qu'une rangée entière : on le coupe (cas rare, URLs, etc.)
+		while (word.length > maxChars) {
+			if (current) {
+				rows.push(current);
+				current = "";
+			}
+			rows.push(word.slice(0, maxChars));
+			word = word.slice(maxChars);
+		}
+		if (!word) continue;
+
+		if (!current) {
+			current = word;
+		} else if (current.length + 1 + word.length <= maxChars) {
+			current += ` ${word}`;
+		} else {
+			rows.push(current);
+			current = word;
+		}
 	}
 
-	return chunks.length ? chunks : [line];
+	if (current) rows.push(current);
+	return rows.length ? rows : [""];
 };
 
 const splitBoardTextIntoPages = (text: string) => {
 	if (!text.trim()) return [text];
 
+	// 1. On pré-calcule le retour à la ligne nous-mêmes (avec de vrais \n),
+	//    donc 1 rangée = 1 ligne rendue sur le tableau, sans surprise.
+	const rows = text
+		.split("\n")
+		.flatMap((line) => wrapLineIntoRows(line));
+
+	// 2. On pagine par paquets de BOARD_PAGE_VISIBLE_LINES rangées.
 	const pages: string[] = [];
-	let currentLines: string[] = [];
-	let currentLineCount = 0;
-
-	const pushPage = () => {
-		pages.push(currentLines.join("\n").trim());
-		currentLines = [];
-		currentLineCount = 0;
-	};
-
-	text.split("\n").forEach((line) => {
-		const lineCount = getBoardLineCount(line);
-
-		if (lineCount > BOARD_PAGE_VISIBLE_LINES) {
-			if (currentLines.length) pushPage();
-			splitLongBoardLine(line).forEach((chunk) => {
-				currentLines = [chunk];
-				currentLineCount = getBoardLineCount(chunk);
-				pushPage();
-			});
-			return;
-		}
-
-		if (
-			currentLines.length &&
-			currentLineCount + lineCount > BOARD_PAGE_VISIBLE_LINES
-		) {
-			pushPage();
-		}
-
-		currentLines.push(line);
-		currentLineCount += lineCount;
-	});
-
-	if (currentLines.length) pushPage();
+	for (let i = 0; i < rows.length; i += BOARD_PAGE_VISIBLE_LINES) {
+		pages.push(
+			rows.slice(i, i + BOARD_PAGE_VISIBLE_LINES).join("\n").trim(),
+		);
+	}
 
 	return pages.length ? pages : [text];
 };
@@ -711,6 +719,7 @@ const MiloScene: React.FC = () => {
 		handleAskQuestion,
 		handleNextPart,
 		handleBackToLessons,
+		handleBackToCourseDetail,
 		handleStartQcm,
 		handleStartOpenQuestion,
 		handleOpenQuestionNewQuestion,
@@ -834,6 +843,7 @@ const MiloScene: React.FC = () => {
 				onAskQuestion={handleAskQuestion}
 				onOpenQuestionModeChange={handleOpenQuestionInputModeChange}
 				onBackToLessons={handleBackToLessons}
+				onBackToCourseDetail={handleBackToCourseDetail}
 				onStartQcm={handleStartQcm}
 				onStartOpenQuestion={handleStartOpenQuestion}
 				onOpenQuestionNewQuestion={handleOpenQuestionNewQuestion}
