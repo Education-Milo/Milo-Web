@@ -10,7 +10,7 @@ const createFallbackAttemptId = () =>
 const ExerciseResultScreen: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { score, total, theme, attemptId } = location.state || {};
+  const { score, total, attemptId } = location.state || {};
   const fallbackAttemptId = useRef(createFallbackAttemptId());
 
   useEffect(() => {
