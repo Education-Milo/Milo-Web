@@ -4,7 +4,6 @@ import { Award, Clock, Sparkles, Target } from "lucide-react";
 import MissionItem from "@features/missions/components/missionItem/MissionItem.component";
 import BadgeItem from "@features/missions/components/badgeItem/BadgeItem.component";
 import { useDailyMissions } from "@features/missions/store/dailyMissions.store";
-import { useUserStore } from "@shared/store/user/user.store";
 import type { MonthlyBadge, MonthlyChallenge } from "@shared/types/missions";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/missions/styles/MissionsScreen.css";
@@ -120,7 +119,6 @@ const MONTHLY_BADGES: MonthlyBadge[] = [
 const MissionsScreen: React.FC = () => {
 	const navigate = useNavigate();
 	const dailyMissions = useDailyMissions();
-	const user = useUserStore((state) => state.user);
 	const dailyMissionDelayStart = 0.15;
 	const badgeDelayStart = 0.05;
 
@@ -155,11 +153,9 @@ const MissionsScreen: React.FC = () => {
 					<div className="ms-hero-center">
 						<div className="ms-hero-chip">
 							<Sparkles size={14} />
-							<span>Missions &amp; récompenses</span>
+							<span>Ton espace</span>
 						</div>
-						<h1 className="ms-hero-title">
-							Salut {user?.first_name || "toi"} !
-						</h1>
+						<h1 className="ms-hero-title">Missions &amp; Récompenses</h1>
 						<p className="ms-hero-sub">
 							Complète tes missions du jour et débloque un nouveau badge
 							chaque mois.
