@@ -1,4 +1,5 @@
 import React from "react";
+import { Check } from "lucide-react";
 import type { DailyMission } from "@shared/types/missions";
 import "./MissionItem.css";
 
@@ -22,15 +23,17 @@ const MissionItem: React.FC<MissionItemProps> = ({
 	const isCompleted = mission.progressCurrent >= mission.progressTotal;
 	const content = (
 		<>
-			<div className="mission-item-icon">{isCompleted ? "✓" : mission.icon}</div>
-			<div className="mission-item-info">
+			<div className="ms-mission-icon">
+				{isCompleted ? <Check size={22} strokeWidth={3} /> : mission.icon}
+			</div>
+			<div className="ms-mission-info">
 				<h4>{mission.title}</h4>
-				<div className="mission-progress-container">
-					<div className="mission-progress-bar">
+				<div className="ms-progress-container">
+					<div className="ms-progress-bar">
 						<div
-							className="mission-progress-fill"
+							className="ms-progress-fill"
 							style={{ width: `${progressPercent}%` }}
-						></div>
+						/>
 					</div>
 					<span>
 						{Math.min(mission.progressCurrent, mission.progressTotal)}/
@@ -38,10 +41,10 @@ const MissionItem: React.FC<MissionItemProps> = ({
 					</span>
 				</div>
 			</div>
-			<div className="mission-item-reward">
+			<div className="ms-mission-reward">
 				<span>{isCompleted ? "Terminé" : `+${mission.rewardPoints} pts`}</span>
 				{actionLabel && !isCompleted && (
-					<span className="mission-item-action">{actionLabel}</span>
+					<span className="ms-mission-action">{actionLabel}</span>
 				)}
 			</div>
 		</>
@@ -51,7 +54,7 @@ const MissionItem: React.FC<MissionItemProps> = ({
 		return (
 			<button
 				type="button"
-				className={`mission-item mission-item-button ${isCompleted ? "completed" : ""}`}
+				className={`ms-mission-item ms-mission-item-button ${isCompleted ? "completed" : ""}`}
 				style={{ animationDelay }}
 				onClick={onClick}
 			>
@@ -62,7 +65,7 @@ const MissionItem: React.FC<MissionItemProps> = ({
 
 	return (
 		<div
-			className={`mission-item ${isCompleted ? "completed" : ""}`}
+			className={`ms-mission-item ${isCompleted ? "completed" : ""}`}
 			style={{ animationDelay }}
 		>
 			{content}

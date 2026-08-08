@@ -1,4 +1,5 @@
 import React from "react";
+import { Lock } from "lucide-react";
 import type { MonthlyBadge } from "@shared/types/missions";
 import "./BadgeItem.css";
 
@@ -9,10 +10,10 @@ interface BadgeItemProps {
 
 const BadgeItem: React.FC<BadgeItemProps> = ({ badge, animationDelay }) => {
 	return (
-		<div className={`badge-item ${badge.status}`} style={{ animationDelay }}>
-			<div className="badge-circle">
+		<div className={`ms-badge-item ${badge.status}`} style={{ animationDelay }}>
+			<div className="ms-badge-circle">
 				{badge.status === "locked" ? (
-					<span className="badge-lock-icon">🔒</span>
+					<Lock size={22} className="ms-badge-lock-icon" />
 				) : (
 					<img
 						src={badge.imageUrl || "/badges/badge-default-missed.png"}
@@ -20,7 +21,7 @@ const BadgeItem: React.FC<BadgeItemProps> = ({ badge, animationDelay }) => {
 					/>
 				)}
 			</div>
-			<span className="badge-month-label">{badge.month}</span>
+			<span className="ms-badge-month-label">{badge.month}</span>
 		</div>
 	);
 };
