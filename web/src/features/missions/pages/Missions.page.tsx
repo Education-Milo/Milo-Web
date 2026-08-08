@@ -10,111 +10,80 @@ import "@features/missions/styles/MissionsScreen.css";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import miloMascot from "/buttonGo.webp";
 
-const MONTHLY_CHALLENGE: MonthlyChallenge = {
-	title: "L'aventure de Novembre",
-	daysLeft: 26,
-	questsCurrent: 4,
-	questsTotal: 35,
+const MONTH_NAMES = [
+	"Janvier",
+	"Février",
+	"Mars",
+	"Avril",
+	"Mai",
+	"Juin",
+	"Juillet",
+	"Août",
+	"Septembre",
+	"Octobre",
+	"Novembre",
+	"Décembre",
+];
+// Mois dont le nom commence par un son vocalique : "de" s'élide en "d'".
+const ELIDED_MONTHS = new Set([3, 7, 9]); // Avril, Août, Octobre
+
+const BADGE_IMAGES = [
+	"badges/badge1.png",
+	"badges/badge2.png",
+	"badges/badge3.png",
+	"badges/badge4.png",
+	"badges/badge5.png",
+	"badges/badge6.png",
+];
+
+const getMonthlyChallenge = (): MonthlyChallenge => {
+	const today = new Date();
+	const monthIndex = today.getMonth();
+	const lastDayOfMonth = new Date(
+		today.getFullYear(),
+		monthIndex + 1,
+		0,
+	).getDate();
+	const preposition = ELIDED_MONTHS.has(monthIndex) ? "d'" : "de ";
+
+	return {
+		title: `L'aventure ${preposition}${MONTH_NAMES[monthIndex]}`,
+		daysLeft: lastDayOfMonth - today.getDate(),
+		questsCurrent: 4,
+		questsTotal: 35,
+	};
 };
 
-const MONTHLY_BADGES: MonthlyBadge[] = [
-	{
-		id: "25-01",
-		month: "Janvier",
-		monthIndex: 0,
-		year: 2025,
-		imageUrl: "badges/badge1.png",
-		status: "earned",
-	},
-	{
-		id: "25-02",
-		month: "Février",
-		monthIndex: 1,
-		year: 2025,
-		imageUrl: "badges/badge2.png",
-		status: "missed",
-	},
-	{
-		id: "25-03",
-		month: "Mars",
-		monthIndex: 2,
-		year: 2025,
-		imageUrl: "badges/badge4.png",
-		status: "missed",
-	},
-	{
-		id: "25-04",
-		month: "Avril",
-		monthIndex: 3,
-		year: 2025,
-		imageUrl: "badges/badge3.png",
-		status: "earned",
-	},
-	{
-		id: "25-05",
-		month: "Mai",
-		monthIndex: 4,
-		year: 2025,
-		imageUrl: "badges/badge1.png",
-		status: "earned",
-	},
-	{
-		id: "25-06",
-		month: "Juin",
-		monthIndex: 5,
-		year: 2025,
-		imageUrl: "badges/badge3.png",
-		status: "missed",
-	},
-	{
-		id: "25-07",
-		month: "Juillet",
-		monthIndex: 6,
-		year: 2025,
-		imageUrl: "badges/badge4.png",
-		status: "earned",
-	},
-	{
-		id: "25-08",
-		month: "Août",
-		monthIndex: 7,
-		year: 2025,
-		imageUrl: "badges/badge2.png",
-		status: "missed",
-	},
-	{
-		id: "25-09",
-		month: "Septembre",
-		monthIndex: 8,
-		year: 2025,
-		imageUrl: "badges/badge5.png",
-		status: "earned",
-	},
-	{
-		id: "25-10",
-		month: "Octobre",
-		monthIndex: 9,
-		year: 2025,
-		imageUrl: "badges/badge6.png",
-		status: "earned",
-	},
-	{
-		id: "25-11",
-		month: "Novembre",
-		monthIndex: 10,
-		year: 2025,
-		imageUrl: "badges/badge6.png",
-		status: "in-progress",
-	},
-	{
-		id: "25-12",
-		month: "Décembre",
-		monthIndex: 11,
-		year: 2025,
-		imageUrl: null,
-		status: "locked",
-	},
-];
+const getMonthlyBadges = (): MonthlyBadge[] => {
+	const today = new Date();
+	const currentYear = today.getFullYear();
+	const currentMonthIndex = today.getMonth();
+	const yearSuffix = String(currentYear).slice(-2);
+
+	return MONTH_NAMES.map((month, monthIndex) => {
+		let status: MonthlyBadge["status"];
+		if (monthIndex < currentMonthIndex) {
+			// Pas d'historique réel de complétion : on alterne pour illustrer les deux états.
+			status = monthIndex % 2 === 0 ? "earned" : "missed";
+		} else if (monthIndex === currentMonthIndex) {
+			status = "in-progress";
+		} else {
+			status = "locked";
+		}
+
+		return {
+			id: `${yearSuffix}-${String(monthIndex + 1).padStart(2, "0")}`,
+			month,
+			monthIndex,
+			year: currentYear,
+			imageUrl:
+				status === "locked"
+					? null
+					: BADGE_IMAGES[monthIndex % BADGE_IMAGES.length],
+			status,
+		};
+	});
+};
 
 const MissionsScreen: React.FC = () => {
 	const navigate = useNavigate();
@@ -122,14 +91,17 @@ const MissionsScreen: React.FC = () => {
 	const dailyMissionDelayStart = 0.15;
 	const badgeDelayStart = 0.05;
 
+	const monthlyChallenge = getMonthlyChallenge();
+	const monthlyBadges = getMonthlyBadges();
+
 	const completedMissionsCount = dailyMissions.filter(
 		(mission) => mission.progressCurrent >= mission.progressTotal,
 	).length;
-	const earnedBadgesCount = MONTHLY_BADGES.filter(
+	const earnedBadgesCount = monthlyBadges.filter(
 		(badge) => badge.status === "earned",
 	).length;
 
-	const badgesByYear = MONTHLY_BADGES.reduce(
+	const badgesByYear = monthlyBadges.reduce(
 		(acc, badge) => {
 			const year = badge.year.toString();
 			acc[year] = [...(acc[year] ?? []), badge];
@@ -178,9 +150,9 @@ const MissionsScreen: React.FC = () => {
 				{/* --- DÉFI MENSUEL --- */}
 				<section className="ms-challenge">
 					<div className="ms-challenge-content">
-						<h3 className="ms-challenge-title">{MONTHLY_CHALLENGE.title}</h3>
+						<h3 className="ms-challenge-title">{monthlyChallenge.title}</h3>
 						<p className="ms-challenge-text">
-							Termine {MONTHLY_CHALLENGE.questsTotal} quêtes ce mois-ci pour
+							Termine {monthlyChallenge.questsTotal} quêtes ce mois-ci pour
 							gagner un badge exclusif !
 						</p>
 						<div className="ms-progress-container">
@@ -188,16 +160,16 @@ const MissionsScreen: React.FC = () => {
 								<div
 									className="ms-progress-fill"
 									style={{
-										width: `${(MONTHLY_CHALLENGE.questsCurrent / MONTHLY_CHALLENGE.questsTotal) * 100}%`,
+										width: `${(monthlyChallenge.questsCurrent / monthlyChallenge.questsTotal) * 100}%`,
 									}}
 								/>
 							</div>
 							<span>
-								{MONTHLY_CHALLENGE.questsCurrent}/{MONTHLY_CHALLENGE.questsTotal}
+								{monthlyChallenge.questsCurrent}/{monthlyChallenge.questsTotal}
 							</span>
 						</div>
 						<span className="ms-challenge-days-left">
-							📅 {MONTHLY_CHALLENGE.daysLeft} jours restants
+							📅 {monthlyChallenge.daysLeft} jours restants
 						</span>
 					</div>
 					<div className="ms-challenge-fox" aria-hidden="true">
