@@ -113,20 +113,20 @@ const DuelGame: React.FC = () => {
     const isWin    = endData.winner === myIdx;
 
     return (
-      <div className="duel-game-container">
+      <div className="dl-fullscreen-wrap">
         <div className="duel-end-card">
           <div className="duel-end-icon">{isDraw ? "🤝" : isWin ? "🏆" : "💀"}</div>
           <div className="duel-end-msg">
             {isDraw ? "Égalité !" : isWin ? "Tu as gagné !" : "Tu as perdu..."}
           </div>
-          <div className="duel-scores">
-            <div className="duel-score-box">
-              <div className="duel-score-name">Toi</div>
-              <div className="duel-score-pts">{myScore}</div>
+          <div className="dl-end-scores">
+            <div className="dl-end-score-box">
+              <div className="dl-end-score-name">Toi</div>
+              <div className="dl-end-score-pts">{myScore}</div>
             </div>
-            <div className="duel-score-box">
-              <div className="duel-score-name">Adversaire</div>
-              <div className="duel-score-pts">{oppScore}</div>
+            <div className="dl-end-score-box">
+              <div className="dl-end-score-name">Adversaire</div>
+              <div className="dl-end-score-pts">{oppScore}</div>
             </div>
           </div>
           <button className="start-random-duel-btn" onClick={goToLobby}>
