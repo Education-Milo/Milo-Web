@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import type {
 	RegisterFormData,
@@ -7,17 +7,31 @@ import type {
 } from "@shared/types/auth.types";
 import type { UserRole, ClassType } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
+import { getRoleBySlug } from "@features/auth/constants/roles.constants";
 
 export const useRegisterForm = () => {
+	const { role: roleSlug } = useParams<{ role: string }>();
+	const navigate = useNavigate();
+	const roleDef = getRoleBySlug(roleSlug);
+
 	const [formData, setFormData] = useState<RegisterFormData>({
 		last_name: "",
 		first_name: "",
 		email: "",
 		password: "",
 		confirmPassword: "",
-		role: "",
+		role: roleDef?.label ?? "",
 		classe: "",
 	});
+
+	useEffect(() => {
+		if (!roleDef || !roleDef.active) {
+			navigate(ROUTES.REGISTER, { replace: true });
+			return;
+		}
+		setFormData((prev) => ({ ...prev, role: roleDef.label }));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [roleDef?.slug]);
 
 	const ROLE_MAPPING: Record<string, UserRole> = {
 		Élève: "Enfant",
@@ -35,7 +49,6 @@ export const useRegisterForm = () => {
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState("");
-	const navigate = useNavigate();
 	const register = useAuthStore((state) => state.register);
 
 	const handleInputChange = (field: keyof RegisterFormData, value: string) => {
@@ -82,10 +95,6 @@ export const useRegisterForm = () => {
 			newErrors.confirmPassword = "La confirmation du mot de passe est requise";
 		} else if (formData.password !== formData.confirmPassword) {
 			newErrors.confirmPassword = "Les mots de passe ne correspondent pas";
-		}
-
-		if (!formData.role) {
-			newErrors.role = "Veuillez sélectionner un rôle";
 		}
 
 		if (formData.role === "Élève" && !formData.classe.trim()) {
@@ -163,6 +172,7 @@ export const useRegisterForm = () => {
 		errors,
 		isLoading,
 		generalError,
+		roleDef,
 		handleInputChange,
 		handleSubmit,
 		navigate,

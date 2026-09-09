@@ -13,9 +13,9 @@ interface ClassSelectorProps {
 }
 
 export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelectorProps ) => (
-  <div style={{ marginBottom: '1rem', width: '100%' }}>
-    <p style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '0.5rem', fontWeight: '500' }}>
-      Sélectionnez votre classe :
+  <div style={{ width: '100%' }}>
+    <p style={{ fontSize: '0.85rem', color: '#2D3748', marginBottom: '0.6rem', fontWeight: '700' }}>
+      Sélectionne ta classe
     </p>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
       {CLASSES.map(({ label, value: classValue }) => (
@@ -25,19 +25,21 @@ export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelecto
           disabled={disabled}
           onClick={() => onChange(classValue)}
           style={{
-            padding: '10px',
-            borderRadius: '8px',
-            border: value === classValue ? '2px solid #f97316' : '1px solid #d1d5db',
-            backgroundColor: value === classValue ? '#fff7ed' : 'white',
-            color: value === classValue ? '#f97316' : '#4b5563',
-            cursor: 'pointer',
-            fontWeight: value === classValue ? '600' : '400'
+            padding: '12px',
+            borderRadius: '14px',
+            border: value === classValue ? '2px solid #F4922A' : '2px solid rgba(226, 232, 240, 0.8)',
+            backgroundColor: value === classValue ? 'rgba(244, 146, 42, 0.1)' : 'rgba(255, 255, 255, 0.9)',
+            color: value === classValue ? '#EF4F1A' : '#4b5563',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+            fontWeight: value === classValue ? '800' : '600',
+            fontFamily: 'inherit',
+            transition: '0.2s',
           }}
         >
           {label}
         </button>
       ))}
     </div>
-    {error && <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '4px' }}>{error}</p>}
+    {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: 600, marginTop: '6px' }}>{error}</p>}
   </div>
 );
