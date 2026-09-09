@@ -44,6 +44,10 @@
 	gap: 1rem;
 }
 
+.form-row > * {
+	min-width: 0;
+}
+
 /* Reskin du TextFieldComponent partagé */
 .auth-glass-card .textfield-input-icon-container {
 	border-radius: 18px;
@@ -51,6 +55,7 @@
 	background: rgba(255, 255, 255, 0.9);
 	height: 52px;
 	transition: 0.25s;
+	min-width: 0;
 }
 
 .auth-glass-card .textfield-input-icon-container:focus-within {
@@ -61,6 +66,7 @@
 .auth-glass-card .textfield-input {
 	font-weight: 600;
 	font-family: inherit;
+	min-width: 0;
 }
 
 .auth-glass-card .textfield-error-text {
