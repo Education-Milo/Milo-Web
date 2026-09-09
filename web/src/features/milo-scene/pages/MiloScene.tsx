@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
-	OrbitControls,
 	Environment,
 	useGLTF,
 	useAnimations,
@@ -261,7 +260,6 @@ const Scene3D: React.FC<{
             {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
             <Tableau text={reply || displayedText} isEditing={false} />
             <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
-			<OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 3} maxPolarAngle={Math.PI / 1.8} minAzimuthAngle={-Math.PI / 6} maxAzimuthAngle={Math.PI / 6} />
 			{introActive ? <IntroCamera onDone={onIntroDone} /> : <CameraController targetY={cameraY} />}
 		</Suspense>
 	</Canvas>
