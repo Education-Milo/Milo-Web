@@ -4,11 +4,11 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	background: #2D3748;
+	background: linear-gradient(135deg, #F4922A 0%, #EF4F1A 100%);
 	color: white;
-	padding: 7px 14px;
+	padding: 8px 16px;
 	border-radius: 100px;
-	font-weight: 700;
+	font-weight: 800;
 	font-size: 0.8rem;
 	margin-bottom: 20px;
 }
@@ -19,7 +19,7 @@
 
 .form-title {
 	font-size: 1.75rem;
-	font-weight: 800;
+	font-weight: 900;
 	color: #2D3748;
 	margin: 0 0 0.4rem 0;
 	letter-spacing: -0.5px;
@@ -49,7 +49,7 @@
 }
 
 /* Reskin du TextFieldComponent partagé */
-.auth-card .textfield-input-icon-container {
+.auth-glass-card .textfield-input-icon-container {
 	border-radius: 18px;
 	border: 2px solid rgba(226, 232, 240, 0.8);
 	background: rgba(255, 255, 255, 0.9);
@@ -58,18 +58,18 @@
 	min-width: 0;
 }
 
-.auth-card .textfield-input-icon-container:focus-within {
+.auth-glass-card .textfield-input-icon-container:focus-within {
 	border-color: #F4922A;
-	box-shadow: 0 6px 16px rgba(244, 146, 42, 0.12);
+	box-shadow: 0 10px 25px rgba(244, 146, 42, 0.15);
 }
 
-.auth-card .textfield-input {
+.auth-glass-card .textfield-input {
 	font-weight: 600;
 	font-family: inherit;
 	min-width: 0;
 }
 
-.auth-card .textfield-error-text {
+.auth-glass-card .textfield-error-text {
 	font-weight: 600;
 }
 

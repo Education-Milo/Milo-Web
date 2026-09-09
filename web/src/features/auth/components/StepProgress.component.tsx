@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import "@features/auth/styles/StepProgress.css";
 
@@ -17,38 +18,41 @@ export const StepProgress: React.FC<StepProgressProps> = ({
 	currentStep,
 }) => {
 	return (
-		<ol className="step-progress">
+		<div className="step-progress">
 			{steps.map((step, index) => {
 				const isCompleted = index < currentStep;
 				const isActive = index === currentStep;
 				return (
 					<React.Fragment key={step.id}>
-						<li className="step-item">
-							<span
+						<div className="step-item">
+							<div
 								className={`step-dot ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`}
 							>
 								{isCompleted ? (
-									<Check size={12} strokeWidth={3} />
+									<Check size={14} strokeWidth={3} />
 								) : (
-									index + 1
+									<span>{index + 1}</span>
 								)}
-							</span>
+							</div>
 							<span
 								className={`step-label ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}`}
 							>
 								{step.label}
 							</span>
-						</li>
+						</div>
 						{index < steps.length - 1 && (
-							<li className="step-line" aria-hidden="true">
-								<span
-									className={`step-line-fill ${isCompleted ? "filled" : ""}`}
+							<div className="step-line">
+								<motion.div
+									className="step-line-fill"
+									initial={{ width: 0 }}
+									animate={{ width: isCompleted ? "100%" : "0%" }}
+									transition={{ duration: 0.4, ease: "easeInOut" }}
 								/>
-							</li>
+							</div>
 						)}
 					</React.Fragment>
 				);
 			})}
-		</ol>
+		</div>
 	);
 };

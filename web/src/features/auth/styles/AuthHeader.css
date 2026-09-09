@@ -50,14 +50,6 @@
 	transform: translateX(-3px);
 }
 
-.auth-back-link:focus-visible,
-.auth-header-right-link:focus-visible,
-.auth-header-logo-link:focus-visible {
-	outline: 2px solid #2D3748;
-	outline-offset: 3px;
-	border-radius: 4px;
-}
-
 .auth-header-right-link {
 	color: #EF4F1A;
 	text-decoration: none;

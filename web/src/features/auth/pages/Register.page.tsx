@@ -1,4 +1,5 @@
 import React from "react";
+import { motion } from "framer-motion";
 import { User, Mail, Lock } from "lucide-react";
 import { useRegisterForm } from "@features/auth/hooks/useRegisterForm";
 import TextField from "@shared/components/TextField.component";
@@ -39,6 +40,8 @@ const Register: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
+			<div className="auth-mesh"></div>
+
 			<AuthHeader
 				onBack={() => navigate("/register")}
 				backLabel="Changer de rôle"
@@ -47,7 +50,12 @@ const Register: React.FC = () => {
 			<main className="auth-main">
 				<StepProgress steps={STEPS} currentStep={1} />
 
-				<div className="auth-card">
+				<motion.div
+					className="auth-glass-card"
+					initial={{ opacity: 0, scale: 0.95 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ type: "spring", stiffness: 100, damping: 15 }}
+				>
 					<div className="register-role-pill">
 						<RoleIcon size={16} />
 						{roleDef.label}
@@ -55,7 +63,9 @@ const Register: React.FC = () => {
 
 					<div className="form-header">
 						<h2 className="form-title">Créer ton compte</h2>
-						<p className="form-subtitle">Deux minutes, et c'est parti.</p>
+						<p className="form-subtitle">
+							Rejoins Milo et découvre une nouvelle façon d'apprendre
+						</p>
 					</div>
 
 					<div className="form">
@@ -159,7 +169,7 @@ const Register: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</div>
+				</motion.div>
 			</main>
 		</div>
 	);
