@@ -53,20 +53,6 @@
 	z-index: 5;
 }
 
-.badge-talk {
-	background: white;
-	padding: 8px 18px;
-	border-radius: 100px;
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	font-weight: 800;
-	font-size: 0.75rem;
-	color: #EF4F1A;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-	margin-bottom: 20px;
-}
-
 .auth-glass-card {
 	background: rgba(255, 255, 255, 0.65);
 	backdrop-filter: blur(25px);

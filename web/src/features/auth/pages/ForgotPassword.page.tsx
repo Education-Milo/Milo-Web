@@ -1,5 +1,8 @@
 import React from "react";
-import { Mail, CheckCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { Mail, CheckCircle2 } from "lucide-react";
+import { AuthHeader } from "@features/auth/components/AuthHeader.component";
+import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/ForgotPassword.css";
 import miloLogo from "/milo-logo.png";
 import TextFieldComponent from "@shared/components/TextField.component";
@@ -18,156 +21,108 @@ const ForgotPassword: React.FC = () => {
 		resend,
 	} = useForgotPassword();
 
-	if (isSubmitted) {
-		return (
-			<div className="form-page-wrapper">
-				<div className="decorative-circle-1"></div>
-				<div className="decorative-circle-2"></div>
-				<div className="form-page-container">
-					<div className="form-content">
-						{/* Logo */}
-						<div className="logo-container">
-							<img src={miloLogo} alt="Milo Logo" className="logo-milo" />
-						</div>
-						{/* Success Message */}
-						<div className="form-header">
-							<div
-								style={{
-									display: "flex",
-									justifyContent: "center",
-									marginBottom: "1rem",
-								}}
-							>
-								<div
-									style={{
-										width: "4rem",
-										height: "4rem",
-										backgroundColor: "#dcfce7",
-										borderRadius: "50%",
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-									}}
-								>
-									<CheckCircle size={32} style={{ color: "#16a34a" }} />
-								</div>
-							</div>
-							<h2 className="form-title">Email envoyé !</h2>
-							<p className="form-subtitle">
-								Nous avons envoyé un lien de réinitialisation de mot de passe à{" "}
-								<span style={{ fontWeight: "600", color: "#1f2937" }}>
-									{email}
-								</span>
-								.
-							</p>
-						</div>
-						<div className="form">
-							<p
-								style={{
-									fontSize: "0.875rem",
-									color: "#6b7280",
-									textAlign: "center",
-									marginBottom: "1.5rem",
-								}}
-							>
-								Vérifiez votre boîte de réception et cliquez sur le lien pour
-								réinitialiser votre mot de passe.
-							</p>
-							<button onClick={handleBackToLogin} className="submit-button">
-								Retour à la connexion
-							</button>
-							<div className="signup-section">
-								{emailError && <p className="error-message">{emailError}</p>}
-								<button
-									onClick={resend}
-									className="signup-link"
-									style={{ fontSize: "0.875rem" }}
-									disabled={isLoading}
-								>
-									{isLoading ? "Renvoi en cours..." : "Renvoyer l'email"}
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div className="footer">
-					<p>© 2025 Milo. Tous droits réservés.</p>
-				</div>
-			</div>
-		);
-	}
+	const handleKeyPress = (event: React.KeyboardEvent) => {
+		if (event.key === "Enter" && !isLoading) {
+			handleSubmit();
+		}
+	};
 
 	return (
-		<div className="form-page-wrapper">
-			<div className="decorative-circle-1"></div>
-			<div className="decorative-circle-2"></div>
+		<div className="auth-page-root">
+			<div className="auth-mesh"></div>
 
-			<div className="form-page-container">
-				<div className="form-content">
-					{/* Header with back button */}
-					<div
-						style={{
-							display: "flex",
-							alignItems: "center",
-							marginBottom: "2rem",
-						}}
-					>
-						<h1
-							style={{
-								fontSize: "1.5rem",
-								fontWeight: "600",
-								color: "#1f2937",
-								margin: 0,
-							}}
-						>
-							Mot de passe oublié
-						</h1>
-					</div>
+			<AuthHeader onBack={handleBackToLogin} backLabel="Retour à la connexion" />
 
-					{/* Logo */}
-					<div className="logo-container">
-						<img src={miloLogo} alt="Milo Logo" className="logo-milo" />
-					</div>
-					{/* Form Header */}
-					<div className="form-header">
-						<h2 className="form-title">Réinitialiser votre mot de passe</h2>
-						<p className="form-subtitle">
-							Entrez votre adresse email et nous vous enverrons un lien pour
-							réinitialiser votre mot de passe.
-						</p>
-					</div>
-					<div className="form">
-						{/* Email Field */}
-						<div className="input-group">
-							<div className="input-container">
+			<main className="auth-main login-main">
+				<motion.div
+					className="auth-glass-card login-card"
+					initial={{ opacity: 0, scale: 0.95 }}
+					animate={{ opacity: 1, scale: 1 }}
+					transition={{ type: "spring", stiffness: 100, damping: 15 }}
+				>
+					{isSubmitted ? (
+						<>
+							<div className="login-intro">
+								<div className="success-icon-circle">
+									<CheckCircle2 size={30} />
+								</div>
+								<h2 className="form-title">Email envoyé !</h2>
+								<p className="form-subtitle">
+									On a envoyé un lien de réinitialisation à{" "}
+									<strong>{email}</strong>.
+								</p>
+							</div>
+
+							<div className="form">
+								<MainButtonComponent
+									title="Retour à la connexion"
+									onPress={handleBackToLogin}
+								/>
+
+								<div className="signup-section">
+									{emailError && (
+										<p className="forgot-error-text">{emailError}</p>
+									)}
+									<p className="signup-text">
+										Rien reçu ?{" "}
+										<button
+											type="button"
+											className="signup-link"
+											onClick={resend}
+											disabled={isLoading}
+										>
+											{isLoading ? "Envoi en cours..." : "Renvoyer l'email"}
+										</button>
+									</p>
+								</div>
+							</div>
+						</>
+					) : (
+						<>
+							<div className="login-intro">
+								<img src={miloLogo} alt="Milo Logo" className="login-logo" />
+								<h2 className="form-title">Mot de passe oublié ?</h2>
+								<p className="form-subtitle">
+									On t'envoie un lien pour le réinitialiser.
+								</p>
+							</div>
+
+							<div className="form">
 								<TextFieldComponent
 									type="email"
-									placeholder="Votre adresse email"
 									value={email}
-									icon={<Mail className="w-5 h-5 text-gray-500" />}
 									onChange={(e) => setEmail(e.target.value)}
+									onKeyPress={handleKeyPress}
+									placeholder="Ton adresse email"
+									icon={<Mail className="w-5 h-5 text-gray-500" />}
+									error={emailError}
+									disabled={isLoading}
 								/>
-							</div>
-							{emailError && <p className="error-message">{emailError}</p>}
-						</div>
-						<MainButtonComponent
-							title={isLoading ? "Envoi en cours..." : "Envoyer le lien de connexion"}
-							onPress={handleSubmit}
-							loading={isLoading}
-						/>
 
-						{/* Back to Login */}
-						<div className="signup-section">
-							<button onClick={handleBackToLogin} className="signup-link">
-								← Retour à la connexion
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div className="footer">
-				<p>© 2025 Milo. Tous droits réservés.</p>
-			</div>
+								<MainButtonComponent
+									title={isLoading ? "Envoi en cours..." : "Envoyer le lien"}
+									onPress={handleSubmit}
+									loading={isLoading}
+								/>
+
+								<div className="signup-section">
+									<p className="signup-text">
+										Tu te souviens de ton mot de passe ?{" "}
+										<button
+											type="button"
+											className="signup-link"
+											onClick={handleBackToLogin}
+											disabled={isLoading}
+										>
+											Se connecter
+										</button>
+									</p>
+								</div>
+							</div>
+						</>
+					)}
+				</motion.div>
+			</main>
 		</div>
 	);
 };

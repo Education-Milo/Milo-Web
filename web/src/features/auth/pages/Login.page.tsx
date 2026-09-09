@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Sparkles } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { useLoginForm } from "@features/auth/hooks/useLoginForm";
 import TextFieldComponent from "@shared/components/TextField.component";
 import { AuthErrorMessage } from "@features/auth/components/AuthErrorMessage.component";
@@ -43,9 +43,6 @@ const Login: React.FC = () => {
 				>
 					<div className="login-intro">
 						<img src={miloLogo} alt="Milo Logo" className="login-logo" />
-						<div className="badge-talk">
-							<Sparkles size={14} /> Bon retour
-						</div>
 						<h2 className="form-title">Content de te revoir !</h2>
 						<p className="form-subtitle">
 							Connecte-toi pour retrouver ton espace Milo

@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import { StepProgress } from "@features/auth/components/StepProgress.component";
 import { RoleCard } from "@features/auth/components/RoleCard.component";
@@ -31,9 +30,6 @@ const RoleSelectPage: React.FC = () => {
 					initial={{ opacity: 0, y: -10 }}
 					animate={{ opacity: 1, y: 0 }}
 				>
-					<div className="badge-talk">
-						<Sparkles size={14} /> Bienvenue
-					</div>
 					<h1>
 						Comment vas-tu <span>utiliser Milo ?</span>
 					</h1>
