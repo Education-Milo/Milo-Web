@@ -39,6 +39,12 @@
 .icon-send-circle { background: linear-gradient(135deg, #F4922A 0%, #EF4F1A 100%); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .btn-pimped-send:hover { background: #000; transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 .btn-pimped-send:hover svg { transform: translate(3px, -3px); transition: 0.3s; }
+.btn-pimped-send:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* --- STATUT FORMULAIRE --- */
+.form-status { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; text-align: left; }
+.form-status-success { background: rgba(72, 187, 120, 0.12); color: #2F855A; }
+.form-status-error { background: rgba(239, 79, 26, 0.1); color: #C53030; }
 
 /* --- FOOTER FINAL --- */
 .contact-footer-sophisticated { background: white; margin-top: 120px; position: relative; }
