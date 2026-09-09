@@ -20,7 +20,6 @@
 @keyframes sb-flame-dance { 0%, 100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 4px var(--sb-accent-glow-soft)); } 50% { transform: scale(1.15) rotate(3deg); filter: drop-shadow(0 0 8px var(--sb-accent-glow)); } }
 @keyframes sb-bell-swing { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(6deg); } }
 @keyframes sb-dot-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-@keyframes sb-glow-pulse { 0%, 100% { box-shadow: 0 10px 30px var(--sb-accent-glow), 0 0 0 0 var(--sb-accent-glow-soft); } 50% { box-shadow: 0 14px 40px var(--sb-accent-glow), 0 0 0 6px transparent; } }
 @keyframes sb-shimmer { 0% { transform: translateX(-100%) skewX(-20deg); } 100% { transform: translateX(200%) skewX(-20deg); } }
 
 /* ============================================================
@@ -57,8 +56,8 @@
 /* ============================================================
    INDICATEUR MAGNET : pill orange saturé qui glisse
    ============================================================ */
-.sb-nav-indicator { position: absolute; top: 0; left: 2px; right: 2px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, var(--sb-accent-light) 0%, var(--sb-accent) 55%, var(--sb-accent-dark) 100%); box-shadow: 0 10px 30px var(--sb-accent-glow), 0 4px 12px var(--sb-accent-glow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.4); opacity: 0; z-index: 0; pointer-events: none; transition: transform 0.65s var(--sb-magnet), height 0.65s var(--sb-magnet), opacity 0.3s ease; will-change: transform, height; overflow: hidden; }
-.sb-nav-indicator.visible { opacity: 1; animation: sb-glow-pulse 3s ease-in-out infinite; }
+.sb-nav-indicator { position: absolute; top: 0; left: 2px; right: 2px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, var(--sb-accent-light) 0%, var(--sb-accent) 55%, var(--sb-accent-dark) 100%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4); opacity: 0; z-index: 0; pointer-events: none; transition: transform 0.65s var(--sb-magnet), height 0.65s var(--sb-magnet), opacity 0.3s ease; will-change: transform, height; overflow: hidden; }
+.sb-nav-indicator.visible { opacity: 1; }
 .sb-nav-indicator::before { content: ''; position: absolute; inset: 0; border-radius: 16px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 45%); pointer-events: none; }
 .sb-nav-indicator::after { content: ''; position: absolute; top: 0; left: 0; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent); animation: sb-shimmer 3s ease-in-out infinite; pointer-events: none; }
 
