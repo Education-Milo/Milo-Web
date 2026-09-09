@@ -27,8 +27,8 @@ import {
 	FiEdit3,
 	FiRefreshCw,
 	FiMaximize2,
+	FiChevronLeft,
 } from "react-icons/fi";
-import { DoorOpen } from "lucide-react";
 import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
@@ -128,23 +128,11 @@ interface TextPanelProps {
 	isEditing: boolean;
 }
 
-const Tableau: React.FC<
-	TextPanelProps & { colorRanges?: Record<number, string> }
-> = ({ text, isEditing, colorRanges }) => {
+const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
 	const displayText = text || (isEditing ? "|" : "");
 	return (
 		<group position={[0, 0, 0.5]}>
-			<Text
-				position={[-3.8, 1.6, 0.01]}
-				fontSize={0.15}
-				color="white"
-				anchorX="left"
-				anchorY="top"
-				maxWidth={4.5}
-				overflowWrap="break-word"
-				clipRect={[-0.2, -2.8, 5, 0.2]}
-				{...(colorRanges ? ({ colorRanges } as Record<string, unknown>) : {})}
-			>
+			<Text position={[-3.8, 1.6, 0.01]} fontSize={0.15} color="white" anchorX="left" anchorY="top" maxWidth={4.5} overflowWrap="break-word" clipRect={[-0.2, -2.8, 5, 0.2]}>
 				{displayText}
 			</Text>
 		</group>
@@ -262,8 +250,7 @@ const Scene3D: React.FC<{
 	introActive: boolean;
 	onIntroDone: () => void;
 	displayedText: string;
-	boardColorRanges?: Record<number, string>;
-}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText, boardColorRanges }) => (
+}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText }) => (
 	<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
 		<Suspense fallback={null}>
 			<ClassroomLighting />
@@ -271,7 +258,7 @@ const Scene3D: React.FC<{
 			<Classroom modelPath="/classroom.glb" />
 			<MiloModel modelPath="/MiloV9.glb" activeAnimation={activeAnimation} />
             {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
-            <Tableau text={reply || displayedText} isEditing={false} colorRanges={boardColorRanges} />
+            <Tableau text={reply || displayedText} isEditing={false} />
             <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
 			{introActive ? <IntroCamera onDone={onIntroDone} /> : <CameraController targetY={cameraY} />}
 		</Suspense>
@@ -570,132 +557,56 @@ const wrapLineIntoRows = (
 	return rows.length ? rows : [""];
 };
 
-// Découpe le texte complet en rangées affichables sur le tableau (sans pagination) :
-// c'est cette liste que le scrollbar fait défiler par fenêtre de BOARD_PAGE_VISIBLE_LINES.
-const computeBoardRows = (text: string): string[] => {
+const splitBoardTextIntoPages = (text: string) => {
 	if (!text.trim()) return [text];
-	const rows = text.split("\n").flatMap((line) => wrapLineIntoRows(line));
-	return rows.length ? rows : [text];
-};
 
-// Retire les marqueurs markdown **gras** du texte affiché et retourne la liste
-// des expressions à mettre en évidence (notions importantes).
-const BOLD_PATTERN = /\*\*(.+?)\*\*/g;
+	// 1. On pré-calcule le retour à la ligne nous-mêmes (avec de vrais \n),
+	//    donc 1 rangée = 1 ligne rendue sur le tableau, sans surprise.
+	const rows = text
+		.split("\n")
+		.flatMap((line) => wrapLineIntoRows(line));
 
-const parseBoardText = (raw: string): { clean: string; phrases: string[] } => {
-	const phrases: string[] = [];
-	const clean = raw.replace(BOLD_PATTERN, (_match, inner: string) => {
-		if (inner.trim()) phrases.push(inner);
-		return inner;
-	});
-	return { clean, phrases };
-};
-
-const BOARD_HIGHLIGHT_COLOR = "#FFB443";
-const BOARD_DEFAULT_COLOR = "#ffffff";
-
-// Calcule les colorRanges troika (index de caractère -> couleur) pour une rangée,
-// en repérant les notions marquées en gras dans le texte source.
-const getRowColorRanges = (
-	row: string,
-	phrases: string[],
-): Record<number, string> | undefined => {
-	if (phrases.length === 0) return undefined;
-	const ranges: Record<number, string> = {};
-	let found = false;
-
-	for (const phrase of phrases) {
-		if (!phrase) continue;
-		let fromIndex = 0;
-		while (fromIndex <= row.length) {
-			const start = row.indexOf(phrase, fromIndex);
-			if (start === -1) break;
-			const end = start + phrase.length;
-			ranges[start] = BOARD_HIGHLIGHT_COLOR;
-			if (ranges[end] === undefined) ranges[end] = BOARD_DEFAULT_COLOR;
-			found = true;
-			fromIndex = end;
-		}
+	// 2. On pagine par paquets de BOARD_PAGE_VISIBLE_LINES rangées.
+	const pages: string[] = [];
+	for (let i = 0; i < rows.length; i += BOARD_PAGE_VISIBLE_LINES) {
+		pages.push(
+			rows.slice(i, i + BOARD_PAGE_VISIBLE_LINES).join("\n").trim(),
+		);
 	}
 
-	return found ? ranges : undefined;
+	return pages.length ? pages : [text];
 };
 
-const BoardScrollbar: React.FC<{
-	scrollRow: number;
-	maxScrollRow: number;
-	visibleRatio: number;
-	onScroll: (row: number) => void;
-}> = ({ scrollRow, maxScrollRow, visibleRatio, onScroll }) => {
-	const trackRef = useRef<HTMLDivElement>(null);
-
-	if (maxScrollRow <= 0) return null;
-
-	const thumbHeightPct = Math.min(1, Math.max(visibleRatio, 0.12)) * 100;
-
-	const rowFromClientY = (clientY: number) => {
-		const track = trackRef.current;
-		if (!track) return scrollRow;
-		const rect = track.getBoundingClientRect();
-		const thumbPx = (rect.height * thumbHeightPct) / 100;
-		const usableHeight = rect.height - thumbPx;
-		const relY = clientY - rect.top - thumbPx / 2;
-		const ratio = usableHeight > 0 ? relY / usableHeight : 0;
-		return Math.round(Math.min(1, Math.max(0, ratio)) * maxScrollRow);
-	};
-
-	const handleThumbPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		e.currentTarget.setPointerCapture(e.pointerId);
-		onScroll(rowFromClientY(e.clientY));
-	};
-
-	const handleThumbPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-		if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-		onScroll(rowFromClientY(e.clientY));
-	};
-
-	const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (e.target !== trackRef.current) return;
-		onScroll(rowFromClientY(e.clientY));
-	};
-
-	const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-		e.preventDefault();
-		const direction = e.deltaY > 0 ? 1 : -1;
-		onScroll(Math.min(maxScrollRow, Math.max(0, scrollRow + direction)));
-	};
-
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === "ArrowDown") onScroll(Math.min(maxScrollRow, scrollRow + 1));
-		if (e.key === "ArrowUp") onScroll(Math.max(0, scrollRow - 1));
-		if (e.key === "Home") onScroll(0);
-		if (e.key === "End") onScroll(maxScrollRow);
-	};
-
-	const thumbTopPct = (scrollRow / maxScrollRow) * (100 - thumbHeightPct);
+const BoardPaginationControls: React.FC<{
+	currentPage: number;
+	totalPages: number;
+	onPageChange: (page: number) => void;
+}> = ({ currentPage, totalPages, onPageChange }) => {
+	if (totalPages <= 1) return null;
 
 	return (
-		<div
-			className="board-scrollbar"
-			ref={trackRef}
-			onClick={handleTrackClick}
-			onWheel={handleWheel}
-			onKeyDown={handleKeyDown}
-			role="scrollbar"
-			aria-label="Faire defiler le tableau"
-			aria-orientation="vertical"
-			aria-valuemin={0}
-			aria-valuemax={maxScrollRow}
-			aria-valuenow={scrollRow}
-			tabIndex={0}
-		>
-			<div
-				className="board-scrollbar-thumb"
-				style={{ height: `${thumbHeightPct}%`, top: `${thumbTopPct}%` }}
-				onPointerDown={handleThumbPointerDown}
-				onPointerMove={handleThumbPointerMove}
-			/>
+		<div className="board-pagination-controls glass-panel" aria-label="Pages du tableau">
+			<button
+				type="button"
+				onClick={() => onPageChange(currentPage - 1)}
+				disabled={currentPage === 0}
+				aria-label="Page precedente du tableau"
+				title="Page precedente"
+			>
+				<FiChevronLeft size={18} />
+			</button>
+			<span>
+				{currentPage + 1} / {totalPages}
+			</span>
+			<button
+				type="button"
+				onClick={() => onPageChange(currentPage + 1)}
+				disabled={currentPage >= totalPages - 1}
+				aria-label="Page suivante du tableau"
+				title="Page suivante"
+			>
+				<FiChevronRight size={18} />
+			</button>
 		</div>
 	);
 };
@@ -707,46 +618,11 @@ const LoadingOverlay: React.FC = () => (
 	</div>
 );
 
-// Découpe le texte en segments { text, isHighlighted } pour le rendu HTML (modale "Lire tout"),
-// à partir des notions repérées via les marqueurs **gras** de la réponse générée.
-const buildHighlightSegments = (
-	text: string,
-	phrases: string[],
-): { text: string; isHighlighted: boolean }[] => {
-	if (phrases.length === 0) return [{ text, isHighlighted: false }];
-
-	const pattern = new RegExp(
-		phrases
-			.filter(Boolean)
-			.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-			.join("|"),
-		"g",
-	);
-
-	const segments: { text: string; isHighlighted: boolean }[] = [];
-	let lastIndex = 0;
-	let match: RegExpExecArray | null;
-
-	while ((match = pattern.exec(text)) !== null) {
-		if (match.index > lastIndex) {
-			segments.push({ text: text.slice(lastIndex, match.index), isHighlighted: false });
-		}
-		segments.push({ text: match[0], isHighlighted: true });
-		lastIndex = match.index + match[0].length;
-	}
-	if (lastIndex < text.length) {
-		segments.push({ text: text.slice(lastIndex), isHighlighted: false });
-	}
-
-	return segments;
-};
-
 const BoardFullTextModal: React.FC<{
 	text: string;
-	phrases: string[];
 	isOpen: boolean;
 	onClose: () => void;
-}> = ({ text, phrases, isOpen, onClose }) => {
+}> = ({ text, isOpen, onClose }) => {
 	useEffect(() => {
 		if (!isOpen) return;
 
@@ -783,17 +659,7 @@ const BoardFullTextModal: React.FC<{
 					</button>
 				</div>
 				<div className="board-modal-scroll">
-					<p>
-						{buildHighlightSegments(text, phrases).map((segment, index) =>
-							segment.isHighlighted ? (
-								<strong key={index} className="board-highlight">
-									{segment.text}
-								</strong>
-							) : (
-								<React.Fragment key={index}>{segment.text}</React.Fragment>
-							),
-						)}
-					</p>
+					<p>{text}</p>
 				</div>
 			</div>
 		</div>
@@ -826,7 +692,7 @@ const MiloScene: React.FC = () => {
 	)?.freeChatSession;
 	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
 	const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
-	const [boardScrollRow, setBoardScrollRow] = useState(0);
+	const [boardPageIndex, setBoardPageIndex] = useState(0);
 
 	const {
 		// Lesson
@@ -881,41 +747,16 @@ const MiloScene: React.FC = () => {
 		!isOpenQuestionMode && (phase === "questioning" || phase === "answering");
 	const showReviewBoardButton =
 		isOpenQuestionMode && isEditing && openQuestionPhase === "answering";
-	const rawBoardFullText = isOpenQuestionMode ? displayedText : reply || displayedText;
-	const { clean: boardFullText, phrases: boardHighlightPhrases } = useMemo(
-		() => parseBoardText(rawBoardFullText),
-		[rawBoardFullText],
-	);
-	const boardRows = useMemo(() => computeBoardRows(boardFullText), [boardFullText]);
-	const maxBoardScrollRow = Math.max(0, boardRows.length - BOARD_PAGE_VISIBLE_LINES);
-	const boardWindowRows = boardRows.slice(
-		boardScrollRow,
-		boardScrollRow + BOARD_PAGE_VISIBLE_LINES,
-	);
-	const boardWindowText = boardWindowRows.join("\n");
-	const boardWindowColorRanges = useMemo(() => {
-		const ranges: Record<number, string> = {};
-		let offset = 0;
-		let found = false;
-		for (const row of boardWindowRows) {
-			const rowRanges = getRowColorRanges(row, boardHighlightPhrases);
-			if (rowRanges) {
-				found = true;
-				for (const [key, value] of Object.entries(rowRanges)) {
-					ranges[Number(key) + offset] = value;
-				}
-			}
-			offset += row.length + 1; // +1 pour le "\n" de jointure
-		}
-		return found ? ranges : undefined;
-	}, [boardWindowRows, boardHighlightPhrases]);
+	const boardFullText = isOpenQuestionMode ? displayedText : reply || displayedText;
+	const boardPages = useMemo(() => splitBoardTextIntoPages(boardFullText), [boardFullText]);
+	const boardPageText = boardPages[boardPageIndex] ?? boardPages[0] ?? "";
 	const showBoardFullTextButton =
 		phase !== "loading" && boardFullText.trim().length > BOARD_FULL_TEXT_MIN_LENGTH;
-	const handleBoardScroll = useCallback(
-		(row: number) => {
-			setBoardScrollRow(Math.min(maxBoardScrollRow, Math.max(0, row)));
+	const handleBoardPageChange = useCallback(
+		(page: number) => {
+			setBoardPageIndex(Math.min(boardPages.length - 1, Math.max(0, page)));
 		},
-		[maxBoardScrollRow],
+		[boardPages.length],
 	);
 	const chatPlaceholder = isOpenQuestionMode
 		? isOpenQuestionBusy
@@ -926,12 +767,12 @@ const MiloScene: React.FC = () => {
 		: "Pose une question à Milo...";
 
 	useEffect(() => {
-		setBoardScrollRow(0);
+		setBoardPageIndex(0);
 	}, [boardFullText]);
 
 	useEffect(() => {
-		setBoardScrollRow((current) => Math.min(current, maxBoardScrollRow));
-	}, [maxBoardScrollRow]);
+		setBoardPageIndex((current) => Math.min(current, boardPages.length - 1));
+	}, [boardPages.length]);
 
 	return (
 		<div className="milo-scene-root">
@@ -946,8 +787,7 @@ const MiloScene: React.FC = () => {
 				onPanelClick={handlePanelClick}
 				introActive={introActive}
 				onIntroDone={handleIntroDone}
-				displayedText={boardWindowText}
-				boardColorRanges={boardWindowColorRanges}
+				displayedText={boardPageText}
 			/>
 
 			<IntroOverlay visible={showIntroText && sceneReady} />
@@ -964,11 +804,10 @@ const MiloScene: React.FC = () => {
 				</button>
 			)}
 
-			<BoardScrollbar
-				scrollRow={boardScrollRow}
-				maxScrollRow={maxBoardScrollRow}
-				visibleRatio={BOARD_PAGE_VISIBLE_LINES / Math.max(boardRows.length, 1)}
-				onScroll={handleBoardScroll}
+			<BoardPaginationControls
+				currentPage={boardPageIndex}
+				totalPages={boardPages.length}
+				onPageChange={handleBoardPageChange}
 			/>
 
 			{/* Barre de progression */}
@@ -1050,17 +889,13 @@ const MiloScene: React.FC = () => {
 				<FiHelpCircle size={22} />
 			</button>
 
-			<button className="back-btn" onClick={handleBackToLessons} aria-label="Sortir de la salle de classe">
-				<span className="back-btn-icon">
-					<DoorOpen size={20} />
-				</span>
-				<span className="back-btn-label">Sortir de la salle de classe</span>
+			<button className="back-btn" onClick={handleBackToLessons} aria-label="Retour">
+				<FiArrowLeft size={22} />
 			</button>
 
 			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
 			<BoardFullTextModal
 				text={boardFullText}
-				phrases={boardHighlightPhrases}
 				isOpen={isBoardModalOpen}
 				onClose={() => setIsBoardModalOpen(false)}
 			/>

@@ -434,50 +434,48 @@
   transform: translateY(-2px);
 }
 
-/* ---------- Scrollbar du tableau ---------- */
-.board-scrollbar {
+.board-pagination-controls {
   position: fixed;
   top: 148px;
   right: 24px;
-  bottom: 148px;
-  width: 14px;
   z-index: 12;
-  border-radius: 999px;
-  background: rgba(15, 15, 20, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-height: 44px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.board-pagination-controls button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
-.board-scrollbar:focus-visible {
-  outline: 2px solid rgba(255, 140, 0, 0.6);
-  outline-offset: 2px;
-}
-
-.board-scrollbar-thumb {
-  position: absolute;
-  left: 2px;
-  right: 2px;
-  min-height: 28px;
-  border-radius: 999px;
+.board-pagination-controls button:hover:not(:disabled) {
   background: rgba(255, 107, 53, 0.85);
-  cursor: grab;
-  transition: background 0.2s ease;
-  touch-action: none;
+  transform: scale(1.06);
 }
 
-.board-scrollbar-thumb:hover,
-.board-scrollbar-thumb:active {
-  background: #ff6b35;
-  cursor: grabbing;
+.board-pagination-controls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
-  .board-scrollbar {
-    top: 138px;
-    right: 16px;
-    bottom: 138px;
-    width: 10px;
-  }
+.board-pagination-controls span {
+  min-width: 42px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
 }
 
 .board-modal-overlay {
@@ -548,11 +546,6 @@
   font-size: 1rem;
   line-height: 1.75;
   white-space: pre-wrap;
-}
-
-.board-highlight {
-  color: #FFB443;
-  font-weight: 800;
 }
 
 .board-modal-scroll::-webkit-scrollbar {
@@ -720,57 +713,33 @@
   transform: scale(1.05);
 }
 
-/* ---------- Back Button (sortie de la salle de classe) ---------- */
+/* ---------- Back Button ---------- */
 .back-btn {
   position: fixed;
   bottom: 24px;
   left: 24px;
+  width: 48px;
   height: 48px;
-  border-radius: 24px;
+  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 15, 20, 0.65);
   backdrop-filter: blur(14px);
   color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: 0 13px;
+  justify-content: center;
   z-index: 10;
-  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  transition: all 0.25s ease;
   animation: fadeIn 0.4s 0.5s ease both;
 }
 
-.back-btn-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.back-btn-label {
-  max-width: 0;
-  overflow: hidden;
-  opacity: 0;
-  white-space: nowrap;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-left: 0;
-  transition: max-width 0.3s ease, opacity 0.2s ease, margin-left 0.3s ease;
-}
-
-.back-btn:hover,
-.back-btn:focus-visible {
+.back-btn:hover {
   background: rgba(255, 140, 0, 0.2);
   color: #FF8C00;
   border-color: rgba(255, 140, 0, 0.3);
-  transform: translateY(-2px);
-}
-
-.back-btn:hover .back-btn-label,
-.back-btn:focus-visible .back-btn-label {
-  max-width: 220px;
-  opacity: 1;
-  margin-left: 10px;
+  transform: scale(1.05);
 }
 
 /* ---------- Loading Overlay ---------- */
