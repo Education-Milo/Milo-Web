@@ -6,7 +6,7 @@
 }
 
 .login-card {
-	max-width: 460px;
+	max-width: 440px;
 }
 
 .login-intro {
@@ -18,15 +18,14 @@
 }
 
 .login-logo {
-	height: 4.5rem;
+	height: 4rem;
 	width: auto;
-	filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
-	margin-bottom: 1rem;
+	margin-bottom: 1.25rem;
 }
 
 .form-title {
-	font-size: 1.75rem;
-	font-weight: 900;
+	font-size: 1.6rem;
+	font-weight: 800;
 	color: #2D3748;
 	margin: 0 0 0.4rem 0;
 	letter-spacing: -0.5px;
@@ -46,7 +45,7 @@
 }
 
 /* Reskin du TextFieldComponent partagé */
-.auth-glass-card .textfield-input-icon-container {
+.auth-card .textfield-input-icon-container {
 	border-radius: 18px;
 	border: 2px solid rgba(226, 232, 240, 0.8);
 	background: rgba(255, 255, 255, 0.9);
@@ -54,17 +53,17 @@
 	transition: 0.25s;
 }
 
-.auth-glass-card .textfield-input-icon-container:focus-within {
+.auth-card .textfield-input-icon-container:focus-within {
 	border-color: #F4922A;
-	box-shadow: 0 10px 25px rgba(244, 146, 42, 0.15);
+	box-shadow: 0 6px 16px rgba(244, 146, 42, 0.12);
 }
 
-.auth-glass-card .textfield-input {
+.auth-card .textfield-input {
 	font-weight: 600;
 	font-family: inherit;
 }
 
-.auth-glass-card .textfield-error-text {
+.auth-card .textfield-error-text {
 	font-weight: 600;
 }
 
@@ -89,27 +88,9 @@
 	color: #F4922A;
 }
 
-.divider {
-	margin: 0.25rem 0;
-	display: flex;
-	align-items: center;
-}
-
-.divider-line {
-	flex: 1;
-	height: 1px;
-	background: rgba(45, 55, 72, 0.12);
-}
-
-.divider-text {
-	padding: 0 1rem;
-	color: #A0AEC0;
-	font-size: 0.8rem;
-	font-weight: 700;
-}
-
 .signup-section {
 	text-align: center;
+	margin-top: 0.5rem;
 }
 
 .signup-text {
@@ -137,6 +118,6 @@
 
 @media (max-width: 640px) {
 	.form-title {
-		font-size: 1.5rem;
+		font-size: 1.4rem;
 	}
 }

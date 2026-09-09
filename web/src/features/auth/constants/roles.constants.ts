@@ -28,7 +28,7 @@ export const ROLES: RoleDefinition[] = [
 		slug: "parent",
 		label: "Parent",
 		title: "Je suis parent",
-		tagline: "Suivi & sérénité",
+		tagline: "Espace famille",
 		description:
 			"Suis les progrès de tes enfants et accompagne-les en toute sérénité.",
 		icon: Users,

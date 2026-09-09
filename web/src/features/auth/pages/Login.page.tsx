@@ -1,6 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { Mail, Lock, Sparkles } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { useLoginForm } from "@features/auth/hooks/useLoginForm";
 import TextFieldComponent from "@shared/components/TextField.component";
 import { AuthErrorMessage } from "@features/auth/components/AuthErrorMessage.component";
@@ -30,23 +29,13 @@ const Login: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
-
 			<AuthHeader rightLinkTo="/register" rightLinkLabel="Pas de compte ?" />
 
 			<main className="auth-main login-main">
-				<motion.div
-					className="auth-glass-card login-card"
-					initial={{ opacity: 0, scale: 0.95 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ type: "spring", stiffness: 100, damping: 15 }}
-				>
+				<div className="auth-card login-card">
 					<div className="login-intro">
-						<img src={miloLogo} alt="Milo Logo" className="login-logo" />
-						<div className="badge-talk">
-							<Sparkles size={14} /> Bon retour
-						</div>
-						<h2 className="form-title">Content de te revoir !</h2>
+						<img src={miloLogo} alt="Milo" className="login-logo" />
+						<h2 className="form-title">Re-bonjour !</h2>
 						<p className="form-subtitle">
 							Connecte-toi pour retrouver ton espace Milo
 						</p>
@@ -93,12 +82,6 @@ const Login: React.FC = () => {
 							loading={isLoading}
 						/>
 
-						<div className="divider">
-							<div className="divider-line"></div>
-							<span className="divider-text">ou</span>
-							<div className="divider-line"></div>
-						</div>
-
 						<div className="signup-section">
 							<p className="signup-text">
 								Pas encore de compte ?{" "}
@@ -113,7 +96,7 @@ const Login: React.FC = () => {
 							</p>
 						</div>
 					</div>
-				</motion.div>
+				</div>
 			</main>
 		</div>
 	);

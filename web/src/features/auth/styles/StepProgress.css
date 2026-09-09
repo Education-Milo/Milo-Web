@@ -2,14 +2,10 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
-	background: white;
-	padding: 16px 30px;
-	border-radius: 100px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-	margin-bottom: 40px;
-	z-index: 6;
-	position: relative;
+	gap: 10px;
+	margin: 8px 0 36px;
+	list-style: none;
+	padding: 0;
 }
 
 .step-item {
@@ -19,40 +15,39 @@
 }
 
 .step-dot {
-	width: 28px;
-	height: 28px;
+	width: 24px;
+	height: 24px;
 	flex-shrink: 0;
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.75rem;
+	font-size: 0.7rem;
 	font-weight: 800;
 	color: #A0AEC0;
-	background: #F1F5F9;
-	border: 2px solid #E2E8F0;
-	transition: 0.3s;
+	background: transparent;
+	border: 2px solid #D6C9B8;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .step-dot.active {
-	background: linear-gradient(135deg, #F4922A, #EF4F1A);
+	background: #2D3748;
 	color: white;
-	border-color: transparent;
-	box-shadow: 0 4px 12px rgba(239, 79, 26, 0.35);
+	border-color: #2D3748;
 }
 
 .step-dot.completed {
-	background: #2D3748;
+	background: #F4922A;
 	color: white;
-	border-color: transparent;
+	border-color: #F4922A;
 }
 
 .step-label {
 	font-size: 0.8rem;
 	font-weight: 700;
 	color: #A0AEC0;
-	transition: 0.3s;
 	white-space: nowrap;
+	transition: color 0.2s ease;
 }
 
 .step-label.active,
@@ -61,29 +56,37 @@
 }
 
 .step-line {
-	width: 50px;
-	height: 3px;
-	border-radius: 3px;
-	background: #E2E8F0;
+	width: 40px;
+	height: 2px;
+	border-radius: 2px;
+	background: #E7DBC9;
 	overflow: hidden;
 }
 
 .step-line-fill {
+	display: block;
 	height: 100%;
-	background: #2D3748;
+	width: 0%;
+	background: #F4922A;
+	transition: width 0.3s ease;
 }
 
-@media (max-width: 640px) {
+.step-line-fill.filled {
+	width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.step-line-fill {
+		transition: none;
+	}
+}
+
+@media (max-width: 560px) {
 	.step-label {
 		display: none;
 	}
 
 	.step-line {
-		width: 30px;
-	}
-
-	.step-progress {
-		gap: 6px;
-		padding: 14px 20px;
+		width: 24px;
 	}
 }
