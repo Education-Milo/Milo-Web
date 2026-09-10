@@ -7,7 +7,7 @@ import { useCourseStore } from "@features/courses/store/course.store";
 export const useCourseDetailScreen = () => {
 	const navigate = useNavigate();
 	const { subjectId } = useParams<{ subjectId: string }>();
-	const { coursesWithChapters, load_course_detail, loading, error } =
+	const { subjects, coursesWithChapters, get_subject, load_course_detail, loading, error } =
 		useCourseStore();
 	const user = useUserStore((state) => state.user);
 
@@ -17,8 +17,17 @@ export const useCourseDetailScreen = () => {
 			return;
 		}
 
+		// Le mapping visuel (SUBJECTS_CONFIG) est indexé par nom de matière :
+		// on a besoin de la liste des matières pour retrouver le nom
+		// correspondant au subjectId de l'URL (ex: après un rechargement de page).
+		if (subjects.length === 0) {
+			get_subject();
+		}
+
 		load_course_detail(Number(subjectId));
 	}, [subjectId, navigate]);
+
+	const subject = subjects.find((s) => s.id === Number(subjectId));
 
 	const handleGoBack = () => {
 		navigate(ROUTES.COURSES);
@@ -26,6 +35,7 @@ export const useCourseDetailScreen = () => {
 
 	return {
 		user,
+		subject,
 		coursesWithChapters,
 		loading,
 		error,

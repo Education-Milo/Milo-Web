@@ -2,7 +2,7 @@ import React from "react";
 import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
-import { SUBJECTS_CONFIG } from "@shared/constants/courses";
+import { getSubjectVisuals } from "@shared/constants/courses";
 import type { ClassType } from "@shared/store/user/user.model";
 import "@features/courses/styles/CoursesScreen.css";
 import miloGreeting from "/buttonGo.webp";
@@ -101,8 +101,7 @@ const CoursesScreen: React.FC = () => {
 					{!loading && !error && subjects.length > 0 && (
 						<div className="cs-tiles">
 							{subjects.map((subject, index) => {
-								const config = SUBJECTS_CONFIG[subject.id];
-								if (!config) return null;
+								const config = getSubjectVisuals(subject.title);
 								const isLocked = config.locked === true;
 
 								return (
@@ -124,7 +123,7 @@ const CoursesScreen: React.FC = () => {
 										</div>
 
 										<div className="cs-tile-body">
-											<h3 className="cs-tile-title">{config.title}</h3>
+											<h3 className="cs-tile-title">{subject.title}</h3>
 											<div className="cs-tile-cta">
 												<span>{isLocked ? "Verrouillé" : "Démarrer"}</span>
 												<ChevronRight size={16} />
