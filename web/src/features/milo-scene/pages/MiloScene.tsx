@@ -25,7 +25,6 @@ import {
 	FiChevronLeft,
 	FiChevronUp,
 	FiChevronDown,
-	FiMessageCircle,
 	FiCheckCircle,
 	FiEdit3,
 	FiRefreshCw,
@@ -366,13 +365,11 @@ const LessonProgressBar: React.FC<{
 /* ── Boutons d'action en bas ── */
 const LessonActions: React.FC<{
 	phase: string;
-	isLastPart: boolean;
 	isFreeChatMode: boolean;
 	isOpenQuestionMode: boolean;
 	openQuestionPhase: string;
 	openQuestionInputMode: "answer" | "help";
 	onNext: () => void;
-	onAskQuestion: () => void;
 	onOpenQuestionModeChange: (mode: "answer" | "help") => void;
 	onBackToLessons: () => void;
 	onBackToCourseDetail: () => void;
@@ -381,13 +378,11 @@ const LessonActions: React.FC<{
 	onOpenQuestionNewQuestion: () => void;
 }> = ({
 	phase,
-	isLastPart,
 	isFreeChatMode,
 	isOpenQuestionMode,
 	openQuestionPhase,
 	openQuestionInputMode,
 	onNext,
-	onAskQuestion,
 	onOpenQuestionModeChange,
 	onBackToLessons,
 	onBackToCourseDetail,
@@ -496,24 +491,22 @@ const LessonActions: React.FC<{
 			);
 		}
 
-		return (
-			<div className="lesson-actions glass-panel">
-				<button className="lesson-btn lesson-btn--secondary" onClick={onAskQuestion}>
-					<FiMessageCircle size={16} />
-					<span>J'ai une question</span>
-				</button>
-				<button className="lesson-btn lesson-btn--primary" onClick={onNext}>
-					<span>
-						{isFreeChatMode
-							? "Terminer la discussion"
-							: isLastPart
-								? "Terminer le cours"
-								: "Partie suivante"}
-					</span>
-					<FiChevronRight size={16} />
-				</button>
-			</div>
-		);
+		// Poser une question se fait en cliquant sur la feuille 3D, et avancer
+		// dans la leçon via la flèche à côté de "Partie X / Y" : ce bandeau ne
+		// reste utile qu'en mode chat libre, qui n'a ni feuille de relecture
+		// ni flèche de partie suivante pour terminer la discussion.
+		if (isFreeChatMode) {
+			return (
+				<div className="lesson-actions glass-panel">
+					<button className="lesson-btn lesson-btn--primary" onClick={onNext}>
+						<span>Terminer la discussion</span>
+						<FiChevronRight size={16} />
+					</button>
+				</div>
+			);
+		}
+
+		return null;
 	}
 
 	return null;
@@ -809,8 +802,8 @@ const MiloScene: React.FC = () => {
 		// Lesson
 		phase,
 		displayedText,
-		isLastPart,
 		progressPercent,
+		maxVisitedPartIndex,
 		canGoToPreviousPart,
 		canGoToNextPart,
 		handleGoToPreviousPart,
@@ -829,7 +822,6 @@ const MiloScene: React.FC = () => {
 		setQuestion,
 		reply,
 		handleSendQuestion,
-		handleAskQuestion,
 		handleNextPart,
 		handleBackToLessons,
 		handleBackToCourseDetail,
@@ -900,10 +892,16 @@ const MiloScene: React.FC = () => {
 		setUserScrolledUp(true);
 	}, [handleGoToPreviousPart]);
 	const handleReviewNextPart = useCallback(() => {
+		// Si on est déjà sur la partie la plus avancée, la flèche fait avancer la
+		// leçon (nouveau texte, machine à écrire) : le scroll suit alors le texte
+		// qui s'écrit via l'effet "texte vidé" existant, pas de reset manuel ici.
+		const isReviewingPastPart = currentPartIndex < maxVisitedPartIndex;
 		handleGoToNextPart();
-		setBoardScrollRow(0);
-		setUserScrolledUp(true);
-	}, [handleGoToNextPart]);
+		if (isReviewingPastPart) {
+			setBoardScrollRow(0);
+			setUserScrolledUp(true);
+		}
+	}, [handleGoToNextPart, currentPartIndex, maxVisitedPartIndex]);
 	const handleBoardWheel = useCallback(
 		(e: React.WheelEvent) => {
 			if (maxScrollRow <= 0) return;
@@ -1005,13 +1003,11 @@ const MiloScene: React.FC = () => {
 			{/* Actions (suite / question / fin) */}
 			<LessonActions
 				phase={phase}
-				isLastPart={isLastPart}
 				isFreeChatMode={isFreeChatMode}
 				isOpenQuestionMode={isOpenQuestionMode}
 				openQuestionPhase={openQuestionPhase}
 				openQuestionInputMode={openQuestionInputMode}
 				onNext={handleNextPart}
-				onAskQuestion={handleAskQuestion}
 				onOpenQuestionModeChange={handleOpenQuestionInputModeChange}
 				onBackToLessons={handleBackToLessons}
 				onBackToCourseDetail={handleBackToCourseDetail}

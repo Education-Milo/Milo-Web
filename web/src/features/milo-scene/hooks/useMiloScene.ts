@@ -304,15 +304,15 @@ export const useMiloScene = (
 	}, [handleGoToPart, currentPartIndex]);
 
 	const handleGoToNextPart = useCallback(() => {
-		handleGoToPart(currentPartIndex + 1);
-	}, [handleGoToPart, currentPartIndex]);
-
-	// ─── Ouvrir le mode question ──────────────────────────────────────────────
-	const handleAskQuestion = useCallback(() => {
-		setPhase("questioning");
-		setCameraY(-3);
-		setIsEditing(true);
-	}, []);
+		const targetIndex = currentPartIndex + 1;
+		if (targetIndex <= maxVisitedPartIndex) {
+			// Partie déjà lue : on l'affiche directement (revoir).
+			handleGoToPart(targetIndex);
+		} else {
+			// Encore jamais lue : on avance réellement dans la leçon (machine à écrire).
+			handleNextPart();
+		}
+	}, [handleGoToPart, handleNextPart, currentPartIndex, maxVisitedPartIndex]);
 
 	const handleOpenQuestionInputModeChange = useCallback(
 		(mode: OpenQuestionInputMode) => {
@@ -512,7 +512,8 @@ export const useMiloScene = (
 	const isPartReviewable =
 		!isFreeChatMode && !isOpenQuestionMode && (phase === "waiting" || phase === "finished");
 	const canGoToPreviousPart = isPartReviewable && currentPartIndex > 0;
-	const canGoToNextPart = isPartReviewable && currentPartIndex < maxVisitedPartIndex;
+	// Depuis la partie la plus avancée, la flèche sert aussi à avancer dans la leçon.
+	const canGoToNextPart = !isFreeChatMode && !isOpenQuestionMode && phase === "waiting";
 	const openQuestionDisplayText = (() => {
 		if (!isOpenQuestionMode) return displayedText;
 		if (!openQuestionText && reply) return reply;
@@ -534,6 +535,7 @@ export const useMiloScene = (
 		displayedText: openQuestionDisplayText,
 		isLastPart,
 		progressPercent,
+		maxVisitedPartIndex,
 		canGoToPreviousPart,
 		canGoToNextPart,
 		handleGoToPreviousPart,
@@ -554,7 +556,6 @@ export const useMiloScene = (
 		setQuestion,
 		reply,
 		handleSendQuestion,
-		handleAskQuestion,
 		handleNextPart,
 		handleBackToLessons,
 		handleBackToCourseDetail,
