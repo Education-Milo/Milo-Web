@@ -32,6 +32,7 @@ import {
 } from "react-icons/fi";
 import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
+import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
 import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
@@ -373,8 +374,6 @@ const LessonActions: React.FC<{
 	onOpenQuestionModeChange: (mode: "answer" | "help") => void;
 	onBackToLessons: () => void;
 	onBackToCourseDetail: () => void;
-	onStartQcm: () => void;
-	onStartOpenQuestion: () => void;
 	onOpenQuestionNewQuestion: () => void;
 }> = ({
 	phase,
@@ -386,8 +385,6 @@ const LessonActions: React.FC<{
 	onOpenQuestionModeChange,
 	onBackToLessons,
 	onBackToCourseDetail,
-	onStartQcm,
-	onStartOpenQuestion,
 	onOpenQuestionNewQuestion,
 }) => {
 	if (phase === "loading") {
@@ -417,39 +414,24 @@ const LessonActions: React.FC<{
 	}
 
 	if (phase === "finished") {
+		// Leçon "normale" terminée : gérée par le check flottant + LessonFinishedModal
+		// rendus au niveau de MiloScene, pas ici.
+		if (!isFreeChatMode && !isOpenQuestionMode) return null;
+
 		return (
 			<div className="lesson-actions glass-panel lesson-finished">
 				<p>
 					{isFreeChatMode
 						? "Discussion terminée."
-						: isOpenQuestionMode
-							? "Tu peux continuer la discussion ou revenir aux cours."
-						: "🎉 Bravo ! Tu as terminé cette leçon !"}
+						: "Tu peux continuer la discussion ou revenir aux cours."}
 				</p>
-				{isFreeChatMode || isOpenQuestionMode ? (
-					<button
-						className="lesson-btn lesson-btn--primary"
-						onClick={isOpenQuestionMode ? onBackToCourseDetail : onBackToLessons}
-					>
-						<FiArrowLeft size={16} />
-						Retour
-					</button>
-				) : (
-					<div className="lesson-finished-choices">
-						<button className="lesson-btn lesson-btn--primary" onClick={onStartQcm}>
-							<FiCheckCircle size={16} />
-							Faire un QCM
-						</button>
-						<button className="lesson-btn lesson-btn--secondary" onClick={onStartOpenQuestion}>
-							<FiEdit3 size={16} />
-							Question ouverte
-						</button>
-						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToLessons}>
-							<FiArrowLeft size={16} />
-							Choisir un nouveau cours
-						</button>
-					</div>
-				)}
+				<button
+					className="lesson-btn lesson-btn--primary"
+					onClick={isOpenQuestionMode ? onBackToCourseDetail : onBackToLessons}
+				>
+					<FiArrowLeft size={16} />
+					Retour
+				</button>
 			</div>
 		);
 	}
@@ -792,6 +774,7 @@ const MiloScene: React.FC = () => {
 	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
 	const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
 	const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+	const [showLessonFinishedModal, setShowLessonFinishedModal] = useState(false);
 	const [boardScrollRow, setBoardScrollRow] = useState(0);
 	const [userScrolledUp, setUserScrolledUp] = useState(false);
 
@@ -842,6 +825,8 @@ const MiloScene: React.FC = () => {
 		showIntroText,
 	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession, isOpenQuestionRoute);
 
+	const isLessonFullyFinished =
+		phase === "finished" && !isFreeChatMode && !isOpenQuestionMode;
 	const isOpenQuestionBusy =
 		openQuestionPhase === "submitted" || openQuestionPhase === "helping";
 	const showOpenQuestionInput =
@@ -928,6 +913,12 @@ const MiloScene: React.FC = () => {
 		setBoardScrollRow((current) => (userScrolledUp ? Math.min(current, maxScrollRow) : maxScrollRow));
 	}, [boardRows.length, maxScrollRow, userScrolledUp]);
 
+	// Si l'élève revoit une partie précédente après avoir vu l'écran de fin,
+	// on referme la modale de fin de leçon.
+	useEffect(() => {
+		if (!isLessonFullyFinished) setShowLessonFinishedModal(false);
+	}, [isLessonFullyFinished]);
+
 	return (
 		<div className="milo-scene-root" onWheel={handleBoardWheel}>
 			{!sceneReady && <LoadingOverlay />}
@@ -1008,10 +999,20 @@ const MiloScene: React.FC = () => {
 				onOpenQuestionModeChange={handleOpenQuestionInputModeChange}
 				onBackToLessons={handleBackToLessons}
 				onBackToCourseDetail={handleBackToCourseDetail}
-				onStartQcm={handleStartQcm}
-				onStartOpenQuestion={handleStartOpenQuestion}
 				onOpenQuestionNewQuestion={handleOpenQuestionNewQuestion}
 			/>
+
+			{isLessonFullyFinished && (
+				<button
+					type="button"
+					className="lesson-complete-check"
+					onClick={() => setShowLessonFinishedModal(true)}
+					aria-label="Leçon terminée, voir les options pour continuer"
+					title="Leçon terminée !"
+				>
+					<FiCheckCircle size={28} />
+				</button>
+			)}
 
 			{/* Input question / réponse */}
 			{(showRegularChatInput || showOpenQuestionInput) && (
@@ -1065,6 +1066,13 @@ const MiloScene: React.FC = () => {
 			</button>
 
 			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
+			<LessonFinishedModal
+				isOpen={showLessonFinishedModal}
+				onClose={() => setShowLessonFinishedModal(false)}
+				onStartQcm={handleStartQcm}
+				onStartOpenQuestion={handleStartOpenQuestion}
+				onBackToLessons={handleBackToLessons}
+			/>
 			<BoardFullTextModal
 				text={boardFullText}
 				isOpen={isBoardModalOpen}
