@@ -97,3 +97,15 @@
 .course-card.orange { border-color: #f97316; }
 .course-card.teal { border-color: #14b8a6; }
 .course-card.pink { border-color: #ec4899; }
+
+/* Matière verrouillée */
+.course-card.is-locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+
+.course-card.is-locked:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
