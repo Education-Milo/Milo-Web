@@ -779,9 +779,6 @@ const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
 	if (!visible) return null;
 	return (
 		<div className="intro-overlay">
-			<div className="intro-content">
-				<img src="/milo-logo-3D.png" alt="Intro" className="intro-image" />
-			</div>
 		</div>
 	);
 };
