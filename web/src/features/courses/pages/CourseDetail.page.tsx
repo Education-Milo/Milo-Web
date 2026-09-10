@@ -14,9 +14,7 @@ import {
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import LessonModal from "@features/courses/components/lessonModal/LessonModal.component";
 import { useCourseDetailScreen } from "@features/courses/hooks/useCourseDetailPage";
-import { SUBJECTS_CONFIG } from "@shared/constants/courses";
 import { ROUTES } from "@shared/constants/routes";
-import { useParams } from "react-router-dom";
 import type {
 	ChapterWithLessons,
 	CourseWithChapters,
@@ -38,8 +36,7 @@ const STATUS_LABEL: Record<LessonWithStatus["status"], string> = {
 
 const CourseDetailScreen: React.FC = () => {
 	const navigate = useNavigate();
-	const { subjectId } = useParams<{ subjectId: string }>();
-	const { coursesWithChapters, loading, error, handleGoBack } =
+	const { coursesWithChapters, subject, loading, error, handleGoBack } =
 		useCourseDetailScreen();
 
 	/* --- État local du wizard --- */
@@ -49,8 +46,6 @@ const CourseDetailScreen: React.FC = () => {
 	const [selectedLesson, setSelectedLesson] = useState<LessonWithStatus | null>(null);
 
 	/* --- Dérivés --- */
-	const subjectConfig = subjectId ? SUBJECTS_CONFIG[Number(subjectId)] : undefined;
-
 	const selectedCourse: CourseWithChapters | undefined = useMemo(
 		() => coursesWithChapters.find((c) => c.id === selectedCourseId),
 		[coursesWithChapters, selectedCourseId],
@@ -108,7 +103,7 @@ const CourseDetailScreen: React.FC = () => {
 						>
 							<span className="cd-crumb-dot" aria-hidden="true" />
 							<span className="cd-crumb-label">
-								{subjectConfig?.title ?? "Matière"}
+								{subject?.title ?? "Matière"}
 							</span>
 						</button>
 
