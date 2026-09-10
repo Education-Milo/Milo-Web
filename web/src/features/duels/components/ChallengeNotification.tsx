@@ -33,21 +33,22 @@ const ChallengeNotification: React.FC = () => {
   if (!pendingChallenge) return null;
 
   return (
-    <div className="challenge-notif-banner">
-      <h4 className="challenge-notif-title">⚔️ Défi reçu !</h4>
-      <p className="challenge-notif-msg">
-        <strong>{pendingChallenge.from_username}</strong> te défie en duel !
-      </p>
-      <span className="challenge-notif-timer">
-        Expire dans {timeLeft}s
-      </span>
-      <div className="challenge-notif-actions">
-        <button className="challenge-accept-btn" onClick={acceptChallenge}>
-          ✅ Accepter
-        </button>
-        <button className="challenge-decline-btn" onClick={declineChallenge}>
-          ❌ Décliner
-        </button>
+    <div className="challenge-notif-overlay" role="dialog" aria-modal="true">
+      <div className="challenge-notif-banner">
+        <div className="challenge-notif-icon" aria-hidden="true">⚔️</div>
+        <h4 className="challenge-notif-title">Défi reçu !</h4>
+        <p className="challenge-notif-msg">
+          <strong>{pendingChallenge.from_username}</strong> te défie en duel !
+        </p>
+        <span className="challenge-notif-timer">Expire dans {timeLeft}s</span>
+        <div className="challenge-notif-actions">
+          <button className="challenge-accept-btn" onClick={acceptChallenge}>
+            ✅ Accepter
+          </button>
+          <button className="challenge-decline-btn" onClick={declineChallenge}>
+            ❌ Décliner
+          </button>
+        </div>
       </div>
     </div>
   );

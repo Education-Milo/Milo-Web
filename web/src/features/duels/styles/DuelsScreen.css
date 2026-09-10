@@ -23,10 +23,10 @@
 @keyframes dl-trophy-bounce { 0%, 100% { transform: translateY(0) scale(1) rotate(0); } 30% { transform: translateY(-14px) scale(1.1) rotate(-7deg); } 60% { transform: translateY(0) scale(0.97) rotate(5deg); } }
 @keyframes dl-burst-rotate { to { transform: rotate(360deg); } }
 @keyframes dl-toastIn { from { opacity: 0; transform: translateY(-12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes dl-glint-sweep { 0% { transform: translateX(-150%) skewX(-25deg); } 18% { transform: translateX(350%) skewX(-25deg); } 100% { transform: translateX(350%) skewX(-25deg); } }
 @keyframes dl-shimmer { from { transform: translateX(-150%) skewX(-25deg); } to { transform: translateX(350%) skewX(-25deg); } }
 @keyframes dl-glow-breathe { 0%, 100% { box-shadow: 0 20px 45px rgba(139, 92, 63, 0.1), 0 0 0 0 rgba(232, 103, 28, 0.28); } 50% { box-shadow: 0 24px 55px rgba(139, 92, 63, 0.14), 0 0 0 10px rgba(232, 103, 28, 0); } }
+@keyframes dl-overlay-in { from { opacity: 0; } to { opacity: 1; } }
 /* ============================================================ LAYOUT + FOND ANIMÉ ============================================================ */
 /* ============================================================ LAYOUT ============================================================ */
 .dl-page { min-height: 100%; padding: 40px clamp(16px, 4vw, 50px); background: radial-gradient(circle at 0% 0%, #f6ebdf 0%, #f1d2b2 100%); font-family: var(--dl-font); color: var(--dl-text-main); position: relative; overflow: hidden; }
@@ -62,16 +62,16 @@
 .dl-hero-stat svg { color: #fff; flex-shrink: 0; transition: transform 0.4s var(--dl-spring); }
 .dl-hero-stat:hover svg { transform: rotate(-12deg) scale(1.2); }
 /* ============================================================ BENTO — BANNIÈRE DUEL + CARTES COLONNES ============================================================ */
-.dl-duel-banner { position: relative; display: block; width: 100%; padding: 0; border: 3px solid #fff; border-radius: 32px; background: linear-gradient(135deg, #ffe4cc 0%, #ffb37b 100%); font-family: var(--dl-font); cursor: pointer; overflow: hidden; opacity: 0; animation: dl-fadeUp 0.55s var(--dl-spring) both, dl-glow-breathe 3.5s ease-in-out infinite; animation-delay: 0.1s, 1s; transition: transform 0.5s var(--dl-spring), border-color 0.4s ease; flex: 1; min-height: 380px; }
+.dl-duel-banner { position: relative; display: block; width: 100%; padding: 0; border: 3px solid #fff; border-radius: 32px; background: linear-gradient(135deg, #ffe4cc 0%, #ffb37b 100%); font-family: var(--dl-font); cursor: pointer; overflow: hidden; opacity: 0; animation: dl-fadeUp 0.55s var(--dl-spring) both, dl-glow-breathe 3.5s ease-in-out infinite; animation-delay: 0.1s, 1s; transition: transform 0.5s var(--dl-spring), border-color 0.4s ease; flex: 0 0 auto; aspect-ratio: var(--dl-banner-ratio, 16 / 9); min-height: 0; }
 .dl-duel-banner:hover { transform: translateY(-4px) scale(1.005); border-color: var(--dl-accent-light); }
 .dl-duel-banner:active { transform: translateY(-1px) scale(0.998); }
-.dl-duel-banner-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: 1; transition: transform 0.8s var(--dl-spring); }
+.dl-duel-banner-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; z-index: 1; }
+.dl-stats { flex: 1 1 auto; }
 .dl-duel-banner:hover .dl-duel-banner-img { transform: scale(1.04); }
 .dl-duel-banner-shine { position: absolute; top: 0; left: 0; width: 35%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%); transform: translateX(-150%) skewX(-25deg); pointer-events: none; z-index: 2; animation: dl-glint-sweep 5s ease-in-out infinite; animation-delay: 2s; }
 .dl-duel-banner-shine-2 { position: absolute; top: 0; left: 0; width: 18%; height: 100%; background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.85) 50%, transparent 100%); transform: translateX(-150%) skewX(-25deg); pointer-events: none; z-index: 3; animation: dl-glint-sweep 5s ease-in-out infinite; animation-delay: 2.15s; filter: blur(1px); }
 .dl-duel-banner:hover .dl-duel-banner-shine { animation: dl-shimmer 0.9s ease; animation-delay: 0s; }
 .dl-duel-banner:hover .dl-duel-banner-shine-2 { animation: dl-shimmer 0.9s ease; animation-delay: 0.1s; }
-.dl-stats { flex: 0 0 auto; }
 .dl-friends, .dl-history { flex: 1; min-height: 0; }
 .dl-friends .friend-list-container { flex: 1; min-height: 0; gap: 0; }
 .dl-friends .friend-list-title { display: none; }
@@ -233,6 +233,11 @@
 .dl-end-score-box:hover { transform: translateY(-4px) scale(1.03); }
 .dl-end-score-name { font-size: 0.66rem; color: var(--dl-text-soft); margin-bottom: 4px; font-weight: 900; letter-spacing: 0.8px; text-transform: uppercase; }
 .dl-end-score-pts { font-size: 2.2rem; font-weight: 900; line-height: 1; letter-spacing: -1.5px; background: linear-gradient(135deg, var(--dl-accent-light), var(--dl-accent)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.dl-end-actions { display: flex; gap: 12px; width: 100%; }
+.dl-end-actions .start-random-duel-btn { flex: 1; margin-top: 0; }
+.dl-end-actions .dl-btn-ghost { flex: 1; }
+.duel-game-quit { align-self: center; padding: 9px 20px; font-size: 0.8rem; opacity: 0.75; }
+.duel-game-quit:hover { opacity: 1; }
 /* ============================================================ STATISTIQUES ============================================================ */
 .duel-stats-empty { display: flex; align-items: center; justify-content: center; padding: 24px; color: var(--dl-text-muted); font-size: 0.95rem; min-height: 80px; font-family: var(--dl-font); font-weight: 600; }
 .duel-stats-container { display: flex; flex-direction: column; gap: 20px; font-family: var(--dl-font); }
@@ -301,15 +306,33 @@
 .duel-history-badge-loss { background: linear-gradient(135deg, #f87171, var(--dl-danger)); color: #fff; box-shadow: 0 4px 10px rgba(224, 82, 82, 0.3); }
 .duel-history-badge-draw { background: linear-gradient(135deg, #fbbf24, var(--dl-warning)); color: #fff; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
 /* ============================================================ CHALLENGE NOTIFICATION BANNER (composant global) ============================================================ */
-.challenge-notif-banner { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(22px); border: 2px solid #fff; border-radius: 26px; padding: 16px 20px; width: 90%; max-width: 430px; z-index: 1000; box-shadow: 0 24px 55px rgba(139, 92, 63, 0.2), 0 0 0 6px rgba(232, 103, 28, 0.07); display: flex; flex-direction: column; gap: 8px; font-family: var(--dl-font); animation: fadeInUp 0.35s var(--dl-spring) forwards; }
-.challenge-notif-title { font-size: 1.05rem; font-weight: 900; letter-spacing: -0.3px; color: var(--dl-accent-dark); margin: 0; }
-.challenge-notif-msg { font-size: 0.88rem; font-weight: 600; color: var(--dl-text-soft); line-height: 1.45; margin: 0; }
+/* ============================================================ CHALLENGE NOTIFICATION (composant global, centré écran) ============================================================ */
+.challenge-notif-overlay { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(58, 47, 38, 0.42); backdrop-filter: blur(6px); animation: dl-overlay-in 0.25s ease both; }
+.challenge-notif-banner { position: relative; width: 100%; max-width: 430px; padding: 32px 26px; border: 2px solid #fff; border-radius: 30px; background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(22px); box-shadow: 0 28px 65px rgba(139, 92, 63, 0.28), 0 0 0 6px rgba(232, 103, 28, 0.08); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; overflow: hidden; font-family: var(--dl-font); animation: dl-pop 0.45s var(--dl-spring) both; }
+.challenge-notif-banner::before { content: ""; position: absolute; top: -130px; left: 50%; margin-left: -160px; width: 320px; height: 320px; border-radius: 50%; pointer-events: none; z-index: 0; background: radial-gradient(circle, var(--dl-accent-glow) 0%, transparent 68%); animation: dl-halo-breathe 5s ease-in-out infinite; }
+.challenge-notif-banner > * { position: relative; z-index: 1; }
+.challenge-notif-icon { font-size: 3rem; line-height: 1; filter: drop-shadow(0 8px 14px rgba(232, 103, 28, 0.26)); animation: dl-wobble 1.6s ease-in-out infinite; }
+.challenge-notif-title { margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -0.5px; color: var(--dl-text-main); }
+.challenge-notif-msg { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--dl-text-soft); line-height: 1.45; }
+.challenge-notif-msg strong { color: var(--dl-accent-dark); font-weight: 900; }
+.challenge-notif-timer { padding: 6px 16px; border-radius: 100px; background: var(--dl-accent-soft); border: 1px solid rgba(232, 103, 28, 0.18); color: var(--dl-accent-dark); font-size: 0.76rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; animation: dl-status-pulse 2.2s ease-in-out infinite; }
+.challenge-notif-actions { display: flex; gap: 12px; width: 100%; margin-top: 8px; }
+.challenge-accept-btn { position: relative; flex: 1; padding: 14px 18px; background: linear-gradient(135deg, var(--dl-accent-light) 0%, var(--dl-accent) 100%); color: #fff; border: 2px solid rgba(255, 255, 255, 0.35); border-radius: 16px; font-family: var(--dl-font); font-weight: 900; font-size: 0.92rem; cursor: pointer; overflow: hidden; transition: all 0.35s var(--dl-spring); box-shadow: 0 10px 24px var(--dl-accent-glow); }
+.challenge-accept-btn::after { content: ""; position: absolute; top: 0; left: 0; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); transform: translateX(-190%) skewX(-22deg); pointer-events: none; }
+.challenge-accept-btn:hover::after { animation: dl-shine 0.9s ease forwards; }
+.challenge-accept-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 18px 34px var(--dl-accent-glow); }
+.challenge-accept-btn:active { transform: translateY(0) scale(0.97); }
+.challenge-decline-btn { flex: 1; padding: 14px 18px; background: var(--dl-danger-bg); color: var(--dl-danger-dark); border: 1.5px solid var(--dl-danger-border); border-radius: 16px; font-family: var(--dl-font); font-weight: 900; font-size: 0.92rem; cursor: pointer; transition: all 0.35s var(--dl-spring); }
+.challenge-decline-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 14px 28px rgba(224, 82, 82, 0.2); }
+.challenge-decline-btn:active { transform: translateY(0) scale(0.97); }
+@media (max-width: 480px) { .challenge-notif-banner { padding: 26px 20px; border-radius: 26px; } .challenge-notif-icon { font-size: 2.5rem; } .challenge-notif-actions { flex-direction: column; } }
 /* ============================================================ RESPONSIVE ============================================================ */
-@media (max-width: 1200px) { .dl-grid { grid-template-columns: 1fr; gap: 22px; align-items: start; } .dl-main-col, .dl-side-col { gap: 20px; } .dl-duel-banner { min-height: 420px; flex: 0 0 auto; } .dl-friends, .dl-history { flex: 0 0 auto; } .dl-friends .friend-list, .dl-history .duel-history-list { max-height: 400px; } }
+@media (max-width: 1200px) { .dl-grid { grid-template-columns: 1fr; gap: 22px; align-items: start; } .dl-main-col, .dl-side-col { gap: 20px; } .dl-friends, .dl-history { flex: 0 0 auto; } .dl-friends .friend-list, .dl-history .duel-history-list { max-height: 400px; } }
 @media (max-width: 1100px) { .dl-hero { padding: 26px 28px; gap: 20px; } .dl-hero-mascot { width: 115px; } }
 @media (max-width: 860px) { .dl-page { padding: 24px 16px; } .dl-grid { gap: 18px; } .dl-main-col, .dl-side-col { gap: 18px; } .dl-hero { padding: 24px; border-radius: 28px; gap: 16px; flex-direction: column; text-align: center; align-items: center; } .dl-hero-center { align-items: center; } .dl-hero-chip { margin: 0 auto; } .dl-hero-sub { max-width: none; } .dl-hero-mascot { width: 110px; order: -1; } .dl-hero-stats { width: 100%; flex-direction: row; justify-content: center; flex-wrap: wrap; } .dl-duel-banner { border-radius: 28px; min-height: 340px; } .dl-card { padding: 22px; border-radius: 26px; } .duel-game-card, .dl-waiting-card, .duel-end-card { border-radius: 28px; padding: 26px 22px; } }
 @media (max-width: 600px) { .duel-stats-grid { grid-template-columns: repeat(2, 1fr); } .duel-answers-grid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .dl-page { padding: 20px 12px; } .dl-hero { padding: 22px; border-radius: 24px; } .dl-hero-mascot { width: 95px; } .dl-hero-title { font-size: clamp(1.4rem, 5.5vw, 1.8rem); } .dl-hero-sub { font-size: 0.92rem; } .dl-hero-stats { flex-direction: column; width: 100%; } .dl-hero-stat { width: 100%; justify-content: center; } .dl-duel-banner { border-radius: 24px; border-width: 2px; min-height: 260px; } .dl-card { padding: 18px; border-radius: 22px; gap: 16px; } .dl-section-title { font-size: 1.15rem; } .dl-section-icon { width: 36px; height: 36px; padding: 9px; border-radius: 12px; } .duel-card { padding: 22px 18px; border-radius: 20px; } .friend-item, .duel-history-row { padding: 12px 14px; border-radius: 18px; } .duel-score-pts, .dl-end-score-pts { font-size: 1.8rem; } .duel-question-text { font-size: 1rem; padding: 14px; } }
 @media (max-width: 380px) { .duel-stats-grid { grid-template-columns: 1fr; } .duel-content { gap: 8px; } .opponent-avatar, .user-avatar { width: 54px; height: 54px; font-size: 1.1rem; border-radius: 16px; } }
 /* ============================================================ ACCESSIBILITÉ : mouvement réduit ============================================================ */
-@media (prefers-reduced-motion: reduce) { .dl-page::after, .dl-fullscreen-wrap::after, .duel-game-container::after, .dl-hero, .dl-hero::after, .dl-hero-halo, .dl-hero-left::before, .dl-hero-left::after, .dl-hero-mascot, .dl-hero-chip svg, .duel-icon, .duel-card.random-duel::after, .duel-status, .duel-vs, .friend-status.online, .duel-timer-bar, .duel-winrate-bar, .duel-end-icon, .duel-end-icon::before, .dl-waiting-card::before, .dl-card::before { animation: none !important; } .duel-answer-btn.duel-answer-wrong, .duel-answer-btn.duel-answer-correct { animation: none !important; } .dl-card, .friend-item, .duel-history-row, .duel-stat-chip, .duel-opponent-row, .duel-answer-btn, .duel-score-box, .dl-end-score-box { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } .spinner, .spinner::after { animation-duration: 1.2s !important; } * { transition-duration: 0.12s !important; } }
+@media (prefers-reduced-motion: reduce) { .dl-page::after, .dl-fullscreen-wrap::after, .duel-game-container::after, .dl-hero, .dl-hero::after, .dl-hero-halo, .dl-hero-left::before, .dl-hero-left::after, .dl-hero-mascot, .dl-hero-chip svg, .duel-icon, .duel-card.random-duel::after, .duel-status, .duel-vs, .friend-status.online, .duel-timer-bar, .duel-winrate-bar, .duel-end-icon, .duel-end-icon::before, .dl-waiting-card::before, .dl-card::before, .dl-duel-banner, .dl-duel-banner-shine, .dl-duel-banner-shine-2, .challenge-notif-banner::before, .challenge-notif-icon, .challenge-notif-timer { animation: none !important; } .duel-answer-btn.duel-answer-wrong, .duel-answer-btn.duel-answer-correct { animation: none !important; } .dl-card, .friend-item, .duel-history-row, .duel-stat-chip, .duel-opponent-row, .duel-answer-btn, .duel-score-box, .dl-end-score-box, .challenge-notif-overlay, .challenge-notif-banner { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } .spinner, .spinner::after { animation-duration: 1.2s !important; } * { transition-duration: 0.12s !important; } }
+@media (prefers-reduced-motion: reduce) { .dl-duel-banner, .dl-card, .dl-section-header { opacity: 1 !important; } }

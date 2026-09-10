@@ -14,6 +14,7 @@ const DuelGame: React.FC = () => {
     screen,
     sendAnswer,
     goToLobby,
+    startMatchmaking,
   } = useDuel();
 
   const [scores, setScores] = useState<{ [k: number]: number }>({ 0: 0, 1: 0 });
@@ -129,9 +130,14 @@ const DuelGame: React.FC = () => {
               <div className="dl-end-score-pts">{oppScore}</div>
             </div>
           </div>
-          <button className="start-random-duel-btn" onClick={goToLobby}>
-            🔄 Rejouer
-          </button>
+          <div className="dl-end-actions">
+            <button className="start-random-duel-btn" onClick={startMatchmaking}>
+              🔄 Rejouer
+            </button>
+            <button className="dl-btn-ghost" onClick={goToLobby}>
+              🚪 Quitter
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -202,6 +208,11 @@ const DuelGame: React.FC = () => {
             {statusMsg}
           </div>
         )}
+
+        {/* Quitter en cours de partie */}
+        <button className="dl-btn-ghost duel-game-quit" onClick={goToLobby}>
+          🚪 Quitter le duel
+        </button>
       </div>
     </div>
   );
