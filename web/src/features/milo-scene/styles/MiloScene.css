@@ -35,6 +35,42 @@
     min-width: 300px;
 }
 
+.lesson-progress-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.lesson-progress-nav-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.lesson-progress-nav-btn:hover:not(:disabled) {
+    background: rgba(255, 107, 53, 0.85);
+    transform: scale(1.08);
+}
+
+.lesson-progress-nav-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.lesson-progress-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 .lesson-progress-track {
     flex: 1;
     height: 6px;
@@ -183,6 +219,33 @@
     background: rgba(255, 107, 53, 0.9);
     border-color: rgba(255, 255, 255, 0.45);
     color: white;
+}
+
+.lesson-btn--danger {
+    background: #e53935;
+    color: white;
+}
+
+.lesson-btn--danger:hover {
+    background: #c62828;
+    transform: translateY(-2px);
+}
+
+.lesson-btn:active {
+    transform: scale(0.96);
+}
+
+.lesson-btn:focus-visible,
+.lesson-progress-nav-btn:focus-visible,
+.help-btn:focus-visible,
+.close-btn:focus-visible,
+.chat-send-btn:focus-visible,
+.board-scrollbar-btn:focus-visible,
+.board-full-text-btn:focus-visible,
+.board-resume-btn:focus-visible,
+.board-modal-close:focus-visible {
+    outline: 2px solid #FF8C00;
+    outline-offset: 2px;
 }
 
 @media (max-width: 640px) {
@@ -434,48 +497,90 @@
   transform: translateY(-2px);
 }
 
-.board-pagination-controls {
+.board-scrollbar {
   position: fixed;
   top: 148px;
   right: 24px;
   z-index: 12;
-  min-height: 44px;
-  padding: 6px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  padding: 10px 8px;
 }
 
-.board-pagination-controls button {
-  width: 32px;
-  height: 32px;
+.board-scrollbar-btn {
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
 }
 
-.board-pagination-controls button:hover:not(:disabled) {
+.board-scrollbar-btn:hover:not(:disabled) {
   background: rgba(255, 107, 53, 0.85);
   transform: scale(1.06);
 }
 
-.board-pagination-controls button:disabled {
+.board-scrollbar-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.board-pagination-controls span {
-  min-width: 42px;
+.board-scrollbar-track {
+  position: relative;
+  width: 8px;
+  height: 220px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.board-scrollbar-thumb {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  min-height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 107, 53, 0.85);
+  cursor: grab;
+  transition: background 0.2s ease;
+}
+
+.board-scrollbar-track:active .board-scrollbar-thumb {
+  cursor: grabbing;
+  background: #ff6b35;
+}
+
+.board-resume-btn {
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
   color: white;
   font-size: 0.85rem;
-  font-weight: 800;
-  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  animation: fadeIn 0.25s ease;
+}
+
+.board-resume-btn:hover {
+  background: rgba(255, 107, 53, 0.85);
+  transform: translateX(-50%) translateY(-2px);
 }
 
 .board-modal-overlay {
@@ -571,9 +676,26 @@
     font-size: 0.85rem;
   }
 
-  .board-pagination-controls {
+  .board-scrollbar {
     top: 138px;
     right: 16px;
+  }
+
+  .board-scrollbar-track {
+    height: 160px;
+  }
+
+  .close-btn {
+    width: 44px;
+    height: 44px;
+    top: 16px;
+    left: 16px;
+  }
+
+  .board-resume-btn {
+    top: 60px;
+    font-size: 0.8rem;
+    padding: 6px 12px;
   }
 
   .board-modal-overlay {
@@ -713,10 +835,10 @@
   transform: scale(1.05);
 }
 
-/* ---------- Back Button ---------- */
-.back-btn {
+/* ---------- Close Button (quitter la salle de classe) ---------- */
+.close-btn {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   left: 24px;
   width: 48px;
   height: 48px;
@@ -735,11 +857,55 @@
   animation: fadeIn 0.4s 0.5s ease both;
 }
 
-.back-btn:hover {
-  background: rgba(255, 140, 0, 0.2);
-  color: #FF8C00;
-  border-color: rgba(255, 140, 0, 0.3);
+.close-btn:hover {
+  background: rgba(255, 60, 60, 0.25);
+  color: #ff4d4d;
+  border-color: rgba(255, 77, 77, 0.4);
   transform: scale(1.05);
+}
+
+.close-btn:active {
+  transform: scale(0.94);
+}
+
+/* ---------- Leave Confirmation Modal ---------- */
+.leave-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+  animation: fadeIn 0.2s ease;
+}
+
+.leave-confirm-content {
+  width: min(420px, 100%);
+  padding: 28px 26px;
+  color: white;
+  text-align: center;
+  animation: scaleIn 0.25s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.leave-confirm-content h2 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.leave-confirm-content p {
+  margin: 0 0 22px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.leave-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
 /* ---------- Loading Overlay ---------- */

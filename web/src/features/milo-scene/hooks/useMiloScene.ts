@@ -107,6 +107,7 @@ export const useMiloScene = (
 	// ── Lesson state ──────────────────────────────────────────────────────────
 	const [parts, setParts] = useState<LessonPart[]>([]);
 	const [currentPartIndex, setCurrentPartIndex] = useState(0);
+	const [maxVisitedPartIndex, setMaxVisitedPartIndex] = useState(0);
 	const [phase, setPhase] = useState<LessonPhase>("loading");
 	const [displayedText, setDisplayedText] = useState("");
 
@@ -203,6 +204,7 @@ export const useMiloScene = (
 				const lessonParts = await fetchLessonParts(lessonId, "", controller.signal);
 				setParts(lessonParts);
 				setCurrentPartIndex(0);
+				setMaxVisitedPartIndex(0);
 				if (isOpenQuestionMode) {
 					await generateOpenQuestion(lessonParts);
 				} else {
@@ -230,6 +232,7 @@ export const useMiloScene = (
 			},
 		]);
 		setCurrentPartIndex(0);
+		setMaxVisitedPartIndex(0);
 		setReply("");
 		setPhase("reading");
 	}, [freeChatSession]);
@@ -272,10 +275,37 @@ export const useMiloScene = (
 			setActiveAnimation("Idle");
 		} else {
 			setCurrentPartIndex(nextIndex);
+			setMaxVisitedPartIndex((current) => Math.max(current, nextIndex));
 			setReply("");
 			setPhase("reading");
 		}
 	}, [currentPartIndex, parts.length, isFreeChatMode, isOpenQuestionMode]);
+
+	// ─── Revoir une partie déjà lue (sans relancer le typewriter) ────────────
+	const handleGoToPart = useCallback(
+		(targetIndex: number) => {
+			if (targetIndex < 0 || targetIndex > maxVisitedPartIndex) return;
+			const part = parts[targetIndex];
+			if (!part) return;
+
+			setCurrentPartIndex(targetIndex);
+			setDisplayedText(part.content);
+			setReply("");
+			setPhase("waiting");
+			setActiveAnimation("Idle");
+			setCameraY(0);
+			setIsEditing(false);
+		},
+		[parts, maxVisitedPartIndex],
+	);
+
+	const handleGoToPreviousPart = useCallback(() => {
+		handleGoToPart(currentPartIndex - 1);
+	}, [handleGoToPart, currentPartIndex]);
+
+	const handleGoToNextPart = useCallback(() => {
+		handleGoToPart(currentPartIndex + 1);
+	}, [handleGoToPart, currentPartIndex]);
 
 	// ─── Ouvrir le mode question ──────────────────────────────────────────────
 	const handleAskQuestion = useCallback(() => {
@@ -474,10 +504,15 @@ export const useMiloScene = (
 	// ─── Données dérivées ─────────────────────────────────────────────────────
 	const currentPart = parts[currentPartIndex] ?? null;
 	const isLastPart = currentPartIndex === parts.length - 1;
+	// La barre de progression reflète la partie la plus avancée, pas celle en cours de relecture.
 	const progressPercent =
 		parts.length > 0
-			? Math.round(((currentPartIndex + 1) / parts.length) * 100)
+			? Math.round(((maxVisitedPartIndex + 1) / parts.length) * 100)
 			: 0;
+	const isPartReviewable =
+		!isFreeChatMode && !isOpenQuestionMode && (phase === "waiting" || phase === "finished");
+	const canGoToPreviousPart = isPartReviewable && currentPartIndex > 0;
+	const canGoToNextPart = isPartReviewable && currentPartIndex < maxVisitedPartIndex;
 	const openQuestionDisplayText = (() => {
 		if (!isOpenQuestionMode) return displayedText;
 		if (!openQuestionText && reply) return reply;
@@ -499,6 +534,10 @@ export const useMiloScene = (
 		displayedText: openQuestionDisplayText,
 		isLastPart,
 		progressPercent,
+		canGoToPreviousPart,
+		canGoToNextPart,
+		handleGoToPreviousPart,
+		handleGoToNextPart,
 		isFreeChatMode,
 		isOpenQuestionMode,
 		openQuestionPhase,

@@ -22,12 +22,14 @@ import {
 	FiArrowLeft,
 	FiArrowUp,
 	FiChevronRight,
+	FiChevronLeft,
+	FiChevronUp,
+	FiChevronDown,
 	FiMessageCircle,
 	FiCheckCircle,
 	FiEdit3,
 	FiRefreshCw,
 	FiMaximize2,
-	FiChevronLeft,
 } from "react-icons/fi";
 import { useLocation, useParams } from "react-router-dom";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
@@ -299,12 +301,46 @@ const AnimationControls: React.FC<{
 );
 
 /* ── Barre de progression du cours ── */
-const LessonProgressBar: React.FC<{ current: number; total: number; percent: number }> = ({ current, total, percent }) => (
+const LessonProgressBar: React.FC<{
+	current: number;
+	total: number;
+	percent: number;
+	canGoPrev: boolean;
+	canGoNext: boolean;
+	onPrev: () => void;
+	onNext: () => void;
+}> = ({ current, total, percent, canGoPrev, canGoNext, onPrev, onNext }) => (
 	<div className="lesson-progress-bar glass-panel">
-		<span className="lesson-progress-label">Partie {current} / {total}</span>
-		<div className="lesson-progress-track">
-			<div className="lesson-progress-fill" style={{ width: `${percent}%` }} />
+		{total > 1 && (
+			<button
+				type="button"
+				className="lesson-progress-nav-btn"
+				onClick={onPrev}
+				disabled={!canGoPrev}
+				aria-label="Revoir la partie précédente"
+				title="Partie précédente"
+			>
+				<FiChevronLeft size={16} />
+			</button>
+		)}
+		<div className="lesson-progress-content">
+			<span className="lesson-progress-label">Partie {current} / {total}</span>
+			<div className="lesson-progress-track">
+				<div className="lesson-progress-fill" style={{ width: `${percent}%` }} />
+			</div>
 		</div>
+		{total > 1 && (
+			<button
+				type="button"
+				className="lesson-progress-nav-btn"
+				onClick={onNext}
+				disabled={!canGoNext}
+				aria-label="Revoir la partie suivante"
+				title="Partie suivante"
+			>
+				<FiChevronRight size={16} />
+			</button>
+		)}
 	</div>
 );
 
@@ -557,55 +593,83 @@ const wrapLineIntoRows = (
 	return rows.length ? rows : [""];
 };
 
-const splitBoardTextIntoPages = (text: string) => {
-	if (!text.trim()) return [text];
+// Barre de scroll verticale pour le tableau (molette + drag)
+const BoardScrollbar: React.FC<{
+	scrollRow: number;
+	maxScrollRow: number;
+	totalRows: number;
+	visibleRows: number;
+	onScrollTo: (row: number) => void;
+	onStep: (delta: number) => void;
+}> = ({ scrollRow, maxScrollRow, totalRows, visibleRows, onScrollTo, onStep }) => {
+	const trackRef = useRef<HTMLDivElement>(null);
+	const draggingRef = useRef(false);
 
-	// 1. On pré-calcule le retour à la ligne nous-mêmes (avec de vrais \n),
-	//    donc 1 rangée = 1 ligne rendue sur le tableau, sans surprise.
-	const rows = text
-		.split("\n")
-		.flatMap((line) => wrapLineIntoRows(line));
+	const thumbHeightPercent = Math.max(12, (visibleRows / totalRows) * 100);
+	const thumbTopPercent =
+		maxScrollRow > 0 ? (scrollRow / maxScrollRow) * (100 - thumbHeightPercent) : 0;
 
-	// 2. On pagine par paquets de BOARD_PAGE_VISIBLE_LINES rangées.
-	const pages: string[] = [];
-	for (let i = 0; i < rows.length; i += BOARD_PAGE_VISIBLE_LINES) {
-		pages.push(
-			rows.slice(i, i + BOARD_PAGE_VISIBLE_LINES).join("\n").trim(),
-		);
-	}
+	const rowFromClientY = useCallback(
+		(clientY: number) => {
+			const track = trackRef.current;
+			if (!track) return scrollRow;
+			const rect = track.getBoundingClientRect();
+			const ratio = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
+			return Math.round(ratio * maxScrollRow);
+		},
+		[maxScrollRow, scrollRow],
+	);
 
-	return pages.length ? pages : [text];
-};
+	const handleTrackMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			e.preventDefault();
+			draggingRef.current = true;
+			onScrollTo(rowFromClientY(e.clientY));
 
-const BoardPaginationControls: React.FC<{
-	currentPage: number;
-	totalPages: number;
-	onPageChange: (page: number) => void;
-}> = ({ currentPage, totalPages, onPageChange }) => {
-	if (totalPages <= 1) return null;
+			const handleMove = (moveEvent: MouseEvent) => {
+				if (!draggingRef.current) return;
+				onScrollTo(rowFromClientY(moveEvent.clientY));
+			};
+			const handleUp = () => {
+				draggingRef.current = false;
+				window.removeEventListener("mousemove", handleMove);
+				window.removeEventListener("mouseup", handleUp);
+			};
+			window.addEventListener("mousemove", handleMove);
+			window.addEventListener("mouseup", handleUp);
+		},
+		[onScrollTo, rowFromClientY],
+	);
+
+	if (totalRows <= visibleRows) return null;
 
 	return (
-		<div className="board-pagination-controls glass-panel" aria-label="Pages du tableau">
+		<div className="board-scrollbar glass-panel" aria-label="Défiler le tableau">
 			<button
 				type="button"
-				onClick={() => onPageChange(currentPage - 1)}
-				disabled={currentPage === 0}
-				aria-label="Page precedente du tableau"
-				title="Page precedente"
+				className="board-scrollbar-btn"
+				onClick={() => onStep(-1)}
+				disabled={scrollRow <= 0}
+				aria-label="Remonter dans le tableau"
+				title="Remonter"
 			>
-				<FiChevronLeft size={18} />
+				<FiChevronUp size={14} />
 			</button>
-			<span>
-				{currentPage + 1} / {totalPages}
-			</span>
+			<div className="board-scrollbar-track" ref={trackRef} onMouseDown={handleTrackMouseDown}>
+				<div
+					className="board-scrollbar-thumb"
+					style={{ height: `${thumbHeightPercent}%`, top: `${thumbTopPercent}%` }}
+				/>
+			</div>
 			<button
 				type="button"
-				onClick={() => onPageChange(currentPage + 1)}
-				disabled={currentPage >= totalPages - 1}
-				aria-label="Page suivante du tableau"
-				title="Page suivante"
+				className="board-scrollbar-btn"
+				onClick={() => onStep(1)}
+				disabled={scrollRow >= maxScrollRow}
+				aria-label="Descendre dans le tableau"
+				title="Descendre"
 			>
-				<FiChevronRight size={18} />
+				<FiChevronDown size={14} />
 			</button>
 		</div>
 	);
@@ -666,6 +730,51 @@ const BoardFullTextModal: React.FC<{
 	);
 };
 
+const LeaveConfirmModal: React.FC<{
+	isOpen: boolean;
+	onCancel: () => void;
+	onConfirm: () => void;
+}> = ({ isOpen, onCancel, onConfirm }) => {
+	useEffect(() => {
+		if (!isOpen) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				onCancel();
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isOpen, onCancel]);
+
+	if (!isOpen) return null;
+
+	return (
+		<div className="leave-confirm-overlay" onClick={onCancel}>
+			<div
+				className="leave-confirm-content glass-panel"
+				onClick={(event) => event.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="leave-confirm-title"
+			>
+				<h2 id="leave-confirm-title">Quitter la salle de classe ?</h2>
+				<p>Ta progression sur cette partie ne sera pas sauvegardée.</p>
+				<div className="leave-confirm-actions">
+					<button className="lesson-btn lesson-btn--secondary" onClick={onCancel}>
+						Annuler
+					</button>
+					<button className="lesson-btn lesson-btn--danger" onClick={onConfirm}>
+						<FiX size={16} />
+						<span>Quitter</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	);
+};
+
 const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
 	if (!visible) return null;
 	return (
@@ -692,7 +801,9 @@ const MiloScene: React.FC = () => {
 	)?.freeChatSession;
 	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
 	const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
-	const [boardPageIndex, setBoardPageIndex] = useState(0);
+	const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+	const [boardScrollRow, setBoardScrollRow] = useState(0);
+	const [userScrolledUp, setUserScrolledUp] = useState(false);
 
 	const {
 		// Lesson
@@ -700,6 +811,10 @@ const MiloScene: React.FC = () => {
 		displayedText,
 		isLastPart,
 		progressPercent,
+		canGoToPreviousPart,
+		canGoToNextPart,
+		handleGoToPreviousPart,
+		handleGoToNextPart,
 		parts,
 		currentPartIndex,
 		isFreeChatMode,
@@ -748,15 +863,54 @@ const MiloScene: React.FC = () => {
 	const showReviewBoardButton =
 		isOpenQuestionMode && isEditing && openQuestionPhase === "answering";
 	const boardFullText = isOpenQuestionMode ? displayedText : reply || displayedText;
-	const boardPages = useMemo(() => splitBoardTextIntoPages(boardFullText), [boardFullText]);
-	const boardPageText = boardPages[boardPageIndex] ?? boardPages[0] ?? "";
+	const boardRows = useMemo(
+		() => boardFullText.split("\n").flatMap((line) => wrapLineIntoRows(line)),
+		[boardFullText],
+	);
+	const maxScrollRow = Math.max(0, boardRows.length - BOARD_PAGE_VISIBLE_LINES);
+	const boardVisibleText = useMemo(
+		() => boardRows.slice(boardScrollRow, boardScrollRow + BOARD_PAGE_VISIBLE_LINES).join("\n"),
+		[boardRows, boardScrollRow],
+	);
 	const showBoardFullTextButton =
 		phase !== "loading" && boardFullText.trim().length > BOARD_FULL_TEXT_MIN_LENGTH;
-	const handleBoardPageChange = useCallback(
-		(page: number) => {
-			setBoardPageIndex(Math.min(boardPages.length - 1, Math.max(0, page)));
+	const scrollBoardBy = useCallback(
+		(deltaRows: number) => {
+			const next = Math.min(maxScrollRow, Math.max(0, boardScrollRow + deltaRows));
+			setBoardScrollRow(next);
+			setUserScrolledUp(next < maxScrollRow);
 		},
-		[boardPages.length],
+		[maxScrollRow, boardScrollRow],
+	);
+	const handleBoardScrollTo = useCallback(
+		(row: number) => {
+			const next = Math.min(maxScrollRow, Math.max(0, row));
+			setBoardScrollRow(next);
+			setUserScrolledUp(next < maxScrollRow);
+		},
+		[maxScrollRow],
+	);
+	const handleBoardResume = useCallback(() => {
+		setUserScrolledUp(false);
+	}, []);
+	// En revoyant une partie déjà lue, on repart du début de son texte (pas du bas).
+	const handleReviewPreviousPart = useCallback(() => {
+		handleGoToPreviousPart();
+		setBoardScrollRow(0);
+		setUserScrolledUp(true);
+	}, [handleGoToPreviousPart]);
+	const handleReviewNextPart = useCallback(() => {
+		handleGoToNextPart();
+		setBoardScrollRow(0);
+		setUserScrolledUp(true);
+	}, [handleGoToNextPart]);
+	const handleBoardWheel = useCallback(
+		(e: React.WheelEvent) => {
+			if (maxScrollRow <= 0) return;
+			const rows = Math.sign(e.deltaY) * Math.max(1, Math.round(Math.abs(e.deltaY) / 40));
+			scrollBoardBy(rows);
+		},
+		[maxScrollRow, scrollBoardBy],
 	);
 	const chatPlaceholder = isOpenQuestionMode
 		? isOpenQuestionBusy
@@ -766,16 +920,21 @@ const MiloScene: React.FC = () => {
 				: "Écris ta réponse..."
 		: "Pose une question à Milo...";
 
+	// Nouvelle partie / nouveau texte : on repart du haut, suivi auto réactivé.
 	useEffect(() => {
-		setBoardPageIndex(0);
+		if (boardFullText === "") {
+			setBoardScrollRow(0);
+			setUserScrolledUp(false);
+		}
 	}, [boardFullText]);
 
+	// Suivi automatique du texte pendant l'écriture, sauf si l'élève a scrollé manuellement.
 	useEffect(() => {
-		setBoardPageIndex((current) => Math.min(current, boardPages.length - 1));
-	}, [boardPages.length]);
+		setBoardScrollRow((current) => (userScrolledUp ? Math.min(current, maxScrollRow) : maxScrollRow));
+	}, [boardRows.length, maxScrollRow, userScrolledUp]);
 
 	return (
-		<div className="milo-scene-root">
+		<div className="milo-scene-root" onWheel={handleBoardWheel}>
 			{!sceneReady && <LoadingOverlay />}
 
 			<Scene3D
@@ -787,7 +946,7 @@ const MiloScene: React.FC = () => {
 				onPanelClick={handlePanelClick}
 				introActive={introActive}
 				onIntroDone={handleIntroDone}
-				displayedText={boardPageText}
+				displayedText={boardVisibleText}
 			/>
 
 			<IntroOverlay visible={showIntroText && sceneReady} />
@@ -804,11 +963,21 @@ const MiloScene: React.FC = () => {
 				</button>
 			)}
 
-			<BoardPaginationControls
-				currentPage={boardPageIndex}
-				totalPages={boardPages.length}
-				onPageChange={handleBoardPageChange}
+			<BoardScrollbar
+				scrollRow={boardScrollRow}
+				maxScrollRow={maxScrollRow}
+				totalRows={boardRows.length}
+				visibleRows={BOARD_PAGE_VISIBLE_LINES}
+				onScrollTo={handleBoardScrollTo}
+				onStep={scrollBoardBy}
 			/>
+
+			{userScrolledUp && boardScrollRow < maxScrollRow && (
+				<button className="board-resume-btn glass-panel" onClick={handleBoardResume}>
+					<FiChevronDown size={16} />
+					<span>Reprendre en bas</span>
+				</button>
+			)}
 
 			{/* Barre de progression */}
 			{parts.length > 0 && phase !== "loading" && (
@@ -816,6 +985,10 @@ const MiloScene: React.FC = () => {
 					current={currentPartIndex + 1}
 					total={parts.length}
 					percent={progressPercent}
+					canGoPrev={canGoToPreviousPart}
+					canGoNext={canGoToNextPart}
+					onPrev={handleReviewPreviousPart}
+					onNext={handleReviewNextPart}
 				/>
 			)}
 
@@ -885,12 +1058,17 @@ const MiloScene: React.FC = () => {
 				</button>
 			)}
 
-			<button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Aide">
+			<button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Aide" title="Aide">
 				<FiHelpCircle size={22} />
 			</button>
 
-			<button className="back-btn" onClick={handleBackToLessons} aria-label="Retour">
-				<FiArrowLeft size={22} />
+			<button
+				className="close-btn"
+				onClick={() => setShowLeaveConfirm(true)}
+				aria-label="Quitter la salle de classe"
+				title="Quitter la salle de classe"
+			>
+				<FiX size={22} />
 			</button>
 
 			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
@@ -898,6 +1076,18 @@ const MiloScene: React.FC = () => {
 				text={boardFullText}
 				isOpen={isBoardModalOpen}
 				onClose={() => setIsBoardModalOpen(false)}
+			/>
+			<LeaveConfirmModal
+				isOpen={showLeaveConfirm}
+				onCancel={() => setShowLeaveConfirm(false)}
+				onConfirm={() => {
+					setShowLeaveConfirm(false);
+					if (isOpenQuestionMode) {
+						handleBackToCourseDetail();
+					} else {
+						handleBackToLessons();
+					}
+				}}
 			/>
 		</div>
 	);
