@@ -39,12 +39,13 @@ const ExerciseResultScreen: React.FC = () => {
     <div className="result-container">
       <div className="result-card">
         <div className="trophy-icon">
-            <Trophy size={64} color="#FFD700" />
+            <Trophy size={56} color="#E8A94A" />
         </div>
-        <h1>{message} {emoji}</h1>
+        <h1 className="result-title">{message} {emoji}</h1>
 
-        <div className="score-display">
-          <span className="score-big">Votre score est : {score} / {total}</span>
+        <div className="result-score-wrap">
+          <span className="result-score-value">{score} / {total}</span>
+          <span className="result-score-label">bonnes réponses</span>
         </div>
 
         <div className="result-actions">
