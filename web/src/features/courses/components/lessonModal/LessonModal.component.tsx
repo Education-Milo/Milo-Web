@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { X, BookOpen, HelpCircle } from "lucide-react";
+import { X } from "lucide-react";
 import { ROUTES } from "@shared/constants/routes";
 import type { LessonWithStatus } from "@features/courses/store/course.model";
+import qcmImage from "/milo-maths.png";
+import coursMiloImage from "/coursMilobg.png";
 import "./LessonModal.component.css";
 
 interface LessonModalProps {
@@ -43,29 +45,25 @@ const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
 
 				<div className="lesson-modal-choices">
 					<button className="lesson-modal-card qcm" onClick={handleQCM}>
-						<div className="lesson-modal-card-icon">
-							<HelpCircle size={28} />
-						</div>
+						<div className="lesson-modal-card-arrow">→</div>
+						<img src={qcmImage} alt="" className="lesson-modal-card-image" />
 						<div className="lesson-modal-card-text">
 							<span className="lesson-modal-card-title">QCM</span>
 							<span className="lesson-modal-card-desc">
 								Teste tes connaissances
 							</span>
 						</div>
-						<div className="lesson-modal-card-arrow">→</div>
 					</button>
 
 					<button className="lesson-modal-card milo" onClick={handleCoursMilo}>
-						<div className="lesson-modal-card-icon">
-							<BookOpen size={28} />
-						</div>
+						<div className="lesson-modal-card-arrow">→</div>
+						<img src={coursMiloImage} alt="" className="lesson-modal-card-image" />
 						<div className="lesson-modal-card-text">
 							<span className="lesson-modal-card-title">Cours avec Milo</span>
 							<span className="lesson-modal-card-desc">
 								Apprends avec ton guide
 							</span>
 						</div>
-						<div className="lesson-modal-card-arrow">→</div>
 					</button>
 				</div>
 			</div>
