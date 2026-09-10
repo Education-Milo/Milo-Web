@@ -1,8 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useExerciseScreen } from '@features/exercices/hooks/useExercisePage';
+import qcmMascot from '/milo-maths.png';
 import "@features/exercices/styles/ExerciseScreen.css";
+
+const LOADING_MESSAGES = [
+  "Milo prépare tes questions...",
+  "Analyse de la leçon en cours...",
+  "Mélange des bonnes réponses...",
+  "Plus que quelques secondes...",
+];
+
+const QcmLoadingState: React.FC = () => {
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((current) => (current + 1) % LOADING_MESSAGES.length);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="qcm-loading">
+      <img src={qcmMascot} alt="" className="qcm-loading-mascot" />
+      <div className="qcm-loading-dots">
+        <span />
+        <span />
+        <span />
+      </div>
+      <p className="qcm-loading-text" key={messageIndex}>
+        {LOADING_MESSAGES[messageIndex]}
+      </p>
+    </div>
+  );
+};
 
 const ExerciseScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -29,7 +62,7 @@ const ExerciseScreen: React.FC = () => {
     return (
       <div className="qcm-page">
         <div className="qcm-container">
-          <div className="loading-state">Chargement du QCM...</div>
+          <QcmLoadingState />
         </div>
       </div>
     );
