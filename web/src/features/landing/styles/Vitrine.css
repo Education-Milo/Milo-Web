@@ -53,7 +53,7 @@ body { margin: 0; padding: 0; overflow-x: hidden; background-color: var(--milo-b
 .hero-description { font-size: 1.3rem; color: #526177; line-height: 1.6; margin-bottom: 45px; max-width: 550px; }
 /* --- HERO ACTIONS : BOUTONS PIMPÉS --- */
 
-.hero-actions { display: flex; gap: 30px; margin-top: 50px; justify-content: flex-start; }
+.hero-actions { display: flex; gap: 30px; margin-top: 50px; justify-content: flex-start; flex-wrap: wrap; }
 
 .btn-main { background: var(--milo-gradient); color: white; padding: 22px 50px; border-radius: 25px; font-weight: 800; font-size: 1.15rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 15px; box-shadow: 0 15px 35px rgba(239, 79, 26, 0.35); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 .btn-main::before { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: none; }
@@ -196,4 +196,74 @@ kids-features-list li { font-weight: 800; color: var(--milo-dark); padding: 12px
 @media (max-width: 1100px) {
   .section-title.center { font-size: 2.5rem; }
   .price-card { width: 100%; }
+}
+
+/* ============================================================
+   RESPONSIVE — Vitrine (mobile / tablette)
+   ============================================================ */
+@media (max-width: 900px) {
+  .hero-spacer { height: 92px; }
+
+  .hero-wrapper {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 40px 6% 20px;
+    gap: 20px;
+  }
+  .hero-title { margin-bottom: 20px; }
+  .hero-description { margin: 0 auto 35px; }
+  .hero-actions { justify-content: center; margin-top: 30px; gap: 16px; }
+  .mascotte-img { max-width: 380px; margin: 0 auto; }
+
+  .section-kids-v5 { padding: 70px 6%; border-radius: 50px; }
+  .kids-h2 { font-size: 2.6rem; letter-spacing: -1px; }
+  .kids-p-desc { font-size: 1.05rem; }
+  .kids-container-v5 { gap: 50px; }
+  .console-buttons { gap: 20px; }
+
+  .section-parents { padding: 80px 6% 60px; }
+  .section-title.center { font-size: 2.1rem; }
+  .parents-grid { grid-template-columns: 1fr; gap: 24px; margin-bottom: 70px; padding: 0; }
+  .parent-card-dynamic { padding: 36px 28px; border-radius: 30px; }
+
+  .faq-section-v4 { margin: 70px auto; padding: 0 4px; }
+  .faq-title-v4 { font-size: 2.2rem; }
+  .faq-card-v4 { padding: 20px 22px; border-radius: 24px; }
+  .faq-card-top { gap: 14px; }
+  .faq-card-top h4 { font-size: 1.05rem; }
+  .faq-card-body p { padding: 16px 0 4px 0; }
+  .faq-card-v4:hover { transform: none; }
+  .btn-faq-explorer-v4 { width: 100%; padding: 18px 24px; text-align: center; justify-content: center; }
+  .btn-faq-explorer-v4 span { font-size: 0.9rem; }
+
+  .pricing-section { padding: 50px 0; }
+  .price-card { padding: 60px 28px 36px; border-radius: 36px; }
+  .price-v3 { font-size: 3.4rem; }
+
+  .footer-content { padding: 50px 6% 30px; }
+  .footer-main { margin-bottom: 40px; }
+}
+
+@media (max-width: 560px) {
+  .hero-title { font-size: clamp(2.4rem, 10vw, 3rem); }
+  .hero-description { font-size: 1.05rem; }
+  .hero-actions { flex-direction: column; width: 100%; }
+  .btn-main, .btn-ghost { width: 100%; justify-content: center; padding: 18px 28px; font-size: 1rem; }
+
+  .kids-h2 { font-size: 2.1rem; }
+  .adventure-badge { font-size: 0.7rem; padding: 6px 16px; }
+  .game-console-border { padding: 12px; border-radius: 32px; }
+  .joy-btn { width: 54px; height: 54px; }
+
+  .parent-card-dynamic { padding: 28px 22px; text-align: center; align-items: center; }
+  .card-content-v4 { text-align: center; }
+
+  .faq-title-v4 { font-size: 1.8rem; }
+  .faq-icon-circle { width: 40px; height: 40px; font-size: 1.2rem; }
+
+  .price-card { padding: 50px 20px 30px; }
+  .price-v3 { font-size: 2.8rem; }
+  .btn-price-v3 { padding: 18px; font-size: 1rem; }
+
+  .footer-logo { margin: 0 auto 20px; }
 }
