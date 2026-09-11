@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
 import "@features/landing/components/Navbar/Navbar.css";
 
 const Navbar: React.FC = () => {
 	const location = useLocation();
 	const [activeSection, setActiveSection] = useState("");
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const closeMenu = () => setIsMenuOpen(false);
+
+	// Ferme le menu mobile à chaque changement de page.
+	useEffect(() => {
+		setIsMenuOpen(false);
+	}, [location.pathname]);
+
+	// Empêche le scroll du body quand le menu mobile est ouvert.
+	useEffect(() => {
+		document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+		return () => {
+			document.body.style.overflow = "auto";
+		};
+	}, [isMenuOpen]);
 
 	useEffect(() => {
 		// Si on n'est pas sur la Vitrine, on ne gère pas les ancres
@@ -134,7 +150,66 @@ const Navbar: React.FC = () => {
 						</motion.button>
 					</Link>
 				</div>
+
+				<button
+					type="button"
+					className="nav-burger"
+					onClick={() => setIsMenuOpen((open) => !open)}
+					aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+					aria-expanded={isMenuOpen}
+				>
+					{isMenuOpen ? <X size={26} /> : <Menu size={26} />}
+				</button>
 			</nav>
+
+			<AnimatePresence>
+				{isMenuOpen && (
+					<motion.div
+						className="nav-mobile-menu"
+						initial={{ opacity: 0, height: 0 }}
+						animate={{ opacity: 1, height: "auto" }}
+						exit={{ opacity: 0, height: 0 }}
+						transition={{ duration: 0.25, ease: "easeOut" }}
+					>
+						<Link to="/" className={getPillClass("/")} onClick={closeMenu}>
+							Concept
+						</Link>
+						<a
+							href="/#enfants"
+							className={getPillClass("/", "enfants")}
+							onClick={closeMenu}
+						>
+							Pour les Enfants
+						</a>
+						<a
+							href="/#parents"
+							className={getPillClass("/", "parents")}
+							onClick={closeMenu}
+						>
+							Pour les Parents
+						</a>
+						<Link
+							to="/faq"
+							className={`pill-link ${location.pathname === "/faq" ? "active" : ""}`}
+							onClick={closeMenu}
+						>
+							FAQ
+						</Link>
+						<Link to="/contact" className="pill-link" onClick={closeMenu}>
+							Contact
+						</Link>
+
+						<div className="nav-mobile-actions">
+							<Link to="/login" onClick={closeMenu} style={{ textDecoration: "none" }}>
+								<button className="btn-login-v2">Connexion</button>
+							</Link>
+							<Link to="/register" onClick={closeMenu} style={{ textDecoration: "none" }}>
+								<button className="btn-signup-v2">Adopter Milo</button>
+							</Link>
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</motion.header>
 	);
 };
