@@ -1,4 +1,5 @@
 import APIAxios, { APIRoutes } from "@api/axios.api";
+import { useUserStore } from "@shared/store/user/user.store";
 import type { LessonPart } from "@features/milo-scene/store/chat.model";
 
 export const fetchLessonParts = async (lessonId: number, context: string = "", signal?: AbortSignal): Promise<LessonPart[]> => {
@@ -10,6 +11,8 @@ export const fetchLessonParts = async (lessonId: number, context: string = "", s
         },
         { params: { lesson_id: lessonId }, signal },
     );
+    // Rafraîchit /users/me pour mettre à jour la streak sans rechargement
+    useUserStore.getState().getMe(true).catch(() => {});
     return response.data.parts;
 };
 

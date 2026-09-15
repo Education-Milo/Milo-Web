@@ -26,6 +26,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         ...backData,
         classe : backData.class_,
         Interests: backData.interests || [],
+        streak: backData.streak ?? 0,
       };
       set({
         user: userData,
@@ -164,6 +165,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         ...backData,
         classe : backData.class_,
         Interests: backData.interests || [],
+        streak: backData.streak ?? 0,
       };
       return userData;
     } catch (error) {

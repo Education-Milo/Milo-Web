@@ -9,6 +9,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAuthStore } from "@shared/store/auth/auth.store";
+import { useUserStore } from "@shared/store/user/user.store";
 import type {
   DuelEndData,
   DuelLastResult,
@@ -113,6 +114,8 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       setScreen("end");
       duelWsRef.current?.close();
       duelWsRef.current = null;
+      // Rafraîchit /users/me pour mettre à jour la streak sans rechargement
+      useUserStore.getState().getMe(true).catch(() => {});
     } else if (msg.type === "opponent_disconnected") {
       setScreen("lobby");
       setLobbyStatus("⚠️ Ton adversaire s'est déconnecté.");

@@ -13,7 +13,7 @@ interface PageLayoutProps {
 
 const PageLayout: React.FC<PageLayoutProps> = ({
 	children,
-	streakDays = 0,
+	streakDays,
 	notificationCount = 0,
 }) => {
 	const { user } = useUserStore();
@@ -36,7 +36,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 					classe: user?.classe,
 					role: user?.role,
 				}}
-				streakDays={streakDays}
+				streakDays={streakDays ?? user?.streak ?? 0}
 				notificationCount={notificationCount}
 			/>
 			<main className="main-container">{children}</main>
