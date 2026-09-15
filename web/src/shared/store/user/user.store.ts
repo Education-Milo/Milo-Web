@@ -18,8 +18,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
       return state.user;
     }
 
+    // `loading` ne passe à true que pour le chargement initial : un rafraîchissement
+    // alors qu'un user est déjà en mémoire doit rester silencieux, sinon
+    // ProtectedRoute affiche le LoadingScreen et démonte la page en cours
+    // (ce qui relançait en boucle la génération de QCM / de cours).
+    const isInitialLoad = !state.user;
     try {
-      set({ loading: true });
+      if (isInitialLoad) set({ loading: true });
       const response = await APIAxios.get(APIRoutes.GET_Me);
       const backData = response.data;
       const userData: User = {
@@ -35,7 +40,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       });
       return userData;
     } catch (error) {
-      set({ loading: false });
+      if (isInitialLoad) set({ loading: false });
       throw error;
     }
   },
