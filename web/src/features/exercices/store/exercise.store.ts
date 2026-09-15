@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import APIAxios, { APIRoutes } from "@api/axios.api";
+import { useUserStore } from "@shared/store/user/user.store";
 import type {
 	ExerciseStore,
 	QcmQuestion,
@@ -19,6 +20,8 @@ export const useExerciseStore = create<ExerciseStore>((set) => ({
 			console.log("QCM Response:", response.data);
 			const questions: QcmQuestion[] = response.data.qcm;
 			set({ questions, loading: false });
+			// Rafraîchit /users/me pour mettre à jour la streak sans rechargement
+			useUserStore.getState().getMe(true).catch(() => {});
 			return questions;
 		} catch (error) {
 			set({ error: "Failed to fetch QCM", loading: false });

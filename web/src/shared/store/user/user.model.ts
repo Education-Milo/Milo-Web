@@ -6,7 +6,12 @@ export interface User extends UserProfile {
     classe: ClassType;
     miloro_coin: number;
     xp: number;
+    /** Nombre de jours consécutifs d'activité, calculé côté serveur (0 par défaut) */
+    streak: number;
     created_at: string;
+    /** Clés brutes renvoyées par l'API (conservées par le spread) */
+    class_?: ClassType;
+    interests?: Interest[];
   }
   
   export interface Interest {

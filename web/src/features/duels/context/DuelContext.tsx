@@ -9,6 +9,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAuthStore } from "@shared/store/auth/auth.store";
+import { useUserStore } from "@shared/store/user/user.store";
 import type {
   DuelEndData,
   DuelLastResult,
@@ -78,6 +79,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentQuestionRef = useRef<DuelQuestion | null>(null);
   const answeredRef = useRef(false);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectDelayRef = useRef(2000);
 
   // ── Duel WS ──────────────────────────────────────────────────────────────
 
@@ -112,6 +114,8 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       setScreen("end");
       duelWsRef.current?.close();
       duelWsRef.current = null;
+      // Rafraîchit /users/me pour mettre à jour la streak sans rechargement
+      useUserStore.getState().getMe(true).catch(() => {});
     } else if (msg.type === "opponent_disconnected") {
       setScreen("lobby");
       setLobbyStatus("⚠️ Ton adversaire s'est déconnecté.");
@@ -179,10 +183,16 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    ws.onopen = () => {
+      reconnectDelayRef.current = 2000;
+    };
+
     ws.onclose = () => {
       const currentToken = useAuthStore.getState().accessToken;
       if (currentToken) {
-        reconnectTimeoutRef.current = setTimeout(connectNotifWS, 3000);
+        const delay = reconnectDelayRef.current;
+        reconnectDelayRef.current = Math.min(delay * 2, 30000);
+        reconnectTimeoutRef.current = setTimeout(connectNotifWS, delay);
       }
     };
   }, [connectDuelWS, navigate]);

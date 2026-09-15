@@ -31,9 +31,10 @@ export const useFriendDetails = (friends: FriendEnriched[]): {
 		const userData: User | undefined = queries[idx]?.data;
 		return {
 			...friend,
-			classe: userData?.classe ?? undefined,
+			classe: userData?.class_ ?? undefined,
+			streak: userData?.streak ?? undefined,
 			xp: userData?.xp ?? undefined,
-			interests: userData?.Interests?.slice(0, 3) ?? [],
+			interests: userData?.interests?.slice(0, 3) ?? [],
 		};
 	});
 
