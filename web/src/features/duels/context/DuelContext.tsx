@@ -78,6 +78,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentQuestionRef = useRef<DuelQuestion | null>(null);
   const answeredRef = useRef(false);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectDelayRef = useRef(2000);
 
   // ── Duel WS ──────────────────────────────────────────────────────────────
 
@@ -179,10 +180,16 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    ws.onopen = () => {
+      reconnectDelayRef.current = 2000;
+    };
+
     ws.onclose = () => {
       const currentToken = useAuthStore.getState().accessToken;
       if (currentToken) {
-        reconnectTimeoutRef.current = setTimeout(connectNotifWS, 3000);
+        const delay = reconnectDelayRef.current;
+        reconnectDelayRef.current = Math.min(delay * 2, 30000);
+        reconnectTimeoutRef.current = setTimeout(connectNotifWS, delay);
       }
     };
   }, [connectDuelWS, navigate]);
