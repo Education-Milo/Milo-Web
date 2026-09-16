@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, UserCheck, UserX, Flame, Clock } from "lucide-react";
+import { Star, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 
@@ -54,13 +54,23 @@ const FriendCard: React.FC<FriendCardProps> = ({
 				)}
 			</div>
 
-				{/* Retirer la streak remplacer par l'xp parce qu'existe pas encore dans le back */}
-				{details?.xp !== undefined && (
-					<div className="friend-stats" >
-						<div className="friend-streak">
-							<Flame size={14} className={details.xp > 0 ? "hot" : ""} />
-							<span>{details.xp}</span>
-						</div>
+				{(details?.streak !== undefined || details?.xp !== undefined) && (
+					<div className="friend-stats">
+						{details?.streak !== undefined && (
+							<div
+								className="friend-streak"
+								title={`${details.streak} jour${details.streak > 1 ? "s" : ""} de suite`}
+							>
+								<Flame size={14} className={details.streak > 0 ? "hot" : ""} />
+								<span>{details.streak}</span>
+							</div>
+						)}
+						{details?.xp !== undefined && (
+							<div className="friend-xp" title={`${details.xp} XP`}>
+								<Zap size={14} />
+								<span>{details.xp} XP</span>
+							</div>
+						)}
 					</div>
 				)}
 

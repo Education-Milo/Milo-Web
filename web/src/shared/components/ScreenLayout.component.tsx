@@ -42,6 +42,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 					role: user?.role,
 				}}
 				streakDays={streakDays ?? user?.streak ?? 0}
+				xpPoints={user?.xp ?? 0}
 				notificationCount={notificationCount}
 				missionsRemaining={missionsRemaining}
 			/>

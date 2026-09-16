@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Bell, Flame, LogOut } from "lucide-react";
+import { Bell, Flame, LogOut, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
@@ -9,6 +9,8 @@ interface SidebarProps {
 	onLogout: () => void;
 	userProfile: UserProfile | any;
 	streakDays?: number;
+	/** XP total de l'utilisateur, affiché à côté de la streak. */
+	xpPoints?: number;
 	notificationCount?: number;
 	/** Missions du jour restantes (total - completed), affiché en badge. */
 	missionsRemaining?: number;
@@ -19,6 +21,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	onLogout,
 	userProfile,
 	streakDays = 0,
+	xpPoints = 0,
 	notificationCount = 0,
 	missionsRemaining = 0,
 	onNotificationClick,
@@ -196,12 +199,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 							{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
 						</p>
 					</div>
-					<div
-						className="sb-streak"
-						title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
-					>
-						<Flame size={14} />
-						<span>{streakDays}</span>
+					<div className="sb-user-stats">
+						<div
+							className="sb-streak"
+							title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
+						>
+							<Flame size={14} />
+							<span>{streakDays}</span>
+						</div>
+						<div className="sb-xp" title={`${xpPoints} XP`}>
+							<Zap size={14} />
+							<span>{xpPoints}</span>
+						</div>
 					</div>
 				</button>
 
