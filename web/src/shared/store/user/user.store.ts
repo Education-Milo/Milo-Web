@@ -76,7 +76,17 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
     try {
       set({ loading: true });
-      const { classe, first_name, last_name, ...rest } = userData;
+      // xp, miloro_coin et streak sont calculés côté serveur : jamais envoyés.
+      const {
+        classe,
+        first_name,
+        last_name,
+        xp: _xp,
+        miloro_coin: _miloroCoin,
+        streak: _streak,
+        ...rest
+      } = userData;
+      void _xp; void _miloroCoin; void _streak;
       const dataForBackend = {
         ...rest,
         class_: classe || currentUser.classe,

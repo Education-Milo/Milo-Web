@@ -9,6 +9,7 @@ import {
 import type { LessonPart } from "@features/milo-scene/store/chat.model";
 import type { MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 import { useUserStore } from "@shared/store/user/user.store";
+import { useActivityTracker } from "@shared/hooks/useActivityTracker";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -103,6 +104,13 @@ export const useMiloScene = (
 	const isFreeChatMode = Boolean(freeChatSession);
 	const isOpenQuestionMode = openQuestionMode && !isFreeChatMode;
 	const studentName = getUserDisplayName(user);
+	const hasLesson = typeof lessonId === "number" && !Number.isNaN(lessonId);
+
+	// Télémétrie : temps passé à lire un cours ou à discuter librement avec Milo
+	useActivityTracker({
+		activityType: isFreeChatMode || !hasLesson ? "free_chat" : "lesson_read",
+		lessonId: !isFreeChatMode && hasLesson ? lessonId : undefined,
+	});
 
 	// ── Lesson state ──────────────────────────────────────────────────────────
 	const [parts, setParts] = useState<LessonPart[]>([]);

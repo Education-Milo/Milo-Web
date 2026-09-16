@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useActivityTracker } from "@shared/hooks/useActivityTracker";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useExerciseStore } from "@features/exercices/store/exercise.store";
 import { ROUTES } from "@shared/constants/routes";
@@ -33,7 +34,14 @@ export const useExerciseScreen = () => {
 	const [streak, setStreak] = useState(0);
 	const [showStreakAnimation, setShowStreakAnimation] = useState(false);
 	const [showFireworks, setShowFireworks] = useState(false);
+	// Généré une seule fois par tentative : rend POST /tracking/performance idempotent.
 	const [attemptId] = useState(createAttemptId);
+	const [bestStreak, setBestStreak] = useState(0);
+	const startedAtRef = useRef(Date.now());
+	const numericLessonId = lessonId ? Number(lessonId) : undefined;
+
+	// Télémétrie : durée de la session de QCM
+	useActivityTracker({ activityType: "study_session", lessonId: numericLessonId });
 
 	useEffect(() => {
 		if (!lessonId) {
@@ -98,6 +106,7 @@ export const useExerciseScreen = () => {
 			setScore((prev) => prev + 1);
 			const newStreak = streak + 1;
 			setStreak(newStreak);
+			setBestStreak((current) => Math.max(current, newStreak));
 
 			if (newStreak >= 3) {
 				setShowStreakAnimation(true);
@@ -118,7 +127,14 @@ export const useExerciseScreen = () => {
 			setSelectedAnswer(null);
 		} else {
 			navigate(ROUTES.EXERCISE_RESULT, {
-				state: { score, total: totalQuestions, attemptId },
+				state: {
+					score,
+					total: totalQuestions,
+					attemptId,
+					bestStreak,
+					durationSeconds: Math.round((Date.now() - startedAtRef.current) / 1000),
+					lessonId: numericLessonId,
+				},
 			});
 		}
 	};

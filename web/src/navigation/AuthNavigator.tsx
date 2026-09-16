@@ -4,6 +4,7 @@ import ProtectedRoute from "@shared/components/ProtectedRoute.component";
 import RedirectScreen from "@features/auth/pages/Redirect.page";
 import { DuelProvider } from "@features/duels/context/DuelContext";
 import ChallengeNotification from "@features/duels/components/ChallengeNotification";
+import ToastContainer from "@shared/components/Toast.component";
 
 // Pages communes
 import HomeScreen from "@features/home/pages/Home.page";
@@ -44,6 +45,7 @@ const AuthNavigator: React.FC = () => {
 	return (
 		<DuelProvider>
 			<ChallengeNotification />
+			<ToastContainer />
 			<Routes>
 				{/* ==================== PAGE DE REDIRECTION ==================== */}
 

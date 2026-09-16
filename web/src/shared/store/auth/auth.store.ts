@@ -148,6 +148,8 @@ export const useAuthStore = create<AuthStore>()(
         get().stopTokenValidation();
         const { useUserStore } = await import('@shared/store/user/user.store');
         useUserStore.getState().clearUserData();
+        const { queryClient } = await import('@shared/lib/queryClient');
+        queryClient.clear();
         set({
           accessToken: '',
           tokenValidationInterval: null,

@@ -45,7 +45,7 @@ export const APIRoutes = {
   // User API
   GET_Me: '/users/me',
   PUT_Update_user: (userId: string) => `/users/${userId}`,
-  POST_Add_User_Interest: (userId: string) => `/users/${userId}/interests/`,
+  POST_Add_User_Interest: (userId: string) => `/users/${userId}/interests`,
   DELETE_User_Interest: (userId: string, interestId: string) => `/users/${userId}/interests/${interestId}`,
   GET_User_By_Id: (userId: string) => `/users/${userId}`,
   GET_User_Search: '/users/search',
@@ -58,6 +58,14 @@ export const APIRoutes = {
   POST_SEND_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}`,
   PATCH_ACCEPT_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}/accept`,
   PATCH_BLOCK_FRIEND: (friendId: number) => `/friends/${friendId}/block`,
+
+  // Missions API
+  GET_Missions_Today: '/missions/today',
+  POST_Mission_Reroll: (missionId: number) => `/missions/${missionId}/reroll`,
+
+  // Tracking API (télémétrie élève)
+  POST_Tracking_Performance: '/tracking/performance',
+  POST_Tracking_Activity: '/tracking/activity',
 
   // Duel API
   POST_Challenge: (targetUserId: number) => `/duels/challenge/${targetUserId}`,
