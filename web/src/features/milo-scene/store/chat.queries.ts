@@ -1,5 +1,5 @@
 import APIAxios, { APIRoutes } from "@api/axios.api";
-import { useUserStore } from "@shared/store/user/user.store";
+import { refreshAfterServerAction } from "@shared/lib/serverActions";
 import type { LessonPart } from "@features/milo-scene/store/chat.model";
 
 export const fetchLessonParts = async (lessonId: number, context: string = "", signal?: AbortSignal): Promise<LessonPart[]> => {
@@ -11,8 +11,8 @@ export const fetchLessonParts = async (lessonId: number, context: string = "", s
         },
         { params: { lesson_id: lessonId }, signal },
     );
-    // Rafraîchit /users/me pour mettre à jour la streak sans rechargement
-    useUserStore.getState().getMe(true).catch(() => {});
+    // Le back fait avancer les missions et la streak après /chat_lesson
+    refreshAfterServerAction();
     return response.data.parts;
 };
 
@@ -27,6 +27,8 @@ export const sendChatMessage = async (
         question: question,
         conversation_id: conversation_id
     });
+    // Le back fait avancer les missions après /chat_lesson_question
+    refreshAfterServerAction();
     return response.data.reply || response.data.content;
 };
 

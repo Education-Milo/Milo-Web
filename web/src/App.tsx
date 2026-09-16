@@ -5,12 +5,11 @@ import AuthNavigator from "@navigation/AuthNavigator";
 import PublicNavigator from "@navigation/PublicNavigator";
 import LoadingScreen from "@shared/components/LoadingScreen.component";
 import ScrollToTop from "@shared/components/ScrollToTop.component";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from "@shared/lib/queryClient";
 
 const App: React.FC = () => {
 	const { isAuthenticated, isLoading } = useAuth();
-	const queryClient = new QueryClient();
-
 
 	if (isLoading) {
 		return <LoadingScreen />;

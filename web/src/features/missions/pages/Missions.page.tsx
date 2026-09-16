@@ -1,9 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Award, Clock, Sparkles, Target } from "lucide-react";
+import { isAxiosError } from "axios";
+import { Award, Clock, Gift, Sparkles, Target } from "lucide-react";
 import MissionItem from "@features/missions/components/missionItem/MissionItem.component";
 import BadgeItem from "@features/missions/components/badgeItem/BadgeItem.component";
-import { useDailyMissions } from "@features/missions/store/dailyMissions.store";
+import {
+	splitMissions,
+	useDailyMissions,
+	useRerollMission,
+} from "@features/missions/store/missions.queries";
+import { useMissionsReset } from "@features/missions/hooks/useMissionsReset";
+import { showToast } from "@shared/store/toast/toast.store";
 import type { MonthlyBadge, MonthlyChallenge } from "@shared/types/missions";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/missions/styles/MissionsScreen.css";
@@ -85,18 +92,54 @@ const getMonthlyBadges = (): MonthlyBadge[] => {
 	});
 };
 
+const getRerollErrorMessage = (error: unknown) => {
+	if (isAxiosError(error)) {
+		if (error.response?.status === 409) {
+			return "Tu as déjà changé une mission aujourd'hui, ou aucune autre mission n'est disponible.";
+		}
+		if (error.response?.status === 400) {
+			return "Cette mission ne peut pas être changée.";
+		}
+	}
+	return "Impossible de changer la mission pour le moment.";
+};
+
 const MissionsScreen: React.FC = () => {
 	const navigate = useNavigate();
-	const dailyMissions = useDailyMissions();
+	const {
+		data: dailyMissions,
+		isLoading: isMissionsLoading,
+		isError: isMissionsError,
+		dataUpdatedAt,
+	} = useDailyMissions();
+	const rerollMutation = useRerollMission();
+	const { label: resetLabel } = useMissionsReset(
+		dailyMissions?.reset_in_seconds,
+		dataUpdatedAt,
+	);
 	const dailyMissionDelayStart = 0.15;
 	const badgeDelayStart = 0.05;
 
 	const monthlyChallenge = getMonthlyChallenge();
 	const monthlyBadges = getMonthlyBadges();
 
-	const completedMissionsCount = dailyMissions.filter(
-		(mission) => mission.progressCurrent >= mission.progressTotal,
-	).length;
+	const { regular: regularMissions, bonus: bonusMission } = splitMissions(
+		dailyMissions?.missions,
+	);
+	const completedMissionsCount = dailyMissions?.completed ?? 0;
+	const totalMissionsCount = dailyMissions?.total ?? regularMissions.length;
+	const canReroll = Boolean(dailyMissions?.reroll_available);
+
+	const handleReroll = (missionId: number) => {
+		rerollMutation.mutate(missionId, {
+			onSuccess: (newMission) => {
+				showToast(`Nouvelle mission : ${newMission.title}`, "success");
+			},
+			onError: (error) => {
+				showToast(getRerollErrorMessage(error), "error");
+			},
+		});
+	};
 	const earnedBadgesCount = monthlyBadges.filter(
 		(badge) => badge.status === "earned",
 	).length;
@@ -137,13 +180,15 @@ const MissionsScreen: React.FC = () => {
 						<div className="ms-hero-stat">
 							<Target size={16} />
 							<span>
-								{completedMissionsCount}/{dailyMissions.length} missions
+								{completedMissionsCount}/{totalMissionsCount} missions
 							</span>
 						</div>
-						<div className="ms-hero-stat">
-							<Clock size={16} />
-							<span>Reset dans 8h</span>
-						</div>
+						{resetLabel && (
+							<div className="ms-hero-stat">
+								<Clock size={16} />
+								<span>{resetLabel}</span>
+							</div>
+						)}
 					</div>
 				</section>
 
@@ -184,20 +229,56 @@ const MissionsScreen: React.FC = () => {
 						<h2 className="ms-section-title">Missions du jour</h2>
 					</div>
 					<span className="ms-section-count">
-						{completedMissionsCount}/{dailyMissions.length} complétées
+						{completedMissionsCount}/{totalMissionsCount} complétées
 					</span>
 				</header>
 				<div className="ms-missions-list">
-					{dailyMissions.map((mission, index) => (
+					{isMissionsLoading && (
+						<p className="ms-missions-empty">Chargement de tes missions...</p>
+					)}
+					{isMissionsError && (
+						<p className="ms-missions-empty">
+							Impossible de charger tes missions pour le moment.
+						</p>
+					)}
+					{regularMissions.map((mission, index) => (
 						<MissionItem
 							key={mission.id}
 							mission={mission}
 							animationDelay={`${dailyMissionDelayStart + index * 0.06}s`}
 							onClick={() => navigate(ROUTES.COURSES)}
-							actionLabel="Faire un QCM"
+							actionLabel="C'est parti"
+							onReroll={canReroll ? () => handleReroll(mission.id) : undefined}
+							isRerolling={
+								rerollMutation.isPending &&
+								rerollMutation.variables === mission.id
+							}
 						/>
 					))}
 				</div>
+
+				{/* --- MISSION BONUS --- */}
+				{bonusMission && (
+					<>
+						<header className="ms-section-header">
+							<div className="ms-section-title-wrap">
+								<Gift size={20} className="ms-section-icon" />
+								<h2 className="ms-section-title">Mission bonus</h2>
+							</div>
+							<span className="ms-section-count">
+								{bonusMission.is_completed ? "Terminée" : "En cours"}
+							</span>
+						</header>
+						<div className="ms-missions-list">
+							<MissionItem
+								mission={bonusMission}
+								animationDelay={`${dailyMissionDelayStart + regularMissions.length * 0.06}s`}
+								onClick={() => navigate(ROUTES.COURSES)}
+								actionLabel="C'est parti"
+							/>
+						</div>
+					</>
+				)}
 
 				{/* --- BADGES MENSUELS --- */}
 				<header className="ms-section-header">

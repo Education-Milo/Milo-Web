@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import type { Friend } from "@features/friends/store/friend.model";
+import { refreshAfterServerAction } from "@shared/lib/serverActions";
 
 export const fetchFriends = async (
 	status?: "pending" | "accepted"
@@ -76,6 +77,8 @@ export const useAcceptFriendRequest = () => {
 		mutationFn: acceptFriendRequest,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["friends"] });
+			// Le back fait avancer les missions après une acceptation d'ami
+			refreshAfterServerAction();
 		},
 	});
 };

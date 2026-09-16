@@ -1,10 +1,33 @@
+export type MissionDifficulty = "easy" | "medium" | "hard" | "bonus";
+
+/** Mission quotidienne telle que renvoyée par GET /missions/today. */
 export interface DailyMission {
-  id: string;
-  icon: string;
+  id: number;
+  key: string;
   title: string;
-  progressCurrent: number;
-  progressTotal: number;
-  rewardPoints: number;
+  description: string;
+  difficulty: MissionDifficulty;
+  event_type: string;
+  target: number;
+  progress: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  reward_xp: number;
+  reward_coins: number;
+  is_bonus: boolean;
+  is_reroll: boolean;
+}
+
+export interface DailyMissionsResponse {
+  date: string;
+  /** Secondes restantes avant le tirage des missions du lendemain. */
+  reset_in_seconds: number;
+  reroll_available: boolean;
+  /** Missions normales terminées (hors bonus). */
+  completed: number;
+  /** Nombre de missions normales (hors bonus). */
+  total: number;
+  missions: DailyMission[];
 }
 
 export interface MonthlyChallenge {

@@ -10,6 +10,8 @@ interface SidebarProps {
 	userProfile: UserProfile | any;
 	streakDays?: number;
 	notificationCount?: number;
+	/** Missions du jour restantes (total - completed), affiché en badge. */
+	missionsRemaining?: number;
 	onNotificationClick?: () => void;
 }
 
@@ -18,6 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	userProfile,
 	streakDays = 0,
 	notificationCount = 0,
+	missionsRemaining = 0,
 	onNotificationClick,
 }) => {
 	const navigate = useNavigate();
@@ -29,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠" },
 		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", badge: 3 },
 		{ label: "Import document", path: ROUTES.OCR, icon: "📄" },
-		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅" },
+		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅", badge: missionsRemaining },
 		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️" },
 		{ label: "Boutique", path: "/boutique", icon: "🛍️" },
 		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊" },

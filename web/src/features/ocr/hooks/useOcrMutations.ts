@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import APIAxios, { APIRoutes } from "@api/axios.api";
+import { refreshAfterServerAction } from "@shared/lib/serverActions";
 import type {
 	OcrReportCardResponse,
 	OcrExerciseGenerationResponse,
@@ -47,6 +48,7 @@ export const useOcrReportCardMutation = () =>
 			);
 			return data;
 		},
+		onSuccess: refreshAfterServerAction,
 	});
 
 // ─── POST /ocr/exercise_generation ───────────────────────────────────────────
@@ -63,6 +65,7 @@ export const useOcrExerciseGenerationMutation = () =>
 			);
 			return data;
 		},
+		onSuccess: refreshAfterServerAction,
 	});
 
 // ─── POST /ocr/course_qcm ─────────────────────────────────────────────────────
@@ -79,6 +82,7 @@ export const useOcrCourseQcmMutation = () =>
 			);
 			return data;
 		},
+		onSuccess: refreshAfterServerAction,
 	});
 
 // ─── POST /chat ──────────────────────────────────────────────────────────────
@@ -95,4 +99,5 @@ export const useOcrFreeChatMutation = () =>
 			);
 			return data;
 		},
+		onSuccess: refreshAfterServerAction,
 	});

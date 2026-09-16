@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { useHomePage } from "@features/home/hooks/useHomePage";
-import { useDailyMissions } from "@features/missions/store/dailyMissions.store";
+import { useDailyMissions } from "@features/missions/store/missions.queries";
+import { formatMissionReward } from "@features/missions/utils/missionIcons";
 import { useBulletinStore } from "@features/ocr/store/bulletin.store";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/home/styles/Home.css";
@@ -51,11 +52,11 @@ const ANNOUNCEMENTS = [
 const HomePage: React.FC = () => {
 	const navigate = useNavigate();
 	const { welcomeMessage, handleMiloClick } = useHomePage();
-	const missions = useDailyMissions();
+	const { data: dailyMissions } = useDailyMissions();
 	const reportCard = useBulletinStore((state) => state.reportCard);
-	const completedMissionsCount = missions.filter(
-		(mission) => mission.progressCurrent >= mission.progressTotal,
-	).length;
+	const missions = dailyMissions?.missions ?? [];
+	const completedMissionsCount = dailyMissions?.completed ?? 0;
+	const totalMissionsCount = dailyMissions?.total ?? 0;
 
 	const gradedSubjects =
 		reportCard?.filter((subject) => typeof subject.grade === "number") ?? [];
@@ -253,14 +254,13 @@ const HomePage: React.FC = () => {
 										{completedMissionsCount}
 									</span>
 									<span className="hp-progress-sep">/</span>
-									<span className="hp-progress-total">{missions.length}</span>
+									<span className="hp-progress-total">{totalMissionsCount}</span>
 								</div>
 							</header>
 
 							<div className="hp-missions-list">
 								{missions.map((mission, i) => {
-									const isDone =
-										mission.progressCurrent >= mission.progressTotal;
+									const isDone = mission.is_completed;
 									return (
 										<button
 											type="button"
@@ -280,17 +280,17 @@ const HomePage: React.FC = () => {
 												<div className="hp-mission-top">
 													<h3 className="hp-mission-title">{mission.title}</h3>
 													<span className="hp-mission-points">
-														{isDone
-															? "Terminé"
-															: `+${mission.rewardPoints} pts`}
+														{isDone ? "Terminé" : formatMissionReward(mission)}
 													</span>
 												</div>
 												<p className="hp-mission-desc">
 													{isDone
 														? "Mission accomplie avec brio !"
-														: `${Math.min(mission.progressCurrent, mission.progressTotal)}/${mission.progressTotal} réalisé`}
+														: `${Math.min(mission.progress, mission.target)}/${mission.target} réalisé`}
 												</p>
-												<span className="hp-mission-category">QCM</span>
+												<span className="hp-mission-category">
+													{mission.is_bonus ? "Bonus" : "Mission"}
+												</span>
 											</div>
 										</button>
 									);

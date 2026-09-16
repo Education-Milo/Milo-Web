@@ -442,3 +442,13 @@
 		grid-template-columns: repeat(3, 1fr);
 	}
 }
+
+.ms-missions-empty {
+	margin: 0;
+	padding: 18px 20px;
+	border-radius: 18px;
+	background: var(--ms-bg-soft, #f3f4f6);
+	color: var(--ms-text-soft, #6b7280);
+	font-weight: 700;
+	font-size: 0.9rem;
+}

@@ -4,6 +4,7 @@ import { useUserStore } from "@shared/store/user/user.store";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@shared/constants/routes";
+import { useDailyMissions } from "@features/missions/store/missions.queries";
 
 interface PageLayoutProps {
 	children: React.ReactNode;
@@ -19,6 +20,10 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 	const { user } = useUserStore();
 	const logout = useAuthStore((state) => state.logout);
 	const navigate = useNavigate();
+	const { data: dailyMissions } = useDailyMissions();
+	const missionsRemaining = dailyMissions
+		? Math.max(dailyMissions.total - dailyMissions.completed, 0)
+		: 0;
 
 	const handleLogout = async () => {
 		await logout();
@@ -38,6 +43,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 				}}
 				streakDays={streakDays ?? user?.streak ?? 0}
 				notificationCount={notificationCount}
+				missionsRemaining={missionsRemaining}
 			/>
 			<main className="main-container">{children}</main>
 		</>
