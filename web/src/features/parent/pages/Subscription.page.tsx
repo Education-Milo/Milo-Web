@@ -1,5 +1,6 @@
 import React from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import "@features/parent/styles/temp.css";
 
 const SubscriptionPage: React.FC = () => {
 	const currentPlan = {
@@ -28,13 +29,7 @@ const SubscriptionPage: React.FC = () => {
 							</p>
 						</div>
 					</section>
-					<div
-						style={{
-							display: "grid",
-							gridTemplateColumns: "2fr 1fr",
-							gap: "2rem",
-						}}
-					>
+					<div className="subscription-columns">
 						<section className="section-card">
 							<div className="section-header">
 								<h2 className="section-title">📦 Forfait Actuel</h2>
@@ -51,8 +46,10 @@ const SubscriptionPage: React.FC = () => {
 							<div
 								style={{
 									display: "flex",
+									flexWrap: "wrap",
 									justifyContent: "space-between",
 									alignItems: "center",
+									gap: "1rem",
 									marginBottom: "2rem",
 									paddingBottom: "2rem",
 									borderBottom: "1px solid #e2e8f0",
