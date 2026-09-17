@@ -21,6 +21,7 @@ export const ROUTES = {
 	COURSES: "/courses",
 	COURSE_DETAIL: "/courses/:subjectId",
 	MISSIONS: "/missions",
+	STATS: "/stats",
 	DUELS: "/duels",
 	OCR: "/ocr",
 

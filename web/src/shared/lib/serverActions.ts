@@ -3,6 +3,7 @@ import { useUserStore } from "@shared/store/user/user.store";
 
 export const MISSIONS_QUERY_KEY = ["missions"] as const;
 export const USER_QUERY_KEY = ["user"] as const;
+export const STATS_QUERY_KEY = ["stats"] as const;
 
 /**
  * À appeler après une action que le backend comptabilise tout seul
@@ -17,6 +18,7 @@ export const USER_QUERY_KEY = ["user"] as const;
 export const refreshAfterServerAction = () => {
 	void queryClient.invalidateQueries({ queryKey: MISSIONS_QUERY_KEY });
 	void queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY });
+	void queryClient.invalidateQueries({ queryKey: STATS_QUERY_KEY });
 	useUserStore
 		.getState()
 		.getMe(true)

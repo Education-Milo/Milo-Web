@@ -1,5 +1,7 @@
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAuthStore } from "@shared/store/auth/auth.store";
+import { queryClient } from "@shared/lib/queryClient";
+import { STATS_QUERY_KEY } from "@shared/lib/serverActions";
 import type {
 	ActivityPayload,
 	PerformancePayload,
@@ -45,7 +47,12 @@ export const postActivity = (payload: ActivityPayload): void => {
 				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify(payload),
-		}).catch(() => {});
+		})
+			.then(() => {
+				// Le temps passé alimente la page Statistiques
+				void queryClient.invalidateQueries({ queryKey: STATS_QUERY_KEY });
+			})
+			.catch(() => {});
 	} catch {
 		// silencieux : la télémétrie ne doit jamais gêner l'utilisateur
 	}
