@@ -496,7 +496,6 @@
 	flex: 0 0 46px;
 }
 
-.friend-btn-star,
 .friend-btn-msg {
 	flex: 1;
 	display: flex;
@@ -511,28 +510,52 @@
 	color: #6B7280;
 }
 
-.friend-btn-star:hover,
-.friend-btn-msg:hover {
-	background: #E5E7EB;
-	color: var(--color-text-main);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.friend-btn-star.active {
-	background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-	color: #F59E0B;
-	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
-}
-
-.friend-btn-star.active:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
-}
-
 .friend-btn-msg:hover {
 	background: rgba(226, 135, 67, 0.1);
 	color: var(--color-primary);
+}
+
+.friend-btn-decline--full {
+	flex: 1;
+	gap: 0.5rem;
+	font-weight: 700;
+	font-size: 0.95rem;
+}
+
+/* Bouton "épingler" en haut à droite de la carte */
+.friend-pin-btn {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: none;
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.85);
+	color: #9CA3AF;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.friend-pin-btn:hover {
+	background: #F3F4F6;
+	color: var(--color-text-main);
+	transform: scale(1.08);
+}
+
+.friend-pin-btn.active {
+	background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+	color: #F59E0B;
+	box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.friend-pin-btn.active:hover {
+	transform: scale(1.08) rotate(-8deg);
 }
 
 .friends-empty-state {

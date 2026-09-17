@@ -1,7 +1,7 @@
 import React from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { Users, UserPlus, Search, Star, Clock } from "lucide-react";
+import { Users, UserPlus, Search, Clock } from "lucide-react";
 import FriendCard from "@features/friends/components/FriendCard.component";
 import AddFriendModal from "@features/friends/components/AddFriendModal.component";
 import {
@@ -28,7 +28,7 @@ const itemVariants = {
 	},
 };
 
-const TABS: FriendsTab[] = ["Tous", "Invitations", "En attente", "Meilleurs amis"];
+const TABS: FriendsTab[] = ["Tous", "Invitations", "En attente"];
 
 const FriendsPage: React.FC = () => {
 	const {
@@ -42,7 +42,7 @@ const FriendsPage: React.FC = () => {
 		setActiveTab,
 		isAddModalOpen,
 		setIsAddModalOpen,
-		toggleBestFriend,
+		togglePin,
 		acceptFriend,
 		deleteFriend,
 		isLoading,
@@ -112,9 +112,6 @@ const FriendsPage: React.FC = () => {
 									className={`friends-tab ${activeTab === tab ? "active" : ""}`}
 									onClick={() => setActiveTab(tab)}
 								>
-									{tab === "Meilleurs amis" && (
-										<Star size={14} className="tab-icon" />
-									)}
 									{tab}
 									{/* Badge sur "Invitations" et "En attente" */}
 									{tab === "Invitations" && pendingReceived.length > 0 && (
@@ -159,7 +156,7 @@ const FriendsPage: React.FC = () => {
 											<FriendCard
 												key={friend.id}
 												friend={friend}
-												onToggleBestFriend={toggleBestFriend}
+												onTogglePin={togglePin}
 												onAccept={acceptFriend}
 												onDelete={deleteFriend}
 												isPending={activeTab === "En attente" || activeTab === "Invitations"}
