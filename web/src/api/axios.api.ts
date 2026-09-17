@@ -58,6 +58,9 @@ export const APIRoutes = {
   POST_SEND_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}`,
   PATCH_ACCEPT_FRIEND_REQUEST: (friendId: number) => `/friends/${friendId}/accept`,
   PATCH_BLOCK_FRIEND: (friendId: number) => `/friends/${friendId}/block`,
+  // Le paramètre est l'id utilisateur de l'ami, pas l'id de la relation
+  PUT_PIN_FRIEND: (friendUserId: number) => `/friends/${friendUserId}/pin`,
+  DELETE_PIN_FRIEND: (friendUserId: number) => `/friends/${friendUserId}/pin`,
 
   // Missions API
   GET_Missions_Today: '/missions/today',

@@ -25,7 +25,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	const initials =
 		`${friend.friend_first_name[0] ?? ""}${friend.friend_last_name[0] ?? ""}`.toUpperCase();
 
-	const isPinned = friend.isPinned;
+	const isPinned = friend.is_pinned;
 	const otherUserId = getOtherUserId(friend);
 
 	const details = "classe" in friend ? friend as FriendWithDetails : null;
