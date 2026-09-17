@@ -254,13 +254,7 @@ const Dashboard: React.FC = () => {
 										</h2>
 									</div>
 
-									<div
-										style={{
-											display: "grid",
-											gridTemplateColumns: "1fr 1fr",
-											gap: "1.5rem",
-										}}
-									>
+									<div className="weekly-stats-grid">
 										{/* Jauge Dynamique */}
 										<CircularProgress
 											value={statsData.timeSpentHours}
@@ -351,7 +345,7 @@ const Dashboard: React.FC = () => {
 									<div className="section-header">
 										<h2 className="section-title">🎯 Analyse pédagogique</h2>
 									</div>
-									<div style={{ display: "flex", gap: "2rem" }}>
+									<div className="pedagogy-insights-row">
 										<div
 											style={{
 												flex: 1,

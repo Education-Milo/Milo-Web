@@ -98,6 +98,18 @@
 	pointer-events: none;
 }
 
+@media (max-width: 640px) {
+	/* CircularProgress et les cartes du même type sont mises en page en
+	   `display:flex` directement en style inline dans Dashboard.page.tsx ;
+	   on force l'empilement vertical sur mobile faute de pouvoir cibler
+	   ce style inline autrement qu'en !important. */
+	.graphical-card[style*="flex"] {
+		flex-direction: column !important;
+		text-align: center;
+	}
+	.card-decoration-icon { font-size: 5rem; }
+}
+
 /* ─── Children Cards ────────────────────────────────────────────────────────
    Sélecteur d'enfant dans le dashboard parent
 */

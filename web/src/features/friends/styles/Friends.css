@@ -835,10 +835,14 @@
 	}
 	
 	.friends-search-box {
-		min-width: 100%;
+		width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
 	}
-	
+
 	.friends-tabs {
+		width: 100%;
+		box-sizing: border-box;
 		overflow-x: auto;
 		justify-content: space-between;
 	}

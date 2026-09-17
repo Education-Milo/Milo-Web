@@ -188,6 +188,18 @@ body {
     animation: fadeIn 1s ease-out forwards;
 }
 
+@media (max-width: 1024px) {
+    .main-container { margin-left: 240px; }
+}
+
+@media (max-width: 768px) {
+    /* Doit rester cohérent avec la sidebar mobile (voir SideBar.css) :
+       cette copie de `.main-container` (chargée globalement dès que
+       Dashboard/Subscription sont importés par AuthNavigator) l'emporterait
+       sinon selon l'ordre de chargement des feuilles de style. */
+    .main-container { margin-left: 0; padding-top: 64px; }
+}
+
 .top-bar {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
@@ -309,6 +321,39 @@ body {
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+.weekly-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.subscription-columns {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.pedagogy-insights-row {
+    display: flex;
+    gap: 2rem;
+}
+
+@media (max-width: 900px) {
+    .dashboard { grid-template-columns: 1fr; padding: 1.5rem; gap: 1.5rem; }
+    .subscription-columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+    .dashboard { padding: 1rem; gap: 1.25rem; }
+    .weekly-stats-grid { grid-template-columns: 1fr; }
+    .pedagogy-insights-row { flex-direction: column; gap: 1rem; }
+    .welcome-section { height: auto; padding: 1.75rem; }
+    .welcome-title { font-size: 1.6rem; }
+    .welcome-subtitle { font-size: 1rem; margin-bottom: 1.25rem; }
+    .quick-action-buttons { flex-wrap: wrap; gap: 0.6rem; }
+    .section-title { font-size: 1.2rem; }
 }
 
 .welcome-section {

@@ -16,7 +16,10 @@
 /* ============================================================
    ANIMATIONS
    ============================================================ */
-@keyframes sb-slideIn { from { transform: translateX(-16px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+/* N'anime que l'opacité (pas `transform`) : le tiroir mobile pilote `transform`
+   via une transition CSS distincte, et une animation qui toucherait la même
+   propriété la verrouillerait durablement (cf. commentaire plus bas). */
+@keyframes sb-slideIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sb-flame-dance { 0%, 100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 0 4px var(--sb-accent-glow-soft)); } 50% { transform: scale(1.15) rotate(3deg); filter: drop-shadow(0 0 8px var(--sb-accent-glow)); } }
 @keyframes sb-bell-swing { 0%, 100% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(6deg); } }
 @keyframes sb-dot-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
@@ -25,7 +28,33 @@
 /* ============================================================
    SIDEBAR CONTAINER
    ============================================================ */
-.sb-sidebar { position: fixed; top: 0; left: 0; width: var(--sb-width); height: 100vh; display: flex; flex-direction: column; padding: 26px 18px; gap: 22px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-right: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 8px 0 40px rgba(139, 92, 63, 0.06); font-family: var(--sb-font); color: var(--sb-text-main); z-index: 100; animation: sb-slideIn 0.5s var(--sb-spring) both; }
+.sb-sidebar { position: fixed; top: 0; left: 0; width: var(--sb-width); height: 100vh; display: flex; flex-direction: column; padding: 26px 18px; gap: 22px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-right: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 8px 0 40px rgba(139, 92, 63, 0.06); font-family: var(--sb-font); color: var(--sb-text-main); z-index: 110; animation: sb-slideIn 0.5s var(--sb-spring) both; }
+
+.sb-header-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+/* ============================================================
+   BARRE MOBILE (logo + hamburger) & OVERLAY DU TIROIR
+   Cachés par défaut : n'apparaissent que sous le breakpoint mobile.
+   ============================================================ */
+.sb-mobile-topbar { display: none; }
+/* Spécificité élément+classe : doit l'emporter sur `.sb-icon-btn` (display:
+   flex) déclarée plus bas dans ce même fichier, quel que soit l'ordre. */
+button.sb-mobile-close { display: none; }
+.sb-mobile-btn-label { display: none; }
+
+.sb-overlay { display: none; }
+@media (max-width: 768px) {
+	.sb-overlay {
+		display: block;
+		position: fixed;
+		inset: 0;
+		background: rgba(58, 47, 38, 0.45);
+		backdrop-filter: blur(2px);
+		z-index: 105;
+		animation: sb-fadeIn 0.25s ease both;
+	}
+}
+@keyframes sb-fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ============================================================
    HEADER : logo + bouton notifications
@@ -138,7 +167,42 @@
 }
 
 @media (max-width: 768px) {
-	.sb-sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+	:root { --sb-width: min(300px, 82vw); }
+
+	.sb-sidebar { transform: translateX(-100%); transition: transform 0.35s var(--sb-spring); box-shadow: 8px 0 40px rgba(139, 92, 63, 0.18); }
 	.sb-sidebar.open { transform: translateX(0); }
-	.main-container { margin-left: 0; }
+	.main-container { margin-left: 0; padding-top: 64px; }
+
+	.sb-mobile-topbar { display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; width: 100%; height: 64px; padding: 0 18px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(234, 222, 213, 0.6); box-shadow: 0 8px 25px rgba(139, 92, 63, 0.06); z-index: 100; }
+	.sb-mobile-logo { height: 34px; width: auto; object-fit: contain; }
+	.sb-mobile-toggle { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border: none; border-radius: 14px; background: var(--sb-bg-soft); color: var(--sb-text-main); cursor: pointer; transition: background 0.3s ease, transform 0.3s var(--sb-spring); }
+	.sb-mobile-toggle:hover { background: var(--sb-bg-hover); color: var(--sb-accent); }
+	.sb-mobile-toggle:active { transform: scale(0.92); }
+
+	button.sb-mobile-close { display: flex; }
+	.sb-mobile-btn-label { display: inline; }
+
+	/* Le logo desktop de la sidebar est redondant avec la barre mobile. */
+	.sb-header .sb-logo { display: none; }
+	.sb-header { padding: 4px 2px 18px; }
+
+	.sb-header-actions { width: 100%; gap: 10px; }
+
+	.sb-header-actions .sb-icon-btn {
+		flex: 1;
+		width: auto;
+		height: auto;
+		padding: 13px 16px;
+		border-radius: 16px;
+		background: var(--sb-bg-soft);
+		gap: 8px;
+		font-family: var(--sb-font);
+		font-weight: 800;
+		font-size: 0.88rem;
+		color: var(--sb-text-main);
+	}
+	.sb-header-actions .sb-icon-btn:hover { background: var(--sb-bg-hover); transform: none; }
+	.sb-header-actions .sb-icon-btn:active { transform: scale(0.97); }
+
+	.sb-header-actions .sb-icon-btn-dot { position: static; margin-left: auto; }
 }

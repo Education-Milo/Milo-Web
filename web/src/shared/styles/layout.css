@@ -29,6 +29,17 @@ body {
     animation: fadeIn 1s ease-out forwards;
 }
 
+@media (max-width: 1024px) {
+    .main-container { margin-left: 240px; }
+}
+
+@media (max-width: 768px) {
+    /* Doit rester cohérent avec la sidebar mobile (voir SideBar.css) :
+       cette copie de `.main-container` (chargée globalement via l'import
+       de Dashboard.css) l'emporterait sinon selon l'ordre de chargement. */
+    .main-container { margin-left: 0; padding-top: 64px; }
+}
+
 
 .dashboard {
 	padding: 2rem;

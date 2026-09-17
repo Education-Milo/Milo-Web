@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Bell, Flame, LogOut, Zap } from "lucide-react";
+import { Bell, Flame, LogOut, Menu, X, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
@@ -28,6 +28,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+	// Ferme le tiroir mobile à chaque changement de page.
+	useEffect(() => {
+		setIsMobileOpen(false);
+	}, [location.pathname]);
+
+	// Empêche le scroll du body quand le tiroir mobile est ouvert.
+	useEffect(() => {
+		document.body.style.overflow = isMobileOpen ? "hidden" : "";
+		return () => {
+			document.body.style.overflow = "";
+		};
+	}, [isMobileOpen]);
 
 	const isParent = userProfile?.role === "Parent";
 
@@ -115,7 +129,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 				type="button"
 				key={item.path}
 				className={`sb-nav-item ${isActive(item.path) ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
-				onClick={() => !isDisabled && navigate(item.path)}
+				onClick={() => {
+					if (isDisabled) return;
+					navigate(item.path);
+					setIsMobileOpen(false);
+				}}
 				disabled={isDisabled}
 			>
 				<span className="sb-nav-icon">{item.icon}</span>
@@ -129,103 +147,141 @@ const Sidebar: React.FC<SidebarProps> = ({
 	};
 
 	return (
-		<aside className="sb-sidebar">
-			{/* --- HEADER : Logo + bouton notifications --- */}
-			<div className="sb-header">
-				<div className="sb-logo">
-					<img src="/milo-logo2.png" alt="Milo" className="sb-logo-img" />
-				</div>
-
+		<>
+			{/* --- BARRE MOBILE : logo + bouton hamburger --- */}
+			<div className="sb-mobile-topbar">
+				<img src="/milo-logo2.png" alt="Milo" className="sb-mobile-logo" />
 				<button
 					type="button"
-					className="sb-icon-btn"
-					onClick={onNotificationClick}
-					aria-label="Notifications"
+					className="sb-mobile-toggle"
+					onClick={() => setIsMobileOpen(true)}
+					aria-label="Ouvrir le menu"
+					aria-expanded={isMobileOpen}
 				>
-					<Bell size={18} />
-					{notificationCount > 0 && (
-						<span className="sb-icon-btn-dot">
-							{notificationCount > 9 ? "9+" : notificationCount}
-						</span>
-					)}
+					<Menu size={22} />
 				</button>
 			</div>
 
-			{/* --- NAV avec indicateur magnet --- */}
-			<nav className="sb-nav" ref={navRef}>
-				{/* L'indicateur flottant qui glisse */}
+			{/* --- OVERLAY : ferme le tiroir au tap en dehors --- */}
+			{isMobileOpen && (
 				<div
-					className={`sb-nav-indicator ${indicator.visible ? "visible" : ""}`}
-					style={{
-						transform: `translateY(${indicator.top}px)`,
-						height: `${indicator.height}px`,
-					}}
+					className="sb-overlay"
+					onClick={() => setIsMobileOpen(false)}
 					aria-hidden="true"
 				/>
+			)}
 
-				<div className="sb-nav-group">
-					<div className="sb-nav-group-title">Principal</div>
-					{activeNavItems.map(renderNavItem)}
+			<aside className={`sb-sidebar ${isMobileOpen ? "open" : ""}`}>
+				{/* --- HEADER : Logo + bouton notifications --- */}
+				<div className="sb-header">
+					<div className="sb-logo">
+						<img src="/milo-logo2.png" alt="Milo" className="sb-logo-img" />
+					</div>
+
+					<div className="sb-header-actions">
+						<button
+							type="button"
+							className="sb-icon-btn sb-mobile-close"
+							onClick={() => setIsMobileOpen(false)}
+							aria-label="Fermer le menu"
+						>
+							<X size={18} />
+							<span className="sb-mobile-btn-label">Fermer</span>
+						</button>
+
+						<button
+							type="button"
+							className="sb-icon-btn"
+							onClick={onNotificationClick}
+							aria-label="Notifications"
+						>
+							<Bell size={18} />
+							<span className="sb-mobile-btn-label">Notifications</span>
+							{notificationCount > 0 && (
+								<span className="sb-icon-btn-dot">
+									{notificationCount > 9 ? "9+" : notificationCount}
+								</span>
+							)}
+						</button>
+					</div>
 				</div>
 
-				{!isParent && (
-					<>
-						<div className="sb-nav-group">
-							<div className="sb-nav-group-title">Progression</div>
-							{progressItems.map(renderNavItem)}
-						</div>
-
-						<div className="sb-nav-group">
-							<div className="sb-nav-group-title">Social</div>
-							{socialItems.map(renderNavItem)}
-						</div>
-					</>
-				)}
-			</nav>
-
-			{/* --- FOOTER --- */}
-			<div className="sb-footer">
-				<button
-					type="button"
-					className="sb-user-card"
-					onClick={() => navigate("/profile")}
-				>
-					<div className="sb-user-avatar">👤</div>
-					<div className="sb-user-info">
-						<h4 className="sb-user-name">
-							{userProfile?.first_name || "Utilisateur"}
-						</h4>
-						<p className="sb-user-sub">
-							{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
-						</p>
-					</div>
-					<div className="sb-user-stats">
+					{/* --- NAV avec indicateur magnet --- */}
+					<nav className="sb-nav" ref={navRef}>
+						{/* L'indicateur flottant qui glisse */}
 						<div
-							className="sb-streak"
-							title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
-						>
-							<Flame size={14} />
-							<span>{streakDays}</span>
-						</div>
-						<div className="sb-xp" title={`${xpPoints} XP`}>
-							<Zap size={14} />
-							<span>{xpPoints}</span>
-						</div>
-					</div>
-				</button>
+							className={`sb-nav-indicator ${indicator.visible ? "visible" : ""}`}
+							style={{
+								transform: `translateY(${indicator.top}px)`,
+								height: `${indicator.height}px`,
+							}}
+							aria-hidden="true"
+						/>
 
-				<button
-					type="button"
-					className="sb-logout-btn"
-					onClick={onLogout}
-					title="Se déconnecter"
-				>
-					<LogOut size={16} />
-					<span>Se déconnecter</span>
-				</button>
-			</div>
-		</aside>
-	);
+						<div className="sb-nav-group">
+							<div className="sb-nav-group-title">Principal</div>
+							{activeNavItems.map(renderNavItem)}
+						</div>
+
+						{!isParent && (
+							<>
+								<div className="sb-nav-group">
+									<div className="sb-nav-group-title">Progression</div>
+									{progressItems.map(renderNavItem)}
+								</div>
+
+								<div className="sb-nav-group">
+									<div className="sb-nav-group-title">Social</div>
+									{socialItems.map(renderNavItem)}
+								</div>
+							</>
+						)}
+					</nav>
+
+					{/* --- FOOTER --- */}
+					<div className="sb-footer">
+						<button
+							type="button"
+							className="sb-user-card"
+							onClick={() => navigate("/profile")}
+						>
+							<div className="sb-user-avatar">👤</div>
+							<div className="sb-user-info">
+								<h4 className="sb-user-name">
+									{userProfile?.first_name || "Utilisateur"}
+								</h4>
+								<p className="sb-user-sub">
+									{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
+								</p>
+							</div>
+							<div className="sb-user-stats">
+								<div
+									className="sb-streak"
+									title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
+								>
+									<Flame size={14} />
+									<span>{streakDays}</span>
+								</div>
+								<div className="sb-xp" title={`${xpPoints} XP`}>
+									<Zap size={14} />
+									<span>{xpPoints}</span>
+								</div>
+							</div>
+						</button>
+
+						<button
+							type="button"
+							className="sb-logout-btn"
+							onClick={onLogout}
+							title="Se déconnecter"
+						>
+							<LogOut size={16} />
+							<span>Se déconnecter</span>
+						</button>
+					</div>
+				</aside>
+			</>
+		);
 };
 
 export default Sidebar;
