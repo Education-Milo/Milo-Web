@@ -1,12 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Star, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
+import { Pin, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
+import { getOtherUserId } from "@features/friends/store/friend.model";
 
 interface FriendCardProps {
 	friend: FriendWithDetails | FriendEnriched;
-	onToggleBestFriend: (id: number) => void;
+	onTogglePin: (id: number) => void;
 	onAccept: (id: number) => void;
 	onDelete: (id: number) => void;
 	isPending?: boolean;
@@ -15,7 +16,7 @@ interface FriendCardProps {
 
 const FriendCard: React.FC<FriendCardProps> = ({
 	friend,
-	onToggleBestFriend,
+	onTogglePin,
 	onAccept,
 	onDelete,
 	isPending = false,
@@ -24,8 +25,8 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	const initials =
 		`${friend.friend_first_name[0] ?? ""}${friend.friend_last_name[0] ?? ""}`.toUpperCase();
 
-	const isBestFriend = friend.isBestFriend;
-	const otherUserId = friend.direction === "received" ? friend.user_id : friend.friend_id;
+	const isPinned = friend.isPinned;
+	const otherUserId = getOtherUserId(friend);
 
 	const details = "classe" in friend ? friend as FriendWithDetails : null;
 
@@ -37,6 +38,17 @@ const FriendCard: React.FC<FriendCardProps> = ({
 			whileHover={{ y: -5, scale: 1.02 }}
 		>
 			<div className="friend-card-bg" />
+
+			{/* ÉPINGLER (masqué pour les demandes en attente) */}
+			{!isPending && (
+				<button
+					className={`friend-pin-btn ${isPinned ? "active" : ""}`}
+					onClick={() => onTogglePin(otherUserId)}
+					title={isPinned ? "Désépingler" : "Épingler cet ami"}
+				>
+					<Pin size={16} fill={isPinned ? "currentColor" : "none"} />
+				</button>
+			)}
 
 			{/* AVATAR */}
 			<div className="friend-avatar-wrap">
@@ -124,18 +136,12 @@ const FriendCard: React.FC<FriendCardProps> = ({
 			) : (
 				<div className="friend-actions">
 					<button
-						className={`friend-btn-star ${isBestFriend ? "active" : ""}`}
-						onClick={() => onToggleBestFriend(otherUserId)}
-						title={isBestFriend ? "Retirer des favoris" : "Meilleur ami"}
-					>
-						<Star size={18} fill={isBestFriend ? "currentColor" : "none"} />
-					</button>
-					<button
-						className="friend-btn-decline"
+						className="friend-btn-decline friend-btn-decline--full"
 						onClick={() => onDelete(otherUserId)}
 						title="Supprimer l'ami"
 					>
 						<UserX size={18} />
+						<span>Supprimer</span>
 					</button>
 				</div>
 			)}

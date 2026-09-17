@@ -7,22 +7,28 @@ import {
 	useBlockFriend,
 } from "@features/friends/store/friend.queries";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
+import { getOtherUserId } from "@features/friends/store/friend.model";
 import { useFriendDetails } from "@features/friends/hooks/useFriendDetails";
 
-export type FriendsTab = "Tous" | "Invitations" | "En attente" | "Meilleurs amis";
+export type FriendsTab = "Tous" | "Invitations" | "En attente";
 
-// ─── Persistance locale des favoris ─────────────────────────────────────────
-const loadBestFriends = (): Set<number> => {
+// ─── Persistance locale des épingles ────────────────────────────────────────
+// Les ids stockés sont ceux de l'utilisateur ami (cf. getOtherUserId), pas
+// l'id de la relation d'amitié, pour rester stables et cohérents avec le
+// reste de l'app.
+const PINNED_FRIENDS_KEY = "pinnedFriends";
+
+const loadPinnedFriends = (): Set<number> => {
 	try {
-		const stored = localStorage.getItem("bestFriends");
+		const stored = localStorage.getItem(PINNED_FRIENDS_KEY);
 		return stored ? new Set(JSON.parse(stored)) : new Set();
 	} catch {
 		return new Set();
 	}
 };
 
-const saveBestFriends = (ids: Set<number>) => {
-	localStorage.setItem("bestFriends", JSON.stringify([...ids]));
+const savePinnedFriends = (ids: Set<number>) => {
+	localStorage.setItem(PINNED_FRIENDS_KEY, JSON.stringify([...ids]));
 };
 
 // ─── Hook principal ──────────────────────────────────────────────────────────
@@ -30,8 +36,8 @@ export const useFriends = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeTab, setActiveTab] = useState<FriendsTab>("Tous");
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [bestFriendIds, setBestFriendIds] =
-		useState<Set<number>>(loadBestFriends);
+	const [pinnedFriendIds, setPinnedFriendIds] =
+		useState<Set<number>>(loadPinnedFriends);
 
 	// Queries friends
 	const { data: allFriends = [], isLoading: isLoadingFriends } =
@@ -52,19 +58,28 @@ export const useFriends = () => {
 		[allFriends],
 	);
 
-	// Enrichir avec isBestFriend (localStorage)
+	// Enrichir avec isPinned (localStorage), identifié par l'id de l'ami
 	const enrichedFriends: FriendEnriched[] = useMemo(
 		() =>
 			acceptedFriends.map((f) => ({
 				...f,
-				isBestFriend: bestFriendIds.has(f.id),
+				isPinned: pinnedFriendIds.has(getOtherUserId(f)),
 			})),
-		[acceptedFriends, bestFriendIds],
+		[acceptedFriends, pinnedFriendIds],
 	);
 
 	// Enrichir avec les détails utilisateur (classe, xp, interests)
-	const { friendsWithDetails, isLoading: isLoadingDetails } =
+	const { friendsWithDetails: friendsWithDetailsUnsorted, isLoading: isLoadingDetails } =
 		useFriendDetails(enrichedFriends);
+
+	// Les amis épinglés sont affichés en premier (ordre stable sinon)
+	const friendsWithDetails = useMemo(
+		() =>
+			[...friendsWithDetailsUnsorted].sort((a, b) =>
+				a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1,
+			),
+		[friendsWithDetailsUnsorted],
+	);
 
 	// Demandes reçues en attente
 	const pendingReceived = useMemo(
@@ -78,14 +93,14 @@ export const useFriends = () => {
 		[pendingFriends],
 	);
 
-	// Enrichir les pending avec isBestFriend: false pour éviter les erreurs de type
+	// Enrichir les pending avec isPinned: false pour éviter les erreurs de type
 	const enrichedPendingReceived: FriendEnriched[] = useMemo(
-		() => pendingReceived.map((f) => ({ ...f, isBestFriend: false })),
+		() => pendingReceived.map((f) => ({ ...f, isPinned: false })),
 		[pendingReceived],
 	);
 
 	const enrichedPendingSent: FriendEnriched[] = useMemo(
-		() => pendingSent.map((f) => ({ ...f, isBestFriend: false })),
+		() => pendingSent.map((f) => ({ ...f, isPinned: false })),
 		[pendingSent],
 	);
 
@@ -96,21 +111,15 @@ export const useFriends = () => {
 		return base.filter((f) => {
 			const fullName =
 				`${f.friend_first_name} ${f.friend_last_name}`.toLowerCase();
-			const matchesSearch = fullName.includes(searchQuery.toLowerCase());
-			const matchesTab =
-				activeTab === "Tous" ||
-				activeTab === "Invitations" ||
-				activeTab === "En attente" ||
-				(activeTab === "Meilleurs amis" && f.isBestFriend);
-			return matchesSearch && matchesTab;
+			return fullName.includes(searchQuery.toLowerCase());
 		});
 	}, [friendsWithDetails, enrichedPendingReceived, enrichedPendingSent, searchQuery, activeTab]);
 
-	const toggleBestFriend = (id: number) => {
-		setBestFriendIds((prev) => {
+	const togglePin = (friendUserId: number) => {
+		setPinnedFriendIds((prev) => {
 			const next = new Set(prev);
-			next.has(id) ? next.delete(id) : next.add(id);
-			saveBestFriends(next);
+			next.has(friendUserId) ? next.delete(friendUserId) : next.add(friendUserId);
+			savePinnedFriends(next);
 			return next;
 		});
 	};
@@ -143,7 +152,7 @@ export const useFriends = () => {
 		setActiveTab,
 		isAddModalOpen,
 		setIsAddModalOpen,
-		toggleBestFriend,
+		togglePin,
 		sendFriendRequest,
 		acceptFriend,
 		deleteFriend,
