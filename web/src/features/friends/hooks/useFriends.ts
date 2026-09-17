@@ -115,6 +115,7 @@ export const useFriends = () => {
 		sendFriendRequest,
 		acceptFriend,
 		deleteFriend,
+		isDeletingFriend: deleteFriendMutation.isPending,
 		blockFriend,
 		isLoading: isLoadingFriends || isLoadingDetails,
 	};

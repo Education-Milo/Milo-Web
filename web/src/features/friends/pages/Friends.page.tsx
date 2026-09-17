@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Users, UserPlus, Search, Clock } from "lucide-react";
 import FriendCard from "@features/friends/components/FriendCard.component";
 import AddFriendModal from "@features/friends/components/AddFriendModal.component";
+import ConfirmDeleteFriendModal from "@features/friends/components/ConfirmDeleteFriendModal.component";
+import { getOtherUserId, type Friend } from "@features/friends/store/friend.model";
 import {
 	useFriends,
 	type FriendsTab,
@@ -45,8 +47,29 @@ const FriendsPage: React.FC = () => {
 		togglePin,
 		acceptFriend,
 		deleteFriend,
+		isDeletingFriend,
 		isLoading,
 	} = useFriends();
+
+	const isPendingTab = activeTab === "En attente" || activeTab === "Invitations";
+	const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+
+	// Supprimer un ami accepté demande confirmation ; refuser ou annuler
+	// une invitation reste immédiat.
+	const handleDeleteRequest = (friendUserId: number) => {
+		if (isPendingTab) {
+			deleteFriend(friendUserId);
+			return;
+		}
+		const friend = friends.find((f) => getOtherUserId(f) === friendUserId);
+		if (friend) setFriendToDelete(friend);
+	};
+
+	const handleConfirmDelete = () => {
+		if (!friendToDelete) return;
+		deleteFriend(getOtherUserId(friendToDelete));
+		setFriendToDelete(null);
+	};
 
 	return (
 		<ScreenLayout>
@@ -158,8 +181,8 @@ const FriendsPage: React.FC = () => {
 												friend={friend}
 												onTogglePin={togglePin}
 												onAccept={acceptFriend}
-												onDelete={deleteFriend}
-												isPending={activeTab === "En attente" || activeTab === "Invitations"}
+												onDelete={handleDeleteRequest}
+												isPending={isPendingTab}
 												variants={itemVariants}
 											/>
 										))}
@@ -199,6 +222,18 @@ const FriendsPage: React.FC = () => {
 				<AnimatePresence>
 					{isAddModalOpen && (
 						<AddFriendModal onClose={() => setIsAddModalOpen(false)} />
+					)}
+				</AnimatePresence>
+
+				{/* MODAL CONFIRMATION SUPPRESSION */}
+				<AnimatePresence>
+					{friendToDelete && (
+						<ConfirmDeleteFriendModal
+							friend={friendToDelete}
+							onConfirm={handleConfirmDelete}
+							onCancel={() => setFriendToDelete(null)}
+							isPending={isDeletingFriend}
+						/>
 					)}
 				</AnimatePresence>
 			</div>

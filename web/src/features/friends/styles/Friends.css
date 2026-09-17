@@ -870,3 +870,90 @@
 		justify-content: space-between;
 	}
 }
+
+/* --- Modale de confirmation de suppression --- */
+.friends-confirm-modal {
+	max-width: 400px;
+	text-align: center;
+	align-items: center;
+	gap: 1rem;
+}
+
+.friends-confirm-modal h3 {
+	margin: 0;
+}
+
+.friends-confirm-modal p {
+	margin: 0;
+	color: #6B7280;
+	line-height: 1.5;
+}
+
+.friends-confirm-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: #FEF2F2;
+	color: #DC2626;
+}
+
+.friends-confirm-actions {
+	display: flex;
+	gap: 0.75rem;
+	width: 100%;
+	margin-top: 0.5rem;
+}
+
+.friends-confirm-btn {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	border-radius: 14px;
+	border: none;
+	font-weight: 700;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.friends-confirm-btn:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+
+.friends-confirm-btn--cancel {
+	background: #F3F4F6;
+	color: #374151;
+}
+
+.friends-confirm-btn--cancel:hover:not(:disabled) {
+	background: #E5E7EB;
+}
+
+.friends-confirm-btn--danger {
+	background: #DC2626;
+	color: #fff;
+	box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+}
+
+.friends-confirm-btn--danger:hover:not(:disabled) {
+	background: #B91C1C;
+	transform: translateY(-1px);
+}
+
+/* Loader tournant (modales d'ajout et de confirmation) */
+.friends-viewport .spinning {
+	animation: friends-spin 0.9s linear infinite;
+}
+
+@keyframes friends-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
