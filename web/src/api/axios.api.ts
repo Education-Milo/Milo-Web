@@ -69,6 +69,9 @@ export const APIRoutes = {
   // Tracking API (télémétrie élève)
   POST_Tracking_Performance: '/tracking/performance',
   POST_Tracking_Activity: '/tracking/activity',
+  GET_Tracking_Stats_Me: '/tracking/stats/me',
+  GET_Tracking_Performance_Me: '/tracking/performance/me',
+  GET_Tracking_Activity_Me: '/tracking/activity/me',
 
   // Duel API
   POST_Challenge: (targetUserId: number) => `/duels/challenge/${targetUserId}`,

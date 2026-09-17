@@ -57,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	const progressItems = [
 		{ label: "Succès", path: "/achievements", icon: "🏆", disabled: true },
-		{ label: "Statistiques", path: "/stats", icon: "📊", disabled: true },
+		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", disabled: false },
 	];
 
 	const socialItems = [
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			>
 				<span className="sb-nav-icon">{item.icon}</span>
 				<span className="sb-nav-label">{item.label}</span>
-				{item.badge && !isDisabled && (
+				{Boolean(item.badge) && !isDisabled && (
 					<span className="sb-nav-badge">{item.badge}</span>
 				)}
 				{isDisabled && <span className="sb-nav-tag">Bientôt</span>}
