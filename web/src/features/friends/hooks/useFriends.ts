@@ -5,49 +5,36 @@ import {
 	useAcceptFriendRequest,
 	useSendFriendRequest,
 	useBlockFriend,
+	useTogglePinFriend,
 } from "@features/friends/store/friend.queries";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 import { getOtherUserId } from "@features/friends/store/friend.model";
 import { useFriendDetails } from "@features/friends/hooks/useFriendDetails";
+import { usePinnedFriendsMigration } from "@features/friends/hooks/usePinnedFriendsMigration";
 
 export type FriendsTab = "Tous" | "Invitations" | "En attente";
-
-// ─── Persistance locale des épingles ────────────────────────────────────────
-// Les ids stockés sont ceux de l'utilisateur ami (cf. getOtherUserId), pas
-// l'id de la relation d'amitié, pour rester stables et cohérents avec le
-// reste de l'app.
-const PINNED_FRIENDS_KEY = "pinnedFriends";
-
-const loadPinnedFriends = (): Set<number> => {
-	try {
-		const stored = localStorage.getItem(PINNED_FRIENDS_KEY);
-		return stored ? new Set(JSON.parse(stored)) : new Set();
-	} catch {
-		return new Set();
-	}
-};
-
-const savePinnedFriends = (ids: Set<number>) => {
-	localStorage.setItem(PINNED_FRIENDS_KEY, JSON.stringify([...ids]));
-};
 
 // ─── Hook principal ──────────────────────────────────────────────────────────
 export const useFriends = () => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [activeTab, setActiveTab] = useState<FriendsTab>("Tous");
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [pinnedFriendIds, setPinnedFriendIds] =
-		useState<Set<number>>(loadPinnedFriends);
 
 	// Queries friends
-	const { data: allFriends = [], isLoading: isLoadingFriends } =
-		useFriendsQuery();
+	const {
+		data: allFriends = [],
+		isLoading: isLoadingFriends,
+		isSuccess: isFriendsLoaded,
+	} = useFriendsQuery();
 	const deleteFriendMutation = useDeleteFriend();
 	const acceptFriendMutation = useAcceptFriendRequest();
 	const sendFriendMutation = useSendFriendRequest();
 	const blockFriendMutation = useBlockFriend();
+	const togglePinMutation = useTogglePinFriend();
 
-	// Séparer acceptés / en attente
+	// Séparer acceptés / en attente.
+	// La liste arrive déjà triée par le serveur (épinglés d'abord, puis par
+	// date de relation) : on ne re-trie jamais côté client, on filtre seulement.
 	const acceptedFriends = useMemo(
 		() => allFriends.filter((f) => f.status === "accepted"),
 		[allFriends],
@@ -58,28 +45,12 @@ export const useFriends = () => {
 		[allFriends],
 	);
 
-	// Enrichir avec isPinned (localStorage), identifié par l'id de l'ami
-	const enrichedFriends: FriendEnriched[] = useMemo(
-		() =>
-			acceptedFriends.map((f) => ({
-				...f,
-				isPinned: pinnedFriendIds.has(getOtherUserId(f)),
-			})),
-		[acceptedFriends, pinnedFriendIds],
-	);
+	// Migration unique des anciennes épingles localStorage vers l'API
+	usePinnedFriendsMigration(acceptedFriends, isFriendsLoaded);
 
-	// Enrichir avec les détails utilisateur (classe, xp, interests)
-	const { friendsWithDetails: friendsWithDetailsUnsorted, isLoading: isLoadingDetails } =
-		useFriendDetails(enrichedFriends);
-
-	// Les amis épinglés sont affichés en premier (ordre stable sinon)
-	const friendsWithDetails = useMemo(
-		() =>
-			[...friendsWithDetailsUnsorted].sort((a, b) =>
-				a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1,
-			),
-		[friendsWithDetailsUnsorted],
-	);
+	// Enrichir avec les détails utilisateur (classe, xp, streak, interests)
+	const { friendsWithDetails, isLoading: isLoadingDetails } =
+		useFriendDetails(acceptedFriends);
 
 	// Demandes reçues en attente
 	const pendingReceived = useMemo(
@@ -93,35 +64,22 @@ export const useFriends = () => {
 		[pendingFriends],
 	);
 
-	// Enrichir les pending avec isPinned: false pour éviter les erreurs de type
-	const enrichedPendingReceived: FriendEnriched[] = useMemo(
-		() => pendingReceived.map((f) => ({ ...f, isPinned: false })),
-		[pendingReceived],
-	);
-
-	const enrichedPendingSent: FriendEnriched[] = useMemo(
-		() => pendingSent.map((f) => ({ ...f, isPinned: false })),
-		[pendingSent],
-	);
-
 	const filteredFriends = useMemo(() => {
-		const base =
-			activeTab === "Invitations" ? enrichedPendingReceived :
-			activeTab === "En attente" ? enrichedPendingSent : friendsWithDetails;
+		const base: FriendEnriched[] =
+			activeTab === "Invitations" ? pendingReceived :
+			activeTab === "En attente" ? pendingSent : friendsWithDetails;
 		return base.filter((f) => {
 			const fullName =
 				`${f.friend_first_name} ${f.friend_last_name}`.toLowerCase();
 			return fullName.includes(searchQuery.toLowerCase());
 		});
-	}, [friendsWithDetails, enrichedPendingReceived, enrichedPendingSent, searchQuery, activeTab]);
+	}, [friendsWithDetails, pendingReceived, pendingSent, searchQuery, activeTab]);
 
+	/** Épingle / désépingle un ami (id utilisateur de l'ami, cf. getOtherUserId). */
 	const togglePin = (friendUserId: number) => {
-		setPinnedFriendIds((prev) => {
-			const next = new Set(prev);
-			next.has(friendUserId) ? next.delete(friendUserId) : next.add(friendUserId);
-			savePinnedFriends(next);
-			return next;
-		});
+		const friend = acceptedFriends.find((f) => getOtherUserId(f) === friendUserId);
+		if (!friend || togglePinMutation.isPending) return;
+		togglePinMutation.mutate({ friendUserId, pinned: !friend.is_pinned });
 	};
 
 	const sendFriendRequest = (friendId: number) => {
@@ -153,6 +111,7 @@ export const useFriends = () => {
 		isAddModalOpen,
 		setIsAddModalOpen,
 		togglePin,
+		isTogglingPin: togglePinMutation.isPending,
 		sendFriendRequest,
 		acceptFriend,
 		deleteFriend,

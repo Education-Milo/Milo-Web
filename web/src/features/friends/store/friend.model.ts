@@ -11,11 +11,17 @@ export interface Friend {
     friend_first_name: string;
     friend_email: string;
     direction: FriendDirection;
+    /** Épinglé par l'utilisateur connecté (source de vérité : le backend). */
+    is_pinned: boolean;
+    pinned_at: string | null;
 }
 
-export interface FriendEnriched extends Friend {
-    isPinned: boolean; // géré localement (localStorage)
-}
+/**
+ * Historiquement enrichi côté client avec l'épinglage localStorage.
+ * L'épinglage est maintenant persisté par l'API (`is_pinned`), le type
+ * est conservé pour ne pas casser les imports existants.
+ */
+export type FriendEnriched = Friend;
 
 /**
  * Selon la direction de la relation, le "vrai" id de l'autre utilisateur
