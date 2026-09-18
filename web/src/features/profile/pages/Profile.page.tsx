@@ -34,6 +34,7 @@ const ProfilePage: React.FC = () => {
 		tempProfile,
 		passwordData,
 		passwordChecks,
+		user,
 		interests,
 		suggestions,
 		newInterest,
@@ -367,7 +368,7 @@ const ProfilePage: React.FC = () => {
 								</div>
 								<div className="pf-stat pf-stat-flame">
 									<Flame size={18} className="pf-stat-icon" />
-									<span className="pf-stat-value">0</span>
+									<span className="pf-stat-value">{user?.streak || 0}</span>
 									<span className="pf-stat-label">Jours de série</span>
 								</div>
 							</div>
