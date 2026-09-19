@@ -9,6 +9,8 @@ export interface FriendWithDetails extends FriendEnriched {
     streak?: number;
 	xp?: number;
 	interests?: { id: string; name: string }[];
+	/** Objets équipés sur le Milo de l'ami (renvoyé par /users/{id}) */
+	equipped_items?: number[];
 }
 
 export const useFriendDetails = (friends: FriendEnriched[]): {
@@ -47,6 +49,7 @@ export const useFriendDetails = (friends: FriendEnriched[]): {
 			streak: userData?.streak ?? undefined,
 			xp: userData?.xp ?? undefined,
 			interests: userData?.interests?.slice(0, 3) ?? [],
+			equipped_items: userData?.equipped_items,
 		};
 	});
 

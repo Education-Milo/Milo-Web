@@ -9,6 +9,15 @@ export interface User extends UserProfile {
     /** Nombre de jours consécutifs d'activité, calculé côté serveur (0 par défaut) */
     streak: number;
     created_at: string;
+    /**
+     * Ids des objets équipés sur le Milo de cet utilisateur.
+     *
+     * Doit venir du backend : l'équipement est aujourd'hui stocké dans le
+     * localStorage du navigateur (`milo-inventory-storage`), donc invisible
+     * pour les autres utilisateurs. Tant que l'API ne renvoie pas ce champ,
+     * les amis s'affichent avec un Milo sans accessoires.
+     */
+    equipped_items?: number[];
     /** Clés brutes renvoyées par l'API (conservées par le spread) */
     class_?: ClassType;
     interests?: Interest[];

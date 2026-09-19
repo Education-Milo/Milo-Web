@@ -4,6 +4,7 @@ import { Pin, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 import { getOtherUserId } from "@features/friends/store/friend.model";
+import MiloAvatar from "@shared/components/MiloAvatar.component";
 
 interface FriendCardProps {
 	friend: FriendWithDetails | FriendEnriched;
@@ -52,7 +53,11 @@ const FriendCard: React.FC<FriendCardProps> = ({
 
 			{/* AVATAR */}
 			<div className="friend-avatar-wrap">
-				<span className="friend-card-avatar-text">{initials}</span>
+				<MiloAvatar
+					equippedItemIds={details?.equipped_items}
+					initials={initials}
+					className="friend-card-avatar-text"
+				/>
 			</div>
 
 			{/* INFOS */}
