@@ -20,6 +20,8 @@ import {
 import "@features/profile/styles/ProfilePage.css";
 import { useProfilePage } from "@features/profile/hooks/useProfilePage";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import MiloAvatar from "@shared/components/MiloAvatar.component";
+import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
 
 const CLASSES = [
 	{ value: "6eme", label: "6ème" },
@@ -54,6 +56,10 @@ const ProfilePage: React.FC = () => {
 		`${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase() ||
 		"?";
 
+	/// Son propre Milo : l'équipement est déjà connu du navigateur, aucun
+	/// aller-retour serveur nécessaire
+	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
+
 	const classeLabel =
 		CLASSES.find((c) => c.value === profile.classe)?.label ?? "Non renseignée";
 
@@ -78,7 +84,11 @@ const ProfilePage: React.FC = () => {
 					<div className="pf-avatar-wrap">
 						<span className="pf-avatar-ring" aria-hidden="true" />
 						<div className="pf-avatar">
-							<span className="pf-avatar-initials">{initials}</span>
+							<MiloAvatar
+								equippedItemIds={equippedItemIds}
+								initials={initials}
+								className="pf-avatar-initials"
+							/>
 						</div>
 						<span className="pf-avatar-badge">
 							<Zap size={12} />1

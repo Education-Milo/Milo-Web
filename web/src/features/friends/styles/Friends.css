@@ -957,3 +957,11 @@
 		transform: rotate(360deg);
 	}
 }
+
+/* Photo de profil : le Milo de l'ami à la place de ses initiales */
+.friend-avatar-wrap .milo-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+}
