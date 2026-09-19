@@ -11,6 +11,7 @@ import {
 	Environment,
 	useGLTF,
 	useAnimations,
+	useProgress,
 	Text,
 } from "@react-three/drei";
 import * as THREE from "three";
@@ -242,6 +243,19 @@ const IntroCamera: React.FC<{ onDone: () => void }> = ({ onDone }) => {
 	return null;
 };
 
+/// Monté seulement une fois les modèles du <Suspense> résolus. On attend deux
+/// frames avant de prévenir : la première passe de useFrame précède le rendu,
+/// on éviterait sinon de masquer l'overlay une frame trop tôt.
+const SceneReadySignal: React.FC<{ onReady: () => void }> = ({ onReady }) => {
+	const frames = useRef(0);
+	useFrame(() => {
+		if (frames.current > 1) return;
+		frames.current += 1;
+		if (frames.current === 2) onReady();
+	});
+	return null;
+};
+
 const Scene3D: React.FC<{
 	cameraY: number;
 	reply: string;
@@ -252,7 +266,8 @@ const Scene3D: React.FC<{
 	introActive: boolean;
 	onIntroDone: () => void;
 	displayedText: string;
-}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText }) => (
+	onReady: () => void;
+}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText, onReady }) => (
 	<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
 		<Suspense fallback={null}>
 			<ClassroomLighting />
@@ -263,6 +278,7 @@ const Scene3D: React.FC<{
             <Tableau text={reply || displayedText} isEditing={false} />
             <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
 			{introActive ? <IntroCamera onDone={onIntroDone} /> : <CameraController targetY={cameraY} />}
+			<SceneReadySignal onReady={onReady} />
 		</Suspense>
 	</Canvas>
 );
@@ -650,12 +666,28 @@ const BoardScrollbar: React.FC<{
 	);
 };
 
-const LoadingOverlay: React.FC = () => (
-	<div className="scene-loading-overlay">
-		<video className="loading-video" src="/loading.webm" autoPlay loop muted playsInline />
-		<span className="loading-text">Chargement de la scène...</span>
-	</div>
-);
+const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
+	const { progress } = useProgress();
+	/// La progression peut repartir en arrière quand un nouveau fichier démarre :
+	/// on n'affiche que la valeur la plus haute atteinte
+	const [shown, setShown] = useState(0);
+	useEffect(() => {
+		setShown((current) => Math.max(current, progress));
+	}, [progress]);
+
+	return (
+		<div className={`scene-loading-overlay${done ? " is-done" : ""}`}>
+			<video className="loading-video" src="/loading.webm" autoPlay loop muted playsInline />
+			<span className="loading-text">Chargement de la scène...</span>
+			<div className="loading-progress">
+				<div
+					className="loading-progress-fill"
+					style={{ width: `${done ? 100 : Math.round(shown)}%` }}
+				/>
+			</div>
+		</div>
+	);
+};
 
 const BoardFullTextModal: React.FC<{
 	text: string;
@@ -821,9 +853,19 @@ const MiloScene: React.FC = () => {
 		showHelp,
 		setShowHelp,
 		sceneReady,
+		markSceneReady,
 		introActive,
 		showIntroText,
 	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession, isOpenQuestionRoute);
+
+	// L'overlay reste monté le temps de son fondu de sortie, puis disparaît
+	// (sinon la vidéo de chargement continue de tourner dans le vide).
+	const [isOverlayGone, setIsOverlayGone] = useState(false);
+	useEffect(() => {
+		if (!sceneReady) return;
+		const t = setTimeout(() => setIsOverlayGone(true), 600);
+		return () => clearTimeout(t);
+	}, [sceneReady]);
 
 	const isLessonFullyFinished =
 		phase === "finished" && !isFreeChatMode && !isOpenQuestionMode;
@@ -921,7 +963,7 @@ const MiloScene: React.FC = () => {
 
 	return (
 		<div className="milo-scene-root" onWheel={handleBoardWheel}>
-			{!sceneReady && <LoadingOverlay />}
+			{!isOverlayGone && <LoadingOverlay done={sceneReady} />}
 
 			<Scene3D
 				cameraY={cameraY}
@@ -933,6 +975,7 @@ const MiloScene: React.FC = () => {
 				introActive={introActive}
 				onIntroDone={handleIntroDone}
 				displayedText={boardVisibleText}
+				onReady={markSceneReady}
 			/>
 
 			<IntroOverlay visible={showIntroText && sceneReady} />

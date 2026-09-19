@@ -147,8 +147,18 @@ export const useMiloScene = (
 	const [showIntroText, setShowIntroText] = useState(true);
 
 	// ─── Init scène ──────────────────────────────────────────────────────────
+	// La scène est prête quand les modèles 3D sont réellement chargés ET que le
+	// premier frame est dessiné : c'est <Scene3D> qui le signale. Un minuteur
+	// fixe affichait l'écran de chargement 800 ms puis laissait le fond bleu
+	// visible pendant tout le vrai chargement.
+	const markSceneReady = useCallback(() => setSceneReady(true), []);
+
+	// Filet de sécurité : si une ressource ne se charge jamais, on n'enferme pas
+	// l'élève sur l'écran de chargement. Le délai est large car classroom.glb
+	// pèse 38 Mo : sur une connexion lente, un chargement normal peut être long,
+	// et on ne veut surtout pas couper l'écran avant la fin.
 	useEffect(() => {
-		const t = setTimeout(() => setSceneReady(true), 800);
+		const t = setTimeout(() => setSceneReady(true), 60000);
 		return () => clearTimeout(t);
 	}, []);
 
@@ -583,6 +593,7 @@ export const useMiloScene = (
 		showHelp,
 		setShowHelp,
 		sceneReady,
+		markSceneReady,
 		introActive,
 		showIntroText,
 	};
