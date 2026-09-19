@@ -652,3 +652,49 @@
   .inline-feedback { flex-direction: column; align-items: flex-start; }
   .next-btn      { width: 100%; text-align: center; }
 }
+
+/* ============================================================
+   MILO 3D — grand, en bas à gauche, derrière la carte de question
+   ============================================================ */
+.qcm-milo-3d {
+  /* fixed et non absolute : la hauteur de .qcm-page change quand le
+     feedback ou l'animation de série apparaissent, et Milo se décalait
+     avec elle (ses pieds sortaient de l'écran par intermittence) */
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 440px;
+  height: 540px;
+  z-index: 1;
+  /* le canvas ne doit jamais intercepter les clics sur les réponses */
+  pointer-events: none;
+  /* apparition en fondu : le modèle est monté après le premier affichage */
+  opacity: 0;
+  transition: opacity 0.45s ease-out;
+}
+
+.qcm-milo-3d.is-ready {
+  opacity: 1;
+}
+
+.qcm-milo-3d canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent;
+}
+
+/* Plus la place à côté de la carte : on masque Milo plutôt que
+   de le laisser passer sous les réponses */
+@media (max-width: 1280px) {
+  .qcm-milo-3d {
+    width: 360px;
+    height: 440px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .qcm-milo-3d {
+    display: none;
+  }
+}

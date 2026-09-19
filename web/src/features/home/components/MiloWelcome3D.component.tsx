@@ -12,8 +12,15 @@ import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
 import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import {
+	MILO_MODEL_PATH,
+	applyEquippedAccessories,
+	cameraDistanceFor,
+	fitMiloToHeight,
+	prepareMiloScene,
+} from "@features/my-milo/utils/miloModel";
 
-const MODEL_PATH = "/MiloV10.glb";
+const MODEL_PATH = MILO_MODEL_PATH;
 const HELLO_CLIP = "Hello";
 
 /// Hauteur du corps entier de Milo en unités monde, une fois mis à l'échelle
@@ -37,42 +44,7 @@ const HOLD_FRAMES = 30;
 /// Point du modèle visé par la caméra (milieu du cadre)
 const FOCUS_Y = FRAME_TOP - FRAME_HEIGHT / 2;
 /// Distance qui fait tenir exactement FRAME_HEIGHT dans le champ vertical
-const CAMERA_DISTANCE =
-	FRAME_HEIGHT / (2 * Math.tan((CAMERA_FOV * Math.PI) / 360));
-
-/// Meshes d'accessoires : ils sont exclus du calcul de cadrage pour que
-const ACCESSORY_MESH_NAMES = new Set(
-	MILO_ITEMS.map((item) => item.meshName).filter(Boolean) as string[],
-);
-function getBodyBox(scene: THREE.Object3D) {
-	const box = new THREE.Box3();
-	const meshBox = new THREE.Box3();
-	const toParentSpace = new THREE.Matrix4();
-	scene.updateWorldMatrix(true, true);
-	const parentInverse = new THREE.Matrix4();
-	if (scene.parent) parentInverse.copy(scene.parent.matrixWorld).invert();
-
-	scene.traverse((child) => {
-		const mesh = child as THREE.SkinnedMesh;
-		if (!mesh.isMesh) return;
-		if (ACCESSORY_MESH_NAMES.has(child.name)) return;
-
-		let localBox: THREE.Box3 | null = null;
-		if (mesh.isSkinnedMesh) {
-			if (!mesh.boundingBox) mesh.computeBoundingBox();
-			localBox = mesh.boundingBox;
-		} else {
-			if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-			localBox = mesh.geometry.boundingBox;
-		}
-		if (!localBox) return;
-
-		toParentSpace.multiplyMatrices(parentInverse, mesh.matrixWorld);
-		meshBox.copy(localBox).applyMatrix4(toParentSpace);
-		if (!meshBox.isEmpty()) box.union(meshBox);
-	});
-	return box;
-}
+const CAMERA_DISTANCE = cameraDistanceFor(FRAME_HEIGHT, CAMERA_FOV);
 
 function MiloHello({ setFrozen }: { setFrozen: (frozen: boolean) => void }) {
 	const group = useRef<THREE.Group>(null);
@@ -90,13 +62,9 @@ function MiloHello({ setFrozen }: { setFrozen: (frozen: boolean) => void }) {
 			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
 			.filter(Boolean) as string[];
 	}, [equippedItemIds]);
+	/// Exécuté dès la phase de rendu, donc avant tout frame
 	useMemo(() => {
-		if (!scene) return;
-		scene.visible = false;
-		scene.traverse((child) => {
-			if (ACCESSORY_MESH_NAMES.has(child.name)) child.visible = false;
-			(child as THREE.Mesh).frustumCulled = false;
-		});
+		if (scene) prepareMiloScene(scene);
 	}, [scene]);
 
 	useEffect(() => {
@@ -116,30 +84,17 @@ function MiloHello({ setFrozen }: { setFrozen: (frozen: boolean) => void }) {
 		};
 	}, [gl, invalidate]);
 
+	/// Recentre et met Milo à l'échelle du cadre
 	useLayoutEffect(() => {
 		if (!scene) return;
-		scene.position.set(0, 0, 0);
-		scene.scale.setScalar(1);
-
-		const box = getBodyBox(scene);
-		if (box.isEmpty()) return;
-		const size = box.getSize(new THREE.Vector3());
-		const center = box.getCenter(new THREE.Vector3());
-		if (size.y === 0) return;
-
-		const scale = FIT_HEIGHT / size.y;
-		scene.scale.setScalar(scale);
-		scene.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+		fitMiloToHeight(scene, FIT_HEIGHT);
 		invalidate();
 	}, [scene, invalidate]);
 
+	/// Milo porte ici exactement ce qui est équipé dans "Mon Milo"
 	useLayoutEffect(() => {
 		if (!scene) return;
-		scene.traverse((child) => {
-			if (ACCESSORY_MESH_NAMES.has(child.name)) {
-				child.visible = equippedMeshNames.includes(child.name);
-			}
-		});
+		applyEquippedAccessories(scene, equippedMeshNames);
 		invalidate();
 	}, [scene, equippedMeshNames, invalidate]);
 
@@ -223,7 +178,7 @@ const MiloWelcome3D: React.FC = () => {
 			gl={{ alpha: true, antialias: true }}
 			style={{ background: "transparent" }}
 		>
-			<ambientLight intensity={1.1} color="#fff1e2" />
+			<ambientLight intensity={2} color="#fff1e2" />
 			<hemisphereLight args={["#ffffff", "#c4693a", 0.7]} />
 			<directionalLight position={[3, 5, 4]} intensity={2.2} color="#fffaf3" />
 			<directionalLight position={[-4, 2, 2]} intensity={0.7} color="#ffd9b8" />
