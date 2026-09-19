@@ -307,18 +307,25 @@
 	flex-shrink: 0;
 	position: relative;
 	z-index: 1;
-	width: 140px;
-	height: 140px;
+	width: 280px;
+	height: 250px;
+	/* collé au bord bas de la carte (= padding vertical de .hp-welcome)
+	   pour que Milo semble sortir du bas */
+	align-self: flex-end;
+	margin-bottom: -28px;
 	display: flex;
-	align-items: center;
+	align-items: flex-end;
 	justify-content: center;
+	/* le canvas ne doit jamais voler les clics des boutons de la carte */
+	pointer-events: none;
 }
-.hp-welcome-img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.25));
-	animation: hp-float 4s ease-in-out infinite;
+.hp-welcome-canvas {
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	background: transparent;
+	/* le rendu WebGL déborde légèrement pour laisser respirer le modèle */
+	overflow: visible;
 }
 /* ============================================================ BANNIÈRE MILO AI — image ENTIÈRE, remplit la hauteur restante ============================================================ */
 .hp-milo-banner {
@@ -871,8 +878,9 @@
 		padding: 26px 28px;
 	}
 	.hp-welcome-illustration {
-		width: 120px;
-		height: 120px;
+		width: 220px;
+		height: 215px;
+		margin-bottom: -26px;
 	}
 	.hp-milo-banner {
 		min-height: 420px;
@@ -912,9 +920,14 @@
 		justify-content: center;
 	}
 	.hp-welcome-illustration {
-		width: 110px;
-		height: 110px;
-		order: -1;
+		/* en colonne, Milo passe sous les boutons pour rester collé
+		   au bord bas de la carte */
+		order: 1;
+		align-self: center;
+		width: 100%;
+		max-width: 240px;
+		height: 200px;
+		margin-bottom: -24px;
 	}
 	.hp-milo-banner {
 		border-radius: 28px;
@@ -943,8 +956,9 @@
 		font-size: 0.92rem;
 	}
 	.hp-welcome-illustration {
-		width: 100px;
-		height: 100px;
+		max-width: 200px;
+		height: 170px;
+		margin-bottom: -22px;
 	}
 	.hp-welcome-actions {
 		width: 100%;
