@@ -11,6 +11,7 @@ import {
 	TrendingDown,
 } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
 import { useHomePage } from "@features/home/hooks/useHomePage";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
 import { formatMissionReward } from "@features/missions/utils/missionIcons";
@@ -132,7 +133,7 @@ const HomePage: React.FC = () => {
 							</div>
 
 							<div className="hp-welcome-illustration" aria-hidden="true">
-								<img src="/miloBook.webp" alt="" className="hp-welcome-img" />
+								<MiloWelcome3D />
 							</div>
 						</section>
 						<button
