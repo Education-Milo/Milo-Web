@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useExerciseScreen } from '@features/exercices/hooks/useExercisePage';
+import MiloQcm3D from '@features/exercices/components/MiloQcm3D.component';
+import type { MiloQcmState } from '@features/exercices/data/miloQcm.animations';
 import qcmMascot from '/milo-maths.png';
 import "@features/exercices/styles/ExerciseScreen.css";
 
@@ -83,8 +85,15 @@ const ExerciseScreen: React.FC = () => {
 
   if (!currentQuestion) return null;
 
+  const miloState: MiloQcmState = !isAnswered
+    ? 'waiting'
+    : isCorrect
+      ? 'correct'
+      : 'wrong';
+
   return (
     <div className="qcm-page">
+      <MiloQcm3D state={miloState} />
       {/* Fireworks */}
       {showFireworks && (
         <div className="fireworks-container">
