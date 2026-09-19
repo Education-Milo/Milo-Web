@@ -920,6 +920,29 @@
   z-index: 50;
   gap: 20px;
   animation: fadeIn 0.3s ease;
+  transition: opacity 0.5s ease-out;
+}
+
+/* Fondu de sortie une fois la scène réellement prête : évite la coupure
+   nette entre l'écran de chargement et la salle de classe */
+.scene-loading-overlay.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-progress {
+  width: 220px;
+  height: 6px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.28);
+  overflow: hidden;
+}
+
+.loading-progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: #fff;
+  transition: width 0.3s ease-out;
 }
 
 .loading-video {
