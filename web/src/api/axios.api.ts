@@ -1,16 +1,40 @@
-import axios, { type CreateAxiosDefaults } from 'axios';
+import axios, { type CreateAxiosDefaults, type InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@shared/store/auth/auth.store';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
-const APIAxios = axios.create({
+/**
+ * Mode cookie (défaut) : le refresh token est posé par le back dans un cookie
+ * httpOnly en ajoutant `?cookie=true` aux appels d'authentification, et
+ * l'access token ne vit qu'en mémoire.
+ *
+ * `VITE_AUTH_COOKIE_MODE=false` (dev en http, cookie Secure impossible) :
+ * comportement historique, access token persisté, pas de refresh.
+ */
+export const AUTH_COOKIE_MODE =
+  String(import.meta.env.VITE_AUTH_COOKIE_MODE ?? 'true') !== 'false';
+
+/** Paramètres à joindre aux appels /token, /register, /token/refresh. */
+export const authCookieParams = AUTH_COOKIE_MODE ? { cookie: true } : undefined;
+
+const baseConfig: CreateAxiosDefaults = {
   baseURL: API_URL,
+  // Indispensable pour que le cookie de refresh parte et revienne
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
-} as CreateAxiosDefaults);
+};
 
-// 🔹 Intercepteur de requête
+const APIAxios = axios.create(baseConfig);
+
+/**
+ * Instance sans intercepteurs, réservée à /token/refresh et /logout :
+ * ces appels ne doivent jamais déclencher eux-mêmes un refresh.
+ */
+export const AuthAxios = axios.create(baseConfig);
+
+// 🔹 Intercepteur de requête : Bearer access token
 APIAxios.interceptors.request.use(
   config => {
     const accessToken = useAuthStore.getState().accessToken;
@@ -22,16 +46,41 @@ APIAxios.interceptors.request.use(
   err => Promise.reject(err)
 );
 
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+/** Routes qui ne doivent jamais provoquer de refresh sur 401. */
+const AUTH_ENDPOINTS = ['/token', '/register', '/logout'];
+
+// 🔹 Intercepteur de réponse : sur 401, un seul refresh puis rejeu de la requête
 APIAxios.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    const isAuthRequest = ['/token', '/register'].some(endpoint => originalRequest.url?.includes(endpoint));
-    if (error.response?.status === 401 && !isAuthRequest) {
-      const { logout } = useAuthStore.getState();
-      await logout();
-      window.location.href = '/login';
+    const originalRequest = error.config as RetriableConfig | undefined;
+    const status = error.response?.status;
+    if (status !== 401 || !originalRequest) {
+      return Promise.reject(error);
     }
+
+    const url = originalRequest.url ?? '';
+    const isAuthRequest = AUTH_ENDPOINTS.some(endpoint => url.includes(endpoint));
+    const { accessToken, refreshAccessToken, logout } = useAuthStore.getState();
+
+    // Pas de session, requête d'auth, ou déjà rejouée : on ne boucle jamais.
+    if (isAuthRequest || originalRequest._retry || !accessToken) {
+      return Promise.reject(error);
+    }
+
+    originalRequest._retry = true;
+    // Les refresh concurrents sont sérialisés dans le store (une seule requête)
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      originalRequest.headers.Authorization = `Bearer ${newToken}`;
+      return APIAxios(originalRequest);
+    }
+
+    // Refresh impossible : vraie déconnexion
+    await logout({ remote: false });
+    window.location.href = '/login';
     return Promise.reject(error);
   }
 );
@@ -40,6 +89,9 @@ APIAxios.interceptors.response.use(
 export const APIRoutes = {
   POST_Register: '/register',
   POST_Login: '/token',
+  POST_Refresh: '/token/refresh',
+  POST_Logout: '/logout',
+  POST_LogoutAll: '/logout/all',
   POST_ForgotPassword: '/forgotPassword',
 
   // User API

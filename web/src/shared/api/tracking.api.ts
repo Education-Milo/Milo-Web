@@ -42,6 +42,7 @@ export const postActivity = (payload: ActivityPayload): void => {
 		void fetch(url, {
 			method: "POST",
 			keepalive: true,
+			credentials: "include",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${token}`,

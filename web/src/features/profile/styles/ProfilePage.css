@@ -168,3 +168,6 @@
   object-fit: contain;
   filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.22));
 }
+
+/* Pied de carte (ex. déconnexion de tous les appareils) */
+.pf-card-foot { display: flex; justify-content: flex-end; margin-top: 6px; }
