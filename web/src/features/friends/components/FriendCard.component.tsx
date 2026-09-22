@@ -4,6 +4,7 @@ import { Pin, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 import { getOtherUserId } from "@features/friends/store/friend.model";
+import { useMeshNamesForItemIds } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
 
 interface FriendCardProps {
@@ -30,6 +31,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	const otherUserId = getOtherUserId(friend);
 
 	const details = "classe" in friend ? friend as FriendWithDetails : null;
+	const friendMeshNames = useMeshNamesForItemIds(details?.equipped_items);
 
 	return (
 		<motion.div
@@ -54,7 +56,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 			{/* AVATAR */}
 			<div className="friend-avatar-wrap">
 				<MiloAvatar
-					equippedItemIds={details?.equipped_items}
+					equippedMeshNames={friendMeshNames}
 					initials={initials}
 					className="friend-card-avatar-text"
 				/>

@@ -36,8 +36,8 @@ import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
-import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
-import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { applyEquippedAccessories } from "@features/my-milo/utils/miloModel";
 import {
 	useMiloFreeChatStore,
 	type MiloFreeChatSession,
@@ -58,13 +58,7 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	const { actions } = useAnimations(animations, group);
 	const prevAnimation = useRef<string | null>(null);
 
-	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
-
-	const equippedMeshNames = useMemo(() => {
-		return equippedItemIds
-			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
-			.filter(Boolean) as string[];
-	}, [equippedItemIds]);
+	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
 	useEffect(() => {
 		if (!scene) return;
@@ -96,14 +90,8 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 
 	useEffect(() => {
 		if (!scene) return;
-		const knownMeshNames = MILO_ITEMS.map((i) => i.meshName).filter(Boolean) as string[];
-		
-		scene.traverse((child) => {
-			if (knownMeshNames.includes(child.name)) {
-				child.visible = equippedMeshNames.includes(child.name);
-			}
-		});
-	}, [scene, equippedMeshNames]);
+		applyEquippedAccessories(scene, equippedMeshNames);
+	}, [scene, equippedMeshNames, accessoryMeshNames]);
 
 	return (
 		<group ref={group}>

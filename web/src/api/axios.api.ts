@@ -121,6 +121,15 @@ export const APIRoutes = {
   POST_Admin_User_Role: (userId: number | string) => `/admin/users/${userId}/role`,
   GET_Admin_Audit: '/admin/audit',
 
+  // Cosmetics API (boutique et casier)
+  GET_Cosmetics: '/cosmetics',
+  GET_Locker: (userId: string | number) => `/user/${userId}/locker`,
+  POST_Locker_Add: (userId: string | number) => `/user/${userId}/locker/add`,
+  PUT_Locker_Equip: (userId: string | number) => `/user/${userId}/locker/equip`,
+  // DELETE sans paramètre : retire tout ; ?type=... : retire un emplacement
+  DELETE_Locker_Equip: (userId: string | number) => `/user/${userId}/locker/equip`,
+  GET_Locker_Equipped: (userId: string | number) => `/user/${userId}/locker/equipped`,
+
   // Missions API
   GET_Missions_Today: '/missions/today',
   POST_Mission_Reroll: (missionId: number) => `/missions/${missionId}/reroll`,

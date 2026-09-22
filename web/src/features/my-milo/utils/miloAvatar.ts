@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import { ACCESSORY_MESH_NAMES } from "@features/my-milo/utils/miloModel";
 
 /// Portrait de Milo rendu en image, pour servir de photo de profil.
 ///
@@ -21,24 +21,12 @@ const FRAME_TOP = 1.3;
 const FRAME_HEIGHT = 1.85;
 const CAMERA_FOV = 20;
 
-/// Meshes des accessoires équipables
-const ACCESSORY_MESH_NAMES = new Set(
-	MILO_ITEMS.map((item) => item.meshName).filter(Boolean) as string[],
-);
-
 /// Une image par combinaison d'accessoires
 const cache = new Map<string, string>();
 
 /// Clé stable, indépendante de l'ordre d'équipement
 export const avatarKey = (meshNames: string[]) =>
 	[...new Set(meshNames)].sort().join("|") || "nu";
-
-/// Traduit des ids d'objets (ce que stocke le backend) en noms de meshes.
-/// Les ids sont la donnée stable : les noms de meshes dépendent du fichier .glb.
-export const meshNamesForItemIds = (itemIds: number[]) =>
-	itemIds
-		.map((id) => MILO_ITEMS.find((item) => item.id === id)?.meshName)
-		.filter(Boolean) as string[];
 
 /// Boîte englobante du corps, accessoires exclus, pour que Milo garde la même
 /// taille quoi qu'il porte
