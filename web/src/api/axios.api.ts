@@ -114,6 +114,10 @@ export const APIRoutes = {
   PUT_PIN_FRIEND: (friendUserId: number) => `/friends/${friendUserId}/pin`,
   DELETE_PIN_FRIEND: (friendUserId: number) => `/friends/${friendUserId}/pin`,
 
+  // Admin API (rôle Admin uniquement)
+  POST_Admin_User_Role: (userId: number | string) => `/admin/users/${userId}/role`,
+  GET_Admin_Audit: '/admin/audit',
+
   // Missions API
   GET_Missions_Today: '/missions/today',
   POST_Mission_Reroll: (missionId: number) => `/missions/${missionId}/reroll`,
