@@ -23,6 +23,17 @@ const WS_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string)
   .replace(/^http/, "ws")
   .replace(/\/$/, "");
 
+/** Sous-protocole d'authentification confirmé par le serveur. */
+const WS_AUTH_PROTOCOL = "milo.auth";
+
+/**
+ * Ouvre une WebSocket authentifiée par sous-protocole : le jeton voyage dans
+ * l'en-tête Sec-WebSocket-Protocol, jamais dans l'URL (qui finit dans les
+ * journaux du serveur). `path` ne doit contenir aucun jeton.
+ */
+const openAuthenticatedSocket = (path: string, accessToken: string) =>
+  new WebSocket(`${WS_BASE_URL}${path}`, [WS_AUTH_PROTOCOL, accessToken]);
+
 interface DuelContextValue {
   screen: DuelScreen;
   pendingChallenge: PendingChallenge | null;
@@ -136,17 +147,18 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   const connectDuelWS = useCallback(
     async (roomId?: string | null) => {
       duelWsRef.current?.close();
-      // Le cookie ne s'applique pas aux WebSockets : toujours un access token frais dans l'URL
+      // Le cookie ne s'applique pas aux WebSockets : toujours un access token frais (30 min)
       const token = await useAuthStore.getState().ensureFreshAccessToken();
       if (!token) {
         setScreen("lobby");
         setLobbyStatus("Session expirée, reconnecte-toi.");
         return;
       }
-      const url = roomId
-        ? `${WS_BASE_URL}/ws/find_duel/?token=${token}&room_id=${roomId}`
-        : `${WS_BASE_URL}/ws/find_duel/?token=${token}`;
-      const ws = new WebSocket(url);
+      // room_id reste un paramètre d'URL ; le jeton passe par le sous-protocole
+      const path = roomId
+        ? `/ws/find_duel/?room_id=${encodeURIComponent(roomId)}`
+        : "/ws/find_duel/";
+      const ws = openAuthenticatedSocket(path, token);
       duelWsRef.current = ws;
       ws.onmessage = (e) => handleDuelMessage(JSON.parse(e.data));
       ws.onclose = (e) => {
@@ -189,7 +201,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     notifConnectingRef.current = true;
     let token: string | null = null;
     try {
-      // Access token frais dans l'URL (le cookie ne s'applique pas aux WebSockets)
+      // Access token frais (le cookie ne s'applique pas aux WebSockets)
       token = await useAuthStore.getState().ensureFreshAccessToken();
     } finally {
       notifConnectingRef.current = false;
@@ -202,7 +214,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     )
       return;
 
-    const ws = new WebSocket(`${WS_BASE_URL}/ws/notifications/?token=${token}`);
+    const ws = openAuthenticatedSocket("/ws/notifications/", token);
     notifWsRef.current = ws;
 
     ws.onmessage = (e) => {
