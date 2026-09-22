@@ -92,7 +92,10 @@ export const APIRoutes = {
   POST_Refresh: '/token/refresh',
   POST_Logout: '/logout',
   POST_LogoutAll: '/logout/all',
-  POST_ForgotPassword: '/forgotPassword',
+  // Réinitialisation par code à 6 chiffres (sans authentification).
+  // L'ancienne route /forgotPassword est obsolète : ne plus l'utiliser.
+  POST_Password_Forgot: '/password/forgot',
+  POST_Password_Reset: '/password/reset',
 
   // User API
   GET_Me: '/users/me',

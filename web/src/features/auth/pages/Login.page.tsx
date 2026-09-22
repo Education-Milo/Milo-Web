@@ -1,9 +1,11 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
 import { useLoginForm } from "@features/auth/hooks/useLoginForm";
 import TextFieldComponent from "@shared/components/TextField.component";
 import { AuthErrorMessage } from "@features/auth/components/AuthErrorMessage.component";
+import { AuthSuccessMessage } from "@features/auth/components/AuthSuccessMessage.component";
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/Login.css";
@@ -21,6 +23,9 @@ const Login: React.FC = () => {
 		handleForgotPassword,
 		handleSignUp,
 	} = useLoginForm();
+	const location = useLocation();
+	const successMessage =
+		(location.state as { message?: string } | null)?.message ?? "";
 
 	const handleKeyPress = (event: React.KeyboardEvent) => {
 		if (event.key === "Enter" && !isLoading) {
@@ -50,6 +55,7 @@ const Login: React.FC = () => {
 					</div>
 
 					<div className="form">
+						{!generalError && <AuthSuccessMessage message={successMessage} />}
 						<AuthErrorMessage message={generalError} />
 
 						<TextFieldComponent
