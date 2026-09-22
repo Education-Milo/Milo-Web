@@ -11,7 +11,7 @@ export const BODY_MESH_NAME = "Milo";
 /// Accessoires présents dans MiloV9 / V10 / V11 .glb. Cette base dépend du
 /// fichier 3D, pas du catalogue : elle garantit qu'un Milo "nu" reste nu même
 /// quand la boutique est vide ou pas encore chargée.
-const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses", "tie", "tophat"];
+export const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses", "tie", "tophat"];
 
 /// Meshes des accessoires équipables. Ils sont exclus du cadrage automatique
 /// pour que Milo garde la même taille quoi qu'il porte.

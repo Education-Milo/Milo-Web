@@ -7,7 +7,15 @@ import type {
 	AuditFilters,
 	ChangeRolePayload,
 	ChangeRoleResponse,
+	CosmeticCreatePayload,
+	CosmeticUpdatePayload,
+	DeleteCosmeticResponse,
+	GrantCoinsPayload,
+	UpdateCosmeticResponse,
+	GrantCoinsResult,
 } from "@features/admin/store/admin.model";
+import type { Cosmetic } from "@features/cosmetics/store/cosmetics.model";
+import { COSMETICS_QUERY_KEY } from "@features/cosmetics/store/cosmetics.queries";
 
 export const fetchAdminUser = async (username: string): Promise<AdminUserView> => {
 	const response = await APIAxios.get<AdminUserView>(
@@ -70,6 +78,114 @@ export const useAdminAudit = (filters: AuditFilters) =>
 		staleTime: 15 * 1000,
 		placeholderData: keepPreviousData,
 	});
+
+// ─── Miloros ─────────────────────────────────────────────────────────────────
+
+/**
+ * Crédite des miloros à un utilisateur. Seul un admin peut forcer
+ * `miloro_coin` ; la route fixe un total, donc on ajoute le montant au solde
+ * lu à l'instant et on envoie le résultat.
+ */
+export const grantCoins = async ({
+	userId,
+	username,
+	currentCoins,
+	amount,
+}: GrantCoinsPayload): Promise<GrantCoinsResult> => {
+	const newCoins = currentCoins + amount;
+	const response = await APIAxios.put<{ miloro_coin?: number }>(
+		APIRoutes.PUT_Update_user(String(userId)),
+		{ miloro_coin: newCoins },
+	);
+	return {
+		username,
+		previousCoins: currentCoins,
+		newCoins: typeof response.data?.miloro_coin === "number" ? response.data.miloro_coin : newCoins,
+		amount,
+	};
+};
+
+export const useGrantCoins = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: grantCoins,
+		onSuccess: (result) => {
+			void queryClient.invalidateQueries({ queryKey: adminUserQueryKey(result.username) });
+			void queryClient.invalidateQueries({ queryKey: ["users", "username", result.username] });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
+		},
+	});
+};
+
+// ─── Cosmétiques (catalogue admin) ───────────────────────────────────────────
+
+/** Catalogue complet, objets retirés inclus (réservé aux admins). */
+export const fetchAdminCosmetics = async (): Promise<Cosmetic[]> => {
+	const response = await APIAxios.get<Cosmetic[]>(APIRoutes.GET_Cosmetics, {
+		params: { include_inactive: true },
+	});
+	return response.data;
+};
+
+export const addCosmetic = async (payload: CosmeticCreatePayload): Promise<Cosmetic> => {
+	const response = await APIAxios.post<Cosmetic>(APIRoutes.POST_Cosmetics_Add, payload);
+	return response.data;
+};
+
+export const updateCosmetic = async (
+	cosmeticId: number,
+	payload: CosmeticUpdatePayload,
+): Promise<UpdateCosmeticResponse> => {
+	const response = await APIAxios.put<UpdateCosmeticResponse>(
+		APIRoutes.PUT_Cosmetics_Update(cosmeticId),
+		payload,
+	);
+	return response.data;
+};
+
+export const deleteCosmetic = async (cosmeticId: number): Promise<DeleteCosmeticResponse> => {
+	const response = await APIAxios.delete<DeleteCosmeticResponse>(
+		APIRoutes.DELETE_Cosmetics_Delete(cosmeticId),
+	);
+	return response.data;
+};
+
+export const adminCosmeticsQueryKey = [...COSMETICS_QUERY_KEY, "admin"] as const;
+
+export const useAdminCosmetics = () =>
+	useQuery({
+		queryKey: adminCosmeticsQueryKey,
+		queryFn: fetchAdminCosmetics,
+		staleTime: 30 * 1000,
+	});
+
+const useRefreshCatalogue = () => {
+	const queryClient = useQueryClient();
+	return () => {
+		// Boutique, casiers et journal d'audit reflètent le nouveau catalogue
+		void queryClient.invalidateQueries({ queryKey: COSMETICS_QUERY_KEY });
+		void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
+	};
+};
+
+export const useAddCosmetic = () => {
+	const refresh = useRefreshCatalogue();
+	return useMutation({ mutationFn: addCosmetic, onSuccess: refresh });
+};
+
+export const useUpdateCosmetic = () => {
+	const refresh = useRefreshCatalogue();
+	return useMutation({
+		mutationFn: ({ cosmeticId, payload }: { cosmeticId: number; payload: CosmeticUpdatePayload }) =>
+			updateCosmetic(cosmeticId, payload),
+		onSuccess: refresh,
+	});
+};
+
+export const useDeleteCosmetic = () => {
+	const refresh = useRefreshCatalogue();
+	return useMutation({ mutationFn: deleteCosmetic, onSuccess: refresh });
+};
 
 /** Message d'erreur à afficher : le champ `detail` du backend tel quel. */
 export const getAdminErrorMessage = (error: unknown): string => {

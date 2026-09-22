@@ -123,6 +123,9 @@ export const APIRoutes = {
 
   // Cosmetics API (boutique et casier)
   GET_Cosmetics: '/cosmetics',
+  POST_Cosmetics_Add: '/cosmetics/add',
+  DELETE_Cosmetics_Delete: (cosmeticId: number) => `/cosmetics/delete/${cosmeticId}`,
+  PUT_Cosmetics_Update: (cosmeticId: number) => `/cosmetics/update/${cosmeticId}`,
   GET_Locker: (userId: string | number) => `/user/${userId}/locker`,
   POST_Locker_Add: (userId: string | number) => `/user/${userId}/locker/add`,
   PUT_Locker_Equip: (userId: string | number) => `/user/${userId}/locker/equip`,
