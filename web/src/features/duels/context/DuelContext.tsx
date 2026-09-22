@@ -56,7 +56,9 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const navigate = useNavigate();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  // Booléen plutôt que le token : une rotation d'access token ne doit pas
+  // fermer les WebSockets (et couper un duel en cours).
+  const hasSession = useAuthStore((state) => Boolean(state.accessToken));
 
   const [screen, setScreen] = useState<DuelScreen>("lobby");
   const [pendingChallenge, setPendingChallenge] =
@@ -80,11 +82,18 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   const answeredRef = useRef(false);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reconnectDelayRef = useRef(2000);
+  // Une seule tentative de refresh + réouverture par duel après un 4001
+  const duelAuthRetryRef = useRef(false);
+  // La connexion est asynchrone (token frais) : ces refs évitent d'ouvrir
+  // deux sockets quand l'effet est relancé pendant l'attente (StrictMode, login).
+  const sessionActiveRef = useRef(false);
+  const notifConnectingRef = useRef(false);
 
   // ── Duel WS ──────────────────────────────────────────────────────────────
 
   const handleDuelMessage = useCallback((msg: Record<string, any>) => {
     if (msg.type === "joined") {
+      duelAuthRetryRef.current = false;
       setMyIdx(msg.player_idx);
     } else if (msg.type === "error") {
       setScreen("lobby");
@@ -125,9 +134,15 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const connectDuelWS = useCallback(
-    (roomId?: string | null) => {
+    async (roomId?: string | null) => {
       duelWsRef.current?.close();
-      const token = useAuthStore.getState().accessToken;
+      // Le cookie ne s'applique pas aux WebSockets : toujours un access token frais dans l'URL
+      const token = await useAuthStore.getState().ensureFreshAccessToken();
+      if (!token) {
+        setScreen("lobby");
+        setLobbyStatus("Session expirée, reconnecte-toi.");
+        return;
+      }
       const url = roomId
         ? `${WS_BASE_URL}/ws/find_duel/?token=${token}&room_id=${roomId}`
         : `${WS_BASE_URL}/ws/find_duel/?token=${token}`;
@@ -135,10 +150,26 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       duelWsRef.current = ws;
       ws.onmessage = (e) => handleDuelMessage(JSON.parse(e.data));
       ws.onclose = (e) => {
-        if (e.code === 4001) {
+        if (e.code !== 4001) return;
+        if (duelWsRef.current !== ws) return; // fermé volontairement, remplacé
+        if (duelAuthRetryRef.current) {
           setScreen("lobby");
           setLobbyStatus("Session expirée, reconnecte-toi.");
+          return;
         }
+        // Token refusé : refresh puis réouverture, une seule fois
+        duelAuthRetryRef.current = true;
+        useAuthStore
+          .getState()
+          .refreshAccessToken()
+          .then((fresh) => {
+            if (fresh) {
+              void connectDuelWS(roomId);
+            } else {
+              setScreen("lobby");
+              setLobbyStatus("Session expirée, reconnecte-toi.");
+            }
+          });
       };
     },
     [handleDuelMessage]
@@ -146,15 +177,30 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // ── Notification WS ───────────────────────────────────────────────────────
 
-  const connectNotifWS = useCallback(() => {
+  const connectNotifWS = useCallback(async () => {
     if (
+      notifConnectingRef.current ||
       notifWsRef.current?.readyState === WebSocket.OPEN ||
       notifWsRef.current?.readyState === WebSocket.CONNECTING
     )
       return;
 
-    const token = useAuthStore.getState().accessToken;
-    if (!token) return;
+    if (!useAuthStore.getState().accessToken) return;
+    notifConnectingRef.current = true;
+    let token: string | null = null;
+    try {
+      // Access token frais dans l'URL (le cookie ne s'applique pas aux WebSockets)
+      token = await useAuthStore.getState().ensureFreshAccessToken();
+    } finally {
+      notifConnectingRef.current = false;
+    }
+    // Pendant l'attente, la session a pu être fermée ou l'effet relancé
+    if (!token || !sessionActiveRef.current) return;
+    if (
+      notifWsRef.current?.readyState === WebSocket.OPEN ||
+      notifWsRef.current?.readyState === WebSocket.CONNECTING
+    )
+      return;
 
     const ws = new WebSocket(`${WS_BASE_URL}/ws/notifications/?token=${token}`);
     notifWsRef.current = ws;
@@ -170,7 +216,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       } else if (msg.type === "challenge_accepted") {
         setPendingChallenge(null);
         setLobbyStatus(`✅ ${msg.by_username} a accepté ! Connexion...`);
-        connectDuelWS(msg.room_id);
+        void connectDuelWS(msg.room_id);
         setWaitingMessage("Défi accepté, démarrage...");
         setScreen("waiting");
         navigate("/duels");
@@ -187,33 +233,55 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       reconnectDelayRef.current = 2000;
     };
 
-    ws.onclose = () => {
-      const currentToken = useAuthStore.getState().accessToken;
-      if (currentToken) {
+    ws.onclose = (e) => {
+      if (notifWsRef.current !== ws) return; // fermé volontairement (logout, démontage)
+      if (!useAuthStore.getState().accessToken) return;
+
+      const scheduleReconnect = () => {
         const delay = reconnectDelayRef.current;
         reconnectDelayRef.current = Math.min(delay * 2, 30000);
-        reconnectTimeoutRef.current = setTimeout(connectNotifWS, delay);
+        reconnectTimeoutRef.current = setTimeout(() => void connectNotifWS(), delay);
+      };
+
+      if (e.code === 4001) {
+        // Token refusé : refresh d'abord, puis reconnexion avec le nouveau token
+        useAuthStore
+          .getState()
+          .refreshAccessToken()
+          .then((fresh) => {
+            if (fresh) scheduleReconnect();
+          });
+        return;
       }
+      scheduleReconnect();
     };
   }, [connectDuelWS, navigate]);
 
   useEffect(() => {
-    if (accessToken) {
-      connectNotifWS();
+    sessionActiveRef.current = hasSession;
+    if (hasSession) {
+      void connectNotifWS();
       checkPendingChallenges();
     } else {
-      notifWsRef.current?.close();
+      const notifWs = notifWsRef.current;
+      const duelWs = duelWsRef.current;
       notifWsRef.current = null;
-      duelWsRef.current?.close();
       duelWsRef.current = null;
+      notifWs?.close();
+      duelWs?.close();
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
     }
     return () => {
-      notifWsRef.current?.close();
-      duelWsRef.current?.close();
+      sessionActiveRef.current = false;
+      const notifWs = notifWsRef.current;
+      const duelWs = duelWsRef.current;
+      notifWsRef.current = null;
+      duelWsRef.current = null;
+      notifWs?.close();
+      duelWs?.close();
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
     };
-  }, [accessToken, connectNotifWS]);
+  }, [hasSession, connectNotifWS]);
 
   const checkPendingChallenges = async () => {
     try {
@@ -238,7 +306,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     setWaitingMessage("En attente d'un adversaire...");
     setScreen("waiting");
     navigate("/duels");
-    connectDuelWS(null);
+    void connectDuelWS(null);
   }, [connectDuelWS, navigate]);
 
   const sendChallengeToUserId = useCallback(async (userId: number) => {
@@ -260,7 +328,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     setPendingChallenge(null);
     const r = await APIAxios.post(APIRoutes.POST_AcceptChallenge(cid));
     const { room_id } = r.data;
-    connectDuelWS(room_id);
+    void connectDuelWS(room_id);
     setWaitingMessage("Défi accepté, connexion...");
     setScreen("waiting");
     navigate("/duels");

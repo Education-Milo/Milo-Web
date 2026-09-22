@@ -1,4 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { useAuthStore } from "@shared/store/auth/auth.store";
+import { ROUTES } from "@shared/constants/routes";
 import {
 	AlertCircle,
 	AtSign,
@@ -51,6 +55,13 @@ const ProfilePage: React.FC = () => {
 		saveState,
 		formError,
 	} = useProfilePage();
+	const navigate = useNavigate();
+	const logoutEverywhere = useAuthStore((state) => state.logoutEverywhere);
+	const handleLogoutEverywhere = async () => {
+		await logoutEverywhere();
+		navigate(ROUTES.LOGIN, { replace: true });
+	};
+
 
 	const initials =
 		`${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase() ||
@@ -271,6 +282,18 @@ const ProfilePage: React.FC = () => {
 									</li>
 								</ul>
 							)}
+
+							<div className="pf-card-foot">
+								<button
+									type="button"
+									className="pf-btn pf-btn-danger"
+									onClick={handleLogoutEverywhere}
+									title="Révoque la session sur tous tes appareils"
+								>
+									<LogOut size={16} />
+									<span>Se déconnecter de tous les appareils</span>
+								</button>
+							</div>
 						</section>
 					</div>
 
