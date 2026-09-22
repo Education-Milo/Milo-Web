@@ -23,6 +23,7 @@ import MyMiloPage from "@features/my-milo/pages/MyMilo.page";
 import BoutiquePage from "@features/milo-shop/pages/MiloShop.page";
 import FriendsPage from "@features/friends/pages/Friends.page";
 import StatsPage from "@features/stats/pages/Stats.page";
+import AdminPage from "@features/admin/pages/Admin.page";
 import OcrPage from "@features/ocr/pages/OcrPage";
 import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
 import { ROUTES } from "@shared/constants/routes";
@@ -281,12 +282,14 @@ const AuthNavigator: React.FC = () => {
       } /> */}
 
 				{/* ==================== ROUTES ADMIN ==================== */}
-
-				{/* <Route path="/admin" element={
-        <ProtectedRoute allowedRoles={['ADMIN']}>
-          <AdminDashboard />
-        </ProtectedRoute>
-      } /> */}
+				<Route
+					path={ROUTES.ADMIN.DASHBOARD}
+					element={
+						<ProtectedRoute allowedRoles={["Admin"]}>
+							<AdminPage />
+						</ProtectedRoute>
+					}
+				/>
 
 				{/* ==================== ROUTES SPÉCIALES ==================== */}
 				{/* Page non autorisé */}

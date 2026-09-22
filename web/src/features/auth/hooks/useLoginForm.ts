@@ -28,7 +28,7 @@ export const useLoginForm = () => {
 			case "Prof":
 				return ROUTES.UNAUTHORIZED;
 			case "Admin":
-				return ROUTES.UNAUTHORIZED;
+				return ROUTES.ADMIN.DASHBOARD;
 			default:
 				return ROUTES.UNAUTHORIZED;
 		}
