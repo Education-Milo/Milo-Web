@@ -223,7 +223,24 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       forgetPassword: async (email) => {
-        await APIAxios.post(APIRoutes.POST_ForgotPassword, { email });
+        await APIAxios.post(APIRoutes.POST_Password_Forgot, { email });
+      },
+
+      resetPassword: async (email, code, newPassword) => {
+        await APIAxios.post(APIRoutes.POST_Password_Reset, {
+          email,
+          code,
+          new_password: newPassword,
+        });
+        // Le serveur a révoqué toutes les sessions : les jetons locaux ne
+        // valent plus rien. On efface aussi le cookie de refresh, sans bloquer.
+        get().stopTokenValidation();
+        if (AUTH_COOKIE_MODE) {
+          await AuthAxios.post(APIRoutes.POST_Logout).catch(() => {});
+        }
+        setSessionHint(false);
+        await clearLocalSession();
+        set({ accessToken: '', tokenValidationInterval: null });
       },
 
       logout: async ({ remote = true }: LogoutOptions = {}) => {
