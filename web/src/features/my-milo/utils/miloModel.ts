@@ -90,7 +90,7 @@ export function getBodyBox(scene: THREE.Object3D) {
 }
 
 export function fitMiloToHeight(scene: THREE.Object3D, targetHeight: number) {
-	scene.position.set(-0.35, 0, 0);
+	scene.position.set(0, 0, 0);
 	scene.scale.setScalar(1);
 
 	const box = getBodyBox(scene);

@@ -197,14 +197,28 @@
 	filter: drop-shadow(0 25px 35px rgba(74, 63, 53, 0.25));
 	animation: float-milo 4s ease-in-out infinite;
 }
-.milo-shadow {
-	width: 200px;
-	height: 28px;
-	background: rgba(74, 63, 53, 0.15);
-	filter: blur(15px);
-	border-radius: 50%;
-	margin-top: -10px;
-	z-index: 1;
+/* Scène 3D : l'ombre de Milo est rendue dans le canvas (ContactShadows),
+   il n'y a plus d'ellipse floutée en CSS sous le modèle. */
+.milo-stage {
+	position: relative;
+	width: 100%;
+	height: 525px;
+	z-index: 10;
+	touch-action: pan-y;
+}
+.milo-stage-canvas {
+	opacity: 0;
+	transition: opacity 0.6s ease;
+}
+.milo-stage.is-ready .milo-stage-canvas { opacity: 1; }
+.milo-stage-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-soft);
+	pointer-events: none;
 }
 
 /* --- VESTIAIRE (carte glossy) --- */
@@ -436,9 +450,11 @@
 @media (max-width: 1200px) {
 	.mymilo-content { grid-template-columns: 1fr; }
 	.milo-model-card { max-width: 500px; margin: 0 auto; width: 100%; }
+	.milo-stage { height: 440px; }
 }
 @media (max-width: 768px) {
 	.mymilo-container { padding: 20px; }
+	.milo-stage { height: 380px; }
 	.page-title { font-size: 2.4rem; }
 	.page-subtitle { margin-left: 0; }
 	.mymilo-header { flex-direction: column; align-items: flex-start; gap: 20px; }
@@ -569,3 +585,8 @@
 }
 .equipped-chip-type { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: #E8671C; }
 .equipped-chip-name { font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+	.milo-bg-glow, .milo-light-ray, .milo-model-card::after { animation: none !important; }
+	.milo-stage-canvas { transition-duration: 0.01ms !important; }
+}
