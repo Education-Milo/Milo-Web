@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useUserStore } from "@shared/store/user/user.store";
 import { USER_QUERY_KEY } from "@shared/lib/serverActions";
+import { isSkinType } from "@features/cosmetics/store/cosmetics.model";
 import type {
 	Cosmetic,
 	CosmeticFilters,
@@ -145,6 +146,7 @@ export const useEquipCosmetic = () => {
 	const queryClient = useQueryClient();
 	const refresh = useRefreshCosmetics();
 	const lockerKey = [...LOCKER_QUERY_KEY, String(userId)];
+	const equippedKey = [...LOCKER_QUERY_KEY, String(userId), "equipped"];
 
 	return useMutation({
 		mutationFn: ({ cosmeticId, equipped }: EquipVariables) =>
@@ -152,31 +154,58 @@ export const useEquipCosmetic = () => {
 		// Mise à jour optimiste du casier : un skin remplace celui du même type,
 		// un objet de roue ajuste wheel_used. Le serveur applique les mêmes règles.
 		onMutate: async ({ cosmeticId, equipped }) => {
-			await queryClient.cancelQueries({ queryKey: lockerKey });
+			// Le préfixe couvre le casier ET la tenue équipée : sans ça, un
+			// refetch en vol écraserait la mise à jour optimiste.
+			await queryClient.cancelQueries({ queryKey: LOCKER_QUERY_KEY });
 			const previous = queryClient.getQueryData<LockerResponse>(lockerKey);
-			if (previous) {
-				const target = previous.items.find((item) => item.id === cosmeticId);
-				if (target) {
-					const isSkin = target.type.startsWith("cosmetic_");
-					const items = previous.items.map((item) => {
-						if (item.id === cosmeticId) return { ...item, is_equipped: equipped };
-						if (equipped && isSkin && item.type === target.type) return { ...item, is_equipped: false };
-						return item;
-					});
-					const wheelUsed = items.filter(
-						(item) => item.is_equipped && !item.type.startsWith("cosmetic_"),
-					).length;
-					queryClient.setQueryData<LockerResponse>(lockerKey, {
-						...previous,
-						items,
-						wheel_used: wheelUsed,
-					});
-				}
+			const previousEquipped = queryClient.getQueryData<EquippedResponse>(equippedKey);
+			const target = previous?.items.find((item) => item.id === cosmeticId);
+
+			if (previous && target) {
+				const isSkin = isSkinType(target.type);
+				const items = previous.items.map((item) => {
+					if (item.id === cosmeticId) return { ...item, is_equipped: equipped };
+					if (equipped && isSkin && item.type === target.type) return { ...item, is_equipped: false };
+					return item;
+				});
+				const wheelUsed = items.filter(
+					(item) => item.is_equipped && !item.type.startsWith("cosmetic_"),
+				).length;
+				queryClient.setQueryData<LockerResponse>(lockerKey, {
+					...previous,
+					items,
+					wheel_used: wheelUsed,
+				});
 			}
-			return { previous };
+
+			// C'est cette entrée-là que lit le Milo 3D (useEquippedMeshNames).
+			// Sans mise à jour optimiste, l'accessoire n'apparaissait qu'au
+			// retour du serveur puis du refetch, d'où le délai visible.
+			if (previousEquipped && target) {
+				const skins = { ...previousEquipped.skins };
+				let wheel = previousEquipped.wheel;
+				if (isSkinType(target.type)) {
+					if (equipped) skins[target.type] = { ...target, is_equipped: true };
+					else delete skins[target.type];
+				} else {
+					wheel = equipped
+						? [...wheel.filter((item) => item.id !== target.id), { ...target, is_equipped: true }]
+						: wheel.filter((item) => item.id !== target.id);
+				}
+				queryClient.setQueryData<EquippedResponse>(equippedKey, {
+					...previousEquipped,
+					skins,
+					wheel,
+				});
+			}
+
+			return { previous, previousEquipped };
 		},
 		onError: (_error, _variables, context) => {
 			if (context?.previous) queryClient.setQueryData(lockerKey, context.previous);
+			if (context?.previousEquipped) {
+				queryClient.setQueryData(equippedKey, context.previousEquipped);
+			}
 		},
 		onSettled: () => refresh(),
 	});
@@ -192,12 +221,15 @@ export const useUnequipCosmetics = () => {
 	const queryClient = useQueryClient();
 	const refresh = useRefreshCosmetics();
 	const lockerKey = [...LOCKER_QUERY_KEY, String(userId)];
+	const equippedKey = [...LOCKER_QUERY_KEY, String(userId), "equipped"];
 
 	return useMutation({
 		mutationFn: (type?: CosmeticType) => unequipCosmetics(userId as string, type),
 		onMutate: async (type) => {
-			await queryClient.cancelQueries({ queryKey: lockerKey });
+			await queryClient.cancelQueries({ queryKey: LOCKER_QUERY_KEY });
 			const previous = queryClient.getQueryData<LockerResponse>(lockerKey);
+			const previousEquipped = queryClient.getQueryData<EquippedResponse>(equippedKey);
+
 			if (previous) {
 				const items = previous.items.map((item) =>
 					!type || item.type === type ? { ...item, is_equipped: false } : item,
@@ -210,10 +242,35 @@ export const useUnequipCosmetics = () => {
 					).length,
 				});
 			}
-			return { previous };
+
+			// Le 3D se met à nu immédiatement, sans attendre le serveur
+			if (previousEquipped) {
+				const skins = { ...previousEquipped.skins };
+				let wheel = previousEquipped.wheel;
+				if (!type) {
+					queryClient.setQueryData<EquippedResponse>(equippedKey, {
+						...previousEquipped,
+						skins: {},
+						wheel: [],
+					});
+				} else {
+					if (isSkinType(type)) delete skins[type];
+					else wheel = wheel.filter((item) => item.type !== type);
+					queryClient.setQueryData<EquippedResponse>(equippedKey, {
+						...previousEquipped,
+						skins,
+						wheel,
+					});
+				}
+			}
+
+			return { previous, previousEquipped };
 		},
 		onError: (_error, _type, context) => {
 			if (context?.previous) queryClient.setQueryData(lockerKey, context.previous);
+			if (context?.previousEquipped) {
+				queryClient.setQueryData(equippedKey, context.previousEquipped);
+			}
 		},
 		onSettled: () => refresh(),
 	});

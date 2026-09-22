@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-import { useGLTF, Environment, useAnimations } from "@react-three/drei";
 import {
 	WandSparkles,
 	Shirt,
@@ -37,8 +34,7 @@ import {
 	useLocker,
 	useUnequipCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
-import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
-import { applyEquippedAccessories } from "@features/my-milo/utils/miloModel";
+import MiloStage3D, { type MiloReaction } from "@features/my-milo/components/MiloStage3D.component";
 import { CosmeticVisual } from "@features/milo-shop/pages/MiloShop.page";
 
 /** Ancien stockage local de l'équipement, remplacé par l'API. */
@@ -52,93 +48,18 @@ const TABS: { id: LockerTab; label: string; icon: React.ReactNode }[] = [
 	{ id: "dance", label: "Danses", icon: <Music2 size={16} /> },
 ];
 
-interface MiloModel3DProps {
-	hatTrigger: number;
-}
-
-const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
-	const { scene, animations } = useGLTF("/MiloV9.glb");
-	const { actions, mixer } = useAnimations(animations, scene);
-	const groupRef = useRef<THREE.Group>(null);
-
-	// Tenue équipée d'après GET /user/{id}/locker/equipped (mesh_name)
-	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
-
-	useEffect(() => {
-		if (!scene) return;
-		applyEquippedAccessories(scene, equippedMeshNames);
-	}, [scene, equippedMeshNames, accessoryMeshNames]);
-
-	useEffect(() => {
-		if (hatTrigger === 0) return;
-		const hatName = Object.keys(actions).find((n) => n.toLowerCase() === "hatlook");
-		const hatAction = hatName ? actions[hatName] : null;
-		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
-		const idleAction = idleName ? actions[idleName] : null;
-
-		if (hatAction && idleAction) {
-			hatAction.reset().setLoop(THREE.LoopOnce, 1);
-			hatAction.clampWhenFinished = true;
-			hatAction.play().crossFadeFrom(idleAction, 0.3, true);
-
-			const onFinished = (e: { action: THREE.AnimationAction }) => {
-				if (e.action === hatAction) {
-					idleAction.reset().play().crossFadeFrom(hatAction, 0.3, true);
-				}
-			};
-
-			mixer.addEventListener("finished", onFinished);
-			return () => {
-				mixer.removeEventListener("finished", onFinished);
-			};
-		}
-	}, [hatTrigger, actions, mixer]);
-
-	useEffect(() => {
-		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
-		const arrivalAction = arrivalName ? actions[arrivalName] : null;
-
-		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
-		const idleAction = idleName ? actions[idleName] : null;
-
-		if (arrivalAction && idleAction) {
-			arrivalAction.setLoop(THREE.LoopOnce, 1);
-			arrivalAction.clampWhenFinished = true;
-			arrivalAction.reset().play();
-
-			const onFinished = (e: { action: THREE.AnimationAction }) => {
-				if (e.action === arrivalAction) {
-					idleAction.reset().crossFadeFrom(arrivalAction, 0.3, true).play();
-				}
-			};
-
-			mixer.addEventListener("finished", onFinished);
-			return () => {
-				mixer.removeEventListener("finished", onFinished);
-			};
-		} else if (idleAction) {
-			idleAction.reset().play();
-		}
-	}, [actions, mixer]);
-
-	useFrame((_state, delta) => {
-		if (groupRef.current) {
-			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
-		}
-	});
-
-	return (
-		<group ref={groupRef} position={[-20, -4, -7]}>
-			<primitive object={scene} position={[0, 0, -1]} scale={1} rotation={[0, -0.05, 0]} />
-		</group>
-	);
+/// Clip joué quand Milo enfile un accessoire : il regarde son chapeau, ou
+/// savoure le reste de sa tenue.
+const REACTION_CLIPS: Partial<Record<CosmeticType, string>> = {
+	cosmetic_hat: "HatLook",
 };
+const DEFAULT_REACTION_CLIP = "Success";
 
 const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState<LockerTab>("skins");
 	const [skinTypeFilter, setSkinTypeFilter] = useState<CosmeticType | "">("");
-	const [hatTrigger, setHatTrigger] = useState(0);
+	const [reaction, setReaction] = useState<MiloReaction>({ clip: DEFAULT_REACTION_CLIP, nonce: 0 });
 
 	const { data: locker, isLoading, isError } = useLocker();
 	const equipMutation = useEquipCosmetic();
@@ -213,8 +134,11 @@ const MyMiloPage: React.FC = () => {
 			);
 			return;
 		}
-		if (equipped && item.type === "cosmetic_hat") {
-			setHatTrigger((prev) => prev + 1);
+		if (equipped && isSkinType(item.type)) {
+			setReaction((prev) => ({
+				clip: REACTION_CLIPS[item.type] ?? DEFAULT_REACTION_CLIP,
+				nonce: prev.nonce + 1,
+			}));
 		}
 		equipMutation.mutate(
 			{ cosmeticId: item.id, equipped },
@@ -286,21 +210,7 @@ const MyMiloPage: React.FC = () => {
 					>
 						<div className="milo-light-ray"></div>
 
-						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
-							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-								<Environment preset="sunset" environmentIntensity={1.2} />
-								<directionalLight
-									position={[5, 5, 5]}
-									intensity={0.8}
-									color="#ffffff"
-									castShadow
-								/>
-								<ambientLight intensity={0.2} />
-								<MiloModel3D hatTrigger={hatTrigger} />
-							</Canvas>
-						</div>
-
-						<div className="milo-shadow"></div>
+						<MiloStage3D reaction={reaction} />
 					</motion.div>
 
 					<motion.div
