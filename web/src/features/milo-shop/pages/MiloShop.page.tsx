@@ -1,22 +1,33 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import {
-	ShoppingBag,
-	Star,
-	Clock,
-	DoorOpen,
-	WandSparkles,
-	Sparkles,
-} from "lucide-react";
+import { ShoppingBag, Star, WandSparkles, PackageOpen, Loader } from "lucide-react";
 import "@features/milo-shop/styles/MiloShop.css";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "@shared/store/user/user.store";
+import { showToast } from "@shared/store/toast/toast.store";
+import {
+	ALL_TYPES,
+	RARITIES,
+	RARITY_LABELS,
+	TYPE_ICONS,
+	TYPE_LABELS,
+	raritySlug,
+	type Cosmetic,
+	type CosmeticRarity,
+	type CosmeticType,
+} from "@features/cosmetics/store/cosmetics.model";
+import {
+	getCosmeticErrorMessage,
+	useBuyCosmetic,
+	useCosmetics,
+} from "@features/cosmetics/store/cosmetics.queries";
 
 const containerVariants = {
 	hidden: { opacity: 0 },
 	visible: {
 		opacity: 1,
-		transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+		transition: { staggerChildren: 0.08, delayChildren: 0.15 },
 	},
 };
 
@@ -30,99 +41,52 @@ const itemVariants = {
 	} as const,
 };
 
+/** Visuel d'un objet : image du catalogue, sinon pictogramme du type. */
+export const CosmeticVisual: React.FC<{ item: Cosmetic; className?: string }> = ({ item, className }) => (
+	item.image_url ? (
+		<img src={item.image_url} alt="" className={className} draggable={false} />
+	) : (
+		<span className={className} aria-hidden="true">{TYPE_ICONS[item.type] ?? "🎁"}</span>
+	)
+);
+
 const BoutiquePage: React.FC = () => {
 	const navigate = useNavigate();
-	const [activeCategory, setActiveCategory] = useState<
-		"Tous" | "Chapeau" | "Vêtement" | "Mobilier"
-	>("Tous");
-	const [userCoins, setUserCoins] = useState(1250);
-	const [confirmPurchase, setConfirmPurchase] = useState<any | null>(null);
+	const [activeType, setActiveType] = useState<CosmeticType | "">("");
+	const [activeRarity, setActiveRarity] = useState<CosmeticRarity | "">("");
+	const [confirmPurchase, setConfirmPurchase] = useState<Cosmetic | null>(null);
+	const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
-	const [inventory, setInventory] = useState([
-		{
-			id: 1,
-			name: "Casquette Milo Orange",
-			category: "Chapeau",
-			price: 150,
-			rarity: "Commun",
-			icon: "🧢",
-			owned: false,
-		},
-		{
-			id: 2,
-			name: "T-Shirt Aventurier",
-			category: "Vêtement",
-			price: 300,
-			rarity: "Rare",
-			icon: "👕",
-			owned: true,
-		},
-		{
-			id: 3,
-			name: "Lunettes Pixel",
-			category: "Chapeau",
-			price: 600,
-			rarity: "Épique",
-			icon: "🕶️",
-			owned: false,
-			onSale: true,
-		},
-		{
-			id: 4,
-			name: "Couronne Royale",
-			category: "Chapeau",
-			price: 1500,
-			rarity: "Légendaire",
-			icon: "👑",
-			owned: false,
-		},
-		{
-			id: 5,
-			name: "Horloge Moderne",
-			category: "Mobilier",
-			price: 400,
-			rarity: "Rare",
-			icon: <Clock />,
-			owned: false,
-		},
-		{
-			id: 6,
-			name: "Porte-manteau Renard",
-			category: "Mobilier",
-			price: 550,
-			rarity: "Épique",
-			icon: <DoorOpen />,
-			owned: false,
-		},
-		{
-			id: 7,
-			name: "Halo Étincelant",
-			category: "Chapeau",
-			price: 2500,
-			rarity: "Légendaire",
-			icon: <Sparkles />,
-			owned: false,
-		},
-	]);
+	// Seule source du solde affiché : miloro_coin de /users/me
+	const miloroCoin = useUserStore((state) => state.user?.miloro_coin ?? 0);
 
-	const filteredItems = useMemo(
-		() =>
-			inventory.filter(
-				(i) => activeCategory === "Tous" || i.category === activeCategory,
-			),
-		[inventory, activeCategory],
-	);
+	const {
+		data: catalogue = [],
+		isLoading,
+		isError,
+		isFetching,
+	} = useCosmetics({
+		...(activeType ? { type: activeType } : {}),
+		...(activeRarity ? { rarity: activeRarity } : {}),
+	});
+	const buyMutation = useBuyCosmetic();
 
 	const finalizePurchase = () => {
-		if (confirmPurchase) {
-			setUserCoins((prev) => prev - confirmPurchase.price);
-			setInventory(
-				inventory.map((i) =>
-					i.id === confirmPurchase.id ? { ...i, owned: true } : i,
-				),
-			);
-			setConfirmPurchase(null);
-		}
+		if (!confirmPurchase) return;
+		setPurchaseError(null);
+		buyMutation.mutate(confirmPurchase.id, {
+			onSuccess: (data) => {
+				showToast(
+					`${data.cosmetic.name} débloqué ! Nouveau solde : ${data.miloro_coin.toLocaleString("fr-FR")} miloros.`,
+					"success",
+				);
+				setConfirmPurchase(null);
+			},
+			onError: (error) => {
+				// 402 solde insuffisant, 409 déjà possédé, 404 retiré : message du backend
+				setPurchaseError(getCosmeticErrorMessage(error));
+			},
+		});
 	};
 
 	return (
@@ -141,23 +105,23 @@ const BoutiquePage: React.FC = () => {
 					</div>
 
 					<nav className="shop-nav-list">
-						{["Tous", "Chapeau", "Vêtement", "Mobilier"].map((cat) => (
+						{[{ value: "" as const, label: "Tous" }, ...ALL_TYPES.map((t) => ({ value: t, label: TYPE_LABELS[t] }))].map((cat) => (
 							<button
-								key={cat}
-								className={`shop-nav-item ${activeCategory === cat ? "is-active" : ""}`}
-								onClick={() => setActiveCategory(cat as any)}
+								key={cat.value || "all"}
+								className={`shop-nav-item ${activeType === cat.value ? "is-active" : ""}`}
+								onClick={() => setActiveType(cat.value)}
 							>
 								<motion.div
 									className="nav-bullet"
 									animate={
-										activeCategory === cat
+										activeType === cat.value
 											? { scale: [1, 1.6, 1], opacity: [0.5, 1, 0.5] }
 											: {}
 									}
 									transition={{ repeat: Infinity, duration: 2 }}
 								/>
-								<span>{cat}</span>
-								{activeCategory === cat && (
+								<span>{cat.label}</span>
+								{activeType === cat.value && (
 									<motion.div
 										layoutId="nav-bg"
 										className="nav-active-bg"
@@ -192,24 +156,60 @@ const BoutiquePage: React.FC = () => {
 						>
 							La Collection
 						</motion.h1>
-						<motion.div
-							className="shop-wallet-pill"
-							whileHover={{ y: -3, scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-						>
-							<motion.div
-								animate={{ rotate: 360 }}
-								transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+						<div className="shop-top-right">
+							<select
+								className="shop-rarity-select"
+								value={activeRarity}
+								onChange={(e) => setActiveRarity(e.target.value as CosmeticRarity | "")}
+								aria-label="Filtrer par rareté"
 							>
-								<Star fill="#E28743" color="#E28743" size={20} />
+								<option value="">Toutes les raretés</option>
+								{RARITIES.map((r) => (
+									<option key={r} value={r}>{RARITY_LABELS[r]}</option>
+								))}
+							</select>
+							<motion.div
+								className="shop-wallet-pill"
+								whileHover={{ y: -3, scale: 1.05 }}
+								title="Ton solde de miloros"
+							>
+								<motion.div
+									animate={{ rotate: 360 }}
+									transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+								>
+									<Star fill="#E28743" color="#E28743" size={20} />
+								</motion.div>
+								<span className="coin-count">
+									Miloro : {miloroCoin.toLocaleString("fr-FR")}
+								</span>
 							</motion.div>
-							<span className="coin-count">
-								Miloro : {userCoins.toLocaleString()}
-							</span>
-						</motion.div>
+						</div>
 					</header>
 
-					<div className="shop-grid-container">
+					<div className={`shop-grid-container ${isFetching ? "is-fetching" : ""}`}>
+						{isLoading && (
+							<div className="shop-state">
+								<Loader size={28} className="shop-spin" />
+								<p>Chargement de la collection...</p>
+							</div>
+						)}
+						{isError && (
+							<div className="shop-state">
+								<p>Impossible de charger la boutique pour le moment.</p>
+							</div>
+						)}
+						{!isLoading && !isError && catalogue.length === 0 && (
+							<div className="shop-state shop-empty">
+								<PackageOpen size={42} />
+								<h3>Rien en rayon pour l'instant</h3>
+								<p>
+									{activeType || activeRarity
+										? "Aucun objet ne correspond à ces filtres."
+										: "Les premiers objets arrivent bientôt. Reviens vite !"}
+								</p>
+							</div>
+						)}
+
 						<LayoutGroup>
 							<motion.div
 								className="shop-items-grid"
@@ -218,66 +218,61 @@ const BoutiquePage: React.FC = () => {
 								animate="visible"
 							>
 								<AnimatePresence mode="popLayout">
-									{filteredItems.map((item) => (
-										<motion.div
-											key={item.id}
-											layout
-											variants={itemVariants}
-											className={`shop-item-card rarity-${item.rarity.toLowerCase()}`}
-										>
-											{item.onSale && (
-												<motion.div
-													className="shop-sale-badge"
-													animate={{ scale: [1, 1.15, 1] }}
-													transition={{ repeat: Infinity, duration: 2 }}
-												>
-													Promo
-												</motion.div>
-											)}
-											<div className="shop-item-preview">
-												<motion.span
-													className="shop-item-icon"
-													whileHover={{ scale: 1.2, rotate: 8 }}
-												>
-													{item.icon}
-												</motion.span>
-												<div className="shop-item-glow" />
-												<div className="shop-item-particles" />
-											</div>
-											<div className="shop-item-body">
-												<span className="shop-item-rarity">{item.rarity}</span>
-												<h3>{item.name}</h3>
-												<motion.button
-													className={`shop-buy-btn ${item.owned ? "is-owned" : ""}`}
-													whileHover={
-														!item.owned
-															? {
-																	scale: 1.0,
-																	backgroundColor: "#E28743",
-																	color: "#FFF",
-																}
-															: {}
-													}
-													whileTap={{ scale: 0.95 }}
-													onClick={() =>
-														!item.owned &&
-														userCoins >= item.price &&
-														setConfirmPurchase(item)
-													}
-													disabled={item.owned || userCoins < item.price}
-												>
-													{item.owned ? (
-														"Possédé"
-													) : (
-														<>
-															<Star size={14} fill="currentColor" />{" "}
-															{item.price}
-														</>
-													)}
-												</motion.button>
-											</div>
-										</motion.div>
-									))}
+									{catalogue.map((item) => {
+										const canAfford = miloroCoin >= item.price;
+										return (
+											<motion.div
+												key={item.id}
+												layout
+												variants={itemVariants}
+												className={`shop-item-card rarity-${raritySlug(item.rarity)}`}
+											>
+												<div className="shop-item-preview">
+													<motion.span
+														className="shop-item-icon"
+														whileHover={{ scale: 1.15, rotate: 6 }}
+													>
+														<CosmeticVisual item={item} className="shop-item-visual" />
+													</motion.span>
+													<div className="shop-item-glow" />
+													<div className="shop-item-particles" />
+												</div>
+												<div className="shop-item-body">
+													<span className="shop-item-rarity">
+														{RARITY_LABELS[item.rarity] ?? item.rarity}
+													</span>
+													<h3>{item.name}</h3>
+													<span className="shop-item-type">{TYPE_LABELS[item.type] ?? item.type}</span>
+													<motion.button
+														className={`shop-buy-btn ${item.owned ? "is-owned" : ""} ${!item.owned && !canAfford ? "is-unaffordable" : ""}`}
+														whileHover={!item.owned ? { scale: 1.02 } : {}}
+														whileTap={!item.owned ? { scale: 0.95 } : {}}
+														onClick={() => {
+															if (item.owned) return;
+															setPurchaseError(null);
+															setConfirmPurchase(item);
+														}}
+														disabled={item.owned}
+														title={
+															item.owned
+																? "Déjà dans ton casier"
+																: canAfford
+																	? "Acheter"
+																	: "Solde insuffisant"
+														}
+													>
+														{item.owned ? (
+															"Possédé"
+														) : (
+															<>
+																<Star size={14} fill="currentColor" /> {item.price.toLocaleString("fr-FR")}
+															</>
+														)}
+													</motion.button>
+												</div>
+											</motion.div>
+										);
+									})}
 								</AnimatePresence>
 							</motion.div>
 						</LayoutGroup>
@@ -291,7 +286,7 @@ const BoutiquePage: React.FC = () => {
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
 							exit={{ opacity: 0 }}
-							onClick={() => setConfirmPurchase(null)}
+							onClick={() => !buyMutation.isPending && setConfirmPurchase(null)}
 						>
 							<motion.div
 								className="shop-modal"
@@ -299,29 +294,49 @@ const BoutiquePage: React.FC = () => {
 								animate={{ scale: 1, y: 0, opacity: 1 }}
 								exit={{ scale: 0.8, opacity: 0 }}
 								onClick={(e) => e.stopPropagation()}
+								role="dialog"
+								aria-labelledby="shop-confirm-title"
 							>
 								<div className="modal-glow" />
-								<h3>Confirmer l'achat ?</h3>
+								<h3 id="shop-confirm-title">Confirmer l'achat ?</h3>
 								<motion.div
 									className="shop-modal-preview"
 									animate={{ y: [0, -10, 0] }}
 									transition={{ repeat: Infinity, duration: 3 }}
 								>
-									{confirmPurchase.icon}
+									<CosmeticVisual item={confirmPurchase} className="shop-modal-visual" />
 								</motion.div>
 								<p>{confirmPurchase.name}</p>
+								{miloroCoin >= confirmPurchase.price ? (
+									<p className="shop-modal-balance">
+										Solde après achat :{" "}
+										<strong>{(miloroCoin - confirmPurchase.price).toLocaleString("fr-FR")}</strong> miloros
+									</p>
+								) : (
+									<p className="shop-modal-balance shop-modal-balance--short">
+										Il te manque{" "}
+										<strong>{(confirmPurchase.price - miloroCoin).toLocaleString("fr-FR")}</strong> miloros
+									</p>
+								)}
+								{purchaseError && (
+									<p className="shop-modal-error" role="alert">{purchaseError}</p>
+								)}
 								<div className="shop-modal-actions">
 									<button
 										className="shop-btn-cancel"
 										onClick={() => setConfirmPurchase(null)}
+										disabled={buyMutation.isPending}
 									>
 										Plus tard
 									</button>
 									<button
 										className="shop-btn-confirm"
 										onClick={finalizePurchase}
+										disabled={buyMutation.isPending}
 									>
-										Débloquer ({confirmPurchase.price})
+										{buyMutation.isPending
+											? "Achat en cours..."
+											: `Débloquer (${confirmPurchase.price.toLocaleString("fr-FR")})`}
 									</button>
 								</div>
 							</motion.div>

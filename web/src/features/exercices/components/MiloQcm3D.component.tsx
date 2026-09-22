@@ -9,8 +9,7 @@ import React, {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
-import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import {
 	MILO_MODEL_PATH,
 	applyEquippedAccessories,
@@ -59,12 +58,7 @@ function MiloModel({
 	const currentRef = useRef<THREE.AnimationAction | null>(null);
 	const reactionRef = useRef<THREE.AnimationAction | null>(null);
 
-	const equippedItemIds = useMiloInventoryStore((s) => s.equippedItemIds);
-	const equippedMeshNames = useMemo(() => {
-		return equippedItemIds
-			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
-			.filter(Boolean) as string[];
-	}, [equippedItemIds]);
+	const { equippedMeshNames } = useEquippedMeshNames();
 
 	/// Exécuté dès la phase de rendu, avant le premier frame
 	useMemo(() => {

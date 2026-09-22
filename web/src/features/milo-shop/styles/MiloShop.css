@@ -122,3 +122,67 @@
 	.shop-modal-preview { font-size: 5rem; }
 	.shop-modal-actions { flex-direction: column; }
 }
+/* --- Boutique pilotée par l'API --- */
+.shop-top-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.shop-rarity-select {
+	padding: 10px 14px;
+	border-radius: 100px;
+	border: 2px solid #fff;
+	background: rgba(255, 255, 255, 0.85);
+	font-family: inherit;
+	font-weight: 800;
+	font-size: 0.85rem;
+	color: #4A3F35;
+	cursor: pointer;
+}
+.shop-item-visual { display: inline-block; max-width: 96px; max-height: 96px; object-fit: contain; }
+.shop-modal-visual { max-width: 120px; max-height: 120px; object-fit: contain; }
+.shop-item-type { font-size: 0.72rem; font-weight: 800; color: #B0A49C; text-transform: uppercase; letter-spacing: 1px; }
+.shop-buy-btn.is-unaffordable { opacity: 0.75; }
+.shop-grid-container.is-fetching .shop-items-grid { opacity: 0.6; transition: opacity 0.2s ease; }
+.shop-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 60px 20px;
+	color: #8B7E74;
+	font-weight: 700;
+	text-align: center;
+}
+.shop-state h3 { margin: 0; color: #4A3F35; font-size: 1.2rem; }
+.shop-state p { margin: 0; }
+.shop-empty svg { color: #E28743; }
+.shop-spin { animation: shop-spin 0.9s linear infinite; }
+@keyframes shop-spin { to { transform: rotate(360deg); } }
+.shop-modal-balance { font-size: 0.85rem; color: #8B7E74; margin: 0; }
+.shop-modal-error {
+	margin: 0;
+	padding: 10px 14px;
+	border-radius: 14px;
+	background: #FEF2F2;
+	color: #991B1B;
+	font-weight: 700;
+	font-size: 0.85rem;
+}
+/* Raretés du catalogue (slugs API) */
+.rarity-commun .shop-item-rarity { color: #8B7E74; }
+.rarity-tres-rare { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #14B8A6, #0F766E); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-tres-rare .shop-item-rarity { color: #0F766E; }
+.rarity-epique { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #A855F7, #6B21A8); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-epique .shop-item-rarity { color: #A855F7; }
+.rarity-legendaire { border-width: 3px; border-color: transparent; background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.2)), linear-gradient(135deg, #FFD700, #E28743); background-origin: border-box; background-clip: padding-box, border-box; }
+.rarity-legendaire .shop-item-rarity { color: #E28743; }
+/* Neuf catégories : navigation compacte. Pas de défilement sur la liste
+   elle-même : il rognait les boutons agrandis au survol et à la sélection. */
+.shop-sidebar-floating { min-height: 0; }
+.shop-logo-section { margin-bottom: 28px; }
+.shop-nav-list { gap: 8px; overflow: visible; }
+.shop-nav-item { padding: 11px 20px; font-size: 0.9rem; }
+.shop-btn-customize { flex-shrink: 0; margin-top: 14px; }
+/* Écran bas : la colonne entière défile, avec une marge interne pour que
+   les boutons agrandis ne soient pas coupés sur les côtés. */
+@media (max-height: 780px) {
+	.shop-sidebar-floating { overflow-y: auto; padding: 0 14px 8px 12px; margin: 0 -14px 0 -12px; scrollbar-width: thin; }
+}
+.shop-modal-balance--short { color: #B45309; font-weight: 700; }

@@ -10,8 +10,7 @@ import React, {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import { useMiloInventoryStore } from "@features/my-milo/store/miloInventory.store";
-import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import {
 	MILO_MODEL_PATH,
 	applyEquippedAccessories,
@@ -55,13 +54,7 @@ function MiloHello({ setFrozen }: { setFrozen: (frozen: boolean) => void }) {
 	const actionRef = useRef<THREE.AnimationAction | null>(null);
 	const { invalidate, gl } = useThree();
 
-	const equippedItemIds = useMiloInventoryStore((state) => state.equippedItemIds);
-
-	const equippedMeshNames = useMemo(() => {
-		return equippedItemIds
-			.map((id) => MILO_ITEMS.find((i) => i.id === id)?.meshName)
-			.filter(Boolean) as string[];
-	}, [equippedItemIds]);
+	const { equippedMeshNames } = useEquippedMeshNames();
 	/// Exécuté dès la phase de rendu, donc avant tout frame
 	useMemo(() => {
 		if (scene) prepareMiloScene(scene);

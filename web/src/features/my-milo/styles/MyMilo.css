@@ -445,3 +445,127 @@
 	.vestiaire-header { flex-direction: column; align-items: stretch; }
 	.locker-grid-pimped { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
 }
+/* --- Casier piloté par l'API : roue, sous-filtres, états, raretés --- */
+.item-visual { display: inline-block; max-width: 64px; max-height: 64px; object-fit: contain; font-size: 2.2rem; line-height: 1; }
+.item-type-tag { display: block; margin-top: 4px; font-size: 0.68rem; font-weight: 800; color: #B0A49C; text-transform: uppercase; letter-spacing: 0.5px; }
+.item-card-v2.is-equipped { box-shadow: 0 0 0 3px rgba(226, 135, 67, 0.35); }
+
+.wheel-status {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin: 0 0 12px;
+	padding: 10px 16px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.7);
+	border: 2px solid #fff;
+	font-weight: 800;
+	font-size: 0.82rem;
+	color: #8B7E74;
+}
+.wheel-status.is-full { color: #B45309; background: #FEF3C7; }
+.wheel-slots { display: flex; gap: 6px; }
+.wheel-slot { width: 14px; height: 14px; border-radius: 50%; background: #F3EDE8; border: 2px solid #E8DDD4; }
+.wheel-slot.is-used { background: linear-gradient(135deg, #FF9A4D, #E8671C); border-color: transparent; }
+.wheel-status-count { margin-left: auto; }
+
+.locker-subfilters { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; }
+.subfilter-chip {
+	padding: 6px 12px;
+	border-radius: 100px;
+	border: 1.5px solid #E8DDD4;
+	background: transparent;
+	font-family: inherit;
+	font-size: 0.75rem;
+	font-weight: 800;
+	color: #8B7E74;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.subfilter-chip.active { background: #FFF1E4; color: #E8671C; border-color: #E8671C; }
+
+.locker-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 40px 20px;
+	text-align: center;
+	color: #8B7E74;
+	font-weight: 700;
+}
+.locker-state p { margin: 0; }
+.locker-spin { animation: locker-spin 0.9s linear infinite; color: #E8671C; }
+@keyframes locker-spin { to { transform: rotate(360deg); } }
+
+.rarity-tag.tres-rare { background: #CCFBF1; color: #0F766E; }
+.rarity-tag.epique { background: #F3E8FF; color: #A855F7; }
+.rarity-tag.legendaire { background: linear-gradient(135deg, #FFD700, #E28743); color: #fff; }
+.item-card-v2.rarity-tres-rare { border-color: #14B8A6; }
+.item-card-v2.rarity-epique { border-color: #A855F7; }
+.item-card-v2.rarity-legendaire { border-color: #E28743; }
+
+/* --- Déséquiper : tout enlever (en-tête) et retirer par catégorie --- */
+.btn-unequip-all {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-radius: 100px;
+	border: 2px solid #fff;
+	background: rgba(255, 255, 255, 0.8);
+	color: #8B7E74;
+	font-family: inherit;
+	font-weight: 800;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.btn-unequip-all:hover:not(:disabled) { color: #E8671C; border-color: #E8671C; }
+.btn-unequip-all:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-unequip-type {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 5px 10px;
+	border-radius: 100px;
+	border: 1.5px solid #E8DDD4;
+	background: #fff;
+	color: #8B7E74;
+	font-family: inherit;
+	font-size: 0.72rem;
+	font-weight: 800;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.btn-unequip-type:hover:not(:disabled) { color: #B45309; border-color: #B45309; }
+.btn-unequip-type:disabled { opacity: 0.5; cursor: not-allowed; }
+.wheel-status .btn-unequip-type { margin-left: 8px; }
+
+.equipped-bar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin: 0 0 12px;
+	padding: 10px 14px;
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.7);
+	border: 2px solid #fff;
+	font-size: 0.8rem;
+	font-weight: 800;
+	color: #8B7E74;
+}
+.equipped-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 6px 4px 12px;
+	border-radius: 100px;
+	background: #FFF1E4;
+	color: #4A3F35;
+}
+.equipped-chip-type { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.4px; color: #E8671C; }
+.equipped-chip-name { font-weight: 700; }

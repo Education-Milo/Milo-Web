@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-	meshNamesForItemIds,
-	renderMiloAvatar,
-} from "@features/my-milo/utils/miloAvatar";
+import { renderMiloAvatar } from "@features/my-milo/utils/miloAvatar";
 
 interface MiloAvatarProps {
-	/// Ids des objets équipés par CE utilisateur. Pour soi, ils viennent du
-	/// store local ; pour un ami, du backend (voir `equipped_items` sur User).
-	equippedItemIds?: number[];
+	/// Maillages équipés par CET utilisateur (champ `mesh_name` des cosmétiques).
+	/// Pour soi, ils viennent de GET /user/{id}/locker/equipped ; pour un ami,
+	/// du catalogue via useMeshNamesForItemIds.
+	equippedMeshNames?: string[];
 	/// Repli affiché tant que le portrait n'est pas rendu, ou s'il échoue
 	initials: string;
 	className?: string;
@@ -17,18 +15,18 @@ interface MiloAvatarProps {
 /// Le rendu 3D est mutualisé et mis en cache (cf. miloAvatar.ts), afin qu'une
 /// liste d'amis n'ouvre pas un contexte WebGL par carte.
 const MiloAvatar: React.FC<MiloAvatarProps> = ({
-	equippedItemIds,
+	equippedMeshNames,
 	initials,
 	className,
 }) => {
 	const [src, setSrc] = useState<string | null>(null);
 	/// Clé stable : évite de relancer un rendu à chaque re-render du parent
-	const key = (equippedItemIds ?? []).join(",");
+	const key = [...(equippedMeshNames ?? [])].sort().join("|");
 
 	useEffect(() => {
 		let cancelled = false;
-		const ids = key ? key.split(",").map(Number) : [];
-		renderMiloAvatar(meshNamesForItemIds(ids)).then((url) => {
+		const names = key ? key.split("|") : [];
+		renderMiloAvatar(names).then((url) => {
 			if (!cancelled) setSrc(url);
 		});
 		return () => {

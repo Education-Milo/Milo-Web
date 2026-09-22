@@ -1,15 +1,29 @@
 import * as THREE from "three";
-import { MILO_ITEMS } from "@features/my-milo/data/miloItems.data";
 
 /// Modèle 3D de Milo. Contient les clips : Arrival, Disapointed, Explaining,
 /// HatLook, Hello, Idle, Thinking, Wrong.
 export const MILO_MODEL_PATH = "/MiloV11.glb";
 
+/// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
+/// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
+export const BODY_MESH_NAME = "Milo";
+
+/// Accessoires présents dans MiloV9 / V10 / V11 .glb. Cette base dépend du
+/// fichier 3D, pas du catalogue : elle garantit qu'un Milo "nu" reste nu même
+/// quand la boutique est vide ou pas encore chargée.
+const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses", "tie", "tophat"];
+
 /// Meshes des accessoires équipables. Ils sont exclus du cadrage automatique
 /// pour que Milo garde la même taille quoi qu'il porte.
-export const ACCESSORY_MESH_NAMES = new Set(
-	MILO_ITEMS.map((item) => item.meshName).filter(Boolean) as string[],
-);
+///
+/// Base : les accessoires connus du .glb. Complétée par le catalogue de
+/// cosmétiques (champ `mesh_name`, cf. useEquippedMeshNames) dès qu'il est
+/// chargé, pour les objets ajoutés au modèle plus tard.
+export const ACCESSORY_MESH_NAMES = new Set<string>(KNOWN_ACCESSORY_MESH_NAMES);
+
+export function registerAccessoryMeshNames(names: Iterable<string>) {
+	for (const name of names) ACCESSORY_MESH_NAMES.add(name);
+}
 
 /// À appeler pendant la phase de rendu, avant le premier frame : masque Milo
 /// tant que sa pose n'est pas appliquée (sinon il apparaît une frame en T-pose
