@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Loader, Search, ShieldCheck, UserRound } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Coins, Loader, Search, ShieldCheck, UserRound } from "lucide-react";
+import GrantCoinsModal from "@features/admin/components/GrantCoinsModal";
 import { useSearchUsers } from "@shared/store/user/user.queries";
 import { useUserStore } from "@shared/store/user/user.store";
 import type { UserRole } from "@shared/store/user/user.model";
@@ -37,6 +38,8 @@ const UserRoleManager: React.FC = () => {
 	const [isConfirming, setIsConfirming] = useState(false);
 	const [lastResult, setLastResult] = useState<ChangeRoleResponse | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	/** Popup de crédit de miloros ; `null` fermée, sinon le pseudo présélectionné ("" = libre) */
+	const [grantFor, setGrantFor] = useState<string | null>(null);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => setSearchQuery(searchInput.trim()), SEARCH_DEBOUNCE_MS);
@@ -92,6 +95,16 @@ const UserRoleManager: React.FC = () => {
 
 	return (
 		<div className="ad-users">
+			<div className="ad-toolbar ad-toolbar--end">
+				<button type="button" className="ad-btn ad-btn--primary" onClick={() => setGrantFor("")}>
+					<Coins size={16} /> Créditer des miloros
+				</button>
+			</div>
+
+			{grantFor !== null && (
+				<GrantCoinsModal initialUsername={grantFor} onClose={() => setGrantFor(null)} />
+			)}
+
 			{/* Recherche */}
 			<div className="ad-search">
 				<div className="ad-search-box">
@@ -147,6 +160,14 @@ const UserRoleManager: React.FC = () => {
 							<ShieldCheck size={14} />
 							{ROLE_LABELS[target.role] ?? target.role}
 						</span>
+						<button
+							type="button"
+							className="ad-btn ad-btn--ghost ad-btn--sm"
+							onClick={() => setGrantFor(target.username)}
+							title="Créditer des miloros à cet utilisateur"
+						>
+							<Coins size={14} /> Créditer
+						</button>
 					</header>
 
 					<dl className="ad-facts">

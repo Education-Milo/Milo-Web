@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ScrollText, ShieldCheck, Users } from "lucide-react";
+import { LogOut, ScrollText, ShieldCheck, Shirt, Users } from "lucide-react";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import { ROUTES } from "@shared/constants/routes";
 import UserRoleManager from "@features/admin/components/UserRoleManager";
 import AuditLog from "@features/admin/components/AuditLog";
+import CosmeticsManager from "@features/admin/components/CosmeticsManager";
 import "@features/admin/styles/Admin.css";
 
-type AdminTab = "users" | "audit";
+type AdminTab = "users" | "cosmetics" | "audit";
 
 const AdminPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -28,7 +29,7 @@ const AdminPage: React.FC = () => {
 					<ShieldCheck size={22} />
 					<div>
 						<h1>Administration</h1>
-						<p>Gestion des rôles et journal des actions</p>
+						<p>Rôles, catalogue de cosmétiques et journal des actions</p>
 					</div>
 				</div>
 				<div className="ad-header-user">
@@ -55,6 +56,15 @@ const AdminPage: React.FC = () => {
 				<button
 					type="button"
 					role="tab"
+					aria-selected={tab === "cosmetics"}
+					className={`ad-tab ${tab === "cosmetics" ? "active" : ""}`}
+					onClick={() => setTab("cosmetics")}
+				>
+					<Shirt size={16} /> Cosmétiques
+				</button>
+				<button
+					type="button"
+					role="tab"
 					aria-selected={tab === "audit"}
 					className={`ad-tab ${tab === "audit" ? "active" : ""}`}
 					onClick={() => setTab("audit")}
@@ -64,7 +74,9 @@ const AdminPage: React.FC = () => {
 			</nav>
 
 			<main className="ad-content">
-				{tab === "users" ? <UserRoleManager /> : <AuditLog />}
+				{tab === "users" && <UserRoleManager />}
+				{tab === "cosmetics" && <CosmeticsManager />}
+				{tab === "audit" && <AuditLog />}
 			</main>
 		</div>
 	);
