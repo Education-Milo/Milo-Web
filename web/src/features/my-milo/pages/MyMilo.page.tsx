@@ -1,29 +1,29 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useGLTF, Environment, useAnimations } from "@react-three/drei";
 import {
 	WandSparkles,
-	Shirt,
 	Crown,
-	CheckCircle2,
 	ShoppingBag,
-	DoorOpen,
+	Shirt,
 	Sparkles,
-	Sticker,
-	Music2,
 	Loader,
 	Star,
 	Undo2,
-	X,
+	Swords,
+	Plus,
 } from "lucide-react";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@shared/store/toast/toast.store";
+import { useUserStore } from "@shared/store/user/user.store";
 import {
-	RARITY_LABELS,
-	SKIN_TYPES,
+	TYPE_ICONS,
 	TYPE_LABELS,
-	isSkinType,
+	isWheelType,
 	raritySlug,
 	type Cosmetic,
 	type CosmeticType,
@@ -34,39 +34,125 @@ import {
 	useLocker,
 	useUnequipCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
-import MiloStage3D, { type MiloReaction } from "@features/my-milo/components/MiloStage3D.component";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { applyEquippedAccessories } from "@features/my-milo/utils/miloModel";
 import { CosmeticVisual } from "@features/milo-shop/pages/MiloShop.page";
+import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
+import {
+	WHEEL_SLOT_COUNT,
+	arrangeWheel,
+	assignSlot,
+	clearSlot,
+} from "@features/cosmetics/utils/wheelSlots";
 
 /** Ancien stockage local de l'équipement, remplacé par l'API. */
 const LEGACY_INVENTORY_KEY = "milo-inventory-storage";
 
-type LockerTab = "skins" | "sticker" | "dance";
-
-const TABS: { id: LockerTab; label: string; icon: React.ReactNode }[] = [
-	{ id: "skins", label: "Apparence", icon: <Shirt size={16} /> },
-	{ id: "sticker", label: "Stickers", icon: <Sticker size={16} /> },
-	{ id: "dance", label: "Danses", icon: <Music2 size={16} /> },
+/** Emplacements de la tenue, de la tête aux pieds. */
+const OUTFIT_SLOTS: CosmeticType[] = [
+	"cosmetic_hat",
+	"cosmetic_glasses",
+	"cosmetic_tie",
+	"cosmetic_shirt",
+	"cosmetic_pant",
+	"cosmetic_shoes",
 ];
+/** Les gants n'ont pas de case dédiée : affichés seulement si l'élève en possède. */
+const OPTIONAL_SLOTS: CosmeticType[] = ["cosmetic_gloves"];
 
-/// Clip joué quand Milo enfile un accessoire : il regarde son chapeau, ou
-/// savoure le reste de sa tenue.
-const REACTION_CLIPS: Partial<Record<CosmeticType, string>> = {
-	cosmetic_hat: "HatLook",
+type PickerTarget = { kind: "outfit"; type: CosmeticType } | { kind: "wheel"; slot: number };
+
+interface MiloModel3DProps {
+	hatTrigger: number;
+}
+
+const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
+	const { scene, animations } = useGLTF("/MiloV9.glb");
+	const { actions, mixer } = useAnimations(animations, scene);
+	const groupRef = useRef<THREE.Group>(null);
+
+	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
+
+	useEffect(() => {
+		if (!scene) return;
+		applyEquippedAccessories(scene, equippedMeshNames);
+	}, [scene, equippedMeshNames, accessoryMeshNames]);
+
+	useEffect(() => {
+		if (hatTrigger === 0) return;
+		const hatName = Object.keys(actions).find((n) => n.toLowerCase() === "hatlook");
+		const hatAction = hatName ? actions[hatName] : null;
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (hatAction && idleAction) {
+			hatAction.reset().setLoop(THREE.LoopOnce, 1);
+			hatAction.clampWhenFinished = true;
+			hatAction.play().crossFadeFrom(idleAction, 0.3, true);
+
+			const onFinished = (e: { action: THREE.AnimationAction }) => {
+				if (e.action === hatAction) {
+					idleAction.reset().play().crossFadeFrom(hatAction, 0.3, true);
+				}
+			};
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		}
+	}, [hatTrigger, actions, mixer]);
+
+	useEffect(() => {
+		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
+		const arrivalAction = arrivalName ? actions[arrivalName] : null;
+		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
+		const idleAction = idleName ? actions[idleName] : null;
+
+		if (arrivalAction && idleAction) {
+			arrivalAction.setLoop(THREE.LoopOnce, 1);
+			arrivalAction.clampWhenFinished = true;
+			arrivalAction.reset().play();
+
+			const onFinished = (e: { action: THREE.AnimationAction }) => {
+				if (e.action === arrivalAction) {
+					idleAction.reset().crossFadeFrom(arrivalAction, 0.3, true).play();
+				}
+			};
+			mixer.addEventListener("finished", onFinished);
+			return () => {
+				mixer.removeEventListener("finished", onFinished);
+			};
+		} else if (idleAction) {
+			idleAction.reset().play();
+		}
+	}, [actions, mixer]);
+
+	useFrame((_state, delta) => {
+		if (groupRef.current) {
+			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
+		}
+	});
+
+	return (
+		<group ref={groupRef} position={[-20, -4, -7]}>
+			<primitive object={scene} position={[0, 0, -1]} scale={1} rotation={[0, -0.05, 0]} />
+		</group>
+	);
 };
-const DEFAULT_REACTION_CLIP = "Success";
 
 const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [activeTab, setActiveTab] = useState<LockerTab>("skins");
-	const [skinTypeFilter, setSkinTypeFilter] = useState<CosmeticType | "">("");
-	const [reaction, setReaction] = useState<MiloReaction>({ clip: DEFAULT_REACTION_CLIP, nonce: 0 });
+	const userId = useUserStore((state) => state.user?.id);
+	const [hatTrigger, setHatTrigger] = useState(0);
+	const [picker, setPicker] = useState<PickerTarget | null>(null);
+	// Force le recalcul de la roue quand les emplacements mémorisés changent
+	const [slotVersion, setSlotVersion] = useState(0);
 
 	const { data: locker, isLoading, isError } = useLocker();
 	const equipMutation = useEquipCosmetic();
 	const unequipMutation = useUnequipCosmetics();
 	const isBusy = equipMutation.isPending || unequipMutation.isPending;
 
-	// L'équipement est maintenant en base : on nettoie l'ancien stockage local
 	useEffect(() => {
 		try {
 			localStorage.removeItem(LEGACY_INVENTORY_KEY);
@@ -76,80 +162,150 @@ const MyMiloPage: React.FC = () => {
 	}, []);
 
 	const items = useMemo(() => locker?.items ?? [], [locker]);
-	const wheelSize = locker?.wheel_size ?? 6;
+	const wheelSize = locker?.wheel_size ?? WHEEL_SLOT_COUNT;
 	const wheelUsed = locker?.wheel_used ?? 0;
-	const isWheelFull = wheelUsed >= wheelSize;
 
-	const filteredItems = useMemo(
-		() =>
-			items.filter((item) => {
-				if (activeTab === "skins") {
-					return isSkinType(item.type) && (!skinTypeFilter || item.type === skinTypeFilter);
-				}
-				return item.type === activeTab;
-			}),
-		[items, activeTab, skinTypeFilter],
-	);
+	/// Tenue : l'objet équipé par emplacement (clé absente = rien)
+	const equippedByType = useMemo(() => {
+		const map = new Map<CosmeticType, Cosmetic>();
+		items.forEach((item) => {
+			if (item.is_equipped && !isWheelType(item.type)) map.set(item.type, item);
+		});
+		return map;
+	}, [items]);
 
-	// Sous-filtre : seulement les types de skins réellement possédés
-	const ownedSkinTypes = useMemo(
-		() => SKIN_TYPES.filter((type) => items.some((item) => item.type === type)),
+	const outfitSlots = useMemo(
+		() => [
+			...OUTFIT_SLOTS,
+			...OPTIONAL_SLOTS.filter((type) => items.some((item) => item.type === type)),
+		],
 		[items],
 	);
 
-	/** Retire un emplacement (type) ou tout (sans type). Les objets restent possédés. */
-	const handleUnequip = (type?: CosmeticType) => {
+	/// Roue : objets équipés répartis dans six cases, ordre mémorisé localement
+	const wheelItems = useMemo(
+		() => items.filter((item) => item.is_equipped && isWheelType(item.type)),
+		[items],
+	);
+	const wheelSlots = useMemo(
+		() => arrangeWheel(wheelItems, userId),
+		// slotVersion : les emplacements mémorisés ont changé
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[wheelItems, userId, slotVersion],
+	);
+	const ownedWheelItems = useMemo(() => items.filter((item) => isWheelType(item.type)), [items]);
+
+	const notifyError = useCallback((error: unknown) => showToast(getCosmeticErrorMessage(error), "error"), []);
+
+	// ── Tenue ────────────────────────────────────────────────────────────────
+	const equipOutfit = (item: Cosmetic) => {
+		if (isBusy) return;
+		if (item.type === "cosmetic_hat") setHatTrigger((prev) => prev + 1);
+		equipMutation.mutate(
+			{ cosmeticId: item.id, equipped: true },
+			{ onSuccess: () => setPicker(null), onError: notifyError },
+		);
+	};
+
+	const unequipType = (type: CosmeticType) => {
 		if (isBusy) return;
 		unequipMutation.mutate(type, {
-			onSuccess: (data) => {
-				if (data.unequipped === 0) {
-					showToast(type ? "Rien n'était équipé à cet emplacement." : "Milo ne portait déjà rien.", "info");
-				} else {
-					showToast(
-						type
-							? `${TYPE_LABELS[type]} : ${data.unequipped} objet${data.unequipped > 1 ? "s" : ""} retiré${data.unequipped > 1 ? "s" : ""}.`
-							: `Tout est retiré (${data.unequipped}). Tes objets restent dans ton casier.`,
-						"success",
-					);
-				}
-			},
-			onError: (error) => showToast(getCosmeticErrorMessage(error), "error"),
+			onSuccess: () => setPicker(null),
+			onError: notifyError,
 		});
 	};
 
-	// Skins actuellement portés, par emplacement (clé absente = rien d'équipé)
-	const equippedSkins = useMemo(
-		() => SKIN_TYPES.map((type) => ({ type, item: items.find((i) => i.type === type && i.is_equipped) }))
-			.filter((entry): entry is { type: CosmeticType; item: Cosmetic } => Boolean(entry.item)),
-		[items],
-	);
+	// ── Roue ─────────────────────────────────────────────────────────────────
+	const placeInWheelSlot = async (slot: number, item: Cosmetic) => {
+		if (isBusy || userId === undefined) return;
+		const current = wheelSlots[slot];
+		try {
+			// Déjà dans la roue ailleurs : simple déplacement, aucun appel serveur
+			if (item.is_equipped) {
+				if (current && current.id !== item.id) {
+					await equipMutation.mutateAsync({ cosmeticId: current.id, equipped: false });
+				}
+				assignSlot(userId, slot, item.id);
+				setSlotVersion((v) => v + 1);
+				setPicker(null);
+				return;
+			}
+			if (current) {
+				await equipMutation.mutateAsync({ cosmeticId: current.id, equipped: false });
+			}
+			await equipMutation.mutateAsync({ cosmeticId: item.id, equipped: true });
+			assignSlot(userId, slot, item.id);
+			setSlotVersion((v) => v + 1);
+			setPicker(null);
+		} catch (error) {
+			notifyError(error);
+		}
+	};
 
-	const handleToggleEquip = (item: Cosmetic) => {
-		if (isBusy) return;
-		const equipped = !item.is_equipped;
-		if (equipped && !isSkinType(item.type) && isWheelFull) {
-			showToast(
-				`Ta roue est pleine (${wheelUsed}/${wheelSize}). Libère un emplacement avant d'en ajouter un.`,
-				"error",
-			);
-			return;
-		}
-		if (equipped && isSkinType(item.type)) {
-			setReaction((prev) => ({
-				clip: REACTION_CLIPS[item.type] ?? DEFAULT_REACTION_CLIP,
-				nonce: prev.nonce + 1,
-			}));
-		}
+	const clearWheelSlot = (slot: number) => {
+		if (isBusy || userId === undefined) return;
+		const current = wheelSlots[slot];
+		if (!current) return;
 		equipMutation.mutate(
-			{ cosmeticId: item.id, equipped },
+			{ cosmeticId: current.id, equipped: false },
 			{
-				onError: (error) => {
-					// 409 roue pleine, 404 objet non possédé : message du backend
-					showToast(getCosmeticErrorMessage(error), "error");
+				onSuccess: () => {
+					clearSlot(userId, slot);
+					setSlotVersion((v) => v + 1);
+					setPicker(null);
 				},
+				onError: notifyError,
 			},
 		);
 	};
+
+	const unequipAll = () => {
+		if (isBusy) return;
+		unequipMutation.mutate(undefined, {
+			onSuccess: (data) => {
+				showToast(
+					data.unequipped === 0
+						? "Milo ne portait déjà rien."
+						: `Tout est retiré (${data.unequipped}). Tes objets restent dans ton casier.`,
+					data.unequipped === 0 ? "info" : "success",
+				);
+			},
+			onError: notifyError,
+		});
+	};
+
+	// ── Popup courante ───────────────────────────────────────────────────────
+	const pickerProps = (() => {
+		if (!picker) return null;
+		if (picker.kind === "outfit") {
+			const current = equippedByType.get(picker.type) ?? null;
+			return {
+				title: TYPE_LABELS[picker.type],
+				subtitle: "Choisis ce que Milo porte à cet emplacement",
+				icon: <span aria-hidden="true">{TYPE_ICONS[picker.type]}</span>,
+				items: items.filter((item) => item.type === picker.type),
+				currentId: current?.id ?? null,
+				emptyText: `Tu ne possèdes encore aucun objet de type « ${TYPE_LABELS[picker.type]} ».`,
+				onPick: equipOutfit,
+				onUnequip: () => unequipType(picker.type),
+			};
+		}
+		const current = wheelSlots[picker.slot];
+		const usedElsewhere = new Set(
+			wheelSlots.filter((s, i): s is Cosmetic => Boolean(s) && i !== picker.slot).map((s) => s.id),
+		);
+		return {
+			title: `Emplacement ${picker.slot + 1} de la roue`,
+			subtitle: "Un sticker ou une danse à utiliser pendant les duels",
+			icon: <Swords size={20} />,
+			items: ownedWheelItems,
+			currentId: current?.id ?? null,
+			usedElsewhereIds: usedElsewhere,
+			emptyText: "Tu ne possèdes encore ni sticker ni danse.",
+			onPick: (item: Cosmetic) => void placeInWheelSlot(picker.slot, item),
+			onUnequip: () => clearWheelSlot(picker.slot),
+		};
+	})();
 
 	return (
 		<ScreenLayout>
@@ -165,9 +321,7 @@ const MyMiloPage: React.FC = () => {
 						<h1 className="page-title">
 							<WandSparkles className="sparkle-icon" /> Mon Milo
 						</h1>
-						<p className="page-subtitle">
-							Gère ton style, tes stickers et tes danses
-						</p>
+						<p className="page-subtitle">Compose sa tenue et prépare ta roue de duel</p>
 					</div>
 
 					<div className="header-actions">
@@ -192,7 +346,7 @@ const MyMiloPage: React.FC = () => {
 						<button
 							type="button"
 							className="btn-unequip-all"
-							onClick={() => handleUnequip()}
+							onClick={unequipAll}
 							disabled={isBusy}
 							title="Retire la tenue complète et la roue. Tes objets restent dans ton casier."
 						>
@@ -209,164 +363,122 @@ const MyMiloPage: React.FC = () => {
 						transition={{ delay: 0.2 }}
 					>
 						<div className="milo-light-ray"></div>
-
-						<MiloStage3D reaction={reaction} />
+						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
+							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+								<Environment preset="sunset" environmentIntensity={1.2} />
+								<directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" castShadow />
+								<ambientLight intensity={0.2} />
+								<MiloModel3D hatTrigger={hatTrigger} />
+							</Canvas>
+						</div>
+						<div className="milo-shadow"></div>
 					</motion.div>
 
 					<motion.div
-						className="vestiaire-glass-box"
+						className="vestiaire-glass-box lk-box"
 						initial={{ x: 50, opacity: 0 }}
 						animate={{ x: 0, opacity: 1 }}
 						transition={{ delay: 0.3 }}
 					>
-						<div className="vestiaire-header">
-							<h2 className="section-title">
-								<DoorOpen size={24} /> Casier d'Aventure
-							</h2>
-							<div className="locker-filters-pimped">
-								{TABS.map((tab) => (
-									<button
-										key={tab.id}
-										className={`filter-chip ${activeTab === tab.id ? "active" : ""}`}
-										onClick={() => setActiveTab(tab.id)}
-									>
-										{tab.icon} {tab.label}
-									</button>
-								))}
+						{isLoading && (
+							<div className="locker-state">
+								<Loader size={26} className="locker-spin" />
+								<p>Ouverture du casier...</p>
 							</div>
-						</div>
-
-						{/* Roue des duels : stickers et danses partagent 6 emplacements */}
-						{activeTab !== "skins" && locker && (
-							<div className={`wheel-status ${isWheelFull ? "is-full" : ""}`} role="status">
-								<span className="wheel-status-label">Roue des duels</span>
-								<div className="wheel-slots" aria-label={`${wheelUsed} emplacements occupés sur ${wheelSize}`}>
-									{Array.from({ length: wheelSize }, (_, i) => (
-										<span key={i} className={`wheel-slot ${i < wheelUsed ? "is-used" : ""}`} />
-									))}
-								</div>
-								<span className="wheel-status-count">
-									{wheelUsed}/{wheelSize}
-									{isWheelFull ? " · pleine, libère un emplacement" : ""}
-								</span>
-								<button
-									type="button"
-									className="btn-unequip-type"
-									onClick={() => handleUnequip(activeTab)}
-									disabled={isBusy}
-									title={`Retire tous les ${TYPE_LABELS[activeTab].toLowerCase()} de la roue`}
-								>
-									<X size={13} /> Retirer les {TYPE_LABELS[activeTab].toLowerCase()}
-								</button>
+						)}
+						{isError && (
+							<div className="locker-state">
+								<p>Impossible de charger ton casier pour le moment.</p>
 							</div>
 						)}
 
-						{/* Tenue portée : un bouton "Retirer" par emplacement */}
-						{activeTab === "skins" && equippedSkins.length > 0 && (
-							<div className="equipped-bar" role="status">
-								<span className="wheel-status-label">Porté</span>
-								{equippedSkins.map(({ type, item }) => (
-									<span key={type} className="equipped-chip">
-										<span className="equipped-chip-type">{TYPE_LABELS[type]}</span>
-										<span className="equipped-chip-name">{item.name}</span>
-										<button
-											type="button"
-											className="btn-unequip-type"
-											onClick={() => handleUnequip(type)}
-											disabled={isBusy}
-											title={`Retirer : ${TYPE_LABELS[type].toLowerCase()}`}
-										>
-											<X size={13} /> Retirer
-										</button>
-									</span>
-								))}
-							</div>
-						)}
+						{locker && (
+							<div className="lk-columns">
+								{/* ── Tenue : une case par emplacement, de la tête aux pieds ── */}
+								<section className="lk-section">
+									<header className="lk-section-header">
+										<h2 className="section-title">
+											<Shirt size={22} /> Tenue
+										</h2>
+										<span className="lk-count">{equippedByType.size}/{outfitSlots.length}</span>
+									</header>
+									<ul className="outfit-slots">
+										{outfitSlots.map((type) => {
+											const item = equippedByType.get(type);
+											return (
+												<li key={type}>
+													<button
+														type="button"
+														className={`outfit-slot ${item ? `is-filled rarity-${raritySlug(item.rarity)}` : "is-empty"}`}
+														onClick={() => setPicker({ kind: "outfit", type })}
+														disabled={isBusy}
+														title={item ? `${TYPE_LABELS[type]} : ${item.name}` : `${TYPE_LABELS[type]} : rien d'équipé`}
+													>
+														<span className="outfit-slot-bg" aria-hidden="true">{TYPE_ICONS[type]}</span>
+														<span className="outfit-slot-visual">
+															{item ? <CosmeticVisual item={item} className="outfit-slot-img" /> : <Plus size={22} />}
+														</span>
+														<span className="outfit-slot-text">
+															<span className="outfit-slot-type">{TYPE_LABELS[type]}</span>
+															<span className="outfit-slot-name">{item ? item.name : "Vide"}</span>
+														</span>
+														{item?.rarity === "legendaire" && <Sparkles className="legendary-sparkle" size={16} />}
+													</button>
+												</li>
+											);
+										})}
+									</ul>
+								</section>
 
-						{activeTab === "skins" && ownedSkinTypes.length > 1 && (
-							<div className="locker-subfilters">
-								<button
-									className={`subfilter-chip ${skinTypeFilter === "" ? "active" : ""}`}
-									onClick={() => setSkinTypeFilter("")}
-								>
-									Tout
-								</button>
-								{ownedSkinTypes.map((type) => (
-									<button
-										key={type}
-										className={`subfilter-chip ${skinTypeFilter === type ? "active" : ""}`}
-										onClick={() => setSkinTypeFilter(type)}
-									>
-										{TYPE_LABELS[type]}
-									</button>
-								))}
-							</div>
-						)}
-
-						<div className="locker-scroll-area">
-							{isLoading && (
-								<div className="locker-state">
-									<Loader size={26} className="locker-spin" />
-									<p>Ouverture du casier...</p>
-								</div>
-							)}
-							{isError && (
-								<div className="locker-state">
-									<p>Impossible de charger ton casier pour le moment.</p>
-								</div>
-							)}
-							{!isLoading && !isError && filteredItems.length === 0 && (
-								<div className="locker-state">
-									<p>
-										{items.length === 0
-											? "Ton casier est vide. Passe à la boutique pour équiper Milo !"
-											: "Rien dans cette catégorie pour l'instant."}
-									</p>
-									<button className="btn-shop-pimped" onClick={() => navigate("/boutique")}>
-										<ShoppingBag size={16} /> <span>Voir la boutique</span>
-									</button>
-								</div>
-							)}
-
-							<AnimatePresence mode="popLayout">
-								<motion.div className="locker-grid-pimped" layout>
-									{filteredItems.map((item) => (
-										<motion.div
-											key={item.id}
-											className={`item-card-v2 rarity-${raritySlug(item.rarity)} ${item.is_equipped ? "is-equipped" : ""}`}
-											layout
-											initial={{ opacity: 0, scale: 0.9 }}
-											animate={{ opacity: 1, scale: 1 }}
-											whileHover={{ y: -8, rotateZ: 1 }}
-										>
-											{item.rarity === "legendaire" && (
-												<Sparkles className="legendary-sparkle" size={16} />
-											)}
-											<div className="item-preview-circle">
-												<CosmeticVisual item={item} className="item-visual" />
-											</div>
-											<div className="item-info-v2">
-												<h3>{item.name}</h3>
-												<div className={`rarity-tag ${raritySlug(item.rarity)}`}>
-													{RARITY_LABELS[item.rarity] ?? item.rarity}
-												</div>
-												<span className="item-type-tag">{TYPE_LABELS[item.type] ?? item.type}</span>
-											</div>
+								{/* ── Roue des duels : deux rangées de trois emplacements ── */}
+								<section className="lk-section">
+									<header className="lk-section-header">
+										<h2 className="section-title">
+											<Swords size={22} /> Roue des duels
+										</h2>
+										<span className={`lk-count ${wheelUsed >= wheelSize ? "is-full" : ""}`}>
+											{wheelUsed}/{wheelSize}
+										</span>
+									</header>
+									<p className="lk-hint">Stickers et danses envoyés à ton adversaire pendant un duel.</p>
+									<div className="duel-wheel">
+										{wheelSlots.map((item, slot) => (
 											<button
-												className={`btn-equip-pimped ${item.is_equipped ? "active" : ""}`}
-												onClick={() => handleToggleEquip(item)}
+												key={slot}
+												type="button"
+												className={`wheel-slot-card ${item ? `is-filled wheel-slot-card--${item.type}` : "is-empty"}`}
+												onClick={() => setPicker({ kind: "wheel", slot })}
 												disabled={isBusy}
-												title={item.is_equipped ? "Retirer" : "Équiper"}
+												title={item ? `Emplacement ${slot + 1} : ${item.name}` : `Emplacement ${slot + 1} : vide`}
 											>
-												{item.is_equipped ? <CheckCircle2 size={18} /> : "Utiliser"}
+												<span className="wheel-slot-index">{slot + 1}</span>
+												<span className="wheel-slot-visual">
+													{item ? (
+														<CosmeticVisual item={item} className="wheel-slot-img" />
+													) : (
+														<Plus size={20} />
+													)}
+												</span>
+												<span className="wheel-slot-name">
+													{item ? item.name : "Libre"}
+												</span>
 											</button>
-										</motion.div>
-									))}
-								</motion.div>
-							</AnimatePresence>
-						</div>
+										))}
+									</div>
+								</section>
+							</div>
+						)}
 					</motion.div>
 				</main>
+
+				{pickerProps && (
+					<LockerPickerModal
+						{...pickerProps}
+						busy={isBusy}
+						onClose={() => setPicker(null)}
+						onShop={() => navigate("/boutique")}
+					/>
+				)}
 			</div>
 		</ScreenLayout>
 	);

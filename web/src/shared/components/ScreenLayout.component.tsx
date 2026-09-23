@@ -5,6 +5,7 @@ import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@shared/constants/routes";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 
 interface PageLayoutProps {
 	children: React.ReactNode;
@@ -21,6 +22,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 	const logout = useAuthStore((state) => state.logout);
 	const navigate = useNavigate();
 	const { data: dailyMissions } = useDailyMissions();
+	const { equippedMeshNames } = useEquippedMeshNames();
 	const missionsRemaining = dailyMissions
 		? Math.max(dailyMissions.total - dailyMissions.completed, 0)
 		: 0;
@@ -45,6 +47,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 				xpPoints={user?.xp ?? 0}
 				notificationCount={notificationCount}
 				missionsRemaining={missionsRemaining}
+				avatarMeshNames={equippedMeshNames}
 			/>
 			<main className="main-container">{children}</main>
 		</>
