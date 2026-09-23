@@ -10,7 +10,7 @@ import { ACCESSORY_MESH_NAMES } from "@features/my-milo/utils/miloModel";
 /// donc UN seul rendu hors écran, partagé, dont le résultat est mis en cache
 /// par combinaison d'accessoires : quelques images pour toute l'application.
 
-const MODEL_PATH = "/MiloV10.glb";
+const MODEL_PATH = "/MiloV11.glb";
 /// Taille de rendu : l'avatar est affiché bien plus petit, on garde de la marge
 /// pour les écrans à forte densité
 const RENDER_SIZE = 256;

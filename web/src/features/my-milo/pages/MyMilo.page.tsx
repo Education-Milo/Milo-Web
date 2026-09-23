@@ -67,7 +67,7 @@ interface MiloModel3DProps {
 }
 
 const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
-	const { scene, animations } = useGLTF("/MiloV9.glb");
+	const { scene, animations } = useGLTF("/MiloV11.glb");
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
 
