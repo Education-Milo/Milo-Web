@@ -13,6 +13,20 @@ export const BODY_MESH_NAME = "Milo";
 /// quand la boutique est vide ou pas encore chargée.
 export const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses", "tie", "tophat"];
 
+/// Clips d'animation présents dans MiloV11.glb. Une danse (cosmétique de
+/// type "dance") référence l'un d'eux dans son champ `mesh_name`.
+export const KNOWN_ANIMATION_CLIPS = [
+	"Arrival",
+	"Disapointed",
+	"Explaining",
+	"HatLook",
+	"Hello",
+	"Idle",
+	"Success",
+	"Thinking",
+	"Wrong",
+];
+
 /// Meshes des accessoires équipables. Ils sont exclus du cadrage automatique
 /// pour que Milo garde la même taille quoi qu'il porte.
 ///

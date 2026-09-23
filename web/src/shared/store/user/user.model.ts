@@ -17,7 +17,12 @@ export interface User extends UserProfile {
      * pour les autres utilisateurs. Tant que l'API ne renvoie pas ce champ,
      * les amis s'affichent avec un Milo sans accessoires.
      */
-    equipped_items?: number[];
+    /**
+     * `mesh_name` des skins équipés par cet utilisateur (stickers et danses
+     * exclus), renvoyé par /users/{id}, /users/by-username et /users/me.
+     * Sert au rendu des avatars sans requête supplémentaire.
+     */
+    equipped_meshes?: string[];
     /** Clés brutes renvoyées par l'API (conservées par le spread) */
     class_?: ClassType;
     interests?: Interest[];
