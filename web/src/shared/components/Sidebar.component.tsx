@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Bell, Flame, LogOut, Menu, X, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
+import MiloAvatar from "@shared/components/MiloAvatar.component";
 import { ROUTES } from "@shared/constants/routes";
 import "@shared/styles/SideBar.css";
 
@@ -14,6 +15,8 @@ interface SidebarProps {
 	notificationCount?: number;
 	/** Missions du jour restantes (total - completed), affiché en badge. */
 	missionsRemaining?: number;
+	/** Skins équipés de l'utilisateur, pour son avatar Milo */
+	avatarMeshNames?: string[];
 	onNotificationClick?: () => void;
 }
 
@@ -24,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	xpPoints = 0,
 	notificationCount = 0,
 	missionsRemaining = 0,
+	avatarMeshNames,
 	onNotificationClick,
 }) => {
 	const navigate = useNavigate();
@@ -245,7 +249,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 							className="sb-user-card"
 							onClick={() => navigate("/profile")}
 						>
-							<div className="sb-user-avatar">👤</div>
+							<div className="sb-user-avatar">
+						<MiloAvatar
+							equippedMeshNames={avatarMeshNames}
+							initials={`${userProfile?.first_name?.[0] ?? ""}${userProfile?.last_name?.[0] ?? ""}`.toUpperCase() || "👤"}
+						/>
+					</div>
 							<div className="sb-user-info">
 								<h4 className="sb-user-name">
 									{userProfile?.first_name || "Utilisateur"}

@@ -5,6 +5,8 @@ export interface Friend {
   level: number;
   avatarUrl?: string;
   status: 'online' | 'offline' | 'in-game';
+  /** `mesh_name` des skins équipés (champ equipped_meshes de /users/{id}) */
+  equippedMeshes?: string[];
 }
 
 export interface Duel {

@@ -1,5 +1,6 @@
 import React from "react";
 import type { Friend } from "@shared/types/duels";
+import MiloAvatar from "@shared/components/MiloAvatar.component";
 import "@features/duels/styles/DuelsScreen.css";
 
 interface FriendListProps {
@@ -31,18 +32,12 @@ const FriendList: React.FC<FriendListProps> = ({
               style={{ animationDelay: `${0.4 + index * 0.05}s` } as React.CSSProperties}
             >
               <div className="friend-avatar-container">
-                {friend.avatarUrl ? (
-                  <img
-                    src={friend.avatarUrl}
-                    alt={`${friend.firstName} ${friend.lastName}`}
-                    className="friend-avatar"
+                <div className="friend-avatar-placeholder">
+                  <MiloAvatar
+                    equippedMeshNames={friend.equippedMeshes}
+                    initials={`${friend.firstName[0] ?? ""}${friend.lastName[0] ?? ""}`}
                   />
-                ) : (
-                  <div className="friend-avatar-placeholder">
-                    {friend.firstName[0]}
-                    {friend.lastName[0]}
-                  </div>
-                )}
+                </div>
                 <span className={`friend-status ${friend.status}`} />
               </div>
               <div className="friend-info">

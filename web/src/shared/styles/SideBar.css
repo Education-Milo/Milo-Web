@@ -206,3 +206,6 @@ button.sb-mobile-close { display: none; }
 
 	.sb-header-actions .sb-icon-btn-dot { position: static; margin-left: auto; }
 }
+/* Avatar : le Milo de l'utilisateur avec ses accessoires */
+.sb-user-avatar { overflow: hidden; font-size: 0.85rem; font-weight: 900; color: var(--sb-accent-dark); }
+.sb-user-avatar .milo-avatar-img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }

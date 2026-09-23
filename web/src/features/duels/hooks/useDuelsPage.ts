@@ -42,6 +42,17 @@ export const useDuelsScreen = () => {
         setFriends(mapped);
         friendIdsRef.current = mapped.map((f) => f.id);
         pollPresence();
+        // Tenue de chaque ami (equipped_meshes) pour les avatars Milo
+        void Promise.all(
+          mapped.map((f) =>
+            APIAxios.get(APIRoutes.GET_User_By_Id(f.id))
+              .then((res) => [f.id, (res.data?.equipped_meshes as string[] | undefined) ?? []] as const)
+              .catch(() => [f.id, [] as string[]] as const),
+          ),
+        ).then((entries) => {
+          const byId = new Map(entries);
+          setFriends((prev) => prev.map((f) => ({ ...f, equippedMeshes: byId.get(f.id) ?? [] })));
+        });
       })
       .catch(() => setFriends([]))
       .finally(() => setLoadingFriends(false));

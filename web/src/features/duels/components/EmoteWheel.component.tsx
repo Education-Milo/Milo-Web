@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Smile, X } from "lucide-react";
 import type { DuelCosmetic } from "@shared/types/duels";
+import { useUserStore } from "@shared/store/user/user.store";
+import { arrangeWheel } from "@features/cosmetics/utils/wheelSlots";
 
-const WHEEL_SIZE = 6;
 /// Le serveur accepte une émote par seconde : on réarme le bouton après ce délai
 const COOLDOWN_MS = 1000;
 
@@ -27,8 +28,10 @@ const EmoteWheel: React.FC<EmoteWheelProps> = ({ items, busy, onPick }) => {
 		if (busy) setOpen(false);
 	}, [busy]);
 
+	const userId = useUserStore((state) => state.user?.id);
 	const disabled = busy || cooling || items.length === 0;
-	const slots = items.slice(0, WHEEL_SIZE);
+	// Même disposition que dans le casier "Mon Milo"
+	const slots = arrangeWheel(items, userId);
 
 	const handlePick = (id: number) => {
 		if (disabled) return;
@@ -42,8 +45,7 @@ const EmoteWheel: React.FC<EmoteWheelProps> = ({ items, busy, onPick }) => {
 		<div className="duel-emote">
 			{open && (
 				<div className="duel-emote-wheel" role="menu" aria-label="Choisir une émote">
-					{Array.from({ length: WHEEL_SIZE }, (_, i) => {
-						const item = slots[i];
+					{slots.map((item, i) => {
 						if (!item) {
 							return <span key={`empty-${i}`} className="duel-emote-slot is-empty" aria-hidden="true" />;
 						}
