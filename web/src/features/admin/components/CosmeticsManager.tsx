@@ -13,7 +13,7 @@ import {
 	type CosmeticRarity,
 	type CosmeticType,
 } from "@features/cosmetics/store/cosmetics.model";
-import { KNOWN_ACCESSORY_MESH_NAMES } from "@features/my-milo/utils/miloModel";
+import { KNOWN_ACCESSORY_MESH_NAMES, KNOWN_ANIMATION_CLIPS } from "@features/my-milo/utils/miloModel";
 import {
 	getAdminErrorMessage,
 	useAddCosmetic,
@@ -93,7 +93,10 @@ const CosmeticsManager: React.FC = () => {
 	const deleteMutation = useDeleteCosmetic();
 
 	const isSkin = isSkinType(form.type);
-	const meshName = !isSkin
+	const isDance = form.type === "dance";
+	/// Skin : nom du maillage à accrocher ; danse : nom du clip à jouer ; sticker : rien
+	const usesMesh = isSkin || isDance;
+	const meshName = !usesMesh
 		? null
 		: form.meshChoice === MESH_OTHER
 			? form.meshCustom.trim() || null
@@ -119,10 +122,12 @@ const CosmeticsManager: React.FC = () => {
 		} else if (form.image_url.trim().length > 500) {
 			next.image_url = "500 caractères maximum.";
 		}
-		if (isSkin && form.meshChoice === MESH_OTHER) {
-			if (!form.meshCustom.trim()) next.meshCustom = "Indique le nom du maillage.";
+		if (usesMesh && form.meshChoice === MESH_OTHER) {
+			if (!form.meshCustom.trim()) next.meshCustom = isDance ? "Indique le nom du clip." : "Indique le nom du maillage.";
 			else if (form.meshCustom.trim().length > 100) next.meshCustom = "100 caractères maximum.";
 		}
+		if (isDance && !meshName) next.meshChoice = "Une danse doit référencer un clip d'animation.";
+		if (form.type === "sticker" && !form.image_url.trim()) next.image_url = "Un sticker doit avoir une image.";
 		setErrors(next);
 		return Object.keys(next).length === 0;
 	};
@@ -205,10 +210,9 @@ const CosmeticsManager: React.FC = () => {
 								onChange={(e) => {
 									const type = e.target.value as CosmeticType;
 									update("type", type);
-									if (!isSkinType(type)) {
-										update("meshChoice", "");
-										update("meshCustom", "");
-									}
+									// Maillages et clips ne sont pas interchangeables : on repart de zéro
+									update("meshChoice", "");
+									update("meshCustom", "");
 								}}
 							>
 								{ALL_TYPES.map((t) => (
@@ -254,14 +258,27 @@ const CosmeticsManager: React.FC = () => {
 								</select>
 							</label>
 						)}
-						{isSkin && form.meshChoice === MESH_OTHER && (
+						{isDance && (
 							<label className="ad-field">
-								<span>Nom du maillage</span>
+								<span>Clip d'animation (mesh_name)</span>
+								<select value={form.meshChoice} onChange={(e) => update("meshChoice", e.target.value)}>
+									<option value="">Choisir un clip…</option>
+									{KNOWN_ANIMATION_CLIPS.map((clip) => (
+										<option key={clip} value={clip}>{clip}</option>
+									))}
+									<option value={MESH_OTHER}>Autre…</option>
+								</select>
+								{errors.meshChoice && <em className="ad-field-error">{errors.meshChoice}</em>}
+							</label>
+						)}
+						{usesMesh && form.meshChoice === MESH_OTHER && (
+							<label className="ad-field">
+								<span>{isDance ? "Nom du clip" : "Nom du maillage"}</span>
 								<input
 									type="text"
 									value={form.meshCustom}
 									maxLength={100}
-									placeholder="Nom exact du nœud dans le .glb"
+									placeholder={isDance ? "Nom exact du clip d'animation dans le .glb" : "Nom exact du nœud dans le .glb"}
 									onChange={(e) => update("meshCustom", e.target.value)}
 								/>
 								{errors.meshCustom && <em className="ad-field-error">{errors.meshCustom}</em>}
@@ -302,6 +319,7 @@ const CosmeticsManager: React.FC = () => {
 							<strong>{form.name.trim() || "Nom de l'objet"}</strong>
 							<span>{TYPE_LABELS[form.type]} · {RARITY_LABELS[form.rarity]} · {Number(form.price) || 0} miloros</span>
 							{isSkin && <span className="ad-muted">Maillage : {meshName ?? "aucun"}</span>}
+							{isDance && <span className="ad-muted">Clip d'animation : {meshName ?? "à choisir"}</span>}
 							{showPreview && previewFailed && (
 								<span className="ad-field-error">L'image ne se charge pas à cette adresse.</span>
 							)}

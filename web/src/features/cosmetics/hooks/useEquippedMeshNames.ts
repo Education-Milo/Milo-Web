@@ -38,16 +38,3 @@ export const useEquippedMeshNames = () => {
 
 	return { equippedMeshNames, accessoryMeshNames, isReady: isSuccess };
 };
-
-/** Traduit des ids d'objets (ex. `equipped_items` d'un ami) en maillages, via le catalogue. */
-export const useMeshNamesForItemIds = (itemIds: number[] | undefined) => {
-	const { data: catalogue } = useCosmetics();
-	return useMemo(() => {
-		if (!itemIds?.length || !catalogue) return [];
-		const byId = new Map(catalogue.map((item) => [item.id, item.mesh_name]));
-		return itemIds
-			.map((id) => byId.get(id))
-			.filter((name): name is string => Boolean(name))
-			.sort();
-	}, [itemIds, catalogue]);
-};

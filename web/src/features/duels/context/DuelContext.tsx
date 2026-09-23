@@ -10,9 +10,12 @@ import { useNavigate } from "react-router-dom";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { refreshAfterServerAction } from "@shared/lib/serverActions";
+import { showToast } from "@shared/store/toast/toast.store";
 import type {
+  DuelEmote,
   DuelEndData,
   DuelLastResult,
+  DuelPlayer,
   DuelQuestion,
   DuelScreen,
   PendingChallenge,
@@ -44,6 +47,10 @@ interface DuelContextValue {
   lobbyStatus: string;
   waitingMessage: string;
   answered: boolean;
+  /** Les deux joueurs (message `start`), avec tenue et roue */
+  players: DuelPlayer[];
+  /** Dernière émote reçue, à afficher sur le Milo de `player_idx` */
+  lastEmote: DuelEmote | null;
 
   startMatchmaking: () => void;
   sendChallengeToUserId: (userId: number) => Promise<void>;
@@ -51,11 +58,14 @@ interface DuelContextValue {
   acceptChallenge: () => Promise<void>;
   declineChallenge: () => Promise<void>;
   sendAnswer: (answerIdx: number) => void;
+  /** Envoie une émote de la roue ; l'affichage se fait à la réception */
+  sendEmote: (cosmeticId: number) => void;
   goToLobby: () => void;
   setLobbyStatus: (msg: string) => void;
 }
 
-const DuelContext = createContext<DuelContextValue | null>(null);
+/** Exporté pour les prévisualisations et tests ; l'app passe par DuelProvider. */
+export const DuelContext = createContext<DuelContextValue | null>(null);
 
 export const useDuel = () => {
   const ctx = useContext(DuelContext);
@@ -85,6 +95,9 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     "En attente d'un adversaire..."
   );
   const [answered, setAnswered] = useState(false);
+  const [players, setPlayers] = useState<DuelPlayer[]>([]);
+  const [lastEmote, setLastEmote] = useState<DuelEmote | null>(null);
+  const emoteSeqRef = useRef(0);
 
   const notifWsRef = useRef<WebSocket | null>(null);
   const duelWsRef = useRef<WebSocket | null>(null);
@@ -106,9 +119,25 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     if (msg.type === "joined") {
       duelAuthRetryRef.current = false;
       setMyIdx(msg.player_idx);
+      setPlayers([]);
+      setLastEmote(null);
+    } else if (msg.type === "start") {
+      // Salle complète : identité, tenue et roue des deux joueurs
+      setPlayers(Array.isArray(msg.players) ? msg.players : []);
+    } else if (msg.type === "emote") {
+      // L'émetteur reçoit aussi la sienne : on n'affiche qu'à la réception
+      if (msg.cosmetic && typeof msg.player_idx === "number") {
+        emoteSeqRef.current += 1;
+        setLastEmote({ player_idx: msg.player_idx, cosmetic: msg.cosmetic, seq: emoteSeqRef.current });
+      }
     } else if (msg.type === "error") {
-      setScreen("lobby");
-      setLobbyStatus("Erreur : " + msg.message);
+      // Pendant une partie (ex. émote refusée), l'erreur n'interrompt pas le duel
+      if (currentQuestionRef.current) {
+        showToast(String(msg.message ?? "Action refusée"), "error");
+      } else {
+        setScreen("lobby");
+        setLobbyStatus("Erreur : " + msg.message);
+      }
     } else if (msg.type === "question") {
       myAnswerRef.current = null;
       answeredRef.current = false;
@@ -128,6 +157,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
         good_answer: msg.good_answer,
         my_answer: myAnswerRef.current,
         scores: msg.scores,
+        responses: Array.isArray(msg.responses) ? msg.responses : [],
       });
     } else if (msg.type === "end") {
       setEndData({ scores: msg.scores, winner: msg.winner });
@@ -372,6 +402,12 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   }, []);
 
+  const sendEmote = useCallback((cosmeticId: number) => {
+    if (!duelWsRef.current || duelWsRef.current.readyState !== WebSocket.OPEN) return;
+    if (!currentQuestionRef.current) return; // uniquement pendant un duel en cours
+    duelWsRef.current.send(JSON.stringify({ type: "emote", cosmetic_id: cosmeticId }));
+  }, []);
+
   const goToLobby = useCallback(() => {
     duelWsRef.current?.close();
     duelWsRef.current = null;
@@ -383,6 +419,8 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     setMyIdx(null);
     setAnswered(false);
     answeredRef.current = false;
+    setPlayers([]);
+    setLastEmote(null);
   }, []);
 
   return (
@@ -397,12 +435,15 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
         lobbyStatus,
         waitingMessage,
         answered,
+        players,
+        lastEmote,
         startMatchmaking,
         sendChallengeToUserId,
         sendChallengeByUsername,
         acceptChallenge,
         declineChallenge,
         sendAnswer,
+        sendEmote,
         goToLobby,
         setLobbyStatus,
       }}
