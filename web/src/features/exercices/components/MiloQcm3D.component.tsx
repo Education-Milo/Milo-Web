@@ -13,6 +13,7 @@ import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshN
 import {
 	MILO_MODEL_PATH,
 	applyEquippedAccessories,
+	updateAngelCircleGlow,
 	cameraDistanceFor,
 	findAction,
 	fitMiloToHeight,
@@ -158,7 +159,10 @@ function MiloModel({
 	}, [scene, invalidate, onReady]);
 
 	/// L'animation d'attente tourne en boucle : on rend en continu
-	useFrame(() => invalidate());
+	useFrame((state) => {
+		updateAngelCircleGlow(scene, state.clock.elapsedTime);
+		invalidate();
+	});
 
 	return (
 		<group
