@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { ACCESSORY_MESH_NAMES } from "@features/my-milo/utils/miloModel";
+import {
+	applyAngelCircleGlow,
+	forEachAccessoryRoot,
+	isBodyPart,
+} from "@features/my-milo/utils/miloModel";
 
 /// Portrait de Milo rendu en image, pour servir de photo de profil.
 ///
@@ -28,15 +32,15 @@ const cache = new Map<string, string>();
 export const avatarKey = (meshNames: string[]) =>
 	[...new Set(meshNames)].sort().join("|") || "nu";
 
-/// Boîte englobante du corps, accessoires exclus, pour que Milo garde la même
-/// taille quoi qu'il porte
+/// Boîte englobante du corps seul : le portrait garde le même cadrage quels
+/// que soient les accessoires portés
 function measureBody(model: THREE.Object3D) {
 	const box = new THREE.Box3();
 	const meshBox = new THREE.Box3();
 	model.updateMatrixWorld(true);
 	model.traverse((child) => {
 		const mesh = child as THREE.SkinnedMesh;
-		if (!mesh.isMesh || ACCESSORY_MESH_NAMES.has(child.name)) return;
+		if (!mesh.isMesh || !isBodyPart(child)) return;
 		meshBox.setFromObject(mesh);
 		if (!meshBox.isEmpty()) box.union(meshBox);
 	});
@@ -76,6 +80,8 @@ function buildRig(): Promise<Rig> {
 				model.traverse((child) => {
 					(child as THREE.Mesh).frustumCulled = false;
 				});
+
+				applyAngelCircleGlow(model);
 
 				const scene = new THREE.Scene();
 				const holder = new THREE.Group();
@@ -159,10 +165,8 @@ export async function renderMiloAvatar(
 		const rig = await rigPromise;
 
 		const equipped = new Set(meshNames);
-		rig.model.traverse((child) => {
-			if (ACCESSORY_MESH_NAMES.has(child.name)) {
-				child.visible = equipped.has(child.name);
-			}
+		forEachAccessoryRoot(rig.model, (accessory) => {
+			accessory.visible = equipped.has(accessory.name);
 		});
 
 		rig.renderer.render(rig.scene, rig.camera);

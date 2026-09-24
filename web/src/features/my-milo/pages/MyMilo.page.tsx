@@ -35,7 +35,11 @@ import {
 	useUnequipCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
-import { applyEquippedAccessories } from "@features/my-milo/utils/miloModel";
+import {
+	applyAngelCircleGlow,
+	applyEquippedAccessories,
+	updateAngelCircleGlow,
+} from "@features/my-milo/utils/miloModel";
 import { CosmeticVisual } from "@features/milo-shop/pages/MiloShop.page";
 import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
 import {
@@ -76,6 +80,7 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 	useEffect(() => {
 		if (!scene) return;
 		applyEquippedAccessories(scene, equippedMeshNames);
+		applyAngelCircleGlow(scene);
 	}, [scene, equippedMeshNames, accessoryMeshNames]);
 
 	useEffect(() => {
@@ -127,10 +132,11 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 		}
 	}, [actions, mixer]);
 
-	useFrame((_state, delta) => {
+	useFrame((state, delta) => {
 		if (groupRef.current) {
 			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
 		}
+		updateAngelCircleGlow(scene, state.clock.elapsedTime);
 	});
 
 	return (

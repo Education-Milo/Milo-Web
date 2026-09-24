@@ -37,7 +37,11 @@ import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedM
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
-import { applyEquippedAccessories } from "@features/my-milo/utils/miloModel";
+import {
+	applyAngelCircleGlow,
+	applyEquippedAccessories,
+	updateAngelCircleGlow,
+} from "@features/my-milo/utils/miloModel";
 import {
 	useMiloFreeChatStore,
 	type MiloFreeChatSession,
@@ -91,7 +95,13 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	useEffect(() => {
 		if (!scene) return;
 		applyEquippedAccessories(scene, equippedMeshNames);
+		applyAngelCircleGlow(scene);
 	}, [scene, equippedMeshNames, accessoryMeshNames]);
+
+	/// La salle de classe rend en continu : l'auréole peut y battre
+	useFrame((state) => {
+		updateAngelCircleGlow(scene, state.clock.elapsedTime);
+	});
 
 	return (
 		<group ref={group}>
