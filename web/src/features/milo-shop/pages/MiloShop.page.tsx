@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { ShoppingBag, Star, WandSparkles, PackageOpen, Loader } from "lucide-react";
@@ -22,6 +22,11 @@ import {
 	useBuyCosmetic,
 	useCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
+import DancePreview3D from "@features/milo-shop/components/DancePreview3D.component";
+
+/// Délai avant d'afficher l'aperçu 3D d'une danse : balayer la grille à la
+/// souris ne doit pas ouvrir puis fermer un contexte WebGL par case traversée
+const DANCE_HOVER_DELAY = 150;
 
 const containerVariants = {
 	hidden: { opacity: 0 },
@@ -55,6 +60,31 @@ const BoutiquePage: React.FC = () => {
 	const [activeType, setActiveType] = useState<CosmeticType | "">("");
 	const [activeRarity, setActiveRarity] = useState<CosmeticRarity | "">("");
 	const [confirmPurchase, setConfirmPurchase] = useState<Cosmetic | null>(null);
+	/// Une seule danse animée à la fois : un seul canvas 3D ouvert
+	const [previewedDanceId, setPreviewedDanceId] = useState<number | null>(null);
+	const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const pendingDanceId = useRef<number | null>(null);
+
+	useEffect(() => () => {
+		if (hoverTimer.current) clearTimeout(hoverTimer.current);
+	}, []);
+
+	const startDancePreview = (id: number) => {
+		if (hoverTimer.current) clearTimeout(hoverTimer.current);
+		pendingDanceId.current = id;
+		hoverTimer.current = setTimeout(() => setPreviewedDanceId(id), DANCE_HOVER_DELAY);
+	};
+
+	/// Ciblé sur la case quittée : passer directement d'une danse à une autre
+	/// ne doit pas annuler l'aperçu qui vient d'être demandé, quel que soit
+	/// l'ordre dans lequel le navigateur émet entrée et sortie
+	const stopDancePreview = (id: number) => {
+		if (pendingDanceId.current === id && hoverTimer.current) {
+			clearTimeout(hoverTimer.current);
+			pendingDanceId.current = null;
+		}
+		setPreviewedDanceId((current) => (current === id ? null : current));
+	};
 	const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
 	// Seule source du solde affiché : miloro_coin de /users/me
@@ -220,20 +250,27 @@ const BoutiquePage: React.FC = () => {
 								<AnimatePresence mode="popLayout">
 									{catalogue.map((item) => {
 										const canAfford = miloroCoin >= item.price;
+										const danceClip = item.type === "dance" ? item.mesh_name : null;
+										const isDancing = danceClip != null && previewedDanceId === item.id;
 										return (
 											<motion.div
 												key={item.id}
 												layout
 												variants={itemVariants}
 												className={`shop-item-card rarity-${raritySlug(item.rarity)}`}
+												onMouseEnter={danceClip ? () => startDancePreview(item.id) : undefined}
+												onMouseLeave={danceClip ? () => stopDancePreview(item.id) : undefined}
 											>
 												<div className="shop-item-preview">
+													{/* L'emoji reste sous l'aperçu : il sert de repli le temps
+													    que le modèle charge, et si le clip est introuvable */}
 													<motion.span
 														className="shop-item-icon"
-														whileHover={{ scale: 1.15, rotate: 6 }}
+														whileHover={danceClip ? {} : { scale: 1.15, rotate: 6 }}
 													>
 														<CosmeticVisual item={item} className="shop-item-visual" />
 													</motion.span>
+													{isDancing && <DancePreview3D clip={danceClip} />}
 													<div className="shop-item-glow" />
 													<div className="shop-item-particles" />
 												</div>

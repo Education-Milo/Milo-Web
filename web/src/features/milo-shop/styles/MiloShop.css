@@ -186,3 +186,33 @@
 	.shop-sidebar-floating { overflow-y: auto; padding: 0 14px 8px 12px; margin: 0 -14px 0 -12px; scrollbar-width: thin; }
 }
 .shop-modal-balance--short { color: #B45309; font-weight: 700; }
+
+/* --- APERÇU 3D D'UNE DANSE (au survol de la case) --- */
+.shop-dance-preview {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	/* la case entière reste cliquable : le canvas ne doit rien intercepter */
+	pointer-events: none;
+	/* apparition en fondu : l'emoji reste visible dessous le temps que le
+	   modèle charge */
+	opacity: 0;
+	transition: opacity 0.35s ease-out;
+}
+
+.shop-dance-preview.is-ready {
+	opacity: 1;
+}
+
+.shop-dance-preview canvas {
+	display: block;
+	width: 100% !important;
+	height: 100% !important;
+	background: transparent;
+}
+
+/* L'emoji s'efface quand Milo prend sa place */
+.shop-item-preview:has(.shop-dance-preview.is-ready) .shop-item-icon {
+	opacity: 0;
+	transition: opacity 0.35s ease-out;
+}
