@@ -1,0 +1,502 @@
+/* ==========================================================================
+   HERO — Milo en 3D sur son soleil, transition « portail » au scroll
+   ========================================================================== */
+.lp-hero {
+	position: relative;
+	isolation: isolate;
+	padding: 150px 0 90px;
+	min-height: 100svh;
+	display: flex;
+	align-items: center;
+}
+
+.lp-hero__bg {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.lp-hero__dots {
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(185, 51, 15, 0.14) 1.4px, transparent 1.6px);
+	background-size: 28px 28px;
+	mask-image: radial-gradient(ellipse 70% 60% at 70% 45%, #000 20%, transparent 75%);
+}
+
+.lp-hero__blob {
+	position: absolute;
+	border-radius: 50%;
+	filter: blur(70px);
+}
+
+.lp-hero__blob--1 {
+	width: 44vw;
+	height: 44vw;
+	background: var(--lp-sable);
+	top: -14vw;
+	left: -12vw;
+	opacity: 0.7;
+}
+
+.lp-hero__blob--2 {
+	width: 36vw;
+	height: 36vw;
+	background: var(--lp-mandarine);
+	bottom: -16vw;
+	right: -6vw;
+	opacity: 0.22;
+}
+
+.lp-hero__floaty {
+	position: absolute;
+	width: 64px;
+}
+
+.lp-hero__floaty--bulb {
+	left: calc(50% - 32px);
+	top: 13%;
+}
+
+.lp-hero__floaty--globe {
+	width: 58px;
+	right: 3%;
+	bottom: 12%;
+}
+
+.lp-hero__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: clamp(24px, 4vw, 56px);
+	align-items: center;
+	width: 100%;
+}
+
+.lp-hero__copy {
+	position: relative;
+	z-index: 2;
+}
+
+.lp-hero__title {
+	font-size: clamp(2.8rem, 5.6vw, 5.2rem);
+	margin: 1.2rem 0 1.3rem;
+}
+
+.lp-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-top: 2.2rem;
+}
+
+.lp-hero__meta {
+	display: flex;
+	align-items: center;
+	gap: 1.6rem;
+	flex-wrap: wrap;
+	margin-top: 2.4rem;
+}
+
+.lp-hero__avatars {
+	display: flex;
+}
+
+.lp-hero__avatars span {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background: #fff;
+	border: 3px solid var(--lp-creme);
+	display: grid;
+	place-items: center;
+	margin-left: -12px;
+	box-shadow: 0 6px 14px -6px rgba(120, 50, 10, 0.35);
+}
+
+.lp-hero__avatars span:first-child {
+	margin-left: 0;
+}
+
+.lp-hero__avatars img {
+	width: 34px;
+	height: 34px;
+}
+
+.lp-hero__meta p {
+	margin: 0;
+	font-size: 0.98rem;
+	color: var(--lp-ink-2);
+	line-height: 1.35;
+}
+
+.lp-hero__meta strong {
+	color: var(--lp-ink);
+}
+
+.lp-hero__proofs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1.3rem;
+	margin: 1.4rem 0 0;
+	padding: 0;
+	list-style: none;
+	color: var(--lp-ink-2);
+	font-weight: 500;
+	font-size: 0.95rem;
+}
+
+.lp-hero__proofs li {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.lp-hero__proofs svg {
+	color: var(--lp-foret);
+}
+
+/* ---------- Scène ---------- */
+.lp-hero__stage {
+	position: relative;
+	aspect-ratio: 1 / 1.04;
+	width: 100%;
+	max-width: 580px;
+	justify-self: center;
+}
+
+.lp-hero__sun,
+.lp-hero__sun-fill {
+	position: absolute;
+	inset: 8% 7% 16%;
+	border-radius: 50%;
+}
+
+.lp-hero__sun {
+	background: var(--lp-feu);
+	box-shadow: inset 0 -20px 40px rgba(150, 30, 10, 0.28), 0 30px 70px -24px rgba(237, 60, 29, 0.6);
+}
+
+.lp-hero__sun::after {
+	content: "";
+	position: absolute;
+	inset: 9%;
+	border-radius: 50%;
+	border: 2px dashed rgba(246, 235, 223, 0.45);
+}
+
+/* Couche pleine qui prend le relais du dégradé quand le soleil remplit l'écran */
+.lp-hero__sun-fill {
+	background: var(--lp-vermillon);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.lp-hero__orbit {
+	position: absolute;
+	inset: 1% 0 9%;
+	border-radius: 50%;
+	border: 2px solid rgba(241, 210, 178, 0.9);
+	animation: lp-spin 40s linear infinite;
+}
+
+.lp-hero__orbit i {
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--lp-mandarine);
+	top: 50%;
+	left: -7px;
+	margin-top: -7px;
+	box-shadow: 0 0 0 5px rgba(244, 146, 42, 0.2);
+}
+
+.lp-hero__orbit i:nth-child(2) {
+	left: auto;
+	right: 12%;
+	top: 8%;
+	width: 10px;
+	height: 10px;
+	background: var(--lp-foret);
+	box-shadow: none;
+}
+
+@keyframes lp-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.lp-hero__milo {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+}
+
+.lp-hero__fallback {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	padding: 10% 14% 8%;
+	transition: opacity 0.6s ease;
+}
+
+.lp-hero__stage.is-3d .lp-hero__fallback {
+	opacity: 0;
+}
+
+/* La toile déborde du cadre pour laisser flotter les jouets */
+.lp-hero__canvas {
+	position: absolute;
+	top: -14%;
+	left: -18%;
+	width: 136%;
+	height: 120%;
+	opacity: 0;
+	transition: opacity 0.8s ease;
+	touch-action: pan-y;
+}
+
+.lp-hero__stage.is-3d .lp-hero__canvas {
+	opacity: 1;
+}
+
+.lp-hero__bubble {
+	position: absolute;
+	z-index: 3;
+	top: 2%;
+	left: -2%;
+	min-width: 210px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	border-radius: 22px 22px 22px 6px;
+	padding: 0.7rem 1rem;
+	font-weight: 600;
+	box-shadow: 0 5px 0 var(--lp-sable), 0 18px 30px -16px rgba(120, 50, 10, 0.45);
+}
+
+.lp-hero__bubble::after {
+	content: "";
+	position: absolute;
+	left: 22px;
+	bottom: -11px;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border-right: 2px solid var(--lp-line);
+	border-bottom: 2px solid var(--lp-line);
+	transform: rotate(45deg);
+	border-radius: 0 0 4px 0;
+}
+
+.lp-hero__caret {
+	display: inline-block;
+	width: 2px;
+	height: 1em;
+	background: var(--lp-milo);
+	margin-left: 2px;
+	vertical-align: -2px;
+	animation: lp-blink 1s steps(1) infinite;
+}
+
+@keyframes lp-blink {
+	50% {
+		opacity: 0;
+	}
+}
+
+.lp-hero__chip {
+	position: absolute;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	border-radius: 18px;
+	padding: 0.5rem 0.85rem 0.5rem 0.55rem;
+	font-weight: 600;
+	font-size: 0.95rem;
+	line-height: 1.2;
+	white-space: nowrap;
+	box-shadow: 0 5px 0 var(--lp-sable), 0 18px 30px -16px rgba(120, 50, 10, 0.45);
+}
+
+.lp-hero__chip small {
+	display: block;
+	font-weight: 500;
+	font-size: 0.78rem;
+	color: var(--lp-ink-2);
+}
+
+.lp-hero__chip img {
+	width: 40px;
+	height: 40px;
+}
+
+.lp-hero__chip--1 {
+	top: 40%;
+	left: -9%;
+}
+
+.lp-hero__chip--2 {
+	top: 20%;
+	right: -8%;
+}
+
+.lp-hero__chip--3 {
+	bottom: -1%;
+	left: 34%;
+}
+
+.lp-hero__xp {
+	color: var(--lp-braise);
+}
+
+/* Texte affiché dans le portail */
+.lp-hero__portal {
+	position: absolute;
+	inset: 0;
+	z-index: 4;
+	display: grid;
+	place-content: center;
+	justify-items: center;
+	gap: 1rem;
+	text-align: center;
+	pointer-events: none;
+	font-family: var(--lp-f-display);
+	font-size: clamp(2.6rem, 7vw, 6.5rem);
+	line-height: 1;
+	color: var(--lp-creme);
+	text-shadow: 0 0.06em 0 var(--lp-braise);
+	opacity: 0;
+}
+
+.lp-hero__portal img {
+	width: clamp(90px, 10vw, 150px);
+}
+
+.lp-hero__scroll-cue {
+	position: absolute;
+	left: 50%;
+	bottom: 22px;
+	transform: translateX(-50%);
+	display: grid;
+	justify-items: center;
+	gap: 0.4rem;
+	font-size: 0.82rem;
+	font-weight: 600;
+	color: var(--lp-ink-2);
+	text-decoration: none;
+}
+
+.lp-hero__mouse {
+	width: 26px;
+	height: 40px;
+	border: 2.5px solid var(--lp-ink-2);
+	border-radius: 14px;
+	position: relative;
+}
+
+.lp-hero__mouse::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 7px;
+	width: 4px;
+	height: 8px;
+	margin-left: -2px;
+	border-radius: 4px;
+	background: var(--lp-milo);
+	animation: lp-wheel 1.6s ease-in-out infinite;
+}
+
+@keyframes lp-wheel {
+	0% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+	80% {
+		transform: translateY(12px);
+		opacity: 0;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@media (max-width: 1180px) {
+	.lp-hero__floaty {
+		display: none;
+	}
+}
+
+@media (max-width: 960px) {
+	.lp-hero {
+		padding-top: 110px;
+		min-height: auto;
+	}
+
+	.lp-hero__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lp-hero__copy {
+		text-align: center;
+		display: grid;
+		justify-items: center;
+	}
+
+	.lp-hero__actions,
+	.lp-hero__meta,
+	.lp-hero__proofs {
+		justify-content: center;
+	}
+
+	.lp-hero__stage {
+		max-width: 440px;
+		margin-top: 1rem;
+	}
+
+	.lp-hero__scroll-cue {
+		display: none;
+	}
+}
+
+@media (max-width: 640px) {
+	.lp-hero__actions {
+		width: 100%;
+	}
+
+	.lp-hero__actions .lp-btn {
+		width: 100%;
+	}
+
+	.lp-hero__chip {
+		font-size: 0.8rem;
+		padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+	}
+
+	.lp-hero__chip img {
+		width: 30px;
+		height: 30px;
+	}
+
+	.lp-hero__chip--1 {
+		left: -2%;
+	}
+
+	.lp-hero__chip--2 {
+		right: -2%;
+	}
+
+	.lp-hero__bubble {
+		min-width: 0;
+		font-size: 0.85rem;
+		left: 0;
+	}
+}

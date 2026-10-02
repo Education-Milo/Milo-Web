@@ -1,0 +1,245 @@
+/* ==========================================================================
+   LANDING — fondations partagées (tokens, typo, boutons)
+   Toutes les classes sont préfixées `lp-` : le CSS du projet est global,
+   le préfixe évite les collisions avec les autres features.
+   ========================================================================== */
+@import "@fontsource/luckiest-guy/400.css";
+@import "@fontsource-variable/fredoka/index.css";
+
+/* Tokens : posés sur chaque racine de la landing (page, navbar, footer),
+   pour que la Navbar et le Footer restent autonomes sur /faq et /contact. */
+.lp {
+	/* Palette de la charte */
+	--lp-creme: #f6ebdf;
+	--lp-sable: #f1d2b2;
+	--lp-mandarine: #f4922a;
+	--lp-orange: #f36b16;
+	--lp-milo: #ff541d; /* couleur Milo — dominante, CTA */
+	--lp-brique: #ef4f1a;
+	--lp-vermillon: #ed3c1d;
+	--lp-foret: #263715; /* accent ponctuel uniquement (points, coches, toque) */
+
+	/* Dérivés : relief 3D, texte, surfaces */
+	--lp-braise: #b9330f;
+	--lp-ink: #2a1a10;
+	--lp-ink-2: #6b4a36;
+	--lp-surface: #fffbf6;
+	--lp-line: #ebd3bc;
+
+	--lp-feu: linear-gradient(135deg, var(--lp-mandarine) 0%, var(--lp-orange) 38%, var(--lp-brique) 70%, var(--lp-vermillon) 100%);
+	--lp-feu-nav: linear-gradient(135deg, var(--lp-orange) 0%, var(--lp-vermillon) 100%);
+
+	--lp-f-display: "Luckiest Guy", "Fredoka Variable", system-ui, sans-serif;
+	--lp-f-text: "Fredoka Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+	--lp-shadow: 0 1px 0 rgba(42, 26, 16, 0.04), 0 18px 40px -18px rgba(150, 60, 10, 0.28);
+	--lp-gutter: clamp(16px, 4vw, 40px);
+	--lp-maxw: 1200px;
+
+	font-family: var(--lp-f-text);
+	color: var(--lp-ink);
+	-webkit-font-smoothing: antialiased;
+}
+
+.lp *,
+.lp *::before,
+.lp *::after {
+	box-sizing: border-box;
+}
+
+.lp img {
+	max-width: 100%;
+	display: block;
+}
+
+.lp :focus-visible {
+	outline: 3px solid var(--lp-foret);
+	outline-offset: 3px;
+	border-radius: 12px;
+}
+
+/* ---------- Page ---------- */
+.lp-root {
+	background: var(--lp-creme);
+	font-size: 1.0625rem;
+	line-height: 1.6;
+	overflow-x: clip;
+}
+
+.lp-wrap {
+	max-width: var(--lp-maxw);
+	margin: 0 auto;
+	padding: 0 var(--lp-gutter);
+}
+
+.lp-scroll-progress {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	z-index: 1100;
+	background: var(--lp-feu);
+	transform-origin: 0 50%;
+	transform: scaleX(0);
+	pointer-events: none;
+}
+
+/* ---------- Typo ---------- */
+.lp-display {
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	line-height: 1.04;
+	letter-spacing: 0.01em;
+	margin: 0;
+	text-wrap: balance;
+}
+
+.lp-hl {
+	color: var(--lp-milo);
+	text-shadow: 0 0.06em 0 var(--lp-braise);
+}
+
+.lp-section-title {
+	font-size: clamp(2.3rem, 5.2vw, 4rem);
+}
+
+.lp-lead {
+	font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+	color: var(--lp-ink-2);
+	margin: 0;
+}
+
+.lp-section-head {
+	text-align: center;
+	display: grid;
+	justify-items: center;
+	gap: 1rem;
+	margin: 0 auto clamp(40px, 6vw, 72px);
+	max-width: 760px;
+}
+
+.lp-eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	font-weight: 600;
+	font-size: 0.88rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1;
+	color: var(--lp-braise);
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	padding: 0.55em 1em 0.5em;
+	border-radius: 999px;
+}
+
+.lp-eyebrow__dot {
+	width: 0.55em;
+	height: 0.55em;
+	border-radius: 50%;
+	background: var(--lp-foret);
+	box-shadow: 0 0 0 4px rgba(38, 55, 21, 0.14);
+}
+
+/* Icônes 3D */
+.lp-e3d {
+	display: block;
+	object-fit: contain;
+	user-select: none;
+	filter: drop-shadow(0 10px 12px rgba(120, 50, 10, 0.22));
+}
+
+/* ---------- Boutons 3D ---------- */
+.lp-btn {
+	--lp-edge: var(--lp-braise);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55em;
+	font-family: var(--lp-f-text);
+	font-weight: 700;
+	font-size: 1.125rem;
+	line-height: 1;
+	height: 60px;
+	padding: 0 1.8rem;
+	border: 0;
+	border-radius: 999px;
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+	box-shadow: 0 6px 0 var(--lp-edge), 0 16px 26px -14px rgba(185, 51, 15, 0.7);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.lp-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 0 var(--lp-edge), 0 20px 30px -14px rgba(185, 51, 15, 0.75);
+}
+
+.lp-btn:active {
+	transform: translateY(5px);
+	box-shadow: 0 1px 0 var(--lp-edge), 0 6px 12px -8px rgba(185, 51, 15, 0.6);
+}
+
+.lp-btn svg {
+	flex: none;
+	transition: transform 0.2s ease;
+}
+
+.lp-btn:hover svg {
+	transform: translateX(3px);
+}
+
+.lp-btn--primary {
+	background: var(--lp-milo);
+	color: #fff;
+}
+
+.lp-btn--ghost {
+	--lp-edge: var(--lp-sable);
+	background: #fff;
+	color: var(--lp-ink);
+	box-shadow: inset 0 0 0 2px var(--lp-sable), 0 6px 0 var(--lp-edge);
+}
+
+.lp-btn--ghost:hover {
+	box-shadow: inset 0 0 0 2px var(--lp-sable), 0 8px 0 var(--lp-edge);
+}
+
+.lp-btn--ghost:active {
+	box-shadow: inset 0 0 0 2px var(--lp-sable), 0 1px 0 var(--lp-edge);
+}
+
+.lp-btn--cream {
+	--lp-edge: #c99a70;
+	background: var(--lp-creme);
+	color: var(--lp-braise);
+}
+
+.lp-btn--sm {
+	height: 48px;
+	font-size: 1rem;
+	padding: 0 1.3rem;
+	box-shadow: 0 4px 0 var(--lp-edge);
+}
+
+.lp-btn--sm:hover {
+	box-shadow: 0 6px 0 var(--lp-edge);
+}
+
+.lp-btn--sm:active {
+	box-shadow: 0 1px 0 var(--lp-edge);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lp *,
+	.lp *::before,
+	.lp *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}

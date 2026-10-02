@@ -1,0 +1,66 @@
+.lp-bands {
+	position: relative;
+	height: clamp(150px, 15vw, 190px);
+	overflow: hidden;
+}
+
+.lp-bands__band {
+	position: absolute;
+	left: -5%;
+	right: -5%;
+	top: 50%;
+	padding: 0.9rem 0;
+	overflow: hidden;
+}
+
+.lp-bands__band--front {
+	z-index: 2;
+	background: var(--lp-vermillon);
+	transform: translateY(-50%) rotate(-2.5deg);
+	box-shadow: 0 10px 0 var(--lp-braise);
+}
+
+.lp-bands__band--back {
+	background: var(--lp-sable);
+	transform: translateY(-50%) rotate(2.5deg);
+}
+
+.lp-bands__track {
+	display: flex;
+	width: max-content;
+	will-change: transform;
+}
+
+.lp-bands__track ul {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	margin: 0;
+	padding: 0 1rem;
+	list-style: none;
+}
+
+.lp-bands__track li {
+	display: flex;
+	align-items: center;
+	gap: 2rem;
+	padding-top: 0.12em;
+	font-family: var(--lp-f-display);
+	font-size: clamp(1.5rem, 3vw, 2.1rem);
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.lp-bands__band--front li {
+	color: var(--lp-creme);
+}
+
+.lp-bands__band--back li {
+	color: var(--lp-braise);
+}
+
+.lp-bands__track img {
+	width: 1.5em;
+	height: 1.5em;
+	margin-top: -0.15em;
+}

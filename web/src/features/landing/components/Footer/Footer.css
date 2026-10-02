@@ -1,0 +1,131 @@
+.lp-footer {
+	position: relative;
+	background: var(--lp-surface);
+	padding: clamp(70px, 9vw, 110px) 0 0;
+	font-size: 1.0625rem;
+	line-height: 1.6;
+}
+
+.lp-footer__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+	gap: 2.5rem;
+}
+
+.lp-footer__logo {
+	width: 210px;
+}
+
+.lp-footer__brand p {
+	color: var(--lp-ink-2);
+	max-width: 26em;
+	margin: 1rem 0 1.4rem;
+}
+
+.lp-footer__socials {
+	display: flex;
+	gap: 0.7rem;
+}
+
+.lp-footer__socials a {
+	width: 48px;
+	height: 48px;
+	border-radius: 16px;
+	display: grid;
+	place-items: center;
+	background: var(--lp-milo);
+	color: #fff;
+	box-shadow: 0 5px 0 var(--lp-braise);
+	transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.lp-footer__socials a:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 8px 0 var(--lp-braise);
+}
+
+.lp-footer__socials a:active {
+	transform: translateY(4px);
+	box-shadow: 0 1px 0 var(--lp-braise);
+}
+
+.lp-footer__cols {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.5rem;
+}
+
+.lp-footer__cols h4 {
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	font-size: 1.3rem;
+	letter-spacing: 0.02em;
+	color: var(--lp-milo);
+	margin: 0 0 0.9rem;
+}
+
+.lp-footer__cols a {
+	display: block;
+	text-decoration: none;
+	color: var(--lp-ink-2);
+	padding: 0.25rem 0;
+	font-weight: 500;
+}
+
+.lp-footer__cols a:hover {
+	color: var(--lp-brique);
+}
+
+.lp-footer__bottom {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	border-top: 2px solid var(--lp-line);
+	margin-top: 3rem;
+	padding: 1.4rem 0;
+	font-size: 0.92rem;
+	color: var(--lp-ink-2);
+}
+
+.lp-footer__dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--lp-foret);
+	margin-right: 0.45rem;
+	vertical-align: 1px;
+}
+
+@media (max-width: 960px) {
+	.lp-footer__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lp-footer__brand {
+		display: grid;
+		justify-items: center;
+		text-align: center;
+	}
+
+	.lp-footer__bottom {
+		justify-content: center;
+		text-align: center;
+	}
+}
+
+@media (max-width: 640px) {
+	.lp-footer__cols {
+		gap: 0.8rem;
+		text-align: center;
+	}
+
+	.lp-footer__cols h4 {
+		font-size: 1.05rem;
+	}
+
+	.lp-footer__cols a {
+		font-size: 0.95rem;
+	}
+}
