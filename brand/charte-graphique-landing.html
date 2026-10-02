@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Charte graphique Milo · landing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Luckiest+Guy&display=swap">
+<style>
+/* Mise en page : une colonne éditoriale de 1080px, chaque chapitre ouvert par un grand titre Luckiest Guy.
+   Charte volontairement mono-thème (le crème EST l'identité) : toutes les couleurs sont posées explicitement. */
+:root {
+  color-scheme: light;
+  /* Palette (identique à la landing) */
+  --creme: #F6EBDF; --sable: #F1D2B2; --mandarine: #F4922A; --orange: #F36B16;
+  --milo: #FF541D; --brique: #EF4F1A; --vermillon: #ED3C1D; --vert: #2B4520;
+  --braise: #C73A0C; --encre: #2A1810; --texte-2: #6E5546; --surface: #FFFBF6; --line: #EBD3BC; --blanc: #FFFFFF;
+  --feu: linear-gradient(135deg, var(--mandarine) 0%, var(--orange) 38%, var(--brique) 70%, var(--vermillon) 100%);
+  /* Typo */
+  --f-display: "Luckiest Guy", "Fredoka", system-ui, sans-serif;
+  --f-text: "Fredoka", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --gutter: clamp(16px, 4vw, 40px);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--creme); color: var(--encre); font-family: var(--f-text); font-size: 1.0625rem; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+img { max-width: 100%; display: block; }
+:focus-visible { outline: 3px solid var(--vert); outline-offset: 3px; border-radius: 10px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: var(--gutter); }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.display { font-family: var(--f-display); font-weight: 400; line-height: 1.04; letter-spacing: .01em; }
+.hl { color: var(--milo); text-shadow: 0 .06em 0 var(--braise); }
+.lead { font-size: 1.2rem; color: var(--texte-2); max-width: 40em; }
+.eyebrow { display: inline-flex; align-items: center; gap: .5em; font-weight: 600; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; line-height: 1; color: var(--braise); background: var(--blanc); border: 2px solid var(--line); padding: .55em 1em .5em; border-radius: 999px; }
+.eyebrow i { width: .55em; height: .55em; border-radius: 50%; background: var(--vert); box-shadow: 0 0 0 4px rgba(43, 69, 32, .14); }
+code, .mono { font-family: var(--f-mono); font-size: .86em; }
+code { background: var(--blanc); border: 1px solid var(--line); border-radius: 6px; padding: .05em .35em; }
+
+/* ---------- Navigation des chapitres ---------- */
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(255, 251, 246, .9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 2px solid var(--line); }
+.toc .wrap { display: flex; align-items: center; gap: 1rem; padding-block: .6rem; overflow-x: auto; scrollbar-width: none; }
+.toc img { height: 34px; width: auto; flex: none; }
+.toc nav { display: flex; gap: .2rem; }
+.toc a { white-space: nowrap; text-decoration: none; color: var(--encre); font-weight: 600; font-size: .9rem; padding: .45rem .8rem; border-radius: 999px; }
+.toc a:hover { background: var(--creme); color: var(--braise); }
+
+/* ---------- Couverture ---------- */
+.cover { position: relative; overflow: hidden; isolation: isolate; padding-block: clamp(56px, 9vw, 110px) 0; }
+.cover::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(rgba(185, 51, 15, .13) 1.4px, transparent 1.6px); background-size: 28px 28px; mask-image: radial-gradient(ellipse 70% 70% at 70% 40%, #000 25%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 40%, #000 25%, transparent 75%); }
+.cover-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 2rem; align-items: end; }
+.cover-logo { width: min(420px, 100%); margin-bottom: 1.6rem; }
+.cover h1 { font-size: clamp(2.8rem, 6.4vw, 5rem); margin: 1rem 0 1.2rem; }
+.cover-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; margin-top: 1.8rem; color: var(--texte-2); font-size: .95rem; }
+.cover-meta b { color: var(--encre); font-weight: 600; }
+.cover-art { position: relative; align-self: stretch; min-height: 360px; }
+.cover-sun { position: absolute; left: 8%; right: 0; bottom: -10%; aspect-ratio: 1; border-radius: 50%; background: var(--feu); box-shadow: inset 0 -20px 40px rgba(150, 30, 10, .28); }
+.cover-sun::after { content: ""; position: absolute; inset: 9%; border-radius: 50%; border: 2px dashed rgba(246, 235, 223, .45); }
+.cover-art .mascot { position: absolute; left: 22%; bottom: 0; width: 66%; filter: drop-shadow(0 20px 24px rgba(120, 30, 5, .35)); }
+.cover-art .e { position: absolute; width: 74px; filter: drop-shadow(0 10px 12px rgba(120, 50, 10, .22)); }
+
+/* ---------- Chapitres ---------- */
+.chapter { padding-block: clamp(64px, 9vw, 110px); border-top: 2px solid var(--line); }
+.chapter:nth-of-type(even) { background: var(--surface); }
+.ch-head { display: grid; gap: .9rem; margin-bottom: clamp(28px, 4vw, 48px); }
+.ch-head h2 { font-size: clamp(2.2rem, 4.6vw, 3.6rem); }
+.ch-num { justify-self: start; font-family: var(--f-display); color: var(--braise); background: var(--blanc); border: 2px solid var(--line); border-radius: 999px; padding: .35rem .9rem .2rem; font-size: 1.1rem; line-height: 1; }
+.subhead { font-family: var(--f-display); font-weight: 400; font-size: 1.5rem; letter-spacing: .01em; margin: clamp(36px, 5vw, 56px) 0 1rem; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+.panel { background: var(--blanc); border: 2px solid var(--line); border-radius: 28px; padding: clamp(18px, 2.4vw, 28px); box-shadow: 0 8px 0 var(--sable); min-width: 0; }
+.panel h3 { font-family: var(--f-display); font-weight: 400; font-size: 1.35rem; margin-bottom: .5rem; }
+.panel p, .panel li { color: var(--texte-2); }
+.panel ul { margin: .4rem 0 0; padding-left: 1.1rem; display: grid; gap: .35rem; }
+.quote { font-family: var(--f-display); font-size: clamp(1.7rem, 3.6vw, 2.6rem); line-height: 1.15; text-shadow: 0 .05em 0 var(--braise); color: var(--creme); }
+.manifesto { background: var(--vermillon); border-radius: 36px; padding: clamp(28px, 5vw, 56px); position: relative; overflow: hidden; isolation: isolate; }
+.manifesto::before { content: ""; position: absolute; inset: 0; z-index: -1; background-image: radial-gradient(rgba(255, 255, 255, .13) 1.5px, transparent 1.7px); background-size: 28px 28px; }
+.manifesto small { display: block; margin-top: 1rem; color: #FFE9D9; font-weight: 600; font-size: 1rem; }
+.manifesto .key { color: var(--sable); }
+.traits { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1rem; }
+.trait { display: flex; align-items: center; gap: .5rem; background: var(--blanc); border: 2px solid var(--line); border-radius: 16px; padding: .4rem .95rem .4rem .5rem; font-weight: 600; box-shadow: 0 4px 0 var(--sable); }
+.trait img { width: 32px; height: 32px; }
+
+/* Do / Don't */
+.rule { display: grid; grid-template-columns: 34px 1fr; gap: .7rem; align-items: start; }
+.rule + .rule { margin-top: .8rem; }
+.mark { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 1rem; }
+.mark.ok { background: #E3F4E8; color: #23874B; }
+.mark.ko { background: #FCE6EA; color: #C3253F; }
+
+/* ---------- Logo ---------- */
+.logo-stage { display: grid; place-items: center; border-radius: 28px; padding: clamp(24px, 4vw, 44px); min-height: 220px; position: relative; }
+.logo-stage img { width: min(300px, 80%); }
+.logo-stage .tag { position: absolute; left: 14px; bottom: 12px; font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .3rem .7rem; border-radius: 999px; background: rgba(255, 255, 255, .85); color: var(--encre); }
+.on-creme { background: var(--creme); border: 2px solid var(--line); }
+.on-blanc { background: var(--blanc); border: 2px solid var(--line); }
+.on-feu { background: var(--feu); }
+.clearspace { position: relative; padding: 34px; border: 2px dashed var(--milo); border-radius: 18px; background: repeating-linear-gradient(45deg, rgba(255, 84, 29, .07) 0 8px, transparent 8px 16px); }
+.clearspace img { background: var(--creme); border-radius: 10px; }
+.donts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.dont { background: var(--blanc); border: 2px solid var(--line); border-radius: 22px; padding: 14px; display: grid; gap: .6rem; align-content: start; }
+.dont .box { height: 110px; border-radius: 14px; display: grid; place-items: center; overflow: hidden; background: var(--creme); }
+.dont .box img { width: 70%; }
+.dont p { font-size: .9rem; color: var(--texte-2); line-height: 1.35; }
+.dont p b { color: #C3253F; }
+
+/* ---------- Couleurs ---------- */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+.swatch { border-radius: 24px; overflow: hidden; background: var(--blanc); border: 2px solid var(--line); min-width: 0; }
+.swatch .chip { height: 110px; display: flex; align-items: flex-end; padding: 12px; }
+.swatch .chip span { font-family: var(--f-display); font-size: 1.1rem; }
+.swatch .info { padding: 12px 14px 14px; display: grid; gap: .15rem; }
+.swatch .info b { font-weight: 600; }
+.swatch .info .mono { color: var(--texte-2); }
+.swatch .info em { font-style: normal; font-size: .88rem; color: var(--texte-2); line-height: 1.35; margin-top: .3rem; }
+.ratio { display: flex; height: 64px; border-radius: 20px; overflow: hidden; border: 2px solid var(--line); }
+.ratio div { display: grid; place-items: center; font-weight: 600; font-size: .9rem; min-width: 0; }
+.ratio-legend { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; font-size: .92rem; color: var(--texte-2); }
+.ratio-legend b { display: block; color: var(--encre); font-weight: 600; }
+.feu-bar { height: 90px; border-radius: 24px; background: var(--feu); display: flex; align-items: flex-end; justify-content: space-between; padding: 12px 16px; color: var(--creme); font-weight: 600; font-size: .85rem; }
+.table-wrap { overflow-x: auto; border: 2px solid var(--line); border-radius: 20px; background: var(--blanc); }
+table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+th, td { text-align: left; padding: .75rem 1rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--texte-2); font-weight: 600; background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sample { display: inline-block; padding: .35rem .75rem; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; padding: .2rem .65rem; border-radius: 999px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+.pill.aaa, .pill.aa { background: #E3F4E8; color: #23874B; }
+.pill.big { background: #FFF1D6; color: #8A5A00; }
+.pill.deco { background: #FCE6EA; color: #C3253F; }
+
+/* ---------- Typo ---------- */
+.type-specimen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.2rem; }
+.specimen { background: var(--blanc); border: 2px solid var(--line); border-radius: 28px; padding: clamp(20px, 3vw, 32px); min-width: 0; }
+.specimen .big { font-size: clamp(3.4rem, 8vw, 5.6rem); line-height: 1; margin: .3rem 0 .8rem; }
+.specimen .alpha { font-size: 1.3rem; line-height: 1.45; word-break: break-word; }
+.specimen .role { color: var(--texte-2); margin-top: .8rem; }
+.scale { display: grid; gap: 0; }
+.scale-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 1rem; align-items: baseline; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.scale-row:last-child { border-bottom: 0; }
+.scale-row .meta { font-size: .85rem; color: var(--texte-2); line-height: 1.35; }
+.scale-row .meta b { display: block; color: var(--encre); font-weight: 600; font-size: .95rem; }
+.scale-row .ex { min-width: 0; overflow-wrap: anywhere; }
+
+/* ---------- Composants ---------- */
+.btn { --edge: var(--braise); display: inline-flex; align-items: center; justify-content: center; gap: .55em; font-family: var(--f-text); font-weight: 700; font-size: 1.125rem; line-height: 1; height: 60px; padding: 0 1.8rem; border: 0; border-radius: 999px; cursor: pointer; text-decoration: none; white-space: nowrap; box-shadow: 0 6px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, .7); transition: transform .15s ease, box-shadow .15s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, .75); }
+.btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
+.btn-primary { background: var(--milo); color: var(--blanc); }
+.btn-ghost { --edge: var(--sable); background: var(--blanc); color: var(--encre); box-shadow: inset 0 0 0 2px var(--sable), 0 6px 0 var(--edge); }
+.btn-cream { --edge: #C99A70; background: var(--creme); color: var(--braise); }
+.btn-sm { height: 48px; font-size: 1rem; padding: 0 1.3rem; box-shadow: 0 4px 0 var(--edge); }
+.demo { border-radius: 28px; padding: clamp(20px, 3vw, 32px); display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: center; }
+.demo.feu { background: var(--feu); }
+.demo.creme { background: var(--creme); border: 2px solid var(--line); }
+.spec-list { display: grid; gap: .3rem; margin-top: 1rem; font-size: .92rem; color: var(--texte-2); }
+.chipx { display: inline-flex; align-items: center; gap: .55rem; background: var(--blanc); border: 2px solid var(--line); border-radius: 18px; padding: .5rem .85rem .5rem .55rem; font-weight: 600; font-size: .95rem; line-height: 1.2; box-shadow: 0 5px 0 var(--sable), 0 18px 30px -16px rgba(120, 50, 10, .45); }
+.chipx small { display: block; font-weight: 500; font-size: .78rem; color: var(--texte-2); }
+.chipx img { width: 40px; height: 40px; }
+.badge { display: inline-flex; align-items: center; gap: .55rem; font-weight: 700; font-size: .82rem; letter-spacing: .08em; line-height: 1; color: var(--braise); background: var(--blanc); border: 2px solid var(--line); padding: .55rem .95rem .5rem; border-radius: 999px; }
+.badge i { width: 9px; height: 9px; border-radius: 50%; background: var(--vert); animation: pulse 1.8s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(43, 69, 32, .45); } 70% { box-shadow: 0 0 0 9px rgba(43, 69, 32, 0); } 100% { box-shadow: 0 0 0 0 rgba(43, 69, 32, 0); } }
+.bubble { position: relative; background: var(--blanc); border: 2px solid var(--line); border-radius: 22px 22px 22px 6px; padding: .7rem 1rem; font-weight: 600; box-shadow: 0 5px 0 var(--sable); }
+.bubble::after { content: ""; position: absolute; left: 22px; bottom: -11px; width: 18px; height: 18px; background: var(--blanc); border-right: 2px solid var(--line); border-bottom: 2px solid var(--line); transform: rotate(45deg); border-radius: 0 0 4px 0; }
+.stack-demo { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 1.2rem; background: var(--blanc); border: 2px solid var(--line); border-radius: 40px; padding: 22px; box-shadow: 0 10px 0 var(--sable), 0 40px 60px -40px rgba(120, 50, 10, .45); }
+.stack-demo .copy { display: flex; flex-direction: column; justify-content: center; padding: 10px; }
+.stack-demo .num { align-self: flex-start; font-family: var(--f-display); color: var(--braise); background: var(--creme); border-radius: 999px; padding: .3rem .85rem .15rem; }
+.stack-demo h3 { font-family: var(--f-display); font-weight: 400; font-size: 2.2rem; margin: .8rem 0 .5rem; }
+.stack-demo p { color: var(--texte-2); }
+.stack-demo .art { border-radius: 30px; background: var(--feu); display: grid; place-items: center; min-height: 220px; position: relative; overflow: hidden; }
+.stack-demo .art::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255, 255, 255, .25) 1.5px, transparent 1.7px); background-size: 24px 24px; }
+.stack-demo .art img { position: relative; width: 150px; }
+.plan { position: relative; border-radius: 36px; padding: 30px; background: var(--feu); color: var(--creme); box-shadow: 0 10px 0 var(--braise); display: grid; gap: 1rem; max-width: 380px; }
+.plan .name { font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .85rem; color: var(--sable); }
+.plan .price { font-family: var(--f-display); font-size: 4.2rem; line-height: 1; display: flex; align-items: baseline; gap: .2rem; }
+.plan .price small { font-family: var(--f-text); font-size: 1.05rem; color: var(--sable); }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.plan li { display: grid; grid-template-columns: 24px 1fr; gap: .6rem; align-items: center; font-weight: 500; }
+.tick { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--creme); color: var(--vert); font-size: .8rem; font-weight: 700; }
+.ribbon { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: .4rem; padding: .3rem .95rem .3rem .4rem; border-radius: 999px; background: var(--blanc); color: var(--braise); font-weight: 700; font-size: .82rem; white-space: nowrap; box-shadow: 0 4px 0 var(--braise); }
+.ribbon img { width: 24px; height: 24px; }
+
+/* ---------- 3D ---------- */
+.e3d-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: .9rem; }
+.e3d-cell { background: var(--blanc); border: 2px solid var(--line); border-radius: 20px; padding: 12px 8px; display: grid; justify-items: center; gap: .4rem; text-align: center; }
+.e3d-cell img { width: 56px; height: 56px; filter: drop-shadow(0 8px 10px rgba(120, 50, 10, .22)); transition: transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+.e3d-cell:hover img { transform: translateY(-6px) rotate(-8deg) scale(1.1); }
+.e3d-cell span { font-size: .78rem; color: var(--texte-2); line-height: 1.2; }
+.shot { border-radius: 24px; overflow: hidden; border: 2px solid var(--line); box-shadow: 0 10px 0 var(--sable); background: var(--blanc); }
+.shot figcaption { padding: .8rem 1rem; font-size: .9rem; color: var(--texte-2); }
+figure { margin: 0; }
+
+/* ---------- Motion ---------- */
+.motion-table td:first-child { font-weight: 600; white-space: nowrap; }
+.ease-demo { display: grid; gap: .8rem; }
+.ease-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 1rem; align-items: center; }
+.ease-row span { font-size: .88rem; font-weight: 600; }
+.track { height: 44px; border-radius: 999px; background: var(--creme); border: 2px solid var(--line); position: relative; overflow: hidden; }
+.dot { position: absolute; top: 5px; left: 6px; width: 30px; height: 30px; border-radius: 50%; background: var(--milo); box-shadow: 0 4px 0 var(--braise); }
+.playing .dot.a { animation: slide 1.4s cubic-bezier(.34, 1.56, .64, 1) infinite alternate; }
+.playing .dot.b { animation: slide 1.4s cubic-bezier(.22, 1, .36, 1) infinite alternate; }
+.playing .dot.c { animation: slide 1.4s linear infinite alternate; }
+@keyframes slide { to { left: calc(100% - 36px); } }
+
+/* ---------- Code ---------- */
+pre { margin: 0; overflow-x: auto; background: var(--encre); color: #F6EBDF; border-radius: 22px; padding: 1.2rem 1.4rem; font-family: var(--f-mono); font-size: .84rem; line-height: 1.6; }
+pre .c { color: #C9A98F; }
+pre .k { color: #FFB27D; }
+.copy-row { display: flex; justify-content: flex-end; margin-bottom: .6rem; }
+
+footer.end { padding-block: 48px; text-align: center; color: var(--texte-2); font-size: .92rem; border-top: 2px solid var(--line); }
+footer.end img { width: 140px; margin: 0 auto 1rem; }
+
+@media (max-width: 860px) {
+  .cover-grid, .grid-2, .type-specimen, .stack-demo { grid-template-columns: minmax(0, 1fr); }
+  .grid-3, .swatches, .donts, .ratio-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cover-art { min-height: 300px; }
+  .scale-row, .ease-row { grid-template-columns: minmax(0, 1fr); gap: .3rem; }
+}
+@media (max-width: 480px) {
+  .grid-3, .swatches, .donts { grid-template-columns: minmax(0, 1fr); }
+  .btn { height: 54px; padding: 0 1.3rem; font-size: 1.02rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="toc">
+  <div class="wrap">
+    <img src="assets/charte-landing/logo3d.webp" alt="Milo">
+    <nav aria-label="Chapitres">
+      <a href="#marque">Marque</a>
+      <a href="#logo">Logo</a>
+      <a href="#couleurs">Couleurs</a>
+      <a href="#typo">Typographie</a>
+      <a href="#composants">Composants</a>
+      <a href="#trois-d">3D & icônes</a>
+      <a href="#mise-en-page">Mise en page</a>
+      <a href="#mouvement">Mouvement</a>
+      <a href="#ton">Ton</a>
+      <a href="#tokens">Tokens</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ============================ COUVERTURE ============================ -->
+<header class="cover">
+  <div class="wrap cover-grid">
+    <div>
+      <img class="cover-logo" src="assets/charte-landing/logo3d.webp" alt="Logo Milo : lettres crème en relief, contour orange, toque de diplômé verte">
+      <span class="eyebrow"><i></i>Charte graphique · édition landing</span>
+      <h1 class="display">Apprendre est un <span class="hl">jeu d'enfant.</span></h1>
+      <p class="lead">Les règles qui font qu'une page ressemble à Milo : la marque, le logo, la palette, les deux polices, les composants en relief, la 3D, le mouvement et le ton. Tout ce qui suit est tiré de la landing en production.</p>
+      <div class="cover-meta">
+        <span><b>Version</b> 1.0 · octobre 2026</span>
+        <span><b>Source</b> <code>web/src/features/landing</code></span>
+        <span><b>Base</b> <code>shared/styles/brand.css</code></span>
+      </div>
+    </div>
+    <div class="cover-art" aria-hidden="true">
+      <div class="cover-sun"></div>
+      <img class="mascot" src="assets/charte-landing/mascot.webp" alt="">
+      <img class="e" style="top:6%; left:4%" src="assets/charte-landing/e-books.webp" alt="">
+      <img class="e" style="top:0; right:6%; width:64px" src="assets/charte-landing/e-glowing_star.webp" alt="">
+      <img class="e" style="bottom:22%; right:-2%; width:66px" src="assets/charte-landing/e-trophy.webp" alt="">
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ============================ 1. MARQUE ============================ -->
+<section class="chapter" id="marque">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">01</span>
+      <h2 class="display">La <span class="hl">marque</span></h2>
+      <p class="lead">Ce qui guide chaque choix visuel. Si un écran ne sert pas cette promesse, il n'est pas à sa place.</p>
+    </div>
+    <div class="grid-3">
+      <div class="panel"><h3>Vision</h3><p>Donner à chaque élève le pouvoir de réussir.</p></div>
+      <div class="panel"><h3>Conviction</h3><p>L'accompagnement scolaire sur-mesure est un droit, pas un privilège.</p></div>
+      <div class="panel"><h3>Pour qui</h3><p>Les collégiens de la 6ᵉ à la 3ᵉ qui manquent d'accompagnement à la maison, et leurs parents.</p></div>
+    </div>
+
+    <h3 class="subhead">Positionnement</h3>
+    <div class="manifesto">
+      <p class="quote">Face aux révisions austères, Milo modernise l'apprentissage avec un accompagnement <span class="key">instantané</span>, <span class="key">sur-mesure</span> et <span class="key">gamifié</span>, pour redonner à chaque élève le contrôle de sa réussite.</p>
+      <small>C'est le texte du manifeste de la landing. Il sert de référence pour tout pitch.</small>
+    </div>
+
+    <h3 class="subhead">Personnalité : l'enthousiasme</h3>
+    <p class="lead">Milo est un renard, animal malin. Il parle comme un grand frère qui a de l'avance : il pose des questions plutôt que de donner les réponses.</p>
+    <div class="traits">
+      <span class="trait"><img src="assets/charte-landing/e-rocket.webp" alt="">Audacieux</span>
+      <span class="trait"><img src="assets/charte-landing/e-high_voltage.webp" alt="">Vif</span>
+      <span class="trait"><img src="assets/charte-landing/e-sparkles.webp" alt="">Moderne</span>
+      <span class="trait"><img src="assets/charte-landing/e-light_bulb.webp" alt="">Imaginatif</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 2. LOGO ============================ -->
+<section class="chapter" id="logo">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">02</span>
+      <h2 class="display">Le <span class="hl">logo</span></h2>
+      <p class="lead">Lettres crème en relief, contour orange épais, toque de diplômé verte posée sur le I. C'est un objet 3D : il garde toujours son volume et son ombre.</p>
+    </div>
+    <div class="grid-3">
+      <div class="logo-stage on-creme"><img src="assets/charte-landing/logo3d.webp" alt="Logo sur fond crème"><span class="tag">Fond crème · usage principal</span></div>
+      <div class="logo-stage on-blanc"><img src="assets/charte-landing/logo3d.webp" alt="Logo sur fond blanc"><span class="tag">Fond blanc · navbar, footer</span></div>
+      <div class="logo-stage on-feu"><img src="assets/charte-landing/logo3d.webp" alt="Logo sur dégradé feu"><span class="tag">Dégradé feu · événementiel</span></div>
+    </div>
+
+    <h3 class="subhead">Zone de protection et tailles</h3>
+    <div class="grid-2">
+      <div class="clearspace"><img src="assets/charte-landing/logo3d.webp" alt="Logo entouré de sa zone de protection"></div>
+      <div class="panel">
+        <div class="rule"><span class="mark ok">✓</span><p>Marge libre autour du logo égale à la hauteur de la toque, sur les quatre côtés.</p></div>
+        <div class="rule"><span class="mark ok">✓</span><p>Hauteur dans la navbar : <b>62 px</b>, <b>52 px</b> une fois la page défilée, <b>46 px</b> sur mobile.</p></div>
+        <div class="rule"><span class="mark ok">✓</span><p>Taille minimale : <b>40 px</b> de haut. En dessous, la toque devient illisible : utiliser l'icône renard.</p></div>
+        <div class="rule"><span class="mark ok">✓</span><p>Fichier : <code>/landing/logo-milo-3d.webp</code> (fond transparent).</p></div>
+      </div>
+    </div>
+
+    <h3 class="subhead">À ne pas faire</h3>
+    <div class="donts">
+      <div class="dont"><div class="box"><img src="assets/charte-landing/logo3d.webp" alt="" style="transform:scaleX(1.5)"></div><p><b>Déformer.</b> Toujours garder les proportions.</p></div>
+      <div class="dont"><div class="box" style="background:var(--vert)"><img src="assets/charte-landing/logo3d.webp" alt=""></div><p><b>Fond vert ou sombre.</b> Le vert reste un accent, jamais une surface.</p></div>
+      <div class="dont"><div class="box"><img src="assets/charte-landing/logo3d.webp" alt="" style="filter:grayscale(1)"></div><p><b>Recolorer.</b> Pas de version monochrome ni de filtre.</p></div>
+      <div class="dont"><div class="box"><img src="assets/charte-landing/logo3d.webp" alt="" style="transform:rotate(-14deg)"></div><p><b>Incliner.</b> Seul le survol peut l'animer, et il revient droit.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3. COULEURS ============================ -->
+<section class="chapter" id="couleurs">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">03</span>
+      <h2 class="display">Les <span class="hl">couleurs</span></h2>
+      <p class="lead">Orange dominant, crème en secondaire, vert en accent ponctuel. L'orange vient du renard ; le crème donne de l'air et fait ressortir l'orange ; le vert rappelle la toque et le tableau d'école.</p>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--milo); color:var(--blanc)"><span>Orange Milo</span></div><div class="info"><b>Orange Milo</b><span class="mono">#FF541D · --milo-orange</span><em>Couleur de marque. Boutons principaux, mots mis en avant, icônes sociales.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--creme); color:var(--encre)"><span>Crème</span></div><div class="info"><b>Crème</b><span class="mono">#F6EBDF · --lp-creme</span><em>Fond de page par défaut. Remplace le blanc pur sur les grandes surfaces.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--vert); color:var(--creme)"><span>Vert tableau</span></div><div class="info"><b>Vert tableau</b><span class="mono">#2B4520 · --milo-vert</span><em>Accent ponctuel : points, coches, toque. Jamais un fond.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--encre); color:var(--creme)"><span>Encre</span></div><div class="info"><b>Encre</b><span class="mono">#2A1810 · --milo-encre</span><em>Texte principal et titres. Un brun profond, jamais du noir pur.</em></div></div>
+    </div>
+
+    <h3 class="subhead">Nuances chaudes et dégradé feu</h3>
+    <div class="swatches">
+      <div class="swatch"><div class="chip" style="background:var(--sable)"></div><div class="info"><b>Sable</b><span class="mono">#F1D2B2</span><em>Tranche 3D des cartes et boutons clairs, bande secondaire.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--mandarine)"></div><div class="info"><b>Mandarine</b><span class="mono">#F4922A</span><em>Début du dégradé feu, bordure d'une question ouverte.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--vermillon)"></div><div class="info"><b>Vermillon</b><span class="mono">#ED3C1D</span><em>Fin du dégradé, fond du manifeste et du portail.</em></div></div>
+      <div class="swatch"><div class="chip" style="background:var(--braise)"></div><div class="info"><b>Braise</b><span class="mono">#C73A0C · --milo-braise</span><em>Relief des boutons orange, petit texte orange lisible.</em></div></div>
+    </div>
+    <div style="margin-top:1rem" class="feu-bar"><span>#F4922A</span><span>#F36B16</span><span>#EF4F1A</span><span>#ED3C1D</span></div>
+    <p class="lead" style="margin-top:.8rem">Dégradé <b>feu</b> à 135° : soleil du hero, formule Famille, carte finale, tablette des missions.</p>
+
+    <h3 class="subhead">Répartition sur un écran</h3>
+    <div class="ratio" role="img" aria-label="Crème 60 %, orange et dégradé 28 %, encre 10 %, vert 2 %">
+      <div style="flex:60; background:var(--creme)">Crème 60 %</div>
+      <div style="flex:28; background:var(--feu); color:var(--blanc)">Orange 28 %</div>
+      <div style="flex:10; background:var(--encre); color:var(--creme)">10 %</div>
+      <div style="flex:2; background:var(--vert)"></div>
+    </div>
+    <div class="ratio-legend">
+      <div><b>Crème et blanc</b>fonds, cartes, surfaces calmes</div>
+      <div><b>Orange et feu</b>actions, mots clés, grands aplats d'ambiance</div>
+      <div><b>Encre</b>titres et texte</div>
+      <div><b>Vert ≤ 2 %</b>uniquement des détails de quelques pixels</div>
+    </div>
+
+    <h3 class="subhead">Contrastes (WCAG 2.2)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Couple</th><th>Exemple</th><th>Ratio</th><th>Usage autorisé</th></tr></thead>
+        <tbody>
+          <tr><td>Encre sur crème</td><td><span class="sample" style="background:var(--creme); color:var(--encre)">Texte courant</span></td><td class="num">14,5:1</td><td><span class="pill aaa">AAA</span> tout texte</td></tr>
+          <tr><td>Texte secondaire sur crème</td><td><span class="sample" style="background:var(--creme); color:var(--texte-2)">Paragraphe</span></td><td class="num">5,9:1</td><td><span class="pill aa">AA</span> paragraphes, légendes</td></tr>
+          <tr><td>Braise sur blanc</td><td><span class="sample" style="background:var(--blanc); color:var(--braise); border:1px solid var(--line)">Étiquette</span></td><td class="num">5,2:1</td><td><span class="pill aa">AA</span> petit texte orange</td></tr>
+          <tr><td>Braise sur crème</td><td><span class="sample" style="background:var(--creme); color:var(--braise)">Étiquette</span></td><td class="num">4,4:1</td><td><span class="pill big">Grand texte</span> dès 19 px gras</td></tr>
+          <tr><td>Crème sur vermillon</td><td><span class="sample" style="background:var(--vermillon); color:var(--creme)">Manifeste</span></td><td class="num">3,4:1</td><td><span class="pill big">Grand texte</span> titres display</td></tr>
+          <tr><td>Blanc sur orange Milo</td><td><span class="sample" style="background:var(--milo); color:var(--blanc)">Bouton</span></td><td class="num">3,2:1</td><td><span class="pill big">Grand texte</span> boutons 18 px gras</td></tr>
+          <tr><td>Orange Milo sur crème</td><td><span class="sample" style="background:var(--creme); color:var(--milo); text-shadow:0 .06em 0 var(--braise)">jeu d'enfant</span></td><td class="num">2,7:1</td><td><span class="pill deco">Décoratif</span> titres display ≥ 32 px, toujours avec le relief braise et à côté d'un mot en encre</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 4. TYPOGRAPHIE ============================ -->
+<section class="chapter" id="typo">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">04</span>
+      <h2 class="display">Deux <span class="hl">polices</span></h2>
+      <p class="lead">Une police de dessin animé pour crier, une police ronde pour parler. Les deux viennent de Google Fonts, chargées une seule fois dans <code>index.html</code>.</p>
+    </div>
+    <div class="type-specimen">
+      <div class="specimen">
+        <span class="eyebrow"><i></i>Titres</span>
+        <p class="display big">Luckiest Guy</p>
+        <p class="display alpha">ABCDEFGHIJKLM<br>abcdefghijklm<br>0123456789 € ! ?</p>
+        <p class="role">Titres de section, prix, compteurs, manifeste, footer. Un seul poids. Les minuscules sont des petites capitales : écrire en casse normale.</p>
+      </div>
+      <div class="specimen">
+        <span class="eyebrow"><i></i>Texte</span>
+        <p class="big" style="font-weight:600">Fredoka</p>
+        <p class="alpha">Les révisions n'ont jamais été aussi amusantes. Chaque session devient une aventure ludique et interactive.</p>
+        <p class="role">Paragraphes, boutons (700), étiquettes (600), légendes (500). Graisses 400 à 700.</p>
+      </div>
+    </div>
+
+    <h3 class="subhead">Échelle typographique</h3>
+    <div class="panel scale">
+      <div class="scale-row"><div class="meta"><b>Titre du hero</b>Luckiest Guy · clamp(2.8rem, 5.6vw, 5.2rem)</div><div class="ex display" style="font-size:clamp(2.2rem, 5vw, 3.8rem)">Apprendre est un <span class="hl">jeu d'enfant.</span></div></div>
+      <div class="scale-row"><div class="meta"><b>Titre de section</b>Luckiest Guy · clamp(2.3rem, 5.2vw, 4rem)</div><div class="ex display" style="font-size:clamp(1.9rem, 4vw, 3rem)">L'allié des <span class="hl">parents</span></div></div>
+      <div class="scale-row"><div class="meta"><b>Titre de carte</b>Luckiest Guy · clamp(2rem, 3.8vw, 3.2rem)</div><div class="ex display" style="font-size:2rem">Suivi des progrès</div></div>
+      <div class="scale-row"><div class="meta"><b>Chapeau</b>Fredoka 400 · clamp(1.05rem, 1.5vw, 1.2rem) · texte secondaire</div><div class="ex lead">Votre enfant s'amuse, vous gardez la main. Sereinement.</div></div>
+      <div class="scale-row"><div class="meta"><b>Texte courant</b>Fredoka 400 · 1.0625rem · interligne 1.6</div><div class="ex">Milo est un tuteur qui guide par le questionnement.</div></div>
+      <div class="scale-row"><div class="meta"><b>Étiquette</b>Fredoka 600 · 0.88rem · capitales · +0.06em</div><div class="ex"><span class="eyebrow"><i></i>Pour les enfants</span></div></div>
+    </div>
+
+    <h3 class="subhead">Règles</h3>
+    <div class="grid-2">
+      <div class="panel">
+        <div class="rule"><span class="mark ok">✓</span><p>Un ou deux mots d'un titre en orange avec le relief braise (<code>.lp-hl</code>), jamais tout le titre.</p></div>
+        <div class="rule"><span class="mark ok">✓</span><p>Titres équilibrés (<code>text-wrap: balance</code>), lignes de texte autour de 65 caractères.</p></div>
+        <div class="rule"><span class="mark ok">✓</span><p>Animer les titres lettre par lettre sans masque : un masque coupe les accents de Luckiest Guy.</p></div>
+      </div>
+      <div class="panel">
+        <div class="rule"><span class="mark ko">✕</span><p>Pas de Luckiest Guy pour un paragraphe, un bouton ou un champ.</p></div>
+        <div class="rule"><span class="mark ko">✕</span><p>Pas de titre en dégradé ni en texte détouré : le relief braise suffit.</p></div>
+        <div class="rule"><span class="mark ko">✕</span><p>Pas d'autre police. Pas de faux gras sur Luckiest Guy.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5. COMPOSANTS ============================ -->
+<section class="chapter" id="composants">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">05</span>
+      <h2 class="display">Tout est en <span class="hl">relief</span></h2>
+      <p class="lead">Chaque élément cliquable a une tranche : une ombre pleine décalée vers le bas, sans flou. Au survol il monte de 2 px, au clic il s'enfonce de 5 px.</p>
+    </div>
+
+    <h3 class="subhead">Boutons</h3>
+    <div class="grid-2">
+      <div>
+        <div class="demo creme">
+          <button class="btn btn-primary" type="button">Rejoindre l'aventure →</button>
+          <button class="btn btn-ghost" type="button">Voir les missions</button>
+          <button class="btn btn-primary btn-sm" type="button">Adopter Milo</button>
+        </div>
+        <div class="spec-list"><span>Hauteur 60 px (48 px en petit), rayon 999 px, Fredoka 700 à 18 px.</span><span>Tranche 6 px : braise sous l'orange, sable sous le blanc.</span></div>
+      </div>
+      <div>
+        <div class="demo feu"><button class="btn btn-cream" type="button">Adopter Milo en famille</button></div>
+        <div class="spec-list"><span>Sur le dégradé feu, le bouton passe en crème avec un texte braise.</span><span>Un seul bouton orange plein par bloc : c'est l'action principale.</span></div>
+      </div>
+    </div>
+
+    <h3 class="subhead">Étiquettes, puces et bulle</h3>
+    <div class="demo creme">
+      <span class="eyebrow"><i></i>Le tuteur IA des collégiens</span>
+      <span class="badge"><i></i>MISSION 2/3</span>
+      <span class="chipx"><img src="assets/charte-landing/e-fire.webp" alt=""><span>Série de 7 jours<small>Continue comme ça !</small></span></span>
+      <span class="chipx"><img src="assets/charte-landing/e-hundred_points.webp" alt=""><span><span style="color:var(--braise)">+50 XP</span><small>Quiz parfait</small></span></span>
+      <span class="bubble">Salut, moi c'est Milo !</span>
+    </div>
+    <div class="spec-list"><span>Le point vert pulse sur une mission active : c'est l'usage type du vert, quelques pixels qui signalent un état.</span></div>
+
+    <h3 class="subhead">Cartes</h3>
+    <div class="grid-2">
+      <div class="stack-demo">
+        <div class="copy"><span class="num">02</span><h3>Planning intelligent</h3><p>Une IA analyse son emploi du temps scolaire pour lui proposer des sessions calibrées.</p></div>
+        <div class="art"><img src="assets/charte-landing/e-spiral_calendar.webp" alt=""></div>
+      </div>
+      <div style="display:grid; place-items:center; padding-top:16px">
+        <div class="plan">
+          <span class="ribbon"><img src="assets/charte-landing/e-trophy.webp" alt="">Choix des parents</span>
+          <span class="name">Famille</span>
+          <div class="price">35€<small>/mois</small></div>
+          <ul><li><span class="tick">✓</span>Jusqu'à 4 enfants</li><li><span class="tick">✓</span>Dashboard parent avancé</li></ul>
+          <button class="btn btn-cream" type="button">Adopter Milo en famille</button>
+        </div>
+      </div>
+    </div>
+    <div class="spec-list"><span>Cartes blanches : bordure 2 px ligne, rayon 32 à 40 px, tranche sable de 8 à 10 px. Carte mise en avant : dégradé feu et tranche braise.</span></div>
+  </div>
+</section>
+
+<!-- ============================ 6. 3D ============================ -->
+<section class="chapter" id="trois-d">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">06</span>
+      <h2 class="display">Une DA en <span class="hl">3D</span></h2>
+      <p class="lead">La 3D est ce qui distingue Milo et rappelle l'univers des dessins animés. Personnage, objets et icônes : aucun pictogramme plat.</p>
+    </div>
+    <div class="grid-2">
+      <figure class="shot"><img src="assets/charte-landing/shot-hero.webp" alt="Hero de la landing : Milo en 3D sur son soleil orange, entouré de jouets 3D"><figcaption>Milo en 3D (<code>MiloV11.glb</code>) avec la toque verte, sur son socle et son soleil feu.</figcaption></figure>
+      <div class="panel">
+        <h3>Règles 3D</h3>
+        <ul>
+          <li>Milo porte la toque de diplômé teintée en vert tableau.</li>
+          <li>Les objets ont un aspect jouet verni : matière brillante, couleurs de la palette uniquement.</li>
+          <li>Éclairage chaud venant d'en haut à droite, ombre portée douce sous chaque objet.</li>
+          <li>Milo et ses jouets réagissent à la souris ; un clic sur Milo joue une animation.</li>
+          <li>Si la 3D ne charge pas, une image de Milo prend sa place.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="subhead">Icônes 3D</h3>
+    <p class="lead" style="margin-bottom:1rem">Fluent Emoji 3D (Microsoft, licence MIT), en WebP 192 px, avec une ombre portée chaude. Une icône illustre une idée ; elle ne remplace jamais un mot.</p>
+    <div class="e3d-grid">
+      <div class="e3d-cell"><img src="assets/charte-landing/e-books.webp" alt=""><span>Cours</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-brain.webp" alt=""><span>Exercices</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-crossed_swords.webp" alt=""><span>Duels</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-trophy.webp" alt=""><span>Ligues</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-coin.webp" alt=""><span>Coins</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-fire.webp" alt=""><span>Série</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-bar_chart.webp" alt=""><span>Progrès</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-spiral_calendar.webp" alt=""><span>Planning</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-shield.webp" alt=""><span>Sécurité</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-locked.webp" alt=""><span>Données</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-graduation_cap.webp" alt=""><span>Pédagogie</span></div>
+      <div class="e3d-cell"><img src="assets/charte-landing/e-gem_stone.webp" alt=""><span>Premium</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7. MISE EN PAGE ============================ -->
+<section class="chapter" id="mise-en-page">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">07</span>
+      <h2 class="display">Mise en <span class="hl">page</span></h2>
+      <p class="lead">Des sections généreuses, des formes rondes, des fonds qui alternent entre crème, blanc cassé et grands aplats feu.</p>
+    </div>
+    <div class="grid-2">
+      <figure class="shot"><img src="assets/charte-landing/shot-missions.webp" alt="Section missions : tablette orange à gauche, texte à droite, grand numéro en arrière-plan"><figcaption>Missions : tablette orange, texte à droite, compteur géant en contour sable.</figcaption></figure>
+      <figure class="shot"><img src="assets/charte-landing/shot-parents.webp" alt="Section parents : carte blanche arrondie et FAQ"><figcaption>Parents : fond blanc cassé à coins arrondis, cartes empilées.</figcaption></figure>
+    </div>
+    <div class="table-wrap" style="margin-top:1.4rem">
+      <table>
+        <thead><tr><th>Élément</th><th>Valeur</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Conteneur</td><td class="num">1200 px</td><td>Marges latérales clamp(16 px, 4vw, 40 px)</td></tr>
+          <tr><td>Espace entre sections</td><td class="num">80 à 140 px</td><td>clamp(80px, 11vw, 140px)</td></tr>
+          <tr><td>Rayons</td><td class="num">16 · 24 · 32 · 40 · 72 px</td><td>Étiquettes, questions, cartes, cartes empilées, haut de section ; 999 px pour pilules et boutons</td></tr>
+          <tr><td>Tranche 3D</td><td class="num">4 · 6 · 10 px</td><td>Ombre pleine sans flou, couleur plus sombre que l'élément</td></tr>
+          <tr><td>Texture</td><td class="num">points 1,4 px / 28 px</td><td>Trame de points braise à 14 %, en fond du hero et des aplats feu</td></tr>
+          <tr><td>Transitions</td><td class="num">vague SVG</td><td>Navbar et fin du manifeste : une vague plutôt qu'une ligne droite</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 8. MOUVEMENT ============================ -->
+<section class="chapter" id="mouvement">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">08</span>
+      <h2 class="display">Le <span class="hl">mouvement</span></h2>
+      <p class="lead">Ça rebondit, comme un dessin animé. Le scroll raconte une histoire : Milo plonge dans son soleil, puis la page déroule l'aventure.</p>
+    </div>
+    <div class="panel ease-demo" id="ease">
+      <div class="ease-row"><span>back.out(1.7)</span><div class="track"><div class="dot a"></div></div></div>
+      <div class="ease-row"><span>power3.out</span><div class="track"><div class="dot b"></div></div></div>
+      <div class="ease-row"><span>none (scrub)</span><div class="track"><div class="dot c"></div></div></div>
+      <div><button class="btn btn-ghost btn-sm" type="button" id="ease-toggle" aria-pressed="false">Lancer les courbes</button></div>
+    </div>
+    <div class="table-wrap" style="margin-top:1.4rem">
+      <table class="motion-table">
+        <thead><tr><th>Moment</th><th>Effet</th><th>Réglage</th></tr></thead>
+        <tbody>
+          <tr><td>Arrivée</td><td>Titre lettre par lettre, puis textes, soleil, étiquettes</td><td>SplitText, back.out(1.7), décalage 22 ms</td></tr>
+          <tr><td>Portail</td><td>Le soleil remplit l'écran, Milo plonge, « En route pour l'aventure ! »</td><td>Hero épinglé sur 190 % de hauteur, scrub 1</td></tr>
+          <tr><td>Manifeste</td><td>Les mots s'allument, les objets 3D arrivent des bords</td><td>Épinglé 140 %, scrub 0.7</td></tr>
+          <tr><td>Missions</td><td>Balayage de l'écran, rotation 3D, compteur 01 → 03</td><td>Épinglé, aimanté sur chaque mission</td></tr>
+          <tr><td>Parents</td><td>Les cartes s'empilent, celle du dessous rétrécit</td><td>position: sticky + scrub</td></tr>
+          <tr><td>Tarifs</td><td>Les cartes arrivent des côtés, les prix comptent</td><td>scrub 1, compteur 1,4 s</td></tr>
+          <tr><td>Fin</td><td>La carte s'étend jusqu'aux bords, Milo surgit</td><td>clip-path animé</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-2" style="margin-top:1.4rem">
+      <div class="panel"><h3>Toujours</h3><ul><li>Un seul moteur par élément : GSAP pour le scroll, Framer Motion pour le menu.</li><li>Défilement fluide avec Lenis, synchronisé à ScrollTrigger.</li><li>Épinglage seulement au-dessus de 961 × 700 px.</li></ul></div>
+      <div class="panel"><h3>Jamais</h3><ul><li>D'animation quand l'utilisateur a demandé à réduire les mouvements.</li><li>De texte qui reste invisible tant qu'on ne scrolle pas sur mobile.</li><li>D'effet qui empêche de lire.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 9. TON ============================ -->
+<section class="chapter" id="ton">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">09</span>
+      <h2 class="display">Deux voix, <span class="hl">un ton</span></h2>
+      <p class="lead">Enthousiaste et clair. On tutoie l'enfant, on vouvoie le parent.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel">
+        <span class="eyebrow"><i></i>Aux enfants</span>
+        <p class="display" style="font-size:1.7rem; margin:.9rem 0 .6rem">Défie tes <span class="hl">amis</span></p>
+        <p>Rien de tel qu'un peu de compétition pour progresser ! Participe à des duels en temps réel et grimpe tout en haut de la ligue.</p>
+        <ul><li>Tutoiement, phrases courtes, verbes d'action.</li><li>Vocabulaire du jeu : mission, duel, ligue, quête, coins.</li><li>Un point d'exclamation par paragraphe, pas plus.</li></ul>
+      </div>
+      <div class="panel">
+        <span class="eyebrow"><i></i>Aux parents</span>
+        <p class="display" style="font-size:1.7rem; margin:.9rem 0 .6rem">L'allié des <span class="hl">parents</span></p>
+        <p>Gardez un œil sur le classement de votre enfant dans sa ligue et visualisez ses points forts en un clin d'œil.</p>
+        <ul><li>Vouvoiement, ton rassurant et précis.</li><li>Parler de sécurité, de suivi, de RGPD avec des faits.</li><li>Jamais de promesse de résultats chiffrés.</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 10. TOKENS ============================ -->
+<section class="chapter" id="tokens">
+  <div class="wrap">
+    <div class="ch-head">
+      <span class="ch-num">10</span>
+      <h2 class="display">Les <span class="hl">tokens</span></h2>
+      <p class="lead">Les couleurs de marque vivent dans <code>shared/styles/brand.css</code> ; la landing y ajoute ses nuances dans <code>styles/landing.css</code>. Aucune couleur en dur dans un composant.</p>
+    </div>
+    <div class="copy-row"><button class="btn btn-ghost btn-sm" type="button" id="copy-tokens">Copier les tokens</button></div>
+<pre id="tokens-code"><span class="c">/* shared/styles/brand.css (extrait) */</span>
+:root {
+  <span class="k">--milo-orange</span>: #FF541D;  <span class="c">/* dominante */</span>
+  <span class="k">--milo-braise</span>: #C73A0C;  <span class="c">/* relief, petit texte orange */</span>
+  <span class="k">--milo-vert</span>:   #2B4520;  <span class="c">/* accent ponctuel */</span>
+  <span class="k">--milo-encre</span>:  #2A1810;  <span class="c">/* texte */</span>
+  <span class="k">--text-2</span>:      #6E5546;
+  <span class="k">--f-display</span>: "Luckiest Guy", "Fredoka", system-ui, sans-serif;
+  <span class="k">--f-text</span>:    "Fredoka", "Nunito", system-ui, sans-serif;
+}
+
+<span class="c">/* features/landing/styles/landing.css */</span>
+.lp {
+  <span class="k">--lp-creme</span>:     #F6EBDF;
+  <span class="k">--lp-sable</span>:     #F1D2B2;
+  <span class="k">--lp-mandarine</span>: #F4922A;
+  <span class="k">--lp-orange</span>:    #F36B16;
+  <span class="k">--lp-brique</span>:    #EF4F1A;
+  <span class="k">--lp-vermillon</span>: #ED3C1D;
+  <span class="k">--lp-milo</span>:   var(--milo-orange);
+  <span class="k">--lp-foret</span>:  var(--milo-vert);
+  <span class="k">--lp-braise</span>: var(--milo-braise);
+  <span class="k">--lp-ink</span>:    var(--milo-encre);
+  <span class="k">--lp-feu</span>: linear-gradient(135deg, var(--lp-mandarine) 0%, var(--lp-orange) 38%,
+                       var(--lp-brique) 70%, var(--lp-vermillon) 100%);
+}</pre>
+  </div>
+</section>
+</main>
+
+<footer class="end">
+  <div class="wrap">
+    <img src="assets/charte-landing/logo3d.webp" alt="Milo">
+    <p>Charte graphique Milo · édition landing · v1.0 · octobre 2026</p>
+  </div>
+</footer>
+
+<script>
+  const ease = document.getElementById("ease");
+  const toggle = document.getElementById("ease-toggle");
+  toggle.addEventListener("click", () => {
+    const on = !ease.classList.contains("playing");
+    ease.classList.toggle("playing", on);
+    toggle.setAttribute("aria-pressed", String(on));
+    toggle.textContent = on ? "Arrêter" : "Lancer les courbes";
+  });
+  const copyBtn = document.getElementById("copy-tokens");
+  copyBtn.addEventListener("click", async () => {
+    const text = document.getElementById("tokens-code").innerText;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.textContent = "Tokens copiés";
+    } catch (e) {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById("tokens-code"));
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      copyBtn.textContent = "Sélectionné : Ctrl+C";
+    }
+    setTimeout(() => (copyBtn.textContent = "Copier les tokens"), 2200);
+  });
+</script>
+</body>
+</html>
