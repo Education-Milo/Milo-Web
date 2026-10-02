@@ -99,13 +99,13 @@
 
 @keyframes lp-pulse {
 	0% {
-		box-shadow: 0 0 0 0 rgba(38, 55, 21, 0.45);
+		box-shadow: 0 0 0 0 rgba(43, 69, 32, 0.45);
 	}
 	70% {
-		box-shadow: 0 0 0 9px rgba(38, 55, 21, 0);
+		box-shadow: 0 0 0 9px rgba(43, 69, 32, 0);
 	}
 	100% {
-		box-shadow: 0 0 0 0 rgba(38, 55, 21, 0);
+		box-shadow: 0 0 0 0 rgba(43, 69, 32, 0);
 	}
 }
 

@@ -1,16 +1,7 @@
-:root {
-	--milo-red: var(--milo-orange);
-	--milo-dark: var(--milo-encre);
-	--milo-gradient: linear-gradient(var(--milo-orange), var(--milo-orange));
-	--nav-height: 260px;
-}
-
-html {
-	scroll-behavior: smooth;
-	scroll-padding-top: 150px;
-}
-
-.nav-container-organic {
+/* ==========================================================================
+   NAVBAR — la vague d'origine, rendue responsive
+   ========================================================================== */
+.lp-nav {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -65,21 +56,30 @@ html {
 	transition: padding 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.nav-logo-v2 {
-	height: 58px;
-	transition: transform 0.4s ease;
-	cursor: pointer;
+.lp-nav.is-scrolled .lp-nav__content {
+	padding-top: 10px;
 }
 
-.nav-logo-v2:hover {
-	transform: scale(1.05);
+.lp-nav__logo {
+	justify-self: start;
+	display: block;
 }
 
-.nav-pills {
-	background: rgba(255, 244, 229, 0.5);
-	backdrop-filter: blur(10px);
-	padding: 8px;
-	border-radius: 100px;
+.lp-nav__logo img {
+	height: 62px;
+	width: auto;
+	transition: transform 0.4s ease, height 0.45s ease;
+}
+
+.lp-nav__logo:hover img {
+	transform: rotate(-6deg) scale(1.08);
+}
+
+.lp-nav.is-scrolled .lp-nav__logo img {
+	height: 52px;
+}
+
+.lp-nav__pills {
 	display: flex;
 	gap: 6px;
 	padding: 7px;
@@ -108,10 +108,11 @@ html {
 	background: #fff;
 	color: var(--lp-brique);
 }
-.pill-link.active {
-	background: var(--milo-gradient);
-	color: white;
-	box-shadow: 0 6px 18px rgba(255, 84, 29, 0.3);
+
+.lp-pill.is-active {
+	background: var(--lp-feu-nav);
+	color: #fff;
+	box-shadow: 0 6px 18px rgba(239, 79, 26, 0.3);
 }
 
 .lp-nav__actions {
@@ -121,24 +122,15 @@ html {
 	gap: 1.2rem;
 }
 
-.btn-login-v2 {
+.lp-nav__login {
 	font-weight: 700;
-	font-size: 1rem;
-	color: var(--milo-dark);
-	background: transparent;
-	border: none;
-	cursor: pointer;
+	color: var(--lp-ink);
+	text-decoration: none;
+	padding: 0.5rem 0.2rem;
 }
 
-.btn-signup-v2 {
-	background: var(--milo-dark);
-	color: white;
-	padding: 16px 36px;
-	border-radius: 100px;
-	font-weight: 700;
-	border: none;
-	cursor: pointer;
-	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+.lp-nav__login:hover {
+	color: var(--lp-brique);
 }
 
 .lp-nav__burger {
@@ -180,8 +172,8 @@ html {
 	border-radius: 16px;
 }
 
-.nav-mobile-menu .pill-link:hover {
-	background: var(--milo-beige, var(--milo-creme));
+.lp-nav__mobile .lp-pill:hover {
+	background: var(--lp-creme);
 }
 
 .lp-nav__mobile-actions {
@@ -196,18 +188,10 @@ html {
 	width: 100%;
 }
 
-.nav-mobile-actions .btn-login-v2 {
-	width: 100%;
-	padding: 14px;
-	border-radius: 16px;
-	background: var(--milo-beige, var(--milo-creme));
-}
-
-.nav-mobile-actions .btn-signup-v2 {
-	width: 100%;
-	padding: 16px;
-	text-align: center;
-}
+@media (max-width: 1180px) {
+	.lp-pill {
+		padding: 10px 14px;
+	}
 
 	.lp-nav__actions {
 		gap: 0.8rem;
@@ -219,8 +203,9 @@ html {
 		height: 150px;
 	}
 
-	img.nav-logo-v2 {
-		height: 48px;
+	.lp-nav__content {
+		grid-template-columns: 1fr auto;
+		padding: 12px 16px 0;
 	}
 
 	.lp-nav.is-scrolled .lp-nav__content {
@@ -237,7 +222,7 @@ html {
 		display: none;
 	}
 
-	img.nav-logo-v2 {
-		height: 46px;
+	.lp-nav__burger {
+		display: grid;
 	}
 }
