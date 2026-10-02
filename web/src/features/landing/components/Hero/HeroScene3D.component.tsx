@@ -5,6 +5,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import { cameraDistanceFor } from "@features/my-milo/utils/miloModel";
 import HeroMilo from "@features/landing/components/Hero/HeroMilo.component";
 import HeroToys, { Pedestal } from "@features/landing/components/Hero/HeroToys.component";
+import LaunchRig from "@features/landing/components/Hero/HeroRocket.component";
 import { heroState } from "@features/landing/lib/heroState";
 
 /// Focale et cadrage : la toile déborde du cadre (136 % × 120 %), on cadre
@@ -55,7 +56,11 @@ const HeroScene3D: React.FC<HeroScene3DProps> = ({ reducedMotion, onReady }) => 
 	useEffect(() => {
 		const el = wrapper.current;
 		if (!el) return;
-		const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+		// Une entrée sans rectangle (nœud déplacé dans le pin-spacer de GSAP au
+		// montage) n'est pas « hors écran » : la croire figerait la scène.
+		const observer = new IntersectionObserver(([entry]) =>
+			setVisible(entry.isIntersecting || entry.boundingClientRect.width === 0),
+		);
 		observer.observe(el);
 		return () => observer.disconnect();
 	}, []);
@@ -64,7 +69,11 @@ const HeroScene3D: React.FC<HeroScene3DProps> = ({ reducedMotion, onReady }) => 
 		<div ref={wrapper} className="lp-hero__canvas" aria-hidden="true">
 			<Canvas
 				frameloop={visible ? "always" : "never"}
-				dpr={[1, 2]}
+				dpr={[1, 1.75]}
+				// Pas de nouvelle mesure à chaque scroll : la mesure inclut les
+				// transforms GSAP (Milo grossit au scroll) et redimensionnait la toile
+				// WebGL à chaque frame. Le ResizeObserver suffit (vraie taille du cadre).
+				resize={{ scroll: false }}
 				camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}
 				gl={{ alpha: true, antialias: true }}
 				onPointerMissed={() => (document.body.style.cursor = "")}
@@ -75,10 +84,13 @@ const HeroScene3D: React.FC<HeroScene3DProps> = ({ reducedMotion, onReady }) => 
 				<directionalLight position={[3, 5, 4]} intensity={2.2} color="#fffaf3" />
 				<directionalLight position={[-4, 2, 2]} intensity={0.7} color="#ffd9b8" />
 				<SceneRoot>
-					<Suspense fallback={null}>
-						<HeroMilo reducedMotion={reducedMotion} onReady={onReady} />
-					</Suspense>
-					<Pedestal />
+					{/* Milo et son socle décollent ensemble : le socle devient une fusée */}
+					<LaunchRig reducedMotion={reducedMotion}>
+						<Suspense fallback={null}>
+							<HeroMilo reducedMotion={reducedMotion} onReady={onReady} />
+						</Suspense>
+						<Pedestal />
+					</LaunchRig>
 					<HeroToys reducedMotion={reducedMotion} />
 				</SceneRoot>
 			</Canvas>

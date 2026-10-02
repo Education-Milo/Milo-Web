@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
-import Eyebrow from "@features/landing/ui/Eyebrow.component";
 import { PARENT_FEATURES, SECTION_IDS } from "@features/landing/data/landing.data";
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle, revealUp } from "@features/landing/lib/animations";
@@ -34,25 +33,24 @@ const ParentsStack: React.FC = () => {
 					scrollTrigger: { trigger: card, start: "top bottom", end: "top 55%", scrub: true },
 				});
 
-				// La carte recouverte rétrécit et s'assombrit
+				// La carte recouverte rétrécit et s'assombrit. L'ombre est un calque
+				// dont on anime l'opacité : un `filter` animé repeindrait toute la
+				// carte à chaque frame.
 				const next = cards[i + 1];
 				if (!next) return;
-				gsap.fromTo(
-					card,
-					{ scale: 1, filter: "brightness(1) saturate(1)" },
-					{
-						scale: 0.9 - (cards.length - 2 - i) * 0.03,
-						filter: "brightness(.9) saturate(.9)",
-						ease: "none",
+				gsap
+					.timeline({
+						defaults: { ease: "none" },
 						scrollTrigger: {
 							trigger: next,
 							start: "top bottom",
 							end: () => `top ${parseFloat(getComputedStyle(next).top) || 120}px`,
-							scrub: true,
+							scrub: 0.4,
 							invalidateOnRefresh: true,
 						},
-					},
-				);
+					})
+					.fromTo(card, { scale: 1 }, { scale: 0.9 - (cards.length - 2 - i) * 0.03 }, 0)
+					.fromTo(card.querySelector(".lp-stack-card__shade"), { opacity: 0 }, { opacity: 1 }, 0);
 			});
 		},
 		{ scope: root },
@@ -61,7 +59,6 @@ const ParentsStack: React.FC = () => {
 	return (
 		<div ref={root} id={SECTION_IDS.parents}>
 			<div className="lp-section-head">
-				<Eyebrow>Pour les parents</Eyebrow>
 				<h2 className="lp-display lp-section-title lp-parents__title">
 					L'allié des <span className="lp-hl">parents</span>
 				</h2>
@@ -79,6 +76,7 @@ const ParentsStack: React.FC = () => {
 						<div className="lp-stack-card__art" style={{ "--art": feature.art } as React.CSSProperties}>
 							<Emoji3D name={feature.icon} />
 						</div>
+						<span className="lp-stack-card__shade" aria-hidden="true" />
 					</article>
 				))}
 			</div>

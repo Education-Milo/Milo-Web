@@ -7,6 +7,10 @@ import { useGSAP } from "@gsap/react";
 /// enregistrés qu'une fois, et chaque composant importe depuis ce fichier.
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
+/// Sur mobile, la barre d'adresse qui apparaît/disparaît redimensionne la
+/// fenêtre : sans ça, chaque scroll provoquerait un refresh (et un saut).
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 /// Breakpoints des animations « épinglées » (pin) : en dessous, les sections
 /// défilent normalement et gardent des animations plus légères.
 export const MEDIA_DESKTOP_PIN = "(min-width: 961px) and (min-height: 700px)";

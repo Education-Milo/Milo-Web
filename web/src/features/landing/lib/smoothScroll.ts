@@ -27,7 +27,7 @@ export function scrollToSection(id: string) {
 }
 
 /// Défile jusqu'à une position absolue (utilisé par le carrousel épinglé)
-export function scrollToY(y: number) {
-	if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+export function scrollToY(y: number, duration = 1.2) {
+	if (lenis) lenis.scrollTo(y, { duration });
 	else window.scrollTo({ top: y, behavior: "smooth" });
 }

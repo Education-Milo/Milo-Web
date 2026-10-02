@@ -25,20 +25,12 @@ export const SECTION_IDS = {
 	pricing: "tarifs",
 } as const;
 
-export const HERO_CHIPS: { icon: Emoji3DName; title: string; subtitle: string; accent?: boolean }[] = [
-	{ icon: "fire", title: "Série de 7 jours", subtitle: "Continue comme ça !" },
-	{ icon: "hundred_points", title: "+50 XP", subtitle: "Quiz parfait", accent: true },
-	{ icon: "trophy", title: "Ligue Or", subtitle: "2ᵉ de ta ligue" },
-];
-
 export const HERO_BUBBLE_LINES = [
 	"Salut, moi c'est Milo !",
 	"On révise ensemble ?",
 	"Clique sur moi !",
 	"Prêt pour ta mission ?",
 ];
-
-export const HERO_PROOFS = ["IA 100 % scolaire", "Conforme RGPD", "Jusqu'à 4 enfants"];
 
 export const BANDS: { icon: Emoji3DName; label: string }[][] = [
 	[
@@ -47,7 +39,7 @@ export const BANDS: { icon: Emoji3DName; label: string }[][] = [
 		{ icon: "bullseye", label: "Missions" },
 		{ icon: "t_shirt", label: "Cosmétiques" },
 		{ icon: "coin", label: "Coins" },
-		{ icon: "spiral_calendar", label: "Planning IA" },
+		{ icon: "spiral_calendar", label: "Planning de révisions" },
 	],
 	[
 		{ icon: "glowing_star", label: "Quiz quotidiens" },
@@ -74,14 +66,14 @@ export const MISSIONS: Mission[] = [
 		title: "Apprends à",
 		highlight: "ta façon",
 		description:
-			"Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre !",
-		image: "/landing/missions/discuter.webp",
+			"Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre. Rentre dans une salle virtuelle avec ton professeur Milo !",
+		image: "/landing/missions/milo_class.png",
 		imageAlt: "Milo t'aide dans tes cours, à ta façon",
 		navLabel: "Apprendre",
 		tags: [
 			{ icon: "books", label: "Import de cours" },
 			{ icon: "brain", label: "Exercices sur mesure" },
-			{ icon: "card_index_dividers", label: "Flashcards intelligentes" },
+			{ icon: "card_index_dividers", label: "Flashcards" },
 		],
 		decor: ["books", "brain", "light_bulb"],
 	},
@@ -90,7 +82,7 @@ export const MISSIONS: Mission[] = [
 		highlight: "amis",
 		description:
 			"Rien de tel qu'un peu de compétition pour progresser ! Participe à des duels en temps réel, réponds aux quiz quotidiens et grimpe tout en haut de la ligue.",
-		image: "/landing/missions/duels.webp",
+		image: "/landing/missions/duel_page.png",
 		imageAlt: "Milo en armure de chevalier pour les duels",
 		navLabel: "Défier",
 		tags: [
@@ -105,7 +97,7 @@ export const MISSIONS: Mission[] = [
 		highlight: "ton style",
 		description:
 			"Gagne des pièces en réussissant tes quêtes et tes leçons. Utilise-les dans la boutique pour acheter des cosmétiques et personnaliser ton compagnon renard !",
-		image: "/landing/missions/dashboard.webp",
+		image: "/landing/missions/my_milo.png",
 		imageAlt: "Tableau de bord Milo avec missions du jour et coins",
 		navLabel: "Personnaliser",
 		tags: [
@@ -121,23 +113,23 @@ export const PARENT_FEATURES: { title: string; description: string; icon: Emoji3
 	{
 		title: "Suivi des progrès",
 		description:
-			"Gardez un œil sur le classement de votre enfant dans sa ligue et visualisez ses points forts en un clin d'œil.",
+			"Gardez un œil sur le classement de votre enfant dans sa ligue et repérez ses points forts.",
 		icon: "bar_chart",
 		art: "var(--lp-sable)",
 	},
 	{
-		title: "Planning intelligent",
+		title: "Planning de révisions",
 		description:
-			"Une IA analyse son emploi du temps scolaire pour lui proposer des sessions de révision parfaitement calibrées.",
+			"Milo part de son emploi du temps scolaire pour lui proposer des sessions de révision au bon moment.",
 		icon: "spiral_calendar",
 		art: "linear-gradient(150deg, var(--lp-mandarine), var(--lp-orange))",
 	},
 	{
 		title: "Contrôle parental",
 		description:
-			"Gérez jusqu'à 4 profils enfants et supervisez leur activité 24h/24 en toute sécurité sur votre tableau de bord.",
+			"Gérez jusqu'à 4 profils enfants et suivez leur activité depuis votre tableau de bord.",
 		icon: "shield",
-		art: "linear-gradient(150deg, var(--lp-brique), var(--lp-vermillon))",
+		art: "var(--lp-feu)",
 	},
 ];
 

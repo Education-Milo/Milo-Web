@@ -39,7 +39,15 @@ const Manifesto: React.FC = () => {
 
 			const tl = gsap.timeline({
 				defaults: { ease: "none" },
-				scrollTrigger: { trigger: root.current, start: "top top", end: "+=140%", pin: true, scrub: 0.7 },
+				scrollTrigger: {
+					trigger: root.current,
+					start: "top top",
+					end: "+=140%",
+					pin: true,
+					scrub: 0.8,
+					// Les décors partent de positions calculées sur la largeur de l'écran
+					invalidateOnRefresh: true,
+				},
 			});
 			tl.from(
 				decos,

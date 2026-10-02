@@ -13,7 +13,7 @@ landing/
 	components/            # une section = un dossier (composant + CSS)
 		Navbar/              # navbar à vague, partagée par les 3 pages
 		Footer/              # footer partagé par les 3 pages
-		Hero/                # hero + scène 3D (Milo, jouets) en React Three Fiber
+		Hero/                # hero + scène 3D (Milo, jouets, fusée) en React Three Fiber
 		Manifesto/           # positionnement, épinglé au scroll
 		Bands/               # bandes défilantes pilotées par la vitesse de scroll
 		Missions/            # missions enfants, carrousel épinglé (desktop)
@@ -21,7 +21,7 @@ landing/
 		FaqPreview/          # aperçu de la FAQ
 		Pricing/             # formules d'abonnement
 		FinalCta/            # appel à l'action final
-	ui/                    # petites briques réutilisables (Emoji3D, Eyebrow)
+	ui/                    # petites briques réutilisables (Emoji3D)
 	data/landing.data.ts   # tout le contenu éditorial (textes, prix, icônes)
 	hooks/useSmoothScroll  # Lenis synchronisé avec GSAP ScrollTrigger
 	lib/                   # GSAP (plugins), scroll fluide, état partagé du hero

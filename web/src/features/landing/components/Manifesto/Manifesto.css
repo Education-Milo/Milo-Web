@@ -1,4 +1,5 @@
-/* Même vermillon que le portail du hero : la transition est continue */
+/* Dégradé de la charte, vertical : il reprend l'orange sur lequel se termine
+   le portail du hero (.lp-hero__fill), la transition est donc continue */
 .lp-manifesto {
 	position: relative;
 	isolation: isolate;
@@ -7,7 +8,7 @@
 	display: flex;
 	align-items: center;
 	padding: 140px 0 160px;
-	background: var(--lp-vermillon);
+	background: linear-gradient(180deg, var(--lp-orange) 0%, var(--lp-brique) 55%, var(--lp-vermillon) 100%);
 	color: var(--lp-creme);
 }
 
@@ -75,6 +76,7 @@
 	z-index: 2;
 	width: 110px;
 	pointer-events: none;
+	will-change: transform, opacity;
 }
 
 .lp-manifesto__deco--1 {
