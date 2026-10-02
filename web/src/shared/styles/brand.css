@@ -20,6 +20,7 @@
 	--milo-pompon: #FCB218;   /* Pompon — accent ponctuel (XP, pièces, récompenses) */
 	--milo-pompon-relief: #C98A00; /* Tranche 3D / icône sur fond pompon */
 	--milo-encre:  #2A1810;   /* Encre — texte principal */
+	--milo-marron: #79361a;
 
 	/* Couleurs d'état (hors identité) */
 	--ok: #23874B;

@@ -89,7 +89,6 @@ const ProfilePage: React.FC = () => {
 				{/* --- HERO --- */}
 				<section className="pf-hero">
 					<div className="pf-hero-halo" aria-hidden="true" />
-					<div className="pf-hero-shine" aria-hidden="true" />
 
 					<div className="pf-avatar-wrap">
 						<span className="pf-avatar-ring" aria-hidden="true" />
