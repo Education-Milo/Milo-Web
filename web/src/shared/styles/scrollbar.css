@@ -8,12 +8,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #ff6b35;
+    background: var(--milo-orange);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #f7931e;
+    background: var(--milo-orange);
 }
 
 .announcements-scroll::-webkit-scrollbar {
@@ -21,15 +21,15 @@
 }
 
 .announcements-scroll::-webkit-scrollbar-track {
-	background: #f1f5f9;
+	background: var(--milo-creme);
 	border-radius: 10px;
 }
 
 .announcements-scroll::-webkit-scrollbar-thumb {
-	background: #fed7aa;
+	background: var(--milo-lettre);
 	border-radius: 10px;
 }
 
 .announcements-scroll::-webkit-scrollbar-thumb:hover {
-	background: #ff6b35;
+	background: var(--milo-orange);
 }

@@ -18,9 +18,9 @@ const FriendList: React.FC<FriendListProps> = ({
     <div className="friend-list-container">
       <h3 className="friend-list-title">Mes Amis</h3>
       {loading ? (
-        <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>Chargement...</p>
+        <p style={{ color: "var(--text-3)", fontSize: "0.9rem" }}>Chargement...</p>
       ) : friends.length === 0 ? (
-        <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+        <p style={{ color: "var(--text-3)", fontSize: "0.9rem" }}>
           Aucun ami à afficher. Ajoute des amis pour les défier !
         </p>
       ) : (

@@ -16,7 +16,7 @@
 }
 
 .auth-header-logo {
-	height: 44px;
+	height: 48px;
 }
 
 .auth-back-link {
@@ -26,9 +26,9 @@
 	background: none;
 	border: none;
 	cursor: pointer;
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 0.9rem;
-	color: #2D3748;
+	color: var(--milo-encre);
 	padding: 0;
 	font-family: inherit;
 }
@@ -51,15 +51,15 @@
 }
 
 .auth-header-right-link {
-	color: #EF4F1A;
+	color: var(--accent-text);
 	text-decoration: none;
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 0.85rem;
-	border-bottom: 2px solid rgba(239, 79, 26, 0.2);
+	border-bottom: 2px solid rgba(255, 84, 29, 0.2);
 	padding-bottom: 2px;
 	transition: 0.3s;
 }
 
 .auth-header-right-link:hover {
-	border-color: #EF4F1A;
+	border-color: var(--milo-orange);
 }

@@ -7,7 +7,7 @@ import { AuthSuccessMessage } from "@features/auth/components/AuthSuccessMessage
 import CodeInput from "@features/auth/components/CodeInput.component";
 import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/ForgotPassword.css";
-import miloLogo from "/milo-logo.png";
+import miloLogo from "/milo-logo.webp";
 import TextFieldComponent from "@shared/components/TextField.component";
 import MainButtonComponent from "@shared/components/MainButton.component";
 import useForgotPassword, {

@@ -9,7 +9,7 @@
   background-color: #FFF;
   border-radius: 9999px;
   padding: 4px 15px;
-  border: 1px solid #DDD;
+  border: 1px solid var(--line);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   height: 48px;
 }
@@ -39,7 +39,7 @@
   flex: 1;
   margin-left: 10px;
   font-size: 15px;
-  color: #11181C;
+  color: var(--milo-encre);
   height: 43px;
   border: none;
   outline: none;
@@ -47,28 +47,28 @@
 }
 
 .textfield-input::placeholder {
-  color: #999;
+  color: var(--text-3);
 }
 
 /* Styles pour l'état désactivé */
 .textfield-disabled {
-  background-color: #f5f5f5 !important;
-  border-color: #5a5858 !important;
+  background-color: var(--milo-creme) !important;
+  border-color: var(--text-2) !important;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .textfield-input-disabled {
-  color: #5e5b5b !important;
+  color: var(--text-2) !important;
   cursor: not-allowed;
 }
 
 .textfield-input-disabled::placeholder {
-  color: #3a3535 !important;
+  color: var(--milo-encre) !important;
 }
 
 .textfield-error-text {
-  color: #ff3b30;
+  color: var(--ko);
   font-size: 14px;
   margin-top: 5px;
   margin-left: 15px;

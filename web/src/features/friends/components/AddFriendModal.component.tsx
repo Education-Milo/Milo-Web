@@ -104,7 +104,7 @@ const AddFriendModal: React.FC<AddFriendModalProps> = ({ onClose }) => {
 										) : isPendingSent || isSent ? (
 											<span className="friend-request-sent">En attente</span>
 										) : isPendingReceived ? (
-											<span className="friend-request-sent" style={{ background: '#FEF3C7', color: '#D97706' }}>Demande reçue</span>
+											<span className="friend-request-sent" style={{ background: 'var(--pompon-bg)', color: 'var(--milo-braise)' }}>Demande reçue</span>
 										) : (
 											<button
 												className="friend-btn-accept"

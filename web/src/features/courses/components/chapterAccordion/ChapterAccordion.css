@@ -17,7 +17,7 @@
   overflow: hidden;
   position: relative;
   z-index: 1;
-  box-shadow: 0 15px 30px rgba(74, 63, 53, 0.06);
+  box-shadow: 0 15px 30px rgba(42, 24, 16, 0.06);
   transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -34,13 +34,13 @@
 
 .chapter-accordion:hover {
   transform: translateY(-3px);
-  box-shadow: 0 25px 45px rgba(139, 92, 63, 0.12);
+  box-shadow: 0 25px 45px rgba(120, 50, 10, 0.12);
 }
 
 .chapter-accordion.open {
   background: rgba(255, 255, 255, 0.95);
-  border-color: #FFE4C9;
-  box-shadow: 0 25px 50px rgba(226, 135, 67, 0.15);
+  border-color: var(--milo-lettre);
+  box-shadow: 0 25px 50px rgba(255, 84, 29, 0.15);
 }
 
 /* --- HEADER cliquable --- */
@@ -54,14 +54,14 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--f-text);
   position: relative;
   z-index: 2;
   transition: background 0.25s ease;
 }
 
 .chapter-header:hover {
-  background: rgba(243, 237, 232, 0.4);
+  background: rgba(255, 244, 229, 0.4);
 }
 
 .chapter-header-left {
@@ -75,7 +75,7 @@
   width: 58px;
   height: 58px;
   flex-shrink: 0;
-  background: radial-gradient(circle, #FFF 0%, #FDF1E8 100%);
+  background: radial-gradient(circle, #FFF 0%, var(--milo-creme) 100%);
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -83,7 +83,7 @@
   font-size: 1.8rem;
   box-shadow:
     inset 0 6px 14px rgba(0, 0, 0, 0.03),
-    0 8px 18px rgba(226, 135, 67, 0.12);
+    0 8px 18px rgba(255, 84, 29, 0.12);
   transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -99,8 +99,8 @@
 
 .chapter-title {
   font-size: 1.3rem;
-  font-weight: 900;
-  color: #4A3F35;
+  font-weight: 700;
+  color: var(--milo-encre);
   margin: 0;
   letter-spacing: -0.5px;
   line-height: 1.2;
@@ -108,16 +108,16 @@
 
 .chapter-lesson-count {
   font-size: 0.8rem;
-  font-weight: 800;
-  color: #8B7E74;
+  font-weight: 700;
+  color: var(--text-2);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 /* Chevron dans un rond soft */
 .chapter-chevron {
-  color: #8B7E74;
-  background: #F3EDE8;
+  color: var(--text-2);
+  background: var(--milo-creme);
   border-radius: 50%;
   padding: 8px;
   width: 40px;
@@ -127,15 +127,15 @@
 }
 
 .chapter-accordion:hover .chapter-chevron {
-  background: #FFE4C9;
-  color: #E28743;
+  background: var(--milo-lettre);
+  color: var(--accent-text);
 }
 
 .chapter-accordion.open .chapter-chevron {
   transform: rotate(180deg);
-  background: #E28743;
+  background: var(--milo-orange);
   color: #FFF;
-  box-shadow: 0 4px 10px rgba(226, 135, 67, 0.4);
+  box-shadow: 0 4px 10px rgba(255, 84, 29, 0.4);
 }
 
 /* =========================================
@@ -166,7 +166,7 @@
   content: '';
   display: block;
   height: 1px;
-  background: linear-gradient(90deg, transparent, #EADED5, transparent);
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
   margin-bottom: 16px;
 }
 
@@ -175,34 +175,34 @@
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--f-text);
   font-size: 1rem;
   font-weight: 700;
-  color: #4A3F35;
+  color: var(--milo-encre);
   border-radius: 16px;
   background: #FFF;
-  border: 2px solid #F3EDE8;
+  border: 2px solid var(--milo-creme);
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* --- Variantes selon statut --- */
 .lesson-item.locked {
-  color: #94a3b8;
-  background: #FAFAFA;
-  border-color: #EDEDED;
+  color: var(--text-3);
+  background: var(--milo-creme);
+  border-color: var(--milo-creme);
   opacity: 0.75;
 }
 
 .lesson-item.completed {
-  color: #15803D;
-  background: #EAFCF1;
-  border-color: #B7E4C7;
+  color: var(--ok);
+  background: var(--ok-bg);
+  border-color: var(--ok-bg);
 }
 
 .lesson-item.in-progress {
-  color: #B66A32;
-  background: #FFF5EB;
-  border-color: #FFD6AE;
+  color: var(--milo-braise);
+  background: var(--milo-creme);
+  border-color: var(--milo-lettre);
 }
 
 /* Icônes */
@@ -217,9 +217,9 @@
   flex-shrink: 0;
 }
 
-.lesson-icon .icon-completed   { color: #22C55E; }
-.lesson-icon .icon-in-progress { color: #E28743; }
-.lesson-icon .icon-locked      { color: #94a3b8; }
+.lesson-icon .icon-completed   { color: var(--ok); }
+.lesson-icon .icon-in-progress { color: var(--accent-text); }
+.lesson-icon .icon-locked      { color: var(--text-3); }
 
 .lesson-title {
   flex: 1;
@@ -233,17 +233,17 @@
 
 .lesson-item.clickable:hover {
   transform: translateX(6px) translateY(-2px);
-  box-shadow: 0 8px 18px rgba(74, 63, 53, 0.08);
+  box-shadow: 0 8px 18px rgba(42, 24, 16, 0.08);
 }
 
 .lesson-item.completed.clickable:hover {
-  border-color: #22C55E;
-  box-shadow: 0 8px 18px rgba(34, 197, 94, 0.15);
+  border-color: var(--ok);
+  box-shadow: 0 8px 18px rgba(35, 135, 75, 0.15);
 }
 
 .lesson-item.in-progress.clickable:hover {
-  border-color: #E28743;
-  box-shadow: 0 8px 18px rgba(226, 135, 67, 0.2);
+  border-color: var(--milo-orange);
+  box-shadow: 0 8px 18px rgba(255, 84, 29, 0.2);
 }
 
 .lesson-item.clickable:active {

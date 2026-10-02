@@ -36,9 +36,9 @@ const TextFieldComponent = forwardRef<HTMLInputElement, TextFieldComponentProps>
               onClick={togglePasswordVisibility}
             >
               {isPasswordVisible ? (
-                <Eye size={20} color='#666' />
+                <Eye size={20} color='var(--text-2)' />
               ) : (
-                <EyeOff size={20} color='#666' />
+                <EyeOff size={20} color='var(--text-2)' />
               )}
             </button>
           )}

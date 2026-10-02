@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
       <div className="footer-content">
         <div className="footer-main">
           <div className="footer-brand">
-            <img src="/milo-logo2.png" alt="Milo Logo" className="footer-logo" />
+            <img src="/milo-logo.webp" alt="Milo Logo" className="footer-logo" />
             <p>L'IA qui transforme les révisions en une aventure épique pour les enfants et une sérénité pour les parents.</p>
             <div className="footer-socials">
             <a 

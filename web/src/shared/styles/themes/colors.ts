@@ -1,58 +1,62 @@
 // import { useTheme } from '../../contexts/ThemeContext';
 
 // Couleurs pour le mode clair
+// Valeurs issues de la charte graphique (brand/charte-graphique.html).
+// Garder synchronisé avec src/shared/styles/brand.css.
 const lightColors = {
   // Couleurs principales
-  primary: '#FF8C00',
-  secondary: '#FF6B00',
-  tertiary: '#FF4500',
-  placeholder: '#333',
+  primary: '#FF541D', // Orange Milo
+  secondary: '#D9400F', // Relief des boutons orange
+  tertiary: '#C73A0C', // Braise : orange lisible sur blanc
+  board: '#2B4520', // Vert Tableau
+  pompon: '#FCB218', // Pompon : récompenses
+  placeholder: '#6E5546',
   white_60: 'rgba(255, 255, 255, 0.6)',
 
   // Couleurs de fond
-  background: '#FFF8F1',
+  background: '#FFFAF3',
   white: '#FFFFFF',
   card: '#FFFFFF',
-  black: '#000000',
+  black: '#2A1810',
 
   // Couleurs de texte
   text: {
-    title: '#666',
-    primary: '#11181C',
-    secondary: '#666666',
-    tertiary: '#8E8E93',
+    title: '#2A1810',
+    primary: '#2A1810',
+    secondary: '#6E5546',
+    tertiary: '#A08A7C',
     white: '#FFFFFF',
-    deleted: '#FF3B30',
+    deleted: '#C3253F',
   },
 
   // Couleurs de bordure et séparateur
   border: {
-    light: '#DDD',
-    medium: '#E5E5E5',
-    dark: '#E0E0E0',
+    light: '#F1DFCB',
+    medium: '#F1DFCB',
+    dark: '#F1DFCB',
   },
 
   // Couleurs d'état
-  error: '#ff3b30',
-  success: '#34C759',
-  warning: '#FF9500',
+  error: '#C3253F',
+  success: '#23874B',
+  warning: '#FCB218',
 
   // Couleurs avec transparence
-  overlay: 'rgba(0,0,0,0.5)',
-  primaryLight: 'rgba(255, 140, 0, 0.1)',
+  overlay: 'rgba(42, 24, 16, 0.5)',
+  primaryLight: 'rgba(255, 84, 29, 0.1)',
 
   // Couleurs spécifiques
-  notification: '#FF4500',
+  notification: '#FF541D',
   progress: {
-    background: '#EFEFEF',
-    fill: '#FF8C00',
+    background: '#FFF4E5',
+    fill: '#FF541D',
   },
   suggestion: {
-    background: '#FFECE0',
+    background: '#FFF4E5',
   },
   import: {
-    background: '#f0f8ff',
-    button: '#6200ee',
+    background: '#FFF4E5',
+    button: '#2B4520',
   },
 };
 

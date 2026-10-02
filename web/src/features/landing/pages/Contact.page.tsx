@@ -127,14 +127,14 @@ const ContactPage: React.FC = () => {
 					animate={{ rotate: 360 }}
 					transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
 				>
-					<Star fill="#F4922A" color="#F4922A" size={40} />
+					<Star fill="var(--milo-orange)" color="var(--milo-orange)" size={40} />
 				</motion.div>
 				<motion.div
 					className="deco-heart"
 					animate={{ y: [0, -20, 0] }}
 					transition={{ duration: 4, repeat: Infinity }}
 				>
-					<Heart fill="#EF4F1A" color="#EF4F1A" size={30} />
+					<Heart fill="var(--milo-orange)" color="var(--milo-orange)" size={30} />
 				</motion.div>
 
 				<motion.div

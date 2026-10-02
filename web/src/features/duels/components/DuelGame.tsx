@@ -213,7 +213,7 @@ const DuelGame: React.FC = () => {
 
   const totalTime = currentQuestion.time_limit;
   const pct = (timeLeft / totalTime) * 100;
-  const barColor = pct > 40 ? "#f97316" : pct > 20 ? "#d97706" : "#b91c1c";
+  const barColor = pct > 40 ? "var(--milo-orange)" : pct > 20 ? "var(--milo-braise)" : "var(--ko)";
   const mySticker = stickers[myIdx];
   const oppSticker = oppIdx !== null ? stickers[oppIdx] : undefined;
 

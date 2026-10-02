@@ -90,7 +90,7 @@ const ExerciseResultScreen: React.FC = () => {
       <div className="result-container">
         <div className="result-card">
           <div className="trophy-icon">
-            <Trophy size={56} color="#E8A94A" />
+            <Trophy size={56} color="var(--milo-pompon)" />
           </div>
           <h1 className="result-title">Calcul de ton score...</h1>
         </div>
@@ -110,7 +110,7 @@ const ExerciseResultScreen: React.FC = () => {
     <div className="result-container">
       <div className="result-card">
         <div className="trophy-icon">
-            <Trophy size={56} color="#E8A94A" />
+            <Trophy size={56} color="var(--milo-pompon)" />
         </div>
         <h1 className="result-title">{message} {emoji}</h1>
 
