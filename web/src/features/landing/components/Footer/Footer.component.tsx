@@ -4,36 +4,11 @@ import { ExternalLink, Instagram, Linkedin } from "lucide-react";
 import "@features/landing/styles/landing.css";
 import "@features/landing/components/Footer/Footer.css";
 
-const Footer: React.FC = () => {
-  return (
-    <footer className="vitrine-footer">
-      <div className="footer-wave">
-        <svg viewBox="0 0 1440 200" preserveAspectRatio="none">
-          <path d="M0,160L80,154.7C160,149,320,139,480,110.7C640,82,800,40,960,60.3C1120,81,1280,150,1360,170.3L1440,190L1440,300L1360,300C1280,300,1120,300,960,300C800,300,640,300,480,300C320,300,160,300,80,300L0,300Z"></path>
-        </svg>
-      </div>
-      
-      <div className="footer-content">
-        <div className="footer-main">
-          <div className="footer-brand">
-            <img src="/milo-logo.webp" alt="Milo Logo" className="footer-logo" />
-            <p>L'IA qui transforme les révisions en une aventure épique pour les enfants et une sérénité pour les parents.</p>
-            <div className="footer-socials">
-            <a 
-                href="https://www.instagram.com/milo_educ/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                >
-                <Instagram size={20} />
-            </a>
-            <a href="https://www.linkedin.com/company/107749290/" target="_blank" rel="noopener noreferrer">
-                <Linkedin size={20} />
-            </a>
-              <a href="https://linktr.ee/milo_education" target="_blank" rel="noopener noreferrer" className="linktree-pill">
-                    <ExternalLink size={20} />
-              </a>
-            </div>
-          </div>
+const SOCIALS = [
+	{ href: "https://www.instagram.com/milo_educ/", label: "Instagram", Icon: Instagram },
+	{ href: "https://www.linkedin.com/company/107749290/", label: "LinkedIn", Icon: Linkedin },
+	{ href: "https://linktr.ee/milo_education", label: "Linktree", Icon: ExternalLink },
+];
 
 const COLUMNS = [
 	{

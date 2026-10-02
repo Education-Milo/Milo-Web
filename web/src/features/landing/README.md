@@ -37,6 +37,9 @@ landing/
 - **React Three Fiber** + **Drei** : Milo (`MiloV11.glb`, utilitaires de
   `features/my-milo/utils/miloModel.ts`) et les jouets 3D du hero.
 - **Framer Motion** : menu mobile de la navbar.
+- **Charte globale** : couleurs de marque, polices (Google Fonts dans
+  `index.html`) et focus viennent de `shared/styles/brand.css` ; les tokens
+  `--lp-*` s'y réfèrent et n'ajoutent que les nuances propres à la landing.
 
 ## Conventions
 

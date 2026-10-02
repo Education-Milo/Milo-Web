@@ -2,35 +2,36 @@
    LANDING — fondations partagées (tokens, typo, boutons)
    Toutes les classes sont préfixées `lp-` : le CSS du projet est global,
    le préfixe évite les collisions avec les autres features.
+   Les couleurs de marque, les polices (chargées dans index.html) et le focus
+   viennent de shared/styles/brand.css ; on n'ajoute ici que les nuances de la
+   palette propres à la landing.
    ========================================================================== */
-@import "@fontsource/luckiest-guy/400.css";
-@import "@fontsource-variable/fredoka/index.css";
 
 /* Tokens : posés sur chaque racine de la landing (page, navbar, footer),
    pour que la Navbar et le Footer restent autonomes sur /faq et /contact. */
 .lp {
-	/* Palette de la charte */
+	/* Nuances propres à la landing (palette Gradients.app de la charte) */
 	--lp-creme: #f6ebdf;
 	--lp-sable: #f1d2b2;
 	--lp-mandarine: #f4922a;
 	--lp-orange: #f36b16;
-	--lp-milo: #ff541d; /* couleur Milo — dominante, CTA */
+	--lp-milo: var(--milo-orange); /* couleur Milo — dominante, CTA */
 	--lp-brique: #ef4f1a;
 	--lp-vermillon: #ed3c1d;
-	--lp-foret: #263715; /* accent ponctuel uniquement (points, coches, toque) */
+	--lp-foret: var(--milo-vert); /* accent ponctuel uniquement (points, coches, toque) */
 
-	/* Dérivés : relief 3D, texte, surfaces */
-	--lp-braise: #b9330f;
-	--lp-ink: #2a1a10;
-	--lp-ink-2: #6b4a36;
+	/* Relief 3D, texte, surfaces */
+	--lp-braise: var(--milo-braise);
+	--lp-ink: var(--milo-encre);
+	--lp-ink-2: var(--text-2);
 	--lp-surface: #fffbf6;
 	--lp-line: #ebd3bc;
 
 	--lp-feu: linear-gradient(135deg, var(--lp-mandarine) 0%, var(--lp-orange) 38%, var(--lp-brique) 70%, var(--lp-vermillon) 100%);
 	--lp-feu-nav: linear-gradient(135deg, var(--lp-orange) 0%, var(--lp-vermillon) 100%);
 
-	--lp-f-display: "Luckiest Guy", "Fredoka Variable", system-ui, sans-serif;
-	--lp-f-text: "Fredoka Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+	--lp-f-display: var(--f-display);
+	--lp-f-text: var(--f-text);
 
 	--lp-shadow: 0 1px 0 rgba(42, 26, 16, 0.04), 0 18px 40px -18px rgba(150, 60, 10, 0.28);
 	--lp-gutter: clamp(16px, 4vw, 40px);
@@ -53,8 +54,6 @@
 }
 
 .lp :focus-visible {
-	outline: 3px solid var(--lp-foret);
-	outline-offset: 3px;
 	border-radius: 12px;
 }
 
@@ -140,7 +139,7 @@
 	height: 0.55em;
 	border-radius: 50%;
 	background: var(--lp-foret);
-	box-shadow: 0 0 0 4px rgba(38, 55, 21, 0.14);
+	box-shadow: 0 0 0 4px rgba(43, 69, 32, 0.14);
 }
 
 /* Icônes 3D */

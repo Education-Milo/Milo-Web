@@ -17,7 +17,7 @@ export const MILO_FIT_HEIGHT = 2.1;
 /// La toque de diplômé, comme sur le logo de la charte
 const EQUIPPED = ["diplomhat"];
 /// Teinte vert Forêt de la toque (accent de la charte)
-const HAT_COLOR = "#263715";
+const HAT_COLOR = "#2B4520"; // --milo-vert (shared/styles/brand.css)
 const HAT_MATERIAL = "black.001";
 /// Milo est tourné de trois quarts, vers le texte du hero
 const BASE_ROTATION_Y = -0.3;
