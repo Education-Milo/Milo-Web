@@ -2,12 +2,12 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Check, Lock } from "lucide-react";
 import {
-	RARITY_LABELS,
 	TYPE_LABELS,
 	raritySlug,
 	type Cosmetic,
 } from "@features/cosmetics/store/cosmetics.model";
 import CosmeticVisual from "@features/milo-shop/components/CosmeticVisual.component";
+import RarityTag from "@features/milo-shop/components/RarityTag.component";
 import DancePreview3D from "@features/milo-shop/components/DancePreview3D.component";
 import { formatMiloros } from "@features/milo-shop/utils/format";
 
@@ -48,10 +48,6 @@ const ShopItemCard: React.FC<ShopItemCardProps> = ({
 			onMouseLeave={danceClip ? () => onPreviewStop(item.id) : undefined}
 		>
 			<div className="ms-card__stage">
-				<span className="ms-rarity">
-					<i aria-hidden="true" />
-					{RARITY_LABELS[item.rarity] ?? item.rarity}
-				</span>
 				{item.owned && (
 					<span className="ms-owned-tag">
 						<Check size={14} strokeWidth={3} aria-hidden="true" />
@@ -63,6 +59,7 @@ const ShopItemCard: React.FC<ShopItemCardProps> = ({
 				<CosmeticVisual item={item} className="ms-card__visual" />
 				{isDancing && danceClip && <DancePreview3D clip={danceClip} />}
 				{danceClip && !isDancing && <span className="ms-card__hint">Survole pour le voir danser</span>}
+				<RarityTag rarity={item.rarity} className="ms-tag--band" />
 			</div>
 
 			<div className="ms-card__body">

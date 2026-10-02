@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import {
-	RARITY_LABELS,
 	TYPE_LABELS,
 	raritySlug,
 	type Cosmetic,
 } from "@features/cosmetics/store/cosmetics.model";
 import CosmeticVisual from "@features/milo-shop/components/CosmeticVisual.component";
+import RarityTag from "@features/milo-shop/components/RarityTag.component";
 import { formatMiloros } from "@features/milo-shop/utils/format";
 
 interface PurchaseModalProps {
@@ -83,10 +83,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 					</motion.div>
 				</div>
 
-				<span className="ms-rarity ms-rarity--inline">
-					<i aria-hidden="true" />
-					{RARITY_LABELS[item.rarity] ?? item.rarity} · {TYPE_LABELS[item.type] ?? item.type}
-				</span>
+				<RarityTag rarity={item.rarity} suffix={TYPE_LABELS[item.type] ?? item.type} className="ms-tag--pill" />
 				<h2 id="ms-modal-title" className="ms-modal__title">{item.name}</h2>
 
 				<dl className="ms-recap">

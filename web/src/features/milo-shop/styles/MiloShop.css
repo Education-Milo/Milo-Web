@@ -372,42 +372,94 @@
 .ms-rpill i { width: 9px; height: 9px; border-radius: 50%; background: var(--r); }
 .ms-rpill:hover { background: #fff; color: var(--milo-encre); }
 .ms-rpill.is-active {
-	background: #fff;
-	border-color: var(--r, var(--milo-encre));
-	color: var(--milo-encre);
+	background: var(--r);
+	border-color: var(--r);
+	color: var(--r-ink);
+	box-shadow: 0 3px 0 var(--r-edge);
 }
-.ms-rpill:not([class*="ms-r-"]).is-active { border-color: var(--milo-encre); }
+.ms-rpill.is-active i { background: currentColor; }
+.ms-rpill:not([class*="ms-r-"]).is-active {
+	background: #fff;
+	border-color: var(--milo-encre);
+	color: var(--milo-encre);
+	box-shadow: none;
+}
 
 /* ==========================================================================
    RARETÉS
    ========================================================================== */
-.ms-r-commun { --r: #8a7466; --r-soft: rgba(138, 116, 102, 0.12); }
-.ms-r-rare { --r: #2f7fd1; --r-soft: rgba(47, 127, 209, 0.16); }
-.ms-r-tres-rare { --r: #128476; --r-soft: rgba(18, 132, 118, 0.16); }
-.ms-r-epique { --r: #8b4fd8; --r-soft: rgba(139, 79, 216, 0.17); }
-.ms-r-legendaire { --r: #d98a00; --r-soft: rgba(252, 178, 24, 0.3); }
+/* Échelle de rareté, du plus calme au plus spectaculaire :
+   --r     couleur pleine (bandeau, bordure, pastilles)
+   --r-ink texte posé sur --r
+   --r-edge tranche 3D de la carte
+   --r-bg / --r-bg-2 dégradé de la vitrine
+   Commun reste dans les tons crème de la marque : c'est la référence calme
+   qui fait ressortir les autres niveaux. */
+.ms-r-commun {
+	--r: #8a7466; --r-ink: #fff; --r-edge: var(--ms-sable); --r-line: var(--ms-line);
+	--r-bg: #fbf3ea; --r-bg-2: var(--ms-creme); --r-glow: transparent;
+}
+.ms-r-rare {
+	--r: #2f7fd1; --r-ink: #fff; --r-edge: #1d5a9e; --r-line: #2f7fd1;
+	--r-bg: #eef6fe; --r-bg-2: #bcd9f7; --r-glow: rgba(47, 127, 209, 0.35);
+}
+.ms-r-tres-rare {
+	--r: #0f8475; --r-ink: #fff; --r-edge: #0a5d52; --r-line: #0f8475;
+	--r-bg: #ecfaf6; --r-bg-2: #ade5d8; --r-glow: rgba(15, 132, 117, 0.35);
+}
+.ms-r-epique {
+	--r: #8b4fd8; --r-ink: #fff; --r-edge: #5f2ea3; --r-line: #8b4fd8;
+	--r-bg: #f6efff; --r-bg-2: #d6bdf7; --r-glow: rgba(139, 79, 216, 0.45);
+}
+.ms-r-legendaire {
+	--r: #f5a800; --r-ink: var(--milo-encre); --r-edge: #b86e00; --r-line: #f5a800;
+	--r-bg: #fff8dc; --r-bg-2: #ffc94a; --r-glow: rgba(245, 168, 0, 0.55);
+}
 
-.ms-rarity {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	z-index: 4;
+/* Étiquette de rareté : nom + niveau en pastilles */
+.ms-tag {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.4rem;
+	gap: 0.6rem;
 	font-weight: 700;
-	font-size: 0.72rem;
-	letter-spacing: 0.06em;
+	font-size: 0.78rem;
+	letter-spacing: 0.08em;
 	text-transform: uppercase;
 	line-height: 1;
-	padding: 0.45rem 0.7rem 0.4rem;
-	border-radius: 999px;
-	background: #fff;
-	color: var(--r);
-	box-shadow: 0 3px 0 rgba(42, 24, 16, 0.08);
+	color: var(--r-ink);
+	background: var(--r);
 }
-.ms-rarity i { width: 8px; height: 8px; border-radius: 50%; background: var(--r); }
-.ms-rarity--inline { position: static; justify-self: center; border: 2px solid var(--ms-line); box-shadow: none; }
+.ms-tag__suffix { font-weight: 600; opacity: 0.85; }
+
+.ms-pips { display: inline-flex; gap: 3px; }
+.ms-pips i {
+	width: 7px;
+	height: 7px;
+	border-radius: 2px;
+	transform: rotate(45deg);
+	background: currentColor;
+	opacity: 0.3;
+}
+.ms-pips i.is-on { opacity: 1; }
+
+/* Bandeau en bas de la vitrine d'une carte */
+.ms-tag--band {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 4;
+	justify-content: space-between;
+	padding: 0.6rem 0.85rem 0.55rem;
+}
+
+/* Pastille de la fenêtre d'achat */
+.ms-tag--pill {
+	justify-self: center;
+	padding: 0.55rem 0.95rem 0.5rem;
+	border-radius: 999px;
+	box-shadow: 0 4px 0 var(--r-edge);
+}
 
 /* ==========================================================================
    CATALOGUE
@@ -434,30 +486,68 @@
 	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
 }
 
+.ms-card[class*="ms-r-"] {
+	border: 3px solid var(--r-line);
+	box-shadow: 0 8px 0 var(--r-edge), 0 18px 36px -18px var(--r-glow);
+}
+
 .ms-card:hover {
 	transform: translateY(-4px);
 	box-shadow: 0 12px 0 var(--ms-sable), 0 30px 40px -26px rgba(120, 50, 10, 0.5);
 }
+.ms-card[class*="ms-r-"]:hover {
+	box-shadow: 0 12px 0 var(--r-edge), 0 30px 46px -20px var(--r-glow);
+}
+.ms-card.ms-r-commun { border-width: 2px; }
 
-/* Vitrine : crème, trame de points et halo de la rareté */
+/* Vitrine : dégradé de la rareté et trame de points. Les niveaux hauts
+   ajoutent des rayons (épique, légendaire) puis un reflet qui passe
+   (légendaire) : plus l'objet est rare, plus la vitrine s'anime. */
 .ms-card__stage {
 	position: relative;
+	isolation: isolate;
 	aspect-ratio: 1 / 0.86;
 	display: grid;
 	place-items: center;
 	overflow: hidden;
-	border-radius: 22px;
+	border-radius: 20px;
+	padding-bottom: 30px; /* place du bandeau */
 	background:
-		radial-gradient(circle at 50% 58%, var(--r-soft, transparent) 0%, transparent 62%),
 		var(--ms-dots) 0 0 / 22px 22px,
-		var(--ms-creme);
+		radial-gradient(circle at 50% 42%, var(--r-bg, #fff) 0%, var(--r-bg-2, var(--ms-creme)) 85%);
 }
 
-.ms-r-legendaire .ms-card__stage {
-	background:
-		radial-gradient(circle at 50% 58%, rgba(252, 178, 24, 0.45) 0%, rgba(244, 146, 42, 0.12) 50%, transparent 70%),
-		var(--ms-dots) 0 0 / 22px 22px,
-		var(--ms-creme);
+.ms-r-epique .ms-card__stage::before,
+.ms-r-legendaire .ms-card__stage::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 42%;
+	z-index: -1;
+	width: 170%;
+	aspect-ratio: 1;
+	translate: -50% -50%;
+	background: repeating-conic-gradient(rgba(255, 255, 255, 0.55) 0deg 9deg, transparent 9deg 24deg);
+	-webkit-mask-image: radial-gradient(circle, #000 18%, transparent 62%);
+	mask-image: radial-gradient(circle, #000 18%, transparent 62%);
+	animation: ms-spin 28s linear infinite;
+}
+.ms-r-legendaire .ms-card__stage::before { animation-duration: 16s; }
+
+.ms-r-legendaire .ms-card__stage::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+	background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.75) 48%, transparent 60%);
+	background-size: 250% 100%;
+	animation: ms-shine 3.6s ease-in-out infinite;
+}
+
+@keyframes ms-shine {
+	0%, 35% { background-position: 120% 0; }
+	100% { background-position: -120% 0; }
 }
 
 .ms-card__visual {
@@ -479,10 +569,9 @@
 
 .ms-card__hint {
 	position: absolute;
-	bottom: 8px;
-	left: 50%;
+	top: 8px;
+	left: 8px;
 	z-index: 2;
-	transform: translateX(-50%);
 	white-space: nowrap;
 	font-size: 0.72rem;
 	font-weight: 600;
@@ -494,8 +583,8 @@
 
 .ms-owned-tag {
 	position: absolute;
-	bottom: 10px;
-	right: 10px;
+	top: 8px;
+	right: 8px;
 	z-index: 4;
 	display: inline-flex;
 	align-items: center;
@@ -507,6 +596,7 @@
 	border-radius: 999px;
 	background: var(--ok);
 	color: #fff;
+	box-shadow: 0 3px 0 #17633a;
 }
 
 .ms-card__body { display: grid; gap: 2px; align-content: start; padding: 0 6px; }
@@ -565,8 +655,6 @@
 	color: var(--ok);
 }
 
-.ms-card.is-owned { box-shadow: 0 8px 0 var(--ok-bg); }
-.ms-card.is-owned .ms-card__stage { box-shadow: inset 0 0 0 3px var(--ok); }
 
 /* Aperçu 3D d'une danse (DancePreview3D) : apparaît en fondu par-dessus
    le visuel, qui sert de repli le temps que le modèle charge */
@@ -675,11 +763,30 @@
 	place-items: center;
 	height: 190px;
 	border-radius: 26px;
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	border: 3px solid var(--r-line);
 	background:
-		radial-gradient(circle at 50% 60%, var(--r-soft, transparent) 0%, transparent 65%),
 		var(--ms-dots) 0 0 / 22px 22px,
-		var(--ms-creme);
+		radial-gradient(circle at 50% 50%, var(--r-bg) 0%, var(--r-bg-2) 90%);
 }
+.ms-modal.ms-r-epique .ms-modal__stage::before,
+.ms-modal.ms-r-legendaire .ms-modal__stage::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	z-index: -1;
+	width: 150%;
+	aspect-ratio: 1;
+	translate: -50% -50%;
+	background: repeating-conic-gradient(rgba(255, 255, 255, 0.55) 0deg 9deg, transparent 9deg 24deg);
+	-webkit-mask-image: radial-gradient(circle, #000 15%, transparent 60%);
+	mask-image: radial-gradient(circle, #000 15%, transparent 60%);
+	animation: ms-spin 20s linear infinite;
+}
+.ms-modal[class*="ms-r-"]:not(.ms-r-commun) { box-shadow: 0 10px 0 var(--r-edge), 0 50px 80px -30px rgba(42, 24, 16, 0.5); }
 
 .ms-modal__visual {
 	display: inline-block;
@@ -771,11 +878,13 @@
 	.ms-wallet, .ms-hero__actions .ms-btn { justify-content: center; }
 	.ms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 	.ms-card { padding: 8px 8px 12px; border-radius: 24px; gap: 8px; }
-	.ms-card__stage { border-radius: 18px; }
+	.ms-card__stage { border-radius: 16px; padding-bottom: 26px; }
+	.ms-tag--band { font-size: 0.64rem; padding: 0.5rem 0.6rem 0.45rem; gap: 0.3rem; }
+	.ms-pips { gap: 2px; }
+	.ms-pips i { width: 5px; height: 5px; }
 	.ms-card__name { font-size: 0.98rem; }
 	.ms-card__hint { display: none; }
-	.ms-rarity { top: 6px; left: 6px; font-size: 0.62rem; padding: 0.35rem 0.5rem 0.3rem; }
-	.ms-owned-tag { bottom: 6px; right: 6px; font-size: 0.65rem; }
+	.ms-owned-tag { top: 6px; right: 6px; font-size: 0.65rem; }
 	.ms-card__foot { padding: 0 2px; }
 	.ms-card__foot .ms-btn { padding: 0 0.6rem; font-size: 0.88rem; }
 	.ms-card__done { font-size: 0.88rem; }
