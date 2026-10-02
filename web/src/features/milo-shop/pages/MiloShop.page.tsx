@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { ShoppingBag, Star, WandSparkles, PackageOpen, Loader } from "lucide-react";
+import { WandSparkles, RotateCcw } from "lucide-react";
 import "@features/milo-shop/styles/MiloShop.css";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@shared/store/user/user.store";
@@ -10,7 +10,6 @@ import {
 	ALL_TYPES,
 	RARITIES,
 	RARITY_LABELS,
-	TYPE_ICONS,
 	TYPE_LABELS,
 	raritySlug,
 	type Cosmetic,
@@ -22,44 +21,35 @@ import {
 	useBuyCosmetic,
 	useCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
-import DancePreview3D from "@features/milo-shop/components/DancePreview3D.component";
+import ShopItemCard from "@features/milo-shop/components/ShopItemCard.component";
+import PurchaseModal from "@features/milo-shop/components/PurchaseModal.component";
+import { formatMiloros } from "@features/milo-shop/utils/format";
+
+/// Réexporté : Mon Milo et le casier affichent les objets avec le même visuel
+export { default as CosmeticVisual } from "@features/milo-shop/components/CosmeticVisual.component";
 
 /// Délai avant d'afficher l'aperçu 3D d'une danse : balayer la grille à la
 /// souris ne doit pas ouvrir puis fermer un contexte WebGL par case traversée
 const DANCE_HOVER_DELAY = 150;
 
-const containerVariants = {
-	hidden: { opacity: 0 },
-	visible: {
-		opacity: 1,
-		transition: { staggerChildren: 0.08, delayChildren: 0.15 },
-	},
+const SKELETON_COUNT = 8;
+
+const gridVariants = {
+	hidden: {},
+	visible: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
 };
 
-const itemVariants = {
-	hidden: { y: 30, opacity: 0, scale: 0.9 },
-	visible: {
-		y: 0,
-		opacity: 1,
-		scale: 1,
-		transition: { type: "spring", stiffness: 100, damping: 12 },
-	} as const,
-};
-
-/** Visuel d'un objet : image du catalogue, sinon pictogramme du type. */
-export const CosmeticVisual: React.FC<{ item: Cosmetic; className?: string }> = ({ item, className }) => (
-	item.image_url ? (
-		<img src={item.image_url} alt="" className={className} draggable={false} />
-	) : (
-		<span className={className} aria-hidden="true">{TYPE_ICONS[item.type] ?? "🎁"}</span>
-	)
-);
+const TYPE_FILTERS: { value: CosmeticType | ""; label: string }[] = [
+	{ value: "", label: "Tout" },
+	...ALL_TYPES.map((t) => ({ value: t, label: TYPE_LABELS[t] })),
+];
 
 const BoutiquePage: React.FC = () => {
 	const navigate = useNavigate();
 	const [activeType, setActiveType] = useState<CosmeticType | "">("");
 	const [activeRarity, setActiveRarity] = useState<CosmeticRarity | "">("");
 	const [confirmPurchase, setConfirmPurchase] = useState<Cosmetic | null>(null);
+	const [purchaseError, setPurchaseError] = useState<string | null>(null);
 	/// Une seule danse animée à la fois : un seul canvas 3D ouvert
 	const [previewedDanceId, setPreviewedDanceId] = useState<number | null>(null);
 	const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,23 +59,22 @@ const BoutiquePage: React.FC = () => {
 		if (hoverTimer.current) clearTimeout(hoverTimer.current);
 	}, []);
 
-	const startDancePreview = (id: number) => {
+	const startDancePreview = useCallback((id: number) => {
 		if (hoverTimer.current) clearTimeout(hoverTimer.current);
 		pendingDanceId.current = id;
 		hoverTimer.current = setTimeout(() => setPreviewedDanceId(id), DANCE_HOVER_DELAY);
-	};
+	}, []);
 
 	/// Ciblé sur la case quittée : passer directement d'une danse à une autre
 	/// ne doit pas annuler l'aperçu qui vient d'être demandé, quel que soit
 	/// l'ordre dans lequel le navigateur émet entrée et sortie
-	const stopDancePreview = (id: number) => {
+	const stopDancePreview = useCallback((id: number) => {
 		if (pendingDanceId.current === id && hoverTimer.current) {
 			clearTimeout(hoverTimer.current);
 			pendingDanceId.current = null;
 		}
 		setPreviewedDanceId((current) => (current === id ? null : current));
-	};
-	const [purchaseError, setPurchaseError] = useState<string | null>(null);
+	}, []);
 
 	// Seule source du solde affiché : miloro_coin de /users/me
 	const miloroCoin = useUserStore((state) => state.user?.miloro_coin ?? 0);
@@ -95,11 +84,26 @@ const BoutiquePage: React.FC = () => {
 		isLoading,
 		isError,
 		isFetching,
+		refetch,
 	} = useCosmetics({
 		...(activeType ? { type: activeType } : {}),
 		...(activeRarity ? { rarity: activeRarity } : {}),
 	});
 	const buyMutation = useBuyCosmetic();
+	const hasFilters = Boolean(activeType || activeRarity);
+
+	const openPurchase = useCallback((item: Cosmetic) => {
+		if (item.owned) return;
+		setPurchaseError(null);
+		setConfirmPurchase(item);
+	}, []);
+
+	const closePurchase = useCallback(() => setConfirmPurchase(null), []);
+
+	const resetFilters = () => {
+		setActiveType("");
+		setActiveRarity("");
+	};
 
 	const finalizePurchase = () => {
 		if (!confirmPurchase) return;
@@ -107,7 +111,7 @@ const BoutiquePage: React.FC = () => {
 		buyMutation.mutate(confirmPurchase.id, {
 			onSuccess: (data) => {
 				showToast(
-					`${data.cosmetic.name} débloqué ! Nouveau solde : ${data.miloro_coin.toLocaleString("fr-FR")} miloros.`,
+					`${data.cosmetic.name} débloqué ! Nouveau solde : ${formatMiloros(data.miloro_coin)} miloros.`,
 					"success",
 				);
 				setConfirmPurchase(null);
@@ -121,263 +125,161 @@ const BoutiquePage: React.FC = () => {
 
 	return (
 		<ScreenLayout>
-			<div className="shop-viewport">
-				<aside className="shop-sidebar-floating">
-					<div className="shop-logo-section">
-						<motion.div
-							className="shop-icon-wrapper"
-							animate={{ rotate: [0, -10, 10, 0] }}
-							transition={{ repeat: Infinity, duration: 4 }}
-						>
-							<ShoppingBag size={24} />
-						</motion.div>
-						<h2>Milo Store</h2>
-					</div>
+			<div className="ms">
+				<div className="ms-wrap">
+					{/* ---------- En-tête : titre, solde et soleil de Milo ---------- */}
+					<header className="ms-hero">
+						<div className="ms-hero__copy">
+							<span className="ms-eyebrow"><i aria-hidden="true" />La boutique de Milo</span>
+							<h1 className="ms-display ms-hero__title">
+								Habille ton <span className="ms-hl">renard</span>
+							</h1>
+							<p className="ms-hero__lead">
+								Dépense tes miloros en chapeaux, lunettes, stickers et danses.
+								Chaque objet débloqué rejoint ton casier pour toujours.
+							</p>
+							<div className="ms-hero__actions">
+								<div className="ms-wallet" title="Ton solde de miloros">
+									<img src="/landing/emoji/coin.webp" alt="" className="ms-wallet__coin" draggable={false} />
+									<span className="ms-wallet__amount">{formatMiloros(miloroCoin)}</span>
+									<span className="ms-wallet__unit">miloros</span>
+								</div>
+								<button type="button" className="ms-btn ms-btn--ghost" onClick={() => navigate("/mon-milo")}>
+									<WandSparkles size={18} aria-hidden="true" />
+									Personnaliser Milo
+								</button>
+							</div>
+						</div>
 
-					<nav className="shop-nav-list">
-						{[{ value: "" as const, label: "Tous" }, ...ALL_TYPES.map((t) => ({ value: t, label: TYPE_LABELS[t] }))].map((cat) => (
-							<button
-								key={cat.value || "all"}
-								className={`shop-nav-item ${activeType === cat.value ? "is-active" : ""}`}
-								onClick={() => setActiveType(cat.value)}
-							>
-								<motion.div
-									className="nav-bullet"
-									animate={
-										activeType === cat.value
-											? { scale: [1, 1.6, 1], opacity: [0.5, 1, 0.5] }
-											: {}
-									}
-									transition={{ repeat: Infinity, duration: 2 }}
-								/>
-								<span>{cat.label}</span>
-								{activeType === cat.value && (
-									<motion.div
-										layoutId="nav-bg"
-										className="nav-active-bg"
-										transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
-									/>
-								)}
-							</button>
-						))}
-					</nav>
-
-					<motion.button
-						className="shop-btn-customize"
-						whileHover={{
-							scale: 1.05,
-							boxShadow: "0 10px 25px rgba(74, 63, 53, 0.2)",
-						}}
-						whileTap={{ scale: 0.95 }}
-						onClick={() => navigate("/mon-milo")}
-					>
-						<WandSparkles size={18} />
-						<span>Personnaliser</span>
-					</motion.button>
-				</aside>
-
-				<main className="shop-content-area">
-					<header className="shop-top-bar">
-						<motion.h1
-							className="shop-view-title"
-							initial={{ x: -30, opacity: 0 }}
-							animate={{ x: 0, opacity: 1 }}
-							transition={{ duration: 0.8 }}
-						>
-							La Collection
-						</motion.h1>
-						<div className="shop-top-right">
-							<select
-								className="shop-rarity-select"
-								value={activeRarity}
-								onChange={(e) => setActiveRarity(e.target.value as CosmeticRarity | "")}
-								aria-label="Filtrer par rareté"
-							>
-								<option value="">Toutes les raretés</option>
-								{RARITIES.map((r) => (
-									<option key={r} value={r}>{RARITY_LABELS[r]}</option>
-								))}
-							</select>
-							<motion.div
-								className="shop-wallet-pill"
-								whileHover={{ y: -3, scale: 1.05 }}
-								title="Ton solde de miloros"
-							>
-								<motion.div
-									animate={{ rotate: 360 }}
-									transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
-								>
-									<Star fill="var(--milo-orange)" color="var(--milo-orange)" size={20} />
-								</motion.div>
-								<span className="coin-count">
-									Miloro : {miloroCoin.toLocaleString("fr-FR")}
-								</span>
-							</motion.div>
+						<div className="ms-hero__art" aria-hidden="true">
+							<div className="ms-hero__sun" />
+							<img className="ms-hero__milo" src="/landing/milo-reading.webp" alt="" draggable={false} />
+							<img className="ms-hero__e ms-hero__e--1" src="/landing/emoji/t_shirt.webp" alt="" />
+							<img className="ms-hero__e ms-hero__e--2" src="/landing/emoji/sparkles.webp" alt="" />
+							<img className="ms-hero__e ms-hero__e--3" src="/landing/emoji/gem_stone.webp" alt="" />
 						</div>
 					</header>
 
-					<div className={`shop-grid-container ${isFetching ? "is-fetching" : ""}`}>
+					{/* ---------- Filtres ---------- */}
+					<section className="ms-filters" aria-label="Filtres de la boutique">
+						<div className="ms-chips" role="group" aria-label="Catégorie">
+							{TYPE_FILTERS.map((cat) => {
+								const isActive = activeType === cat.value;
+								return (
+									<button
+										key={cat.value || "all"}
+										type="button"
+										className={`ms-chip${isActive ? " is-active" : ""}`}
+										aria-pressed={isActive}
+										onClick={() => setActiveType(cat.value)}
+									>
+										{cat.label}
+									</button>
+								);
+							})}
+						</div>
+						<div className="ms-rarities" role="group" aria-label="Rareté">
+							<span className="ms-rarities__label">Rareté</span>
+							{[{ value: "" as const, label: "Toutes" }, ...RARITIES.map((r) => ({ value: r, label: RARITY_LABELS[r] }))].map((r) => {
+								const isActive = activeRarity === r.value;
+								return (
+									<button
+										key={r.value || "all"}
+										type="button"
+										className={`ms-rpill${r.value ? ` ms-r-${raritySlug(r.value)}` : ""}${isActive ? " is-active" : ""}`}
+										aria-pressed={isActive}
+										onClick={() => setActiveRarity(r.value)}
+									>
+										{r.value && <i aria-hidden="true" />}
+										{r.label}
+									</button>
+								);
+							})}
+						</div>
+					</section>
+
+					{/* ---------- Catalogue ---------- */}
+					<section className={`ms-catalogue${isFetching && !isLoading ? " is-fetching" : ""}`} aria-busy={isFetching}>
 						{isLoading && (
-							<div className="shop-state">
-								<Loader size={28} className="shop-spin" />
-								<p>Chargement de la collection...</p>
+							<div className="ms-grid" aria-label="Chargement de la boutique">
+								{Array.from({ length: SKELETON_COUNT }, (_, i) => (
+									<div key={i} className="ms-card ms-card--skeleton" aria-hidden="true">
+										<div className="ms-card__stage" />
+										<div className="ms-skel ms-skel--sm" />
+										<div className="ms-skel" />
+										<div className="ms-skel ms-skel--btn" />
+									</div>
+								))}
 							</div>
 						)}
+
 						{isError && (
-							<div className="shop-state">
-								<p>Impossible de charger la boutique pour le moment.</p>
+							<div className="ms-state">
+								<img src="/landing/emoji/locked.webp" alt="" className="ms-state__icon" />
+								<h2 className="ms-display ms-state__title">Boutique fermée</h2>
+								<p>Impossible de charger les objets pour le moment.</p>
+								<button type="button" className="ms-btn ms-btn--primary" onClick={() => refetch()}>
+									<RotateCcw size={18} aria-hidden="true" />
+									Réessayer
+								</button>
 							</div>
 						)}
+
 						{!isLoading && !isError && catalogue.length === 0 && (
-							<div className="shop-state shop-empty">
-								<PackageOpen size={42} />
-								<h3>Rien en rayon pour l'instant</h3>
+							<div className="ms-state">
+								<img src="/landing/emoji/card_index_dividers.webp" alt="" className="ms-state__icon" />
+								<h2 className="ms-display ms-state__title">Rien en rayon</h2>
 								<p>
-									{activeType || activeRarity
+									{hasFilters
 										? "Aucun objet ne correspond à ces filtres."
 										: "Les premiers objets arrivent bientôt. Reviens vite !"}
 								</p>
+								{hasFilters && (
+									<button type="button" className="ms-btn ms-btn--ghost" onClick={resetFilters}>
+										Voir tous les objets
+									</button>
+								)}
 							</div>
 						)}
 
-						<LayoutGroup>
-							<motion.div
-								className="shop-items-grid"
-								variants={containerVariants}
-								initial="hidden"
-								animate="visible"
-							>
-								<AnimatePresence mode="popLayout">
-									{catalogue.map((item) => {
-										const canAfford = miloroCoin >= item.price;
-										const danceClip = item.type === "dance" ? item.mesh_name : null;
-										const isDancing = danceClip != null && previewedDanceId === item.id;
-										return (
-											<motion.div
+						{!isLoading && !isError && catalogue.length > 0 && (
+							<LayoutGroup>
+								<motion.div
+									key={`${activeType}|${activeRarity}`}
+									className="ms-grid"
+									variants={gridVariants}
+									initial="hidden"
+									animate="visible"
+								>
+									<AnimatePresence mode="popLayout">
+										{catalogue.map((item) => (
+											<ShopItemCard
 												key={item.id}
-												layout
-												variants={itemVariants}
-												className={`shop-item-card rarity-${raritySlug(item.rarity)}`}
-												onMouseEnter={danceClip ? () => startDancePreview(item.id) : undefined}
-												onMouseLeave={danceClip ? () => stopDancePreview(item.id) : undefined}
-											>
-												<div className="shop-item-preview">
-													{/* L'emoji reste sous l'aperçu : il sert de repli le temps
-													    que le modèle charge, et si le clip est introuvable */}
-													<motion.span
-														className="shop-item-icon"
-														whileHover={danceClip ? {} : { scale: 1.15, rotate: 6 }}
-													>
-														<CosmeticVisual item={item} className="shop-item-visual" />
-													</motion.span>
-													{isDancing && <DancePreview3D clip={danceClip} />}
-													<div className="shop-item-glow" />
-													<div className="shop-item-particles" />
-												</div>
-												<div className="shop-item-body">
-													<span className="shop-item-rarity">
-														{RARITY_LABELS[item.rarity] ?? item.rarity}
-													</span>
-													<h3>{item.name}</h3>
-													<span className="shop-item-type">{TYPE_LABELS[item.type] ?? item.type}</span>
-													<motion.button
-														className={`shop-buy-btn ${item.owned ? "is-owned" : ""} ${!item.owned && !canAfford ? "is-unaffordable" : ""}`}
-														whileHover={!item.owned ? { scale: 1.02 } : {}}
-														whileTap={!item.owned ? { scale: 0.95 } : {}}
-														onClick={() => {
-															if (item.owned) return;
-															setPurchaseError(null);
-															setConfirmPurchase(item);
-														}}
-														disabled={item.owned}
-														title={
-															item.owned
-																? "Déjà dans ton casier"
-																: canAfford
-																	? "Acheter"
-																	: "Solde insuffisant"
-														}
-													>
-														{item.owned ? (
-															"Possédé"
-														) : (
-															<>
-																<Star size={14} fill="currentColor" /> {item.price.toLocaleString("fr-FR")}
-															</>
-														)}
-													</motion.button>
-												</div>
-											</motion.div>
-										);
-									})}
-								</AnimatePresence>
-							</motion.div>
-						</LayoutGroup>
-					</div>
-				</main>
+												item={item}
+												balance={miloroCoin}
+												isDancing={previewedDanceId === item.id}
+												onPreviewStart={startDancePreview}
+												onPreviewStop={stopDancePreview}
+												onBuy={openPurchase}
+											/>
+										))}
+									</AnimatePresence>
+								</motion.div>
+							</LayoutGroup>
+						)}
+					</section>
+				</div>
 
 				<AnimatePresence>
 					{confirmPurchase && (
-						<motion.div
-							className="shop-overlay"
-							initial={{ opacity: 0 }}
-							animate={{ opacity: 1 }}
-							exit={{ opacity: 0 }}
-							onClick={() => !buyMutation.isPending && setConfirmPurchase(null)}
-						>
-							<motion.div
-								className="shop-modal"
-								initial={{ scale: 0.8, y: 50, opacity: 0 }}
-								animate={{ scale: 1, y: 0, opacity: 1 }}
-								exit={{ scale: 0.8, opacity: 0 }}
-								onClick={(e) => e.stopPropagation()}
-								role="dialog"
-								aria-labelledby="shop-confirm-title"
-							>
-								<div className="modal-glow" />
-								<h3 id="shop-confirm-title">Confirmer l'achat ?</h3>
-								<motion.div
-									className="shop-modal-preview"
-									animate={{ y: [0, -10, 0] }}
-									transition={{ repeat: Infinity, duration: 3 }}
-								>
-									<CosmeticVisual item={confirmPurchase} className="shop-modal-visual" />
-								</motion.div>
-								<p>{confirmPurchase.name}</p>
-								{miloroCoin >= confirmPurchase.price ? (
-									<p className="shop-modal-balance">
-										Solde après achat :{" "}
-										<strong>{(miloroCoin - confirmPurchase.price).toLocaleString("fr-FR")}</strong> miloros
-									</p>
-								) : (
-									<p className="shop-modal-balance shop-modal-balance--short">
-										Il te manque{" "}
-										<strong>{(confirmPurchase.price - miloroCoin).toLocaleString("fr-FR")}</strong> miloros
-									</p>
-								)}
-								{purchaseError && (
-									<p className="shop-modal-error" role="alert">{purchaseError}</p>
-								)}
-								<div className="shop-modal-actions">
-									<button
-										className="shop-btn-cancel"
-										onClick={() => setConfirmPurchase(null)}
-										disabled={buyMutation.isPending}
-									>
-										Plus tard
-									</button>
-									<button
-										className="shop-btn-confirm"
-										onClick={finalizePurchase}
-										disabled={buyMutation.isPending}
-									>
-										{buyMutation.isPending
-											? "Achat en cours..."
-											: `Débloquer (${confirmPurchase.price.toLocaleString("fr-FR")})`}
-									</button>
-								</div>
-							</motion.div>
-						</motion.div>
+						<PurchaseModal
+							item={confirmPurchase}
+							balance={miloroCoin}
+							isPending={buyMutation.isPending}
+							error={purchaseError}
+							onConfirm={finalizePurchase}
+							onClose={closePurchase}
+						/>
 					)}
 				</AnimatePresence>
 			</div>
