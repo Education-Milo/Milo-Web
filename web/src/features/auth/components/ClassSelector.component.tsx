@@ -14,7 +14,7 @@ interface ClassSelectorProps {
 
 export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelectorProps ) => (
   <div style={{ width: '100%' }}>
-    <p style={{ fontSize: '0.85rem', color: '#2D3748', marginBottom: '0.6rem', fontWeight: '700' }}>
+    <p style={{ fontSize: '0.85rem', color: 'var(--milo-encre)', marginBottom: '0.6rem', fontWeight: '700' }}>
       Sélectionne ta classe
     </p>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
@@ -27,9 +27,9 @@ export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelecto
           style={{
             padding: '12px',
             borderRadius: '14px',
-            border: value === classValue ? '2px solid #F4922A' : '2px solid rgba(226, 232, 240, 0.8)',
-            backgroundColor: value === classValue ? 'rgba(244, 146, 42, 0.1)' : 'rgba(255, 255, 255, 0.9)',
-            color: value === classValue ? '#EF4F1A' : '#4b5563',
+            border: value === classValue ? '2px solid var(--milo-orange)' : '2px solid rgba(241, 223, 203, 0.8)',
+            backgroundColor: value === classValue ? 'rgba(255, 84, 29, 0.1)' : 'rgba(255, 255, 255, 0.9)',
+            color: value === classValue ? 'var(--milo-orange)' : 'var(--text-2)',
             cursor: disabled ? 'not-allowed' : 'pointer',
             fontWeight: value === classValue ? '800' : '600',
             fontFamily: 'inherit',
@@ -40,6 +40,6 @@ export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelecto
         </button>
       ))}
     </div>
-    {error && <p style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: 600, marginTop: '6px' }}>{error}</p>}
+    {error && <p style={{ color: 'var(--ko)', fontSize: '0.8rem', fontWeight: 600, marginTop: '6px' }}>{error}</p>}
   </div>
 );

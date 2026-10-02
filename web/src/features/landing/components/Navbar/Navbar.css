@@ -1,8 +1,7 @@
 :root {
-	--milo-orange: #f4922a;
-	--milo-red: #ef4f1a;
-	--milo-dark: #2d3748;
-	--milo-gradient: linear-gradient(135deg, #f4922a 0%, #ef4f1a 100%);
+	--milo-red: var(--milo-orange);
+	--milo-dark: var(--milo-encre);
+	--milo-gradient: linear-gradient(var(--milo-orange), var(--milo-orange));
 	--nav-height: 260px;
 }
 
@@ -60,17 +59,16 @@ html {
 
 .nav-logo-v2 {
 	height: 58px;
-	filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
 	transition: transform 0.4s ease;
 	cursor: pointer;
 }
 
 .nav-logo-v2:hover {
-	transform: rotate(-6deg) scale(1.1);
+	transform: scale(1.05);
 }
 
 .nav-pills {
-	background: rgba(246, 235, 223, 0.5);
+	background: rgba(255, 244, 229, 0.5);
 	backdrop-filter: blur(10px);
 	padding: 8px;
 	border-radius: 100px;
@@ -96,7 +94,7 @@ html {
 .pill-link.active {
 	background: var(--milo-gradient);
 	color: white;
-	box-shadow: 0 6px 18px rgba(239, 79, 26, 0.3);
+	box-shadow: 0 6px 18px rgba(255, 84, 29, 0.3);
 }
 
 .nav-right {
@@ -106,7 +104,7 @@ html {
 }
 
 .btn-login-v2 {
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 1rem;
 	color: var(--milo-dark);
 	background: transparent;
@@ -119,7 +117,7 @@ html {
 	color: white;
 	padding: 16px 36px;
 	border-radius: 100px;
-	font-weight: 800;
+	font-weight: 700;
 	border: none;
 	cursor: pointer;
 	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
@@ -169,7 +167,7 @@ html {
 }
 
 .nav-mobile-menu .pill-link:hover {
-	background: var(--milo-beige, #f6ebdf);
+	background: var(--milo-beige, var(--milo-creme));
 }
 
 .nav-mobile-actions {
@@ -189,7 +187,7 @@ html {
 	width: 100%;
 	padding: 14px;
 	border-radius: 16px;
-	background: var(--milo-beige, #f6ebdf);
+	background: var(--milo-beige, var(--milo-creme));
 }
 
 .nav-mobile-actions .btn-signup-v2 {
@@ -213,7 +211,7 @@ html {
 	}
 
 	img.nav-logo-v2 {
-		height: 44px;
+		height: 48px;
 	}
 
 	div.nav-center,
@@ -232,6 +230,6 @@ html {
 	}
 
 	img.nav-logo-v2 {
-		height: 38px;
+		height: 46px;
 	}
 }

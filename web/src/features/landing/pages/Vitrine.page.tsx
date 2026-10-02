@@ -110,7 +110,7 @@ const VitrinePage: React.FC = () => {
 					animate={{ y: [0, 15, 0] }}
 					transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
 				>
-					<ChevronDown size={32} color="#F4922A" />
+					<ChevronDown size={32} color="var(--milo-orange)" />
 				</motion.div>
 			</main>
 
@@ -207,7 +207,7 @@ const VitrinePage: React.FC = () => {
 							title: "Suivi des Progrès",
 							desc: "Gardez un œil sur le classement de votre enfant dans sa ligue et visualisez ses points forts en un clin d'œil.",
 							icon: "📊",
-							color: "#FFEDD5",
+							color: "var(--milo-creme)",
 						},
 						{
 							title: "Planning Intelligent",
@@ -219,7 +219,7 @@ const VitrinePage: React.FC = () => {
 							title: "Contrôle Parental",
 							desc: "Gérez jusqu'à 4 profils enfants et supervisez leur activité 24h/24 en toute sécurité sur votre tableau de bord.",
 							icon: "🛡️",
-							color: "#F0FDF4",
+							color: "var(--ok-bg)",
 						},
 					].map((feat, idx) => (
 						<motion.div

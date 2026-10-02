@@ -20,20 +20,19 @@
 .login-logo {
 	height: 4.5rem;
 	width: auto;
-	filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
 	margin-bottom: 1rem;
 }
 
 .form-title {
 	font-size: 1.75rem;
-	font-weight: 900;
-	color: #2D3748;
+	font-weight: 700;
+	color: var(--milo-encre);
 	margin: 0 0 0.4rem 0;
 	letter-spacing: -0.5px;
 }
 
 .form-subtitle {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 0.95rem;
 	font-weight: 600;
 	margin: 0;
@@ -48,15 +47,15 @@
 /* Reskin du TextFieldComponent partagé */
 .auth-glass-card .textfield-input-icon-container {
 	border-radius: 18px;
-	border: 2px solid rgba(226, 232, 240, 0.8);
+	border: 2px solid rgba(241, 223, 203, 0.8);
 	background: rgba(255, 255, 255, 0.9);
 	height: 52px;
 	transition: 0.25s;
 }
 
 .auth-glass-card .textfield-input-icon-container:focus-within {
-	border-color: #F4922A;
-	box-shadow: 0 10px 25px rgba(244, 146, 42, 0.15);
+	border-color: var(--milo-orange);
+	box-shadow: 0 10px 25px rgba(255, 84, 29, 0.15);
 }
 
 .auth-glass-card .textfield-input {
@@ -74,7 +73,7 @@
 }
 
 .forgot-password-link {
-	color: #EF4F1A;
+	color: var(--accent-text);
 	font-size: 0.85rem;
 	font-weight: 700;
 	text-decoration: none;
@@ -86,7 +85,7 @@
 }
 
 .forgot-password-link:hover {
-	color: #F4922A;
+	color: var(--accent-text);
 }
 
 .divider {
@@ -98,12 +97,12 @@
 .divider-line {
 	flex: 1;
 	height: 1px;
-	background: rgba(45, 55, 72, 0.12);
+	background: rgba(42, 24, 16, 0.12);
 }
 
 .divider-text {
 	padding: 0 1rem;
-	color: #A0AEC0;
+	color: var(--text-3);
 	font-size: 0.8rem;
 	font-weight: 700;
 }
@@ -113,15 +112,15 @@
 }
 
 .signup-text {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 0.9rem;
 	font-weight: 600;
 	margin: 0;
 }
 
 .signup-link {
-	color: #EF4F1A;
-	font-weight: 800;
+	color: var(--accent-text);
+	font-weight: 700;
 	text-decoration: none;
 	cursor: pointer;
 	background: none;
@@ -132,7 +131,7 @@
 }
 
 .signup-link:hover {
-	color: #F4922A;
+	color: var(--accent-text);
 }
 
 @media (max-width: 640px) {

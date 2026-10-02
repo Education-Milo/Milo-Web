@@ -28,7 +28,7 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({
 					</button>
 				) : (
 					<Link to="/" className="auth-header-logo-link">
-						<img src="/milo-logo2.png" alt="Milo" className="auth-header-logo" />
+						<img src="/milo-logo.webp" alt="Milo" className="auth-header-logo" />
 					</Link>
 				)}
 			</div>

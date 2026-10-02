@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
-
 .auth-page-root {
 	min-height: 100vh;
-	background: #F6EBDF;
-	font-family: 'Plus Jakarta Sans', sans-serif;
+	background: var(--milo-creme);
+	font-family: var(--f-text);
 	position: relative;
 	overflow-x: hidden;
 	display: flex;
@@ -30,7 +28,7 @@
 .auth-mesh::before {
 	width: 500px;
 	height: 500px;
-	background: #F4922A;
+	background: var(--milo-orange);
 	top: -150px;
 	left: -120px;
 }
@@ -38,7 +36,7 @@
 .auth-mesh::after {
 	width: 500px;
 	height: 500px;
-	background: #EF4F1A;
+	background: var(--milo-orange);
 	bottom: -150px;
 	right: -120px;
 }

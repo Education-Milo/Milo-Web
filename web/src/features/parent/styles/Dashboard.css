@@ -15,7 +15,7 @@
 	display: flex;
 	align-items: center;
 	padding: 1rem;
-	background: #f8fafc;
+	background: var(--milo-creme);
 	border-radius: 12px;
 	transition: all 0.3s ease;
 	cursor: pointer;
@@ -28,7 +28,7 @@
 .achievement-item:nth-child(3) { animation-delay: 1.6s; }
 
 .achievement-item:hover {
-	background: #ff6b35;
+	background: var(--milo-orange);
 	color: white;
 	transform: translateX(8px);
 }
@@ -47,14 +47,14 @@
 
 .achievement-info h4 {
 	font-weight: 600;
-	color: #2d3748;
+	color: var(--milo-encre);
 	margin-bottom: 0.25rem;
 	font-size: 0.95rem;
 }
 
 .achievement-info p {
 	font-size: 0.8rem;
-	color: #718096;
+	color: var(--text-2);
 }
 
 .achievement-item:hover .achievement-info h4,
@@ -139,8 +139,8 @@
 }
 
 .child-card.selected {
-	border-color: #f97316;
-	box-shadow: 0 8px 24px rgba(249, 115, 22, 0.25);
+	border-color: var(--milo-orange);
+	box-shadow: 0 8px 24px rgba(255, 84, 29, 0.25);
 }
 
 .child-header {
@@ -158,13 +158,13 @@
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1e293b;
+	color: var(--milo-encre);
 }
 
 .child-info p {
 	margin: 0;
 	font-size: 0.875rem;
-	color: #64748b;
+	color: var(--text-2);
 }
 
 .child-stats {
@@ -179,7 +179,7 @@
 	gap: 0.5rem;
 	flex: 1;
 	padding: 0.75rem;
-	background: #f1f5f9;
+	background: var(--milo-creme);
 	border-radius: 0.5rem;
 }
 
@@ -190,13 +190,13 @@
 
 .stat-value {
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--milo-encre);
 	font-size: 1rem;
 }
 
 .stat-label {
 	font-size: 0.75rem;
-	color: #64748b;
+	color: var(--text-2);
 }
 
 .child-progress {
@@ -205,7 +205,7 @@
 
 .progress-bar {
 	height: 8px;
-	background: #e2e8f0;
+	background: var(--line);
 	border-radius: 4px;
 	overflow: hidden;
 	margin-bottom: 0.5rem;
@@ -213,19 +213,19 @@
 
 .progress-fill {
 	height: 100%;
-	background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+	background: linear-gradient(90deg, var(--milo-orange) 0%, var(--milo-orange) 100%);
 	transition: width 0.3s;
 }
 
 .progress-text {
 	font-size: 0.75rem;
-	color: #64748b;
+	color: var(--text-2);
 }
 
 .child-actions {
 	margin-top: 1rem;
 	padding-top: 1rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid var(--line);
 }
 
 .action-btn {
@@ -239,13 +239,13 @@
 }
 
 .action-btn.primary {
-	background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+	background: linear-gradient(90deg, var(--milo-orange) 0%, var(--milo-orange) 100%);
 	color: white;
 }
 
 .action-btn.primary:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+	box-shadow: 0 4px 12px rgba(255, 84, 29, 0.3);
 }
 
 /* ─── Stats Cards ───────────────────────────────────────────────────────────*/
@@ -277,7 +277,7 @@
 
 .stat-card-content h3 {
 	font-size: 0.875rem;
-	color: #64748b;
+	color: var(--text-2);
 	margin: 0 0 0.5rem 0;
 	font-weight: 500;
 }
@@ -285,7 +285,7 @@
 .stat-card-content .stat-value {
 	font-size: 1.75rem;
 	font-weight: 700;
-	color: #1e293b;
+	color: var(--milo-encre);
 }
 
 .welcome-content {
@@ -295,7 +295,7 @@
 
 .welcome-title {
 	font-size: 2.2rem;
-	font-weight: 800;
+	font-weight: 700;
 	letter-spacing: -0.5px;
 	margin-bottom: 0.5rem;
 	line-height: 1.2;

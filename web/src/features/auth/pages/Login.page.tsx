@@ -9,7 +9,7 @@ import { AuthSuccessMessage } from "@features/auth/components/AuthSuccessMessage
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/Login.css";
-import miloLogo from "/milo-logo.png";
+import miloLogo from "/milo-logo.webp";
 import MainButtonComponent from "@shared/components/MainButton.component";
 
 const Login: React.FC = () => {

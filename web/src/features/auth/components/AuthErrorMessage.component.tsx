@@ -13,13 +13,13 @@ export const AuthErrorMessage: React.FC<AuthErrorMessageProps> = ({
 		<div
 			style={{
 				padding: "0.75rem",
-				backgroundColor: "#fef2f2",
-				border: "1px solid #fecaca",
+				backgroundColor: "var(--ko-bg)",
+				border: "1px solid var(--ko-bg)",
 				borderRadius: "0.5rem",
 				marginBottom: "1rem",
 			}}
 		>
-			<p style={{ color: "#dc2626", fontSize: "0.875rem", margin: 0 }}>
+			<p style={{ color: "var(--ko)", fontSize: "0.875rem", margin: 0 }}>
 				{message}
 			</p>
 		</div>

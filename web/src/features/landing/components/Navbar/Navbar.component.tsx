@@ -107,7 +107,7 @@ const Navbar: React.FC = () => {
 			<nav className="nav-content">
 				<div className="nav-left">
 					<Link to="/">
-						<img src="/milo-logo2.png" alt="Milo" className="nav-logo-v2" />
+						<img src="/milo-logo.webp" alt="Milo" className="nav-logo-v2" />
 					</Link>
 				</div>
 

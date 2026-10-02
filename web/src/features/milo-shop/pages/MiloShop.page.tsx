@@ -207,7 +207,7 @@ const BoutiquePage: React.FC = () => {
 									animate={{ rotate: 360 }}
 									transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
 								>
-									<Star fill="#E28743" color="#E28743" size={20} />
+									<Star fill="var(--milo-orange)" color="var(--milo-orange)" size={20} />
 								</motion.div>
 								<span className="coin-count">
 									Miloro : {miloroCoin.toLocaleString("fr-FR")}

@@ -154,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		<>
 			{/* --- BARRE MOBILE : logo + bouton hamburger --- */}
 			<div className="sb-mobile-topbar">
-				<img src="/milo-logo2.png" alt="Milo" className="sb-mobile-logo" />
+				<img src="/milo-logo.webp" alt="Milo" className="sb-mobile-logo" />
 				<button
 					type="button"
 					className="sb-mobile-toggle"
@@ -179,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{/* --- HEADER : Logo + bouton notifications --- */}
 				<div className="sb-header">
 					<div className="sb-logo">
-						<img src="/milo-logo2.png" alt="Milo" className="sb-logo-img" />
+						<img src="/milo-logo.webp" alt="Milo" className="sb-logo-img" />
 					</div>
 
 					<div className="sb-header-actions">

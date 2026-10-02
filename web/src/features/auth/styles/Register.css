@@ -4,11 +4,11 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	background: linear-gradient(135deg, #F4922A 0%, #EF4F1A 100%);
+	background: linear-gradient(135deg, var(--milo-orange) 0%, var(--milo-orange) 100%);
 	color: white;
 	padding: 8px 16px;
 	border-radius: 100px;
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 0.8rem;
 	margin-bottom: 20px;
 }
@@ -19,14 +19,14 @@
 
 .form-title {
 	font-size: 1.75rem;
-	font-weight: 900;
-	color: #2D3748;
+	font-weight: 700;
+	color: var(--milo-encre);
 	margin: 0 0 0.4rem 0;
 	letter-spacing: -0.5px;
 }
 
 .form-subtitle {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 0.95rem;
 	font-weight: 600;
 	margin: 0;
@@ -51,7 +51,7 @@
 /* Reskin du TextFieldComponent partagé */
 .auth-glass-card .textfield-input-icon-container {
 	border-radius: 18px;
-	border: 2px solid rgba(226, 232, 240, 0.8);
+	border: 2px solid rgba(241, 223, 203, 0.8);
 	background: rgba(255, 255, 255, 0.9);
 	height: 52px;
 	transition: 0.25s;
@@ -59,8 +59,8 @@
 }
 
 .auth-glass-card .textfield-input-icon-container:focus-within {
-	border-color: #F4922A;
-	box-shadow: 0 10px 25px rgba(244, 146, 42, 0.15);
+	border-color: var(--milo-orange);
+	box-shadow: 0 10px 25px rgba(255, 84, 29, 0.15);
 }
 
 .auth-glass-card .textfield-input {
@@ -77,13 +77,13 @@
 	margin-top: 0.25rem;
 	text-align: center;
 	font-size: 0.8rem;
-	color: #718096;
+	color: var(--text-2);
 	font-weight: 600;
 	line-height: 1.5;
 }
 
 .legal-text a {
-	color: #EF4F1A;
+	color: var(--accent-text);
 	text-decoration: underline;
 }
 
@@ -93,15 +93,15 @@
 }
 
 .signup-text {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 0.9rem;
 	font-weight: 600;
 	margin: 0;
 }
 
 .signup-link {
-	color: #EF4F1A;
-	font-weight: 800;
+	color: var(--accent-text);
+	font-weight: 700;
 	text-decoration: none;
 	cursor: pointer;
 	background: none;
@@ -112,7 +112,7 @@
 }
 
 .signup-link:hover {
-	color: #F4922A;
+	color: var(--accent-text);
 }
 
 @media (max-width: 640px) {

@@ -12,11 +12,12 @@ export const fonts = {
   //   extraBold: 'Outfit-ExtraBold',
   //   black: 'Outfit-Black',
   // },
+  // Charte graphique : Fredoka pour l'interface, Luckiest Guy pour les titres forts
   fredoka: {
-    regular: 'FredokaOne-Regular',
+    regular: 'Fredoka',
   },
-  qualy: {
-    regular: 'Qualy-neue-regular',
+  luckiestGuy: {
+    regular: 'Luckiest Guy',
   },
 } as const;
 
@@ -72,15 +73,15 @@ export const typography = {
     fontSize: 18,
     lineHeight: 26,
     fontWeight: '400' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   body: {
-    fontFamily: fonts.qualy.regular,
+    fontFamily: fonts.fredoka.regular,
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '400' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   bodySmall: {
@@ -88,7 +89,7 @@ export const typography = {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '400' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   // Labels
@@ -97,7 +98,7 @@ export const typography = {
     fontSize: 16,
     lineHeight: 22,
     fontWeight: '500' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   label: {
@@ -105,7 +106,7 @@ export const typography = {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   labelSmall: {
@@ -113,7 +114,7 @@ export const typography = {
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '400' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   labelExtraSmall: {
@@ -121,7 +122,7 @@ export const typography = {
     fontSize: 11,
     lineHeight: 14,
     fontWeight: '400' as const,
-    color: '#666666',
+    color: '#6E5546',
   } as TextStyle,
 
   // Boutons
@@ -137,13 +138,13 @@ export const typography = {
   navItem: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#8E8E93',
+    color: '#A08A7C',
   } as TextStyle,
 
   navItemActive: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#FF8C00',
+    color: '#C73A0C',
   } as TextStyle,
 
   // Points et badges

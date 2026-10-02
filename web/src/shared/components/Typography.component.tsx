@@ -74,11 +74,11 @@ const TypographyComponent = (props: TypographyProps) => {
 		// Convertir color
 		if (typoStyle.color && typeof typoStyle.color === "string") {
 			const colorMap: Record<string, string> = {
-				"#666666": "text-gray-600",
+				"#6E5546": "text-gray-600",
 				"#FFFFFF": "text-white",
-				"#FF8C00": "text-orange-500",
-				"#8E8E93": "text-gray-500",
-				"#11181C": "text-gray-900",
+				"#C73A0C": "text-orange-500",
+				"#A08A7C": "text-gray-500",
+				"#2A1810": "text-gray-900",
 			};
 			classes.push(colorMap[typoStyle.color] || "text-gray-600");
 		}

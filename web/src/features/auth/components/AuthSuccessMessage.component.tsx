@@ -16,11 +16,11 @@ export const AuthSuccessMessage: React.FC<AuthSuccessMessageProps> = ({ message 
 				alignItems: "center",
 				gap: "0.6rem",
 				padding: "0.75rem",
-				backgroundColor: "#ecfdf5",
-				border: "1px solid #a7f3d0",
+				backgroundColor: "var(--ok-bg)",
+				border: "1px solid var(--ok-bg)",
 				borderRadius: "0.5rem",
 				marginBottom: "1rem",
-				color: "#065f46",
+				color: "var(--ok)",
 			}}
 		>
 			<CheckCircle2 size={18} />

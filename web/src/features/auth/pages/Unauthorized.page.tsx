@@ -50,7 +50,7 @@ const UnauthorizedPage: React.FC = () => {
 				justifyContent: "center",
 				alignItems: "center",
 				minHeight: "100vh",
-				backgroundColor: "#f9fafb",
+				backgroundColor: "var(--milo-creme)",
 				padding: "1rem",
 			}}
 		>
@@ -75,13 +75,13 @@ const UnauthorizedPage: React.FC = () => {
 				>
 					<div
 						style={{
-							backgroundColor: "#fee2e2",
+							backgroundColor: "var(--ko-bg)",
 							borderRadius: "50%",
 							padding: "1rem",
 							display: "inline-flex",
 						}}
 					>
-						<ShieldAlert size={48} color="#dc2626" />
+						<ShieldAlert size={48} color="var(--ko)" />
 					</div>
 				</div>
 
@@ -90,7 +90,7 @@ const UnauthorizedPage: React.FC = () => {
 					style={{
 						fontSize: "1.5rem",
 						fontWeight: "bold",
-						color: "#111827",
+						color: "var(--milo-encre)",
 						marginBottom: "0.5rem",
 					}}
 				>
@@ -100,7 +100,7 @@ const UnauthorizedPage: React.FC = () => {
 				{/* Message */}
 				<p
 					style={{
-						color: "#6b7280",
+						color: "var(--text-2)",
 						marginBottom: "1.5rem",
 						lineHeight: "1.5",
 					}}
@@ -110,7 +110,7 @@ const UnauthorizedPage: React.FC = () => {
 
 				<div
 					style={{
-						backgroundColor: "#f3f4f6",
+						backgroundColor: "var(--milo-creme)",
 						borderRadius: "0.5rem",
 						padding: "1rem",
 						marginBottom: "1.5rem",
@@ -119,7 +119,7 @@ const UnauthorizedPage: React.FC = () => {
 					<p
 						style={{
 							fontSize: "0.875rem",
-							color: "#4b5563",
+							color: "var(--text-2)",
 							margin: 0,
 						}}
 					>
@@ -142,7 +142,7 @@ const UnauthorizedPage: React.FC = () => {
 							alignItems: "center",
 							justifyContent: "center",
 							gap: "0.5rem",
-							backgroundColor: "#f97316",
+							backgroundColor: "var(--milo-orange)",
 							color: "white",
 							padding: "0.75rem 1.5rem",
 							borderRadius: "0.5rem",
@@ -153,10 +153,10 @@ const UnauthorizedPage: React.FC = () => {
 							transition: "background-color 0.2s",
 						}}
 						onMouseEnter={(e) =>
-							(e.currentTarget.style.backgroundColor = "#ea580c")
+							(e.currentTarget.style.backgroundColor = "var(--milo-relief)")
 						}
 						onMouseLeave={(e) =>
-							(e.currentTarget.style.backgroundColor = "#f97316")
+							(e.currentTarget.style.backgroundColor = "var(--milo-relief)")
 						}
 					>
 						🔓 Se déconnecter et changer de compte

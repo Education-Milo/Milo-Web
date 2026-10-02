@@ -19,7 +19,7 @@ const SubscriptionPage: React.FC = () => {
 				<div className="dashboard" style={{ gridTemplateColumns: "1fr" }}>
 					<section
 						className="welcome-section"
-						style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}
+						style={{ background: "linear-gradient(135deg, var(--ok), var(--ok))" }}
 					>
 						<div className="welcome-content">
 							<h1 className="welcome-title">Gestion de l'abonnement</h1>
@@ -36,8 +36,8 @@ const SubscriptionPage: React.FC = () => {
 								<div
 									className="progress-indicator"
 									style={{
-										background: "rgba(72, 187, 120, 0.1)",
-										color: "#48bb78",
+										background: "rgba(35, 135, 75, 0.1)",
+										color: "var(--ok)",
 									}}
 								>
 									{currentPlan.status}
@@ -52,14 +52,14 @@ const SubscriptionPage: React.FC = () => {
 									gap: "1rem",
 									marginBottom: "2rem",
 									paddingBottom: "2rem",
-									borderBottom: "1px solid #e2e8f0",
+									borderBottom: "1px solid var(--line)",
 								}}
 							>
 								<div>
 									<h3
 										style={{
 											fontSize: "1.8rem",
-											color: "#2d3748",
+											color: "var(--milo-encre)",
 											marginBottom: "0.5rem",
 										}}
 									>
@@ -67,21 +67,21 @@ const SubscriptionPage: React.FC = () => {
 										<span
 											style={{
 												fontSize: "1rem",
-												color: "#718096",
+												color: "var(--text-2)",
 												fontWeight: "normal",
 											}}
 										>
 											({currentPlan.type})
 										</span>
 									</h3>
-									<p style={{ color: "#718096", fontSize: "1.1rem" }}>
+									<p style={{ color: "var(--text-2)", fontSize: "1.1rem" }}>
 										{currentPlan.price} / mois
 									</p>
 								</div>
 								<button
 									className="quick-action-btn"
 									style={{
-										background: "#ff6b35",
+										background: "var(--milo-orange)",
 										color: "white",
 										border: "none",
 									}}
@@ -91,12 +91,12 @@ const SubscriptionPage: React.FC = () => {
 							</div>
 
 							<div>
-								<h4 style={{ color: "#4a5568", marginBottom: "1rem" }}>
+								<h4 style={{ color: "var(--text-2)", marginBottom: "1rem" }}>
 									Ce forfait comprend :
 								</h4>
 								<ul
 									style={{
-										color: "#718096",
+										color: "var(--text-2)",
 										paddingLeft: "1.5rem",
 										lineHeight: "1.8",
 									}}
@@ -120,10 +120,10 @@ const SubscriptionPage: React.FC = () => {
 								</div>
 								<div
 									style={{
-										background: "#f8fafc",
+										background: "var(--milo-creme)",
 										padding: "1.5rem",
 										borderRadius: "12px",
-										border: "1px solid #e2e8f0",
+										border: "1px solid var(--line)",
 										display: "flex",
 										alignItems: "center",
 										gap: "1rem",
@@ -131,10 +131,10 @@ const SubscriptionPage: React.FC = () => {
 								>
 									<div style={{ fontSize: "2rem" }}>💳</div>
 									<div>
-										<p style={{ fontWeight: "bold", color: "#2d3748" }}>
+										<p style={{ fontWeight: "bold", color: "var(--milo-encre)" }}>
 											Visa se terminant par 4242
 										</p>
-										<p style={{ color: "#718096", fontSize: "0.9rem" }}>
+										<p style={{ color: "var(--text-2)", fontSize: "0.9rem" }}>
 											Expiration : 12/28
 										</p>
 									</div>
@@ -145,8 +145,8 @@ const SubscriptionPage: React.FC = () => {
 										marginTop: "1rem",
 										padding: "0.75rem",
 										background: "transparent",
-										color: "#ff6b35",
-										border: "2px solid rgba(255, 107, 53, 0.2)",
+										color: "var(--accent-text)",
+										border: "2px solid rgba(255, 84, 29, 0.2)",
 										borderRadius: "12px",
 										fontWeight: "bold",
 										cursor: "pointer",
@@ -161,13 +161,13 @@ const SubscriptionPage: React.FC = () => {
 									<h2 className="section-title">🧾 Facturation</h2>
 								</div>
 								<div style={{ marginBottom: "1rem" }}>
-									<p style={{ color: "#718096", fontSize: "0.9rem" }}>
+									<p style={{ color: "var(--text-2)", fontSize: "0.9rem" }}>
 										Prochain prélèvement :
 									</p>
 									<p
 										style={{
 											fontWeight: "bold",
-											color: "#2d3748",
+											color: "var(--milo-encre)",
 											fontSize: "1.2rem",
 										}}
 									>
@@ -178,8 +178,8 @@ const SubscriptionPage: React.FC = () => {
 									style={{
 										width: "100%",
 										padding: "0.75rem",
-										background: "rgba(226, 232, 240, 0.5)",
-										color: "#4a5568",
+										background: "rgba(241, 223, 203, 0.5)",
+										color: "var(--text-2)",
 										border: "none",
 										borderRadius: "12px",
 										fontWeight: "bold",

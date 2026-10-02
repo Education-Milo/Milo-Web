@@ -9,20 +9,20 @@
 
 .role-select-intro h1 {
 	font-size: 2.5rem;
-	font-weight: 900;
-	color: #2D3748;
+	font-weight: 700;
+	color: var(--milo-encre);
 	letter-spacing: -1px;
 	margin-bottom: 16px;
 }
 
 .role-select-intro h1 span {
-	background: linear-gradient(135deg, #F4922A, #EF4F1A);
+	background: linear-gradient(135deg, var(--milo-orange), var(--milo-orange));
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
 
 .role-select-intro p {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 1.05rem;
 	font-weight: 600;
 }
@@ -56,15 +56,15 @@
 }
 
 .role-card:hover {
-	border-color: rgba(244, 146, 42, 0.4);
-	box-shadow: 0 30px 60px rgba(239, 79, 26, 0.15);
+	border-color: rgba(255, 84, 29, 0.4);
+	box-shadow: 0 30px 60px rgba(255, 84, 29, 0.15);
 }
 
 .role-card-icon {
 	width: 56px;
 	height: 56px;
 	border-radius: 18px;
-	background: linear-gradient(135deg, #F4922A, #EF4F1A);
+	background: linear-gradient(135deg, var(--milo-orange), var(--milo-orange));
 	color: white;
 	display: flex;
 	align-items: center;
@@ -74,14 +74,14 @@
 
 .role-card-title {
 	font-size: 1.25rem;
-	font-weight: 800;
-	color: #2D3748;
+	font-weight: 700;
+	color: var(--milo-encre);
 }
 
 .role-card-tagline {
 	font-size: 0.75rem;
 	font-weight: 700;
-	color: #EF4F1A;
+	color: var(--accent-text);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	display: flex;
@@ -90,7 +90,7 @@
 }
 
 .role-card-description {
-	color: #718096;
+	color: var(--text-2);
 	font-size: 0.9rem;
 	font-weight: 600;
 	line-height: 1.5;
@@ -102,8 +102,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	color: #2D3748;
-	font-weight: 800;
+	color: var(--milo-encre);
+	font-weight: 700;
 	font-size: 0.9rem;
 }
 
@@ -113,11 +113,11 @@
 }
 
 .role-card-locked .role-card-icon {
-	background: #CBD5E0;
+	background: var(--line);
 }
 
 .role-card-locked .role-card-tagline {
-	color: #A0AEC0;
+	color: var(--text-3);
 }
 
 @media (max-width: 900px) {
