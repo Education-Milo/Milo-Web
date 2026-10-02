@@ -66,8 +66,8 @@ export const MISSIONS: Mission[] = [
 		title: "Apprends à",
 		highlight: "ta façon",
 		description:
-			"Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre !",
-		image: "/landing/missions/discuter.webp",
+			"Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre. Rentre dans une salle virtuelle avec ton professeur Milo !",
+		image: "/landing/missions/milo_class.png",
 		imageAlt: "Milo t'aide dans tes cours, à ta façon",
 		navLabel: "Apprendre",
 		tags: [
@@ -82,7 +82,7 @@ export const MISSIONS: Mission[] = [
 		highlight: "amis",
 		description:
 			"Rien de tel qu'un peu de compétition pour progresser ! Participe à des duels en temps réel, réponds aux quiz quotidiens et grimpe tout en haut de la ligue.",
-		image: "/landing/missions/duels.webp",
+		image: "/landing/missions/duel_page.png",
 		imageAlt: "Milo en armure de chevalier pour les duels",
 		navLabel: "Défier",
 		tags: [
@@ -97,7 +97,7 @@ export const MISSIONS: Mission[] = [
 		highlight: "ton style",
 		description:
 			"Gagne des pièces en réussissant tes quêtes et tes leçons. Utilise-les dans la boutique pour acheter des cosmétiques et personnaliser ton compagnon renard !",
-		image: "/landing/missions/dashboard.webp",
+		image: "/landing/missions/my_milo.png",
 		imageAlt: "Tableau de bord Milo avec missions du jour et coins",
 		navLabel: "Personnaliser",
 		tags: [
