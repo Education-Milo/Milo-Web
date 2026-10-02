@@ -1,0 +1,120 @@
+/* ============================================================
+   MILO — TOKENS DE MARQUE
+   Source : brand/charte-graphique.html (octobre 2026).
+   Toute couleur, police ou rayon de l'interface doit passer
+   par ces variables plutôt que par une valeur en dur.
+   Les polices sont chargées dans index.html.
+   ============================================================ */
+:root {
+	/* Palette de marque */
+	--milo-orange: #FF541D;   /* Orange Milo — couleur dominante */
+	--milo-braise: #C73A0C;   /* Braise — orange lisible sur blanc (texte, liens) */
+	--milo-relief: #D9400F;   /* Tranche 3D des boutons orange */
+	--milo-blanc:  #FFFFFF;   /* Blanc — couleur secondaire */
+	--milo-creme:  #FFF4E5;   /* Crème — surfaces douces */
+	--milo-lettre: #FBE6C9;   /* Crème des lettres du logo */
+	--milo-vert:   #2B4520;   /* Vert Tableau — chapeau, ardoise */
+	--milo-vert-2: #3A5A2C;   /* Vert Tableau clair — relief, survol */
+	--milo-vert-edge: #1D3115;/* Tranche 3D du Vert Tableau */
+	--milo-craie:  #F3F1E4;   /* Craie — texte sur le tableau */
+	--milo-pompon: #FCB218;   /* Pompon — accent ponctuel (XP, pièces, récompenses) */
+	--milo-pompon-relief: #C98A00; /* Tranche 3D / icône sur fond pompon */
+	--milo-encre:  #2A1810;   /* Encre — texte principal */
+	--milo-marron: #79361a;
+
+	/* Couleurs d'état (hors identité) */
+	--ok: #23874B;
+	--ok-bg: #E3F4E8;
+	--ko: #C3253F;
+	--ko-bg: #FCE6EA;
+
+	/* Rôles */
+	--bg: #FFFAF3;
+	--surface: #FFFFFF;
+	--surface-2: var(--milo-creme);
+	--text: var(--milo-encre);
+	--text-2: #6E5546;
+	--text-3: #A08A7C;        /* Texte désactivé / indications (dérivé de --text-2) */
+	--line: #F1DFCB;
+	--accent: var(--milo-orange);
+	--accent-light: #FF7C52;  /* Orange éclairci (dégradés, survol) */
+	--accent-text: var(--milo-braise);
+	--pompon-bg: #FEECC8;     /* Pompon à 24 % sur blanc */
+	--board: var(--milo-vert);
+	--board-edge: var(--milo-vert-edge);
+	--board-text: var(--milo-craie);
+	--toast-bg: var(--milo-encre);
+	--toast-fg: var(--milo-creme);
+	--toast-em: var(--milo-pompon);
+	--shadow: 0 1px 0 rgba(42, 24, 16, .04), 0 12px 32px -12px rgba(120, 50, 10, .18);
+
+	/* Typographie */
+	--f-display: "Luckiest Guy", "Fredoka", system-ui, sans-serif; /* Titres forts, scores, célébrations */
+	--f-text: "Fredoka", "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif; /* Tout le reste */
+	--f-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+	/* Rayons */
+	--r-s: 10px;
+	--r-m: 16px;
+	--r-l: 24px;
+
+	/* Texture craie du tableau */
+	--chalk: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .13 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+body {
+	font-family: var(--f-text);
+	color: var(--text);
+	background: var(--bg);
+	-webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-text); }
+
+button, input, select, textarea { font-family: inherit; }
+
+:focus-visible {
+	outline: 3px solid var(--milo-pompon);
+	outline-offset: 3px;
+}
+
+::selection { background: var(--milo-lettre); color: var(--milo-encre); }
+
+/* Titre « sticker » : reprend le traitement du logo (crème + contour orange + tranche) */
+.milo-sticker {
+	font-family: var(--f-display);
+	font-weight: 400;
+	color: var(--milo-lettre);
+	-webkit-text-stroke: .16em var(--milo-orange);
+	paint-order: stroke fill;
+	text-shadow: 0 .09em 0 var(--milo-relief), 0 .14em 0 rgba(120, 30, 0, .25);
+	letter-spacing: .02em;
+	line-height: 1.08;
+}
+
+/* ============================================================
+   TITRES DE PAGE — Luckiest Guy (« Titre 1 » de la charte)
+   Une seule occurrence forte par écran : le h1 de la page.
+   Sélecteurs élément + classe pour l'emporter sur les feuilles
+   de chaque page, qui ne fixent que la taille et la couleur.
+   ============================================================ */
+h1,
+h1.hp-welcome-title,
+h1.welcome-title,
+h1.page-title,
+h1.dl-hero-title,
+h1.result-title,
+h1.cd-hero-title,
+h1.ms-hero-title,
+h1.cs-hero-title,
+h1.ocr-hero-title,
+h1.pf-hero-title,
+h1.st-header-title {
+	font-family: var(--f-display);
+	font-weight: 400;
+	letter-spacing: .01em;
+	line-height: 1.05;
+}

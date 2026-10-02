@@ -106,26 +106,40 @@ const Navbar: React.FC = () => {
 				</svg>
 			</div>
 
-			<nav className="lp-nav__content" aria-label="Navigation principale">
-				<Link
-					to="/"
-					className="lp-nav__logo"
-					onClick={(e) => {
-						if (isHome && scrollToSection(SECTION_IDS.concept)) e.preventDefault();
-					}}
-				>
-					<img src="/landing/logo-milo-3d.webp" alt="Milo, accueil" />
-				</Link>
+			<nav className="nav-content">
+				<div className="nav-left">
+					<Link to="/">
+						<img src="/milo-logo.webp" alt="Milo" className="nav-logo-v2" />
+					</Link>
+				</div>
 
-				<ul className="lp-nav__pills">
-					{NAV_ITEMS.map((item) => (
-						<li key={item.label}>{renderLink(item)}</li>
-					))}
-				</ul>
+				<div className="nav-center">
+					<div className="nav-pills">
+						<Link to="/" className={getPillClass("/")}>
+							Concept
+						</Link>
+						<a href="/#enfants" className={getPillClass("/", "enfants")}>
+							Pour les Enfants
+						</a>
+						<a href="/#parents" className={getPillClass("/", "parents")}>
+							Pour les Parents
+						</a>
 
-				<div className="lp-nav__actions">
-					<Link to="/login" className="lp-nav__login">
-						Connexion
+						<Link
+							to="/faq"
+							className={`pill-link ${location.pathname === "/faq" ? "active" : ""}`}
+						>
+							FAQ
+						</Link>
+						<Link to="/contact" className="pill-link">
+							Contact
+						</Link>
+					</div>
+				</div>
+
+				<div className="nav-right">
+					<Link to="/login" style={{ textDecoration: "none" }}>
+						<button className="btn-login-v2">Connexion</button>
 					</Link>
 					<Link to="/register" className="lp-btn lp-btn--primary lp-btn--sm">
 						Adopter Milo

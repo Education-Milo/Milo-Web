@@ -17,15 +17,15 @@ const LoadingScreen: React.FC = () => {
 				style={{
 					width: "40px",
 					height: "40px",
-					border: "4px solid #f3f4f6",
-					borderTop: "4px solid #f97316",
+					border: "4px solid var(--milo-creme)",
+					borderTop: "4px solid var(--milo-orange)",
 					borderRadius: "50%",
 					animation: "spin 1s linear infinite",
 				}}
 			></div>
 			<p
 				style={{
-					color: "#6b7280",
+					color: "var(--text-2)",
 					fontSize: "0.875rem",
 					margin: 0,
 				}}

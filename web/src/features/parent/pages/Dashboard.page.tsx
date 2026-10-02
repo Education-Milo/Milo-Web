@@ -41,7 +41,7 @@ const CircularProgress = ({
 						cx="45"
 						cy="45"
 						r={radius}
-						stroke="#e2e8f0"
+						stroke="var(--line)"
 						strokeWidth="8"
 						fill="none"
 					/>
@@ -75,18 +75,18 @@ const CircularProgress = ({
 					style={{
 						fontSize: "1.1rem",
 						marginBottom: "0.2rem",
-						color: "#718096",
+						color: "var(--text-2)",
 						fontWeight: 600,
 					}}
 				>
 					{sublabel}
 				</h3>
 				<div
-					style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#2d3748" }}
+					style={{ fontSize: "1.8rem", fontWeight: "bold", color: "var(--milo-encre)" }}
 				>
 					{label}
 				</div>
-				<p style={{ color: "#a0aec0", fontSize: "0.85rem" }}>
+				<p style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>
 					Objectif : {max}h / semaine
 				</p>
 			</div>
@@ -211,13 +211,13 @@ const Dashboard: React.FC = () => {
 								<h2
 									style={{
 										fontSize: "1.5rem",
-										color: "#2d3748",
+										color: "var(--milo-encre)",
 										marginBottom: "1rem",
 									}}
 								>
 									Commencez l'aventure Milo !
 								</h2>
-								<p style={{ color: "#718096", marginBottom: "2rem" }}>
+								<p style={{ color: "var(--text-2)", marginBottom: "2rem" }}>
 									Liez un compte enfant pour voir apparaître ses statistiques
 									graphiques ici.
 								</p>
@@ -262,9 +262,9 @@ const Dashboard: React.FC = () => {
 											color={(function () {
 												const ratio =
 													statsData.timeSpentHours / statsData.timeGoalHours;
-												if (ratio >= 0.8) return "#10b981"; // Vert (Objectif 100% atteint)
-												if (ratio >= 0.5) return "#f59e0b"; // Orange (Plus de 50% fait)
-												return "#ef4444"; // Rouge (Moins de 50% fait)
+												if (ratio >= 0.8) return "var(--ok)"; // Vert (Objectif 100% atteint)
+												if (ratio >= 0.5) return "var(--milo-pompon)"; // Orange (Plus de 50% fait)
+												return "var(--ko)"; // Rouge (Moins de 50% fait)
 											})()}
 											icon="⏱️"
 											sublabel="Temps de révision"
@@ -275,7 +275,7 @@ const Dashboard: React.FC = () => {
 										<div
 											className="graphical-card vibrant"
 											style={{
-												background: "linear-gradient(135deg, #ff9a44, #fc6076)",
+												background: "linear-gradient(135deg, var(--accent-light), var(--ko))",
 											}}
 										>
 											<div className="card-decoration-icon">🎯</div>
@@ -350,17 +350,17 @@ const Dashboard: React.FC = () => {
 											style={{
 												flex: 1,
 												padding: "1.5rem",
-												background: "rgba(72, 187, 120, 0.1)",
+												background: "rgba(35, 135, 75, 0.1)",
 												borderRadius: "16px",
-												borderLeft: "4px solid #48bb78",
+												borderLeft: "4px solid var(--ok)",
 											}}
 										>
-											<h3 style={{ color: "#2d3748", marginBottom: "1rem" }}>
+											<h3 style={{ color: "var(--milo-encre)", marginBottom: "1rem" }}>
 												Points forts
 											</h3>
 											<ul
 												style={{
-													color: "#4a5568",
+													color: "var(--text-2)",
 													paddingLeft: "1.5rem",
 													lineHeight: "1.8",
 												}}
@@ -374,17 +374,17 @@ const Dashboard: React.FC = () => {
 											style={{
 												flex: 1,
 												padding: "1.5rem",
-												background: "rgba(239, 68, 68, 0.1)",
+												background: "rgba(195, 37, 63, 0.1)",
 												borderRadius: "16px",
-												borderLeft: "4px solid #ef4444",
+												borderLeft: "4px solid var(--ko)",
 											}}
 										>
-											<h3 style={{ color: "#2d3748", marginBottom: "1rem" }}>
+											<h3 style={{ color: "var(--milo-encre)", marginBottom: "1rem" }}>
 												À renforcer
 											</h3>
 											<ul
 												style={{
-													color: "#4a5568",
+													color: "var(--text-2)",
 													paddingLeft: "1.5rem",
 													lineHeight: "1.8",
 												}}
@@ -406,7 +406,7 @@ const Dashboard: React.FC = () => {
 							className="section-card graphical-card"
 							style={{
 								background:
-									"linear-gradient(to bottom right, #ffffff, #f0f4f8)",
+									"linear-gradient(to bottom right, #ffffff, var(--milo-creme))",
 							}}
 						>
 							<div className="section-header">
@@ -444,11 +444,11 @@ const Dashboard: React.FC = () => {
 
 									<div
 										style={{
-											background: "rgba(255, 107, 53, 0.1)",
+											background: "rgba(255, 84, 29, 0.1)",
 											display: "inline-block",
 											padding: "0.5rem 1rem",
 											borderRadius: "20px",
-											color: "#ff6b35",
+											color: "var(--accent-text)",
 											fontWeight: "bold",
 											marginBottom: "1rem",
 										}}
@@ -459,31 +459,31 @@ const Dashboard: React.FC = () => {
 									<h3
 										style={{
 											fontSize: "2.5rem",
-											color: "#2d3748",
+											color: "var(--milo-encre)",
 											fontWeight: 800,
 											marginBottom: "0",
 										}}
 									>
 										{activeChild?.points || "0"} XP
 									</h3>
-									<p style={{ color: "#718096", marginBottom: "1.5rem" }}>
+									<p style={{ color: "var(--text-2)", marginBottom: "1.5rem" }}>
 										Total accumulé
 									</p>
 
 									<div
 										style={{
-											background: "#edf2f7",
+											background: "var(--milo-creme)",
 											borderRadius: "20px",
 											height: "16px",
 											overflow: "hidden",
-											border: "2px solid #e2e8f0",
+											border: "2px solid var(--line)",
 											position: "relative",
 										}}
 									>
 										<div
 											style={{
 												width: `${Math.min(((activeChild.points || 0) / 3000) * 100, 100)}%`,
-												background: "linear-gradient(90deg, #ff6b35, #fbb13c)",
+												background: "linear-gradient(90deg, var(--milo-orange), var(--milo-pompon))",
 												height: "100%",
 												borderRadius: "20px",
 												transition: "width 1s ease",
@@ -492,7 +492,7 @@ const Dashboard: React.FC = () => {
 									</div>
 								</div>
 							) : (
-								<p style={{ color: "#718096", textAlign: "center" }}>
+								<p style={{ color: "var(--text-2)", textAlign: "center" }}>
 									En attente de données...
 								</p>
 							)}
@@ -530,8 +530,8 @@ const Dashboard: React.FC = () => {
 											marginTop: "1.5rem",
 											padding: "0.75rem",
 											background: "transparent",
-											color: "#718096",
-											border: "1px solid #e2e8f0",
+											color: "var(--text-2)",
+											border: "1px solid var(--line)",
 											borderRadius: "12px",
 											fontWeight: 600,
 											cursor: "pointer",
@@ -541,7 +541,7 @@ const Dashboard: React.FC = () => {
 									</button>
 								</>
 							) : (
-								<p style={{ color: "#718096", textAlign: "center" }}>
+								<p style={{ color: "var(--text-2)", textAlign: "center" }}>
 									Aucune activité récente.
 								</p>
 							)}

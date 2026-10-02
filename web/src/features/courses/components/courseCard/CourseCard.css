@@ -45,7 +45,7 @@
 /* ICÔNE DE LA CARTE */
 .course-card-icon {
   font-size: 3rem;
-  background-color: #f3f4f6;
+  background-color: var(--milo-creme);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
@@ -60,14 +60,14 @@
 .course-card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--milo-encre);
   margin: 0;
 }
 
 /* DESCRIPTION DE LA CARTE */
 .course-card-description {
   font-size: 0.9rem;
-  color: #4a5568;
+  color: var(--text-2);
   line-height: 1.5;
   flex-grow: 0;
   margin-bottom: 0; 
@@ -80,21 +80,21 @@
 
 /* Thèmes de couleur pour le FOND DES ICÔNES */
 .course-card.blue .course-card-icon { background-color: #e0e7ff; color: #3b82f6; }
-.course-card.red .course-card-icon { background-color: #fee2e2; color: #ef4444; }
-.course-card.yellow .course-card-icon { background-color: #fef9c3; color: #f59e0b; }
-.course-card.green .course-card-icon { background-color: #d1fae5; color: #10b981; }
+.course-card.red .course-card-icon { background-color: var(--ko-bg); color: var(--ko); }
+.course-card.yellow .course-card-icon { background-color: var(--pompon-bg); color: var(--milo-pompon); }
+.course-card.green .course-card-icon { background-color: var(--ok-bg); color: var(--ok); }
 .course-card.purple .course-card-icon { background-color: #f3e8ff; color: #8b5cf6; }
-.course-card.orange .course-card-icon { background-color: #ffedd5; color: #f97316; }
+.course-card.orange .course-card-icon { background-color: var(--milo-creme); color: var(--accent-text); }
 .course-card.teal .course-card-icon { background-color: #ccfbf1; color: #14b8a6; }
 .course-card.pink .course-card-icon { background-color: #fce7f3; color: #ec4899; }
 
 /* Thèmes de couleur pour la BORDURE GAUCHE */
 .course-card.blue { border-color: #3b82f6; }
-.course-card.red { border-color: #ef4444; }
-.course-card.yellow { border-color: #f59e0b; }
-.course-card.green { border-color: #10b981; }
+.course-card.red { border-color: var(--ko); }
+.course-card.yellow { border-color: var(--milo-pompon); }
+.course-card.green { border-color: var(--ok); }
 .course-card.purple { border-color: #8b5cf6; }
-.course-card.orange { border-color: #f97316; }
+.course-card.orange { border-color: var(--milo-orange); }
 .course-card.teal { border-color: #14b8a6; }
 .course-card.pink { border-color: #ec4899; }
 

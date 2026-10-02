@@ -29,7 +29,7 @@
 	justify-content: center;
 	overflow: hidden;
 	border: 4px solid #fff;
-	box-shadow: 0 12px 24px rgba(139, 92, 63, 0.1);
+	box-shadow: 0 12px 24px rgba(120, 50, 10, 0.1);
 	transition:
 		transform 0.5s var(--ms-spring),
 		box-shadow 0.4s ease,
@@ -70,7 +70,7 @@
 
 .ms-badge-item.earned .ms-badge-month-label {
 	color: var(--ms-text-main);
-	font-weight: 800;
+	font-weight: 700;
 }
 
 .ms-badge-item.locked .ms-badge-circle {

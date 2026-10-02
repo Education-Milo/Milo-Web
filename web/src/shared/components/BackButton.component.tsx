@@ -21,13 +21,13 @@ export const BackButton: React.FC<BackButtonProps> = ({ onClick, disabled }) => 
         opacity: disabled ? 0.5 : 1
       }}
       onMouseEnter={(e) => {
-        if (!disabled) (e.target as HTMLButtonElement).style.backgroundColor = '#f3f4f6';
+        if (!disabled) (e.target as HTMLButtonElement).style.backgroundColor = 'var(--milo-creme)';
       }}
       onMouseLeave={(e) => {
         if (!disabled) (e.target as HTMLButtonElement).style.backgroundColor = 'transparent';
       }}
     >
-      <ArrowLeft size={24} style={{ color: '#374151' }} />
+      <ArrowLeft size={24} style={{ color: 'var(--milo-encre)' }} />
     </button>
   );
 };

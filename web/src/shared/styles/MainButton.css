@@ -1,0 +1,53 @@
+/* Bouton principal — composant « btn » de la charte graphique :
+   orange plat, tranche 3D qui s'enfonce au clic. */
+.main-button {
+	display: block;
+	width: 100%;
+	height: 52px;
+	padding: 0 24px;
+	border: 0;
+	border-radius: var(--r-m);
+	background: var(--milo-orange);
+	color: var(--milo-blanc);
+	box-shadow: 0 5px 0 var(--milo-relief);
+	margin-bottom: 5px;
+	font: 700 19px/1 var(--f-text);
+	letter-spacing: .01em;
+	cursor: pointer;
+	transform: translateY(0);
+	transition: transform .08s ease, box-shadow .08s ease, filter .15s ease;
+}
+
+.main-button:hover { filter: brightness(1.05); }
+
+.main-button:active {
+	transform: translateY(5px);
+	box-shadow: 0 0 0 var(--milo-relief);
+}
+
+.main-button:disabled {
+	background: var(--surface-2);
+	color: var(--text-2);
+	box-shadow: 0 5px 0 var(--line);
+	cursor: not-allowed;
+	filter: none;
+	transform: none;
+}
+
+.main-button-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+}
+
+.main-button-icon { display: flex; color: inherit; }
+
+.main-button .main-button-label {
+	font: inherit;
+	color: inherit !important;
+}
+
+.main-button .animate-spin { animation: main-button-spin 1s linear infinite; }
+@keyframes main-button-spin { to { transform: rotate(360deg); } }

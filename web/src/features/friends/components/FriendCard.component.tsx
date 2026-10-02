@@ -126,7 +126,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 				</div>
 			) : isPending && friend.direction === "sent" ? (
 				<div className="friend-actions friend-actions--pending">
-					<div className="friend-btn-accept" style={{ background: '#F3F4F6', color: '#6B7280', boxShadow: 'none', cursor: 'default' }}>
+					<div className="friend-btn-accept" style={{ background: 'var(--milo-creme)', color: 'var(--text-2)', boxShadow: 'none', cursor: 'default' }}>
 						<Clock size={18} />
 						<span>En attente</span>
 					</div>

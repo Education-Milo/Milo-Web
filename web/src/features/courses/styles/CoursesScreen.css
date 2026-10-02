@@ -1,19 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap");
-
 /* ============================================================
    TOKENS
    ============================================================ */
 :root {
-	--cs-accent: #e8671c;
-	--cs-accent-light: #ff9a4d;
-	--cs-accent-dark: #a64810;
-	--cs-accent-glow: rgba(232, 103, 28, 0.35);
-	--cs-text-main: #3a2f26;
-	--cs-text-soft: #8b7e74;
-	--cs-text-muted: #b8ada4;
-	--cs-bg-soft: #f3ede8;
-	--cs-border-soft: #eaded5;
-	--cs-font: "Outfit", sans-serif;
+	--cs-accent: var(--milo-orange);
+	--cs-accent-light: var(--accent-light);
+	--cs-accent-dark: var(--milo-braise);
+	--cs-accent-glow: rgba(255, 84, 29, 0.35);
+	--cs-text-main: var(--milo-encre);
+	--cs-text-soft: var(--text-2);
+	--cs-text-muted: var(--text-3);
+	--cs-bg-soft: var(--milo-creme);
+	--cs-border-soft: var(--line);
+	--cs-font: var(--f-text);
 	--cs-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -71,7 +69,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 32px;
-	background: radial-gradient(circle at 0% 0%, #f6ebdf 0%, #f1d2b2 100%);
+	background: var(--bg);
 	font-family: var(--cs-font);
 	color: var(--cs-text-main);
 	position: relative;
@@ -95,12 +93,12 @@
 	background:
 		radial-gradient(
 			circle at 12% 20%,
-			rgba(232, 103, 28, 0.14) 0%,
+			rgba(255, 84, 29, 0.14) 0%,
 			transparent 45%
 		),
 		radial-gradient(
 			circle at 88% 80%,
-			rgba(255, 154, 77, 0.12) 0%,
+			rgba(255, 124, 82, 0.12) 0%,
 			transparent 45%
 		);
 	animation: cs-pulse-bg 10s ease-in-out infinite;
@@ -123,7 +121,7 @@
 	background: rgba(255, 255, 255, 0.7);
 	backdrop-filter: blur(20px);
 	border: 2px solid #fff;
-	box-shadow: 0 25px 50px rgba(139, 92, 63, 0.08);
+	box-shadow: 0 25px 50px rgba(120, 50, 10, 0.08);
 	overflow: hidden;
 	animation: cs-fadeUp 0.5s var(--cs-spring) both;
 	flex-wrap: wrap;
@@ -138,7 +136,7 @@
 	z-index: 0;
 	background: radial-gradient(
 		circle,
-		rgba(232, 103, 28, 0.22) 0%,
+		rgba(255, 84, 29, 0.22) 0%,
 		transparent 65%
 	);
 }
@@ -151,7 +149,7 @@
 .cs-hero-mascot {
 	width: 120px;
 	height: auto;
-	filter: drop-shadow(0 15px 25px rgba(74, 63, 53, 0.2));
+	filter: drop-shadow(0 15px 25px rgba(42, 24, 16, 0.2));
 	animation: cs-float 4s ease-in-out infinite;
 	display: block;
 }
@@ -178,7 +176,7 @@
 		var(--cs-accent) 100%
 	);
 	color: #fff;
-	font-weight: 900;
+	font-weight: 700;
 	font-size: 0.78rem;
 	letter-spacing: 0.5px;
 	text-transform: uppercase;
@@ -187,7 +185,7 @@
 .cs-hero-title {
 	margin: 4px 0 0;
 	font-size: clamp(1.7rem, 3vw, 2.5rem);
-	font-weight: 900;
+	font-weight: 700;
 	letter-spacing: -1.5px;
 	line-height: 1.1;
 	color: var(--cs-text-main);
@@ -209,7 +207,7 @@
 	border-radius: 100px;
 	background: rgba(255, 255, 255, 0.8);
 	border: 2px solid #fff;
-	box-shadow: 0 10px 25px rgba(139, 92, 63, 0.08);
+	box-shadow: 0 10px 25px rgba(120, 50, 10, 0.08);
 	flex-wrap: wrap;
 }
 .cs-level-chip {
@@ -218,7 +216,7 @@
 	border-radius: 100px;
 	background: transparent;
 	font-family: var(--cs-font);
-	font-weight: 800;
+	font-weight: 700;
 	font-size: 0.9rem;
 	color: var(--cs-text-soft);
 	cursor: pointer;
@@ -267,13 +265,13 @@
 .cs-section-title {
 	margin: 0;
 	font-size: 1.4rem;
-	font-weight: 900;
+	font-weight: 700;
 	color: var(--cs-text-main);
 	letter-spacing: -0.5px;
 }
 .cs-section-count {
 	font-size: 0.78rem;
-	font-weight: 800;
+	font-weight: 700;
 	color: var(--cs-text-soft);
 	text-transform: uppercase;
 	letter-spacing: 0.6px;
@@ -281,7 +279,7 @@
 	border-radius: 100px;
 	background: rgba(255, 255, 255, 0.8);
 	border: 2px solid #fff;
-	box-shadow: 0 4px 12px rgba(139, 92, 63, 0.06);
+	box-shadow: 0 4px 12px rgba(120, 50, 10, 0.06);
 }
 
 /* ============================================================
@@ -317,7 +315,7 @@
 	color: var(--cs-text-main);
 	cursor: pointer;
 	text-align: left;
-	box-shadow: 0 16px 40px rgba(139, 92, 63, 0.08);
+	box-shadow: 0 16px 40px rgba(120, 50, 10, 0.08);
 	transition:
 		transform 0.5s var(--cs-spring),
 		box-shadow 0.5s ease,
@@ -332,7 +330,7 @@
 	transform: translateY(-10px) scale(1.03);
 	border-color: var(--cs-theme-color, var(--cs-accent-light));
 	box-shadow:
-		0 30px 60px rgba(139, 92, 63, 0.18),
+		0 30px 60px rgba(120, 50, 10, 0.18),
 		0 0 0 1px var(--cs-theme-color, var(--cs-accent-light));
 }
 .cs-tile:active {
@@ -345,7 +343,7 @@
 	inset: 0;
 	background: radial-gradient(
 		circle at 50% 0%,
-		var(--cs-theme-color-soft, rgba(232, 103, 28, 0.12)) 0%,
+		var(--cs-theme-color-soft, rgba(255, 84, 29, 0.12)) 0%,
 		transparent 70%
 	);
 	opacity: 0;
@@ -390,11 +388,11 @@
 	background: radial-gradient(
 		circle at 30% 30%,
 		#fff 0%,
-		var(--cs-theme-color-light, #fdf1e8) 100%
+		var(--cs-theme-color-light, var(--milo-creme)) 100%
 	);
 	box-shadow:
 		inset 0 6px 18px rgba(0, 0, 0, 0.04),
-		0 12px 28px var(--cs-theme-color-glow, rgba(232, 103, 28, 0.15));
+		0 12px 28px var(--cs-theme-color-glow, rgba(255, 84, 29, 0.15));
 	transition: transform 0.5s var(--cs-spring);
 }
 .cs-tile:hover .cs-tile-emoji-wrap {
@@ -419,7 +417,7 @@
 .cs-tile-title {
 	margin: 0;
 	font-size: 1.35rem;
-	font-weight: 900;
+	font-weight: 700;
 	color: var(--cs-text-main);
 	letter-spacing: -0.6px;
 	line-height: 1.15;
@@ -436,7 +434,7 @@
 	background: var(--cs-bg-soft);
 	color: var(--cs-text-soft);
 	font-size: 0.78rem;
-	font-weight: 900;
+	font-weight: 700;
 	letter-spacing: 0.4px;
 	text-transform: uppercase;
 	transition: all 0.4s var(--cs-spring);
@@ -459,13 +457,13 @@
 	cursor: not-allowed;
 	filter: grayscale(0.35);
 	transform: none;
-	box-shadow: 0 14px 30px rgba(139, 92, 63, 0.06);
+	box-shadow: 0 14px 30px rgba(120, 50, 10, 0.06);
 }
 
 .cs-tile.is-locked:hover {
 	transform: none;
 	border-color: #fff;
-	box-shadow: 0 14px 30px rgba(139, 92, 63, 0.06);
+	box-shadow: 0 14px 30px rgba(120, 50, 10, 0.06);
 }
 
 .cs-tile.is-locked .cs-tile-cta {
@@ -485,13 +483,13 @@
 	padding: 7px 12px;
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.92);
-	border: 1px solid rgba(184, 173, 164, 0.35);
+	border: 1px solid rgba(160, 138, 124, 0.35);
 	color: var(--cs-text-soft);
 	font-size: 0.72rem;
-	font-weight: 900;
+	font-weight: 700;
 	letter-spacing: 0.4px;
 	text-transform: uppercase;
-	box-shadow: 0 8px 18px rgba(139, 92, 63, 0.08);
+	box-shadow: 0 8px 18px rgba(120, 50, 10, 0.08);
 }
 
 /* ============================================================
@@ -509,16 +507,16 @@
 	--cs-theme-color-glow: rgba(59, 130, 246, 0.3);
 }
 .cs-theme-red {
-	--cs-theme-color: #ef4444;
-	--cs-theme-color-light: #fee2e2;
-	--cs-theme-color-soft: rgba(239, 68, 68, 0.1);
-	--cs-theme-color-glow: rgba(239, 68, 68, 0.3);
+	--cs-theme-color: var(--ko);
+	--cs-theme-color-light: var(--ko-bg);
+	--cs-theme-color-soft: rgba(195, 37, 63, 0.1);
+	--cs-theme-color-glow: rgba(195, 37, 63, 0.3);
 }
 .cs-theme-yellow {
-	--cs-theme-color: #f59e0b;
-	--cs-theme-color-light: #fef3c7;
-	--cs-theme-color-soft: rgba(245, 158, 11, 0.12);
-	--cs-theme-color-glow: rgba(245, 158, 11, 0.3);
+	--cs-theme-color: var(--milo-pompon);
+	--cs-theme-color-light: var(--pompon-bg);
+	--cs-theme-color-soft: rgba(252, 178, 24, 0.12);
+	--cs-theme-color-glow: rgba(252, 178, 24, 0.3);
 }
 .cs-theme-purple {
 	--cs-theme-color: #8b5cf6;
@@ -527,10 +525,10 @@
 	--cs-theme-color-glow: rgba(139, 92, 246, 0.3);
 }
 .cs-theme-orange {
-	--cs-theme-color: #f97316;
-	--cs-theme-color-light: #ffedd5;
-	--cs-theme-color-soft: rgba(249, 115, 22, 0.12);
-	--cs-theme-color-glow: rgba(249, 115, 22, 0.3);
+	--cs-theme-color: var(--milo-orange);
+	--cs-theme-color-light: var(--milo-creme);
+	--cs-theme-color-soft: rgba(255, 84, 29, 0.12);
+	--cs-theme-color-glow: rgba(255, 84, 29, 0.3);
 }
 .cs-theme-teal {
 	--cs-theme-color: #14b8a6;
@@ -539,10 +537,10 @@
 	--cs-theme-color-glow: rgba(20, 184, 166, 0.3);
 }
 .cs-theme-green {
-	--cs-theme-color: #10b981;
-	--cs-theme-color-light: #d1fae5;
-	--cs-theme-color-soft: rgba(16, 185, 129, 0.1);
-	--cs-theme-color-glow: rgba(16, 185, 129, 0.3);
+	--cs-theme-color: var(--ok);
+	--cs-theme-color-light: var(--ok-bg);
+	--cs-theme-color-soft: rgba(35, 135, 75, 0.1);
+	--cs-theme-color-glow: rgba(35, 135, 75, 0.3);
 }
 .cs-theme-pink {
 	--cs-theme-color: #ec4899;
@@ -566,18 +564,18 @@
 	border: 2px solid #fff;
 	border-radius: 32px;
 	text-align: center;
-	font-weight: 800;
+	font-weight: 700;
 	color: var(--cs-text-soft);
-	box-shadow: 0 15px 35px rgba(139, 92, 63, 0.08);
+	box-shadow: 0 15px 35px rgba(120, 50, 10, 0.08);
 }
 .cs-state p {
 	margin: 0;
 	font-size: 1rem;
 }
 .cs-state-error {
-	color: #dc2626;
-	border-color: #fecaca;
-	background: rgba(254, 242, 242, 0.8);
+	color: var(--ko);
+	border-color: var(--ko-bg);
+	background: rgba(252, 230, 234, 0.8);
 }
 .cs-loader {
 	width: 42px;
