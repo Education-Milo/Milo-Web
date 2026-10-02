@@ -242,27 +242,3 @@ kids-features-list li { font-weight: 700; color: var(--milo-dark); padding: 12px
   .footer-content { padding: 50px 6% 30px; }
   .footer-main { margin-bottom: 40px; }
 }
-
-@media (max-width: 560px) {
-  .hero-title { font-size: clamp(2.4rem, 10vw, 3rem); }
-  .hero-description { font-size: 1.05rem; }
-  .hero-actions { flex-direction: column; width: 100%; }
-  .btn-main, .btn-ghost { width: 100%; justify-content: center; padding: 18px 28px; font-size: 1rem; }
-
-  .kids-h2 { font-size: 2.1rem; }
-  .adventure-badge { font-size: 0.7rem; padding: 6px 16px; }
-  .game-console-border { padding: 12px; border-radius: 32px; }
-  .joy-btn { width: 54px; height: 54px; }
-
-  .parent-card-dynamic { padding: 28px 22px; text-align: center; align-items: center; }
-  .card-content-v4 { text-align: center; }
-
-  .faq-title-v4 { font-size: 1.8rem; }
-  .faq-icon-circle { width: 40px; height: 40px; font-size: 1.2rem; }
-
-  .price-card { padding: 50px 20px 30px; }
-  .price-v3 { font-size: 2.8rem; }
-  .btn-price-v3 { padding: 18px; font-size: 1rem; }
-
-  .footer-logo { margin: 0 auto 20px; }
-}

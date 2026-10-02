@@ -1,0 +1,332 @@
+/* ==========================================================================
+   MISSIONS — liste sur mobile, carrousel épinglé au scroll sur desktop
+   (la classe .is-pinned est posée par GSAP quand l'épinglage est actif)
+   ========================================================================== */
+.lp-missions {
+	position: relative;
+	padding: clamp(80px, 10vw, 120px) 0;
+}
+
+.lp-missions__head {
+	text-align: center;
+	display: grid;
+	justify-items: center;
+	gap: 0.9rem;
+	margin-bottom: clamp(36px, 5vw, 56px);
+}
+
+.lp-missions__list {
+	display: grid;
+	gap: clamp(56px, 8vw, 90px);
+}
+
+.lp-mission {
+	display: grid;
+	grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+	gap: clamp(28px, 5vw, 72px);
+	align-items: center;
+}
+
+.lp-mission__device-wrap {
+	position: relative;
+}
+
+/* Tablette orange : le vert reste réservé aux petits accents */
+.lp-mission__device {
+	position: relative;
+	border-radius: 34px;
+	padding: 14px;
+	background: linear-gradient(160deg, var(--lp-mandarine), var(--lp-vermillon));
+	box-shadow: 0 10px 0 var(--lp-braise), 0 40px 60px -30px rgba(185, 51, 15, 0.75);
+}
+
+.lp-mission__device::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 5px;
+	width: 4px;
+	height: 40px;
+	margin-top: -20px;
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.35);
+}
+
+.lp-mission__screen {
+	position: relative;
+	overflow: hidden;
+	border-radius: 22px;
+	aspect-ratio: 16 / 10;
+	background: var(--lp-creme);
+}
+
+.lp-mission__screen img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.lp-mission__screen::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(155deg, rgba(255, 255, 255, 0.22), transparent 40%);
+}
+
+.lp-mission__badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55rem;
+	font-weight: 700;
+	font-size: 0.82rem;
+	letter-spacing: 0.08em;
+	line-height: 1;
+	color: var(--lp-braise);
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	padding: 0.55rem 0.95rem 0.5rem;
+	border-radius: 999px;
+}
+
+.lp-mission__pulse {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--lp-foret);
+	animation: lp-pulse 1.8s infinite;
+}
+
+@keyframes lp-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(38, 55, 21, 0.45);
+	}
+	70% {
+		box-shadow: 0 0 0 9px rgba(38, 55, 21, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(38, 55, 21, 0);
+	}
+}
+
+.lp-mission h3 {
+	font-size: clamp(2.3rem, 4.4vw, 3.6rem);
+	margin: 1.1rem 0 1rem;
+}
+
+.lp-mission__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.7rem;
+	margin: 1.6rem 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lp-mission__tags li {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	border-radius: 16px;
+	padding: 0.4rem 0.9rem 0.4rem 0.5rem;
+	font-weight: 600;
+	box-shadow: 0 4px 0 var(--lp-sable);
+}
+
+.lp-mission__tags img {
+	width: 32px;
+	height: 32px;
+}
+
+/* Éléments réservés au mode épinglé */
+.lp-mission__decor,
+.lp-missions__nav,
+.lp-missions__num {
+	display: none;
+}
+
+/* ---------- Mode épinglé ---------- */
+.lp-missions.is-pinned {
+	padding: 0;
+}
+
+.lp-missions.is-pinned .lp-missions__inner {
+	position: relative;
+	height: 100svh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding-top: 96px;
+	padding-bottom: 24px;
+}
+
+.lp-missions.is-pinned .lp-missions__head {
+	margin-bottom: clamp(20px, 3.5vh, 40px);
+}
+
+.lp-missions.is-pinned .lp-missions__title {
+	font-size: clamp(2.2rem, 4vw, 3.4rem);
+}
+
+.lp-missions.is-pinned .lp-missions__list {
+	grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+	column-gap: clamp(28px, 5vw, 72px);
+	row-gap: 0;
+	align-items: center;
+}
+
+/* Les missions se superposent : tablettes à gauche, textes à droite */
+.lp-missions.is-pinned .lp-mission {
+	display: contents;
+}
+
+.lp-missions.is-pinned .lp-mission__device-wrap,
+.lp-missions.is-pinned .lp-mission__text {
+	grid-row: 1;
+}
+
+.lp-missions.is-pinned .lp-mission__device-wrap {
+	grid-column: 1;
+	justify-self: center;
+	width: 100%;
+	max-width: min(100%, calc((100svh - 330px) * 1.6));
+}
+
+.lp-missions.is-pinned .lp-mission__text {
+	grid-column: 2;
+}
+
+.lp-missions.is-pinned .lp-mission h3 {
+	font-size: clamp(2rem, 3.4vw, 3rem);
+	margin: 0.9rem 0 0.8rem;
+}
+
+.lp-missions.is-pinned .lp-mission__tags {
+	margin-top: 1.2rem;
+}
+
+.lp-missions.is-pinned .lp-mission__decor {
+	display: block;
+}
+
+.lp-mission__decor img {
+	position: absolute;
+	z-index: 3;
+	width: 96px;
+	pointer-events: none;
+}
+
+.lp-mission__decor img:nth-child(1) {
+	top: -38px;
+	left: -34px;
+}
+
+.lp-mission__decor img:nth-child(2) {
+	width: 110px;
+	bottom: -30px;
+	right: -30px;
+}
+
+.lp-mission__decor img:nth-child(3) {
+	width: 72px;
+	top: 28%;
+	right: -46px;
+}
+
+.lp-missions.is-pinned .lp-missions__head,
+.lp-missions.is-pinned .lp-missions__list,
+.lp-missions.is-pinned .lp-missions__nav {
+	position: relative;
+	z-index: 1;
+}
+
+.lp-missions.is-pinned .lp-missions__nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: clamp(24px, 4vh, 40px);
+}
+
+.lp-missions__dots {
+	display: flex;
+	gap: 10px;
+}
+
+.lp-missions__dots button {
+	border: 2px solid var(--lp-line);
+	background: #fff;
+	color: var(--lp-ink);
+	border-radius: 999px;
+	padding: 0.45rem 0.9rem;
+	font: inherit;
+	font-weight: 600;
+	font-size: 0.92rem;
+	cursor: pointer;
+	transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.lp-missions__dots button[aria-current="true"] {
+	background: var(--lp-milo);
+	border-color: var(--lp-milo);
+	color: #fff;
+}
+
+.lp-missions__progress {
+	flex: 1;
+	max-width: 420px;
+	height: 8px;
+	border-radius: 8px;
+	background: var(--lp-sable);
+	overflow: hidden;
+}
+
+.lp-missions__progress span {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: var(--lp-feu);
+	transform-origin: 0 50%;
+	transform: scaleX(0);
+}
+
+/* Compteur géant 01 → 03 en arrière-plan */
+.lp-missions.is-pinned .lp-missions__num {
+	display: block;
+	position: absolute;
+	z-index: 0;
+	right: var(--lp-gutter);
+	top: 84px;
+	height: 1em;
+	overflow: hidden;
+	pointer-events: none;
+	font-family: var(--lp-f-display);
+	font-size: clamp(8rem, 17vw, 15rem);
+	line-height: 1;
+	color: transparent;
+	-webkit-text-stroke: 3px var(--lp-sable);
+}
+
+.lp-missions__num-col span {
+	display: block;
+	height: 1em;
+	padding-top: 0.08em;
+}
+
+@media (max-width: 960px) {
+	.lp-mission {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lp-mission__text {
+		text-align: center;
+		display: grid;
+		justify-items: center;
+	}
+
+	.lp-mission__tags {
+		justify-content: center;
+	}
+}

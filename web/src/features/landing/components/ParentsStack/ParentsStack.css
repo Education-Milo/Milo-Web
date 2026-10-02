@@ -1,0 +1,89 @@
+.lp-stack {
+	display: grid;
+	gap: 40px;
+	max-width: 1040px;
+	margin: 0 auto;
+}
+
+.lp-stack-card {
+	position: sticky;
+	top: calc(120px + var(--i) * 28px);
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+	align-items: stretch;
+	gap: clamp(20px, 3vw, 40px);
+	min-height: 380px;
+	padding: clamp(20px, 2.4vw, 28px);
+	border-radius: 40px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 10px 0 var(--lp-sable), 0 40px 60px -40px rgba(120, 50, 10, 0.45);
+	transform-origin: 50% 0;
+	will-change: transform;
+}
+
+.lp-stack-card__copy {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: clamp(8px, 2vw, 24px);
+}
+
+.lp-stack-card__num {
+	align-self: flex-start;
+	font-family: var(--lp-f-display);
+	font-size: 1.2rem;
+	color: var(--lp-braise);
+	background: var(--lp-creme);
+	border-radius: 999px;
+	padding: 0.35rem 0.9rem 0.2rem;
+}
+
+.lp-stack-card h3 {
+	font-size: clamp(2rem, 3.8vw, 3.2rem);
+	margin: 1rem 0 0.8rem;
+}
+
+.lp-stack-card__art {
+	position: relative;
+	overflow: hidden;
+	display: grid;
+	place-items: center;
+	min-height: 260px;
+	border-radius: 30px;
+	background: var(--art);
+}
+
+.lp-stack-card__art::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1.5px, transparent 1.7px);
+	background-size: 24px 24px;
+}
+
+.lp-stack-card__art img {
+	position: relative;
+	width: clamp(150px, 18vw, 220px);
+}
+
+@media (max-width: 960px) {
+	.lp-stack-card {
+		top: calc(80px + var(--i) * 18px);
+		grid-template-columns: minmax(0, 1fr);
+		min-height: 0;
+	}
+
+	.lp-stack-card__copy {
+		text-align: center;
+		align-items: center;
+	}
+
+	.lp-stack-card__num {
+		align-self: center;
+	}
+
+	.lp-stack-card__art {
+		min-height: 180px;
+	}
+}

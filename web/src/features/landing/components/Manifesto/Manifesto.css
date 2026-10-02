@@ -1,0 +1,143 @@
+/* Même vermillon que le portail du hero : la transition est continue */
+.lp-manifesto {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	min-height: 100svh;
+	display: flex;
+	align-items: center;
+	padding: 140px 0 160px;
+	background: var(--lp-vermillon);
+	color: var(--lp-creme);
+}
+
+.lp-manifesto::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.13) 1.5px, transparent 1.7px);
+	background-size: 28px 28px;
+}
+
+.lp-manifesto .lp-wrap {
+	position: relative;
+	width: 100%;
+}
+
+.lp-manifesto__text {
+	font-family: var(--lp-f-display);
+	font-size: clamp(2rem, 4.6vw, 3.9rem);
+	line-height: 1.15;
+	text-align: center;
+	text-wrap: balance;
+	text-shadow: 0 0.05em 0 var(--lp-braise);
+	max-width: 1000px;
+	margin: 0 auto;
+}
+
+.lp-manifesto__key {
+	color: var(--lp-sable);
+}
+
+.lp-manifesto__nowrap {
+	white-space: nowrap;
+}
+
+/* Plus spécifique que `.lp img { display: block }` */
+.lp-manifesto__text .lp-manifesto__inline {
+	display: inline-block;
+	width: 1.1em;
+	height: 1.1em;
+	vertical-align: -0.18em;
+	margin: 0 0.08em;
+}
+
+.lp-manifesto__sign {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.7rem;
+	margin-top: 2.4rem;
+	color: #ffe9d9;
+	font-weight: 600;
+	text-align: center;
+}
+
+.lp-manifesto__sign img {
+	width: 44px;
+	height: 44px;
+	flex: none;
+}
+
+.lp-manifesto__deco {
+	position: absolute;
+	z-index: 2;
+	width: 110px;
+	pointer-events: none;
+}
+
+.lp-manifesto__deco--1 {
+	width: 120px;
+	left: 6%;
+	top: 18%;
+}
+
+.lp-manifesto__deco--2 {
+	width: 96px;
+	right: 8%;
+	top: 14%;
+}
+
+.lp-manifesto__deco--3 {
+	left: 9%;
+	bottom: 20%;
+}
+
+.lp-manifesto__deco--4 {
+	width: 130px;
+	right: 6%;
+	bottom: 18%;
+}
+
+.lp-manifesto__deco--5 {
+	width: 80px;
+	left: 24%;
+	bottom: 9%;
+}
+
+.lp-manifesto__wave {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 90px;
+	z-index: 3;
+}
+
+.lp-manifesto__wave svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+	fill: var(--lp-creme);
+}
+
+@media (max-width: 640px) {
+	.lp-manifesto {
+		padding: 110px 0 130px;
+	}
+
+	.lp-manifesto__text {
+		font-size: 1.75rem;
+	}
+
+	.lp-manifesto__deco {
+		width: 54px !important;
+		opacity: 0.9;
+	}
+
+	.lp-manifesto__deco--2,
+	.lp-manifesto__deco--5 {
+		display: none;
+	}
+}

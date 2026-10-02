@@ -14,47 +14,55 @@ html {
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
+	right: 0;
 	z-index: 1000;
-	height: var(--nav-height);
-}
-
-.nav-wave-bg {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
 	pointer-events: none;
 }
 
-.wave-svg {
+.lp-nav__waves {
 	position: absolute;
-	top: -2px;
+	top: 0;
 	left: 0;
-	width: 100%;
-	height: 120%;
+	right: 0;
+	height: 250px;
+	pointer-events: none;
+	transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.wave-orange {
-	fill: var(--milo-orange);
+.lp-nav.is-scrolled .lp-nav__waves {
+	transform: translateY(-22px);
+}
+
+.lp-nav__wave {
+	position: absolute;
+	inset: -2px 0 auto 0;
+	width: 100%;
+	height: 100%;
+}
+
+.lp-nav__wave--orange {
+	fill: var(--lp-mandarine);
 	opacity: 0.16;
 	transform: translateY(16px);
 }
-.wave-beige {
-	fill: white;
-	filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.05));
+
+.lp-nav__wave--white {
+	fill: #fff;
+	filter: drop-shadow(0 12px 35px rgba(0, 0, 0, 0.06));
 }
 
-.nav-content {
+.lp-nav__content {
 	position: relative;
+	z-index: 2;
+	pointer-events: auto;
 	max-width: 1440px;
 	margin: 0 auto;
-	padding: 30px 5% 0 5%;
-	display: flex;
-	justify-content: space-between;
+	padding: 22px 5% 0;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
-	z-index: 10;
+	gap: 1rem;
+	transition: padding 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .nav-logo-v2 {
@@ -73,23 +81,32 @@ html {
 	padding: 8px;
 	border-radius: 100px;
 	display: flex;
-	gap: 8px;
-	border: 1px solid rgba(0, 0, 0, 0.02);
+	gap: 6px;
+	padding: 7px;
+	margin: 0;
+	list-style: none;
+	background: rgba(246, 235, 223, 0.6);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 999px;
 }
 
-.pill-link {
-	padding: 12px 28px;
-	border-radius: 100px;
+.lp-pill {
+	display: block;
+	padding: 11px 22px;
+	border-radius: 999px;
 	font-weight: 700;
 	font-size: 0.95rem;
-	color: var(--milo-dark);
+	line-height: 1.1;
+	color: var(--lp-ink);
 	text-decoration: none;
-	transition: all 0.3s ease;
+	white-space: nowrap;
+	transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
-.pill-link:hover {
-	background: white;
-	color: var(--milo-red);
+.lp-pill:hover {
+	background: #fff;
+	color: var(--lp-brique);
 }
 .pill-link.active {
 	background: var(--milo-gradient);
@@ -97,10 +114,11 @@ html {
 	box-shadow: 0 6px 18px rgba(255, 84, 29, 0.3);
 }
 
-.nav-right {
+.lp-nav__actions {
+	justify-self: end;
 	display: flex;
 	align-items: center;
-	gap: 25px;
+	gap: 1.2rem;
 }
 
 .btn-login-v2 {
@@ -123,63 +141,58 @@ html {
 	box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* ---------- Menu burger (mobile) ---------- */
-.nav-burger {
+.lp-nav__burger {
 	display: none;
-	align-items: center;
-	justify-content: center;
+	justify-self: end;
 	width: 46px;
 	height: 46px;
-	border: none;
+	border: 0;
 	border-radius: 14px;
-	background: white;
-	color: var(--milo-dark);
+	background: #fff;
+	color: var(--lp-ink);
 	cursor: pointer;
+	place-items: center;
 	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-	flex-shrink: 0;
-	transition: all 0.25s ease;
 }
 
-.nav-burger:hover {
-	color: var(--milo-red);
+.lp-nav__burger:hover {
+	color: var(--lp-brique);
 }
 
-.nav-mobile-menu {
+.lp-nav__mobile {
 	position: absolute;
-	top: 100%;
-	left: 0;
-	width: 100%;
-	background: white;
-	border-radius: 0 0 32px 32px;
-	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	padding: 12px 6% 24px;
-	overflow: hidden;
-	z-index: 5;
+	z-index: 1;
+	top: 74px;
+	left: 12px;
+	right: 12px;
+	pointer-events: auto;
+	background: #fff;
+	border-radius: 28px;
+	box-shadow: 0 25px 50px rgba(0, 0, 0, 0.14);
+	padding: 12px;
+	display: grid;
+	gap: 4px;
 }
 
-.nav-mobile-menu .pill-link {
-	padding: 14px 18px;
-	border-radius: 16px;
+.lp-nav__mobile .lp-pill {
 	text-align: center;
+	padding: 14px;
+	border-radius: 16px;
 }
 
 .nav-mobile-menu .pill-link:hover {
 	background: var(--milo-beige, var(--milo-creme));
 }
 
-.nav-mobile-actions {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	margin-top: 10px;
-	padding-top: 16px;
+.lp-nav__mobile-actions {
+	display: grid;
+	gap: 10px;
+	margin-top: 8px;
+	padding-top: 14px;
 	border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.nav-mobile-actions a {
+.lp-nav__mobile-actions .lp-btn {
 	width: 100%;
 }
 
@@ -196,37 +209,32 @@ html {
 	text-align: center;
 }
 
-/* ---------- Responsive ---------- */
-/* Note : Vitrine.css redéclare (sans media query) une copie de ces mêmes
-   règles nav-*. Pour ne pas dépendre de l'ordre de chargement des deux
-   fichiers, chaque sélecteur ci-dessous est préfixé par son tag HTML afin
-   d'avoir une spécificité strictement supérieure aux règles dupliquées. */
-@media (max-width: 900px) {
-	header.nav-container-organic {
-		height: 92px;
+	.lp-nav__actions {
+		gap: 0.8rem;
 	}
+}
 
-	nav.nav-content {
-		padding: 18px 5% 0;
+@media (max-width: 960px) {
+	.lp-nav__waves {
+		height: 150px;
 	}
 
 	img.nav-logo-v2 {
 		height: 48px;
 	}
 
-	div.nav-center,
-	div.nav-right {
+	.lp-nav.is-scrolled .lp-nav__content {
+		padding-top: 8px;
+	}
+
+	.lp-nav__logo img,
+	.lp-nav.is-scrolled .lp-nav__logo img {
+		height: 46px;
+	}
+
+	.lp-nav__pills,
+	.lp-nav__actions {
 		display: none;
-	}
-
-	.nav-burger {
-		display: flex;
-	}
-}
-
-@media (max-width: 420px) {
-	nav.nav-content {
-		padding: 14px 5% 0;
 	}
 
 	img.nav-logo-v2 {

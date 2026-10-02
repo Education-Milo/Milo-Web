@@ -1,0 +1,136 @@
+.lp-pricing {
+	margin-top: clamp(100px, 13vw, 160px);
+}
+
+.lp-pricing__plans {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: clamp(18px, 3vw, 32px);
+	max-width: 940px;
+	margin: 0 auto;
+}
+
+.lp-plan {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: clamp(28px, 3.4vw, 44px);
+	border-radius: 36px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 10px 0 var(--lp-sable);
+}
+
+.lp-plan__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	min-height: 72px;
+}
+
+.lp-plan__icon {
+	width: 72px;
+	height: 72px;
+}
+
+.lp-plan__name {
+	font-weight: 700;
+	font-size: 0.9rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--lp-braise);
+}
+
+.lp-plan__price {
+	display: flex;
+	align-items: baseline;
+	gap: 0.2rem;
+	margin: 0.6rem 0 1.6rem;
+	font-family: var(--lp-f-display);
+	font-size: clamp(3.6rem, 7vw, 5rem);
+	line-height: 1;
+}
+
+.lp-plan__price small {
+	font-family: var(--lp-f-text);
+	font-size: 1.1rem;
+	font-weight: 500;
+	color: var(--lp-ink-2);
+}
+
+.lp-plan ul {
+	flex: 1;
+	display: grid;
+	align-content: start;
+	gap: 0.85rem;
+	margin: 0 0 2rem;
+	padding: 0;
+	list-style: none;
+}
+
+.lp-plan li {
+	display: grid;
+	grid-template-columns: 26px 1fr;
+	align-items: center;
+	gap: 0.7rem;
+	font-weight: 500;
+	line-height: 1.35;
+}
+
+.lp-plan__tick {
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	background: var(--lp-creme);
+	color: var(--lp-foret);
+}
+
+.lp-plan .lp-btn {
+	width: 100%;
+}
+
+.lp-plan--featured {
+	background: var(--lp-feu);
+	border-color: transparent;
+	color: var(--lp-creme);
+	box-shadow: 0 10px 0 var(--lp-braise), 0 40px 60px -30px rgba(237, 60, 29, 0.8);
+}
+
+.lp-plan--featured .lp-plan__name,
+.lp-plan--featured .lp-plan__price small {
+	color: var(--lp-sable);
+}
+
+.lp-plan__ribbon {
+	position: absolute;
+	top: -17px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 1rem 0.35rem 0.45rem;
+	border-radius: 999px;
+	background: #fff;
+	color: var(--lp-braise);
+	font-weight: 700;
+	font-size: 0.85rem;
+	letter-spacing: 0.05em;
+	white-space: nowrap;
+	box-shadow: 0 4px 0 var(--lp-braise);
+}
+
+.lp-plan__ribbon img {
+	width: 26px;
+	height: 26px;
+}
+
+@media (max-width: 640px) {
+	.lp-pricing__plans {
+		grid-template-columns: minmax(0, 1fr);
+		row-gap: 36px;
+	}
+}

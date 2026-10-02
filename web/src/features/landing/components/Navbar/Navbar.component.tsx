@@ -1,106 +1,108 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { SECTION_IDS } from "@features/landing/data/landing.data";
+import { scrollToSection } from "@features/landing/lib/smoothScroll";
+import "@features/landing/styles/landing.css";
 import "@features/landing/components/Navbar/Navbar.css";
 
+/// Sections de la Vitrine suivies par le scrollspy
+const SPY_SECTIONS = [SECTION_IDS.concept, SECTION_IDS.kids, SECTION_IDS.parents];
+
+type NavItem = { label: string } & ({ section: string } | { to: string });
+
+const NAV_ITEMS: NavItem[] = [
+	{ label: "Concept", section: SECTION_IDS.concept },
+	{ label: "Pour les enfants", section: SECTION_IDS.kids },
+	{ label: "Pour les parents", section: SECTION_IDS.parents },
+	{ label: "FAQ", to: "/faq" },
+	{ label: "Contact", to: "/contact" },
+];
+
 const Navbar: React.FC = () => {
-	const location = useLocation();
-	const [activeSection, setActiveSection] = useState("");
+	const { pathname } = useLocation();
+	const isHome = pathname === "/";
+	const [activeSection, setActiveSection] = useState<string>(SECTION_IDS.concept);
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
-	const closeMenu = () => setIsMenuOpen(false);
+	const [isScrolled, setIsScrolled] = useState(false);
 
 	// Ferme le menu mobile à chaque changement de page.
-	useEffect(() => {
-		setIsMenuOpen(false);
-	}, [location.pathname]);
+	useEffect(() => setIsMenuOpen(false), [pathname]);
 
 	// Empêche le scroll du body quand le menu mobile est ouvert.
 	useEffect(() => {
-		document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
+		document.body.style.overflow = isMenuOpen ? "hidden" : "";
 		return () => {
-			document.body.style.overflow = "auto";
+			document.body.style.overflow = "";
 		};
 	}, [isMenuOpen]);
 
+	// Echap ferme le menu mobile
 	useEffect(() => {
-		// Si on n'est pas sur la Vitrine, on ne gère pas les ancres
-		if (location.pathname !== "/") {
-			setActiveSection("");
-			return;
-		}
+		if (!isMenuOpen) return;
+		const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsMenuOpen(false);
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [isMenuOpen]);
 
-		// Configuration de l'observer pour détecter quelle section est au centre de l'écran
-		const observerOptions = {
-			root: null,
-			rootMargin: "-40% 0px -40% 0px", // Déclenche quand la section occupe le milieu de l'écran
-			threshold: 0,
-		};
+	// La vague se compacte dès qu'on quitte le haut de la page
+	useEffect(() => {
+		const onScroll = () => setIsScrolled(window.scrollY > 60);
+		onScroll();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
 
-		const observerCallback = (entries: IntersectionObserverEntry[]) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					setActiveSection(entry.target.id);
-				}
-			});
-		};
-
+	// Scrollspy : la section au milieu de l'écran allume sa pilule
+	useEffect(() => {
+		if (!isHome) return;
 		const observer = new IntersectionObserver(
-			observerCallback,
-			observerOptions,
+			(entries) => entries.forEach((entry) => entry.isIntersecting && setActiveSection(entry.target.id)),
+			{ rootMargin: "-45% 0px -50% 0px" },
 		);
-
-		// On observe les sections cibles
-		const sections = ["enfants", "parents"];
-		sections.forEach((id) => {
+		SPY_SECTIONS.forEach((id) => {
 			const el = document.getElementById(id);
 			if (el) observer.observe(el);
 		});
+		return () => observer.disconnect();
+	}, [isHome]);
 
-		const handleHeroScroll = () => {
-			if (window.scrollY < 300) setActiveSection("");
-		};
-		window.addEventListener("scroll", handleHeroScroll);
+	const isActive = (item: NavItem) =>
+		"to" in item ? pathname === item.to : isHome && activeSection === item.section;
 
-		return () => {
-			observer.disconnect();
-			window.removeEventListener("scroll", handleHeroScroll);
-		};
-	}, [location.pathname]);
-
-	// Détermine si un lien doit être "active" (orange)
-	const getPillClass = (path: string, sectionId?: string) => {
-		if (location.pathname !== path) return "pill-link";
-
-		if (sectionId) {
-			return activeSection === sectionId ? "pill-link active" : "pill-link";
+	const renderLink = (item: NavItem, onNavigate?: () => void) => {
+		const className = `lp-pill${isActive(item) ? " is-active" : ""}`;
+		if ("to" in item) {
+			return (
+				<Link to={item.to} className={className} onClick={onNavigate}>
+					{item.label}
+				</Link>
+			);
 		}
-
-		// Pour "Concept", il est actif seulement si aucune autre section n'est vue
-		return activeSection === "" ? "pill-link active" : "pill-link";
+		// Sur la Vitrine : défilement fluide ; ailleurs : retour à la Vitrine sur l'ancre
+		return (
+			<Link
+				to={`/#${item.section}`}
+				className={className}
+				onClick={(e) => {
+					onNavigate?.();
+					if (isHome && scrollToSection(item.section)) e.preventDefault();
+				}}
+			>
+				{item.label}
+			</Link>
+		);
 	};
 
 	return (
-		<motion.header
-			className="nav-container-organic"
-			initial={{ y: -200 }}
-			animate={{ y: 0 }}
-			transition={{ type: "spring", stiffness: 40, damping: 15 }}
-		>
-			<div className="nav-wave-bg">
-				<svg
-					viewBox="0 0 1440 320"
-					className="wave-svg wave-orange"
-					preserveAspectRatio="none"
-				>
-					<path d="M0,64L80,80C160,96,320,128,480,133.3C640,139,800,117,960,101.3C1120,85,1280,75,1360,69.3L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
+		<header className={`lp lp-nav${isScrolled ? " is-scrolled" : ""}`}>
+			<div className="lp-nav__waves" aria-hidden="true">
+				<svg viewBox="0 0 1440 320" className="lp-nav__wave lp-nav__wave--orange" preserveAspectRatio="none">
+					<path d="M0,64L80,80C160,96,320,128,480,133.3C640,139,800,117,960,101.3C1120,85,1280,75,1360,69.3L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z" />
 				</svg>
-				<svg
-					viewBox="0 0 1440 280"
-					className="wave-svg wave-beige"
-					preserveAspectRatio="none"
-				>
-					<path d="M0,100L60,95.3C120,100,240,140,360,128.7C480,128,600,96,720,90.7C840,85,960,107,1080,117.3C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+				<svg viewBox="0 0 1440 280" className="lp-nav__wave lp-nav__wave--white" preserveAspectRatio="none">
+					<path d="M0,100L60,95.3C120,100,240,140,360,128.7C480,128,600,96,720,90.7C840,85,960,107,1080,117.3C1200,128,1320,128,1380,128L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z" />
 				</svg>
 			</div>
 
@@ -139,24 +141,18 @@ const Navbar: React.FC = () => {
 					<Link to="/login" style={{ textDecoration: "none" }}>
 						<button className="btn-login-v2">Connexion</button>
 					</Link>
-
-					<Link to="/register" style={{ textDecoration: "none" }}>
-						<motion.button
-							className="btn-signup-v2"
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-						>
-							Adopter Milo
-						</motion.button>
+					<Link to="/register" className="lp-btn lp-btn--primary lp-btn--sm">
+						Adopter Milo
 					</Link>
 				</div>
 
 				<button
 					type="button"
-					className="nav-burger"
+					className="lp-nav__burger"
 					onClick={() => setIsMenuOpen((open) => !open)}
 					aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
 					aria-expanded={isMenuOpen}
+					aria-controls="lp-mobile-menu"
 				>
 					{isMenuOpen ? <X size={26} /> : <Menu size={26} />}
 				</button>
@@ -165,52 +161,28 @@ const Navbar: React.FC = () => {
 			<AnimatePresence>
 				{isMenuOpen && (
 					<motion.div
-						className="nav-mobile-menu"
-						initial={{ opacity: 0, height: 0 }}
-						animate={{ opacity: 1, height: "auto" }}
-						exit={{ opacity: 0, height: 0 }}
+						id="lp-mobile-menu"
+						className="lp-nav__mobile"
+						initial={{ opacity: 0, y: -16, scale: 0.98 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{ opacity: 0, y: -12, scale: 0.98 }}
 						transition={{ duration: 0.25, ease: "easeOut" }}
 					>
-						<Link to="/" className={getPillClass("/")} onClick={closeMenu}>
-							Concept
-						</Link>
-						<a
-							href="/#enfants"
-							className={getPillClass("/", "enfants")}
-							onClick={closeMenu}
-						>
-							Pour les Enfants
-						</a>
-						<a
-							href="/#parents"
-							className={getPillClass("/", "parents")}
-							onClick={closeMenu}
-						>
-							Pour les Parents
-						</a>
-						<Link
-							to="/faq"
-							className={`pill-link ${location.pathname === "/faq" ? "active" : ""}`}
-							onClick={closeMenu}
-						>
-							FAQ
-						</Link>
-						<Link to="/contact" className="pill-link" onClick={closeMenu}>
-							Contact
-						</Link>
-
-						<div className="nav-mobile-actions">
-							<Link to="/login" onClick={closeMenu} style={{ textDecoration: "none" }}>
-								<button className="btn-login-v2">Connexion</button>
+						{NAV_ITEMS.map((item) => (
+							<React.Fragment key={item.label}>{renderLink(item, () => setIsMenuOpen(false))}</React.Fragment>
+						))}
+						<div className="lp-nav__mobile-actions">
+							<Link to="/login" className="lp-btn lp-btn--ghost">
+								Connexion
 							</Link>
-							<Link to="/register" onClick={closeMenu} style={{ textDecoration: "none" }}>
-								<button className="btn-signup-v2">Adopter Milo</button>
+							<Link to="/register" className="lp-btn lp-btn--primary">
+								Adopter Milo
 							</Link>
 						</div>
 					</motion.div>
 				)}
 			</AnimatePresence>
-		</motion.header>
+		</header>
 	);
 };
 

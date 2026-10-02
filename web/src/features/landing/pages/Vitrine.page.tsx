@@ -1,72 +1,64 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
-import Footer from "@features/landing/components/Footer/Footer.component";
+import React, { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@features/landing/components/Navbar/Navbar.component";
-import {
-	ArrowRight,
-	ChevronDown,
-	ChevronLeft,
-	ChevronRight,
-} from "lucide-react";
-import "../styles/Vitrine.css";
+import Footer from "@features/landing/components/Footer/Footer.component";
+import Hero from "@features/landing/components/Hero/Hero.component";
+import Manifesto from "@features/landing/components/Manifesto/Manifesto.component";
+import Bands from "@features/landing/components/Bands/Bands.component";
+import Missions from "@features/landing/components/Missions/Missions.component";
+import ParentsStack from "@features/landing/components/ParentsStack/ParentsStack.component";
+import FaqPreview from "@features/landing/components/FaqPreview/FaqPreview.component";
+import Pricing from "@features/landing/components/Pricing/Pricing.component";
+import FinalCta from "@features/landing/components/FinalCta/FinalCta.component";
+import { useSmoothScroll } from "@features/landing/hooks/useSmoothScroll";
+import { ScrollTrigger, gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
+import { scrollToSection } from "@features/landing/lib/smoothScroll";
+import "@features/landing/styles/landing.css";
+import "@features/landing/styles/Vitrine.css";
 
-const kidsFeatures = [
-	{
-		id: 1,
-		title: "Apprends à <span>ta façon</span>",
-		desc: "Importe tes propres cours pour que Milo s'adapte à la méthode de ton professeur. Profite d'exercices personnalisés selon tes centres d'intérêt et ta manière d'apprendre !",
-		items: [
-			"📚 Import de cours",
-			"🧠 Exercices sur mesure",
-			"🗂️ Flashcards intelligentes",
-		],
-		img: "/screen1.png",
-	},
-	{
-		id: 2,
-		title: "Défie tes <span>Amis</span>",
-		desc: "Rien de tel qu'un peu de compétition pour progresser ! Participe à des duels en temps réel, réponds aux quiz quotidiens et grimpe tout en haut de la ligue.",
-		items: [
-			"⚔️ Duels en direct",
-			"🏆 Ligues Bronze à Diamant",
-			"🎯 Quizz quotidiens",
-		],
-		img: "/screen2.png",
-	},
-	{
-		id: 3,
-		title: "Ton Milo, <span>ton Style</span>",
-		desc: "Gagne des pièces en réussissant tes quêtes et tes leçons. Utilise-les dans la boutique pour acheter des cosmétiques et personnaliser ton compagnon renard !",
-		items: [
-			"🦊 Mascotte unique",
-			"💰 Système de Coins",
-			"👕 Cosmétiques exclusifs",
-		],
-		img: "/screen3.png",
-	},
-];
-
+/// Page d'accueil publique.
+/// L'ordre des sections compte : les sections épinglées (Hero, Manifesto,
+/// Missions) créent leurs ScrollTrigger dans l'ordre de la page.
 const VitrinePage: React.FC = () => {
-	const [currentIndex, setCurrentIndex] = useState(0);
+	const root = useRef<HTMLDivElement>(null);
+	const { hash } = useLocation();
+	useSmoothScroll();
 
-	const nextFeature = () => {
-		setCurrentIndex((prev) => (prev + 1) % kidsFeatures.length);
-	};
+	// Barre de progression de lecture
+	useGSAP(
+		() => {
+			if (prefersReducedMotion()) return;
+			gsap.to(".lp-scroll-progress", {
+				scaleX: 1,
+				ease: "none",
+				scrollTrigger: { start: 0, end: "max", scrub: 0.3 },
+			});
+		},
+		{ scope: root },
+	);
 
-	const prevFeature = () => {
-		setCurrentIndex(
-			(prev) => (prev - 1 + kidsFeatures.length) % kidsFeatures.length,
-		);
-	};
+	// Les positions dépendent des polices (titres en Luckiest Guy)
+	useEffect(() => {
+		let cancelled = false;
+		document.fonts.ready.then(() => {
+			if (!cancelled) ScrollTrigger.refresh();
+		});
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	// Arrivée depuis une autre page sur une ancre (ex. /#parents)
+	useEffect(() => {
+		if (!hash) return;
+		const id = decodeURIComponent(hash.slice(1));
+		const timer = window.setTimeout(() => scrollToSection(id), 300);
+		return () => window.clearTimeout(timer);
+	}, [hash]);
 
 	return (
-		<div className="vitrine-root">
-			<div className="mesh-gradient">
-				<div className="blob blob-1"></div>
-				<div className="blob blob-2"></div>
-			</div>
-
+		<div className="lp lp-root" ref={root}>
+			<div className="lp-scroll-progress" aria-hidden="true" />
 			<Navbar />
 
 			<div className="hero-spacer"></div>
@@ -329,55 +321,9 @@ const VitrinePage: React.FC = () => {
 							</motion.button>
 						</Link>
 					</div>
-				</div>
-
-				{/* PARTIE 3 : ABONNEMENTS */}
-				<div className="pricing-section">
-					<div className="pricing-grid">
-						{/* PACK ESSENTIEL */}
-						<motion.div
-							className="price-card basic-pimped"
-							whileHover={{ y: -20 }}
-						>
-							<div className="badge-price-v3">Essentiel</div>
-							<div className="price-v3">
-								19€<span>/mois</span>
-							</div>
-							<ul className="price-features-v3">
-								<li>✨ Accès à tous les cours</li>
-								<li>🎯 Quiz / Flashcards illimités</li>
-								<li>🧠 Discussions avec Milo en illimité</li>
-								<li>⚔️ Accès aux Duels</li>
-								<li>👤 1 profil enfant et parent</li>
-							</ul>
-							<button className="btn-price-v3 basic btn-glint">
-								<span>C'est parti !</span>
-							</button>
-						</motion.div>
-
-						{/* PACK FAMILLE */}
-						<motion.div
-							className="price-card family-pimped featured"
-							whileHover={{ y: -20 }}
-						>
-							<div className="parent-choice-tag">🏆 CHOIX DES PARENTS</div>
-							<div className="badge-price-v3 blue">Famille</div>
-							<div className="price-v3 blue">
-								35€<span>/mois</span>
-							</div>
-							<ul className="price-features-v3">
-								<li>🌈 Tout le plan Essentiel</li>
-								<li>👨‍👩‍👧‍👦 Jusqu'à 4 enfants</li>
-								<li>📊 Dashboard Parent avancé</li>
-								<li>👔 Cosmétiques exclusives pour Milo</li>
-							</ul>
-							<button className="btn-price-v3 family btn-glint">
-								<span>Adopter Milo pour toute la famille !</span>
-							</button>
-						</motion.div>
-					</div>
-				</div>
-			</section>
+				</section>
+				<FinalCta />
+			</main>
 			<Footer />
 		</div>
 	);
