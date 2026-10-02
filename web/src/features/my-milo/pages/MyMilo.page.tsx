@@ -3,7 +3,7 @@ import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useGLTF, Environment, useAnimations } from "@react-three/drei";
+import { Environment, useAnimations } from "@react-three/drei";
 import {
 	WandSparkles,
 	Crown,
@@ -35,9 +35,11 @@ import {
 	useUnequipCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	prepareMiloScene,
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
 import { CosmeticVisual } from "@features/milo-shop/pages/MiloShop.page";
@@ -71,16 +73,25 @@ interface MiloModel3DProps {
 }
 
 const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
-	const { scene, animations } = useGLTF("/MiloV11.glb");
+	/// Copie dédiée : la rotation et la position posées ici resteraient sinon
+	/// sur la scène du .glb, partagée avec tous les autres écrans
+	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
 
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
+	/// Dès la phase de rendu, avant le premier frame : évite d'afficher Milo une
+	/// frame en T-pose avec tous les accessoires visibles
+	useMemo(() => {
+		if (scene) prepareMiloScene(scene);
+	}, [scene]);
+
 	useEffect(() => {
 		if (!scene) return;
 		applyEquippedAccessories(scene, equippedMeshNames);
 		applyAngelCircleGlow(scene);
+		scene.visible = true;
 	}, [scene, equippedMeshNames, accessoryMeshNames]);
 
 	useEffect(() => {
