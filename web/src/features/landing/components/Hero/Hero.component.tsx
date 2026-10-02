@@ -261,7 +261,6 @@ const Hero: React.FC = () => {
 					</div>
 					<div className="lp-hero__milo">
 						<span className="lp-hero__trail" aria-hidden="true" />
-						<img className="lp-hero__fallback" src="/landing/milo-reading.webp" alt="Milo, le renard mascotte" />
 						<HeroScene3D reducedMotion={reducedMotion} onReady={onSceneReady} />
 					</div>
 					<HeroBubble enabled={!reducedMotion} />
