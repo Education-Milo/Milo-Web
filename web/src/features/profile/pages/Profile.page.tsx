@@ -24,8 +24,7 @@ import {
 import "@features/profile/styles/ProfilePage.css";
 import { useProfilePage } from "@features/profile/hooks/useProfilePage";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import MiloAvatar from "@shared/components/MiloAvatar.component";
-import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
 
 const CLASSES = [
 	{ value: "6eme", label: "6ème" },
@@ -63,13 +62,6 @@ const ProfilePage: React.FC = () => {
 	};
 
 
-	const initials =
-		`${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase() ||
-		"?";
-
-	/// Son propre Milo : tenue équipée d'après GET /user/{id}/locker/equipped
-	const { equippedMeshNames } = useEquippedMeshNames();
-
 	const classeLabel =
 		CLASSES.find((c) => c.value === profile.classe)?.label ?? "Non renseignée";
 
@@ -89,20 +81,6 @@ const ProfilePage: React.FC = () => {
 				{/* --- HERO --- */}
 				<section className="pf-hero">
 					<div className="pf-hero-halo" aria-hidden="true" />
-
-					<div className="pf-avatar-wrap">
-						<span className="pf-avatar-ring" aria-hidden="true" />
-						<div className="pf-avatar">
-							<MiloAvatar
-								equippedMeshNames={equippedMeshNames}
-								initials={initials}
-								className="pf-avatar-initials"
-							/>
-						</div>
-						<span className="pf-avatar-badge">
-							<Zap size={12} />1
-						</span>
-					</div>
 
 					<div className="pf-hero-content">
 						<div className="pf-hero-chip">
@@ -132,6 +110,12 @@ const ProfilePage: React.FC = () => {
 								<div className="pf-xp-fill" style={{ width: "4%" }} />
 							</div>
 						</div>
+					</div>
+
+					{/* Le Milo du joueur, en 3D : même composant et même cadrage
+					    que la carte de bienvenue de l'accueil */}
+					<div className="pf-hero-illustration" aria-hidden="true">
+						<MiloWelcome3D />
 					</div>
 				</section>
 
