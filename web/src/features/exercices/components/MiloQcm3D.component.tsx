@@ -10,14 +10,17 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	MILO_MODEL_PATH,
 	applyEquippedAccessories,
 	updateAngelCircleGlow,
 	cameraDistanceFor,
 	findAction,
+	findFirstAction,
 	fitMiloToHeight,
 	prepareMiloScene,
+	warnClipFallbackOnce,
 } from "@features/my-milo/utils/miloModel";
 import {
 	MILO_QCM_CLIPS,
@@ -51,7 +54,7 @@ function MiloModel({
 	onReady: () => void;
 }) {
 	const group = useRef<THREE.Group>(null);
-	const { scene, animations } = useGLTF(MILO_MODEL_PATH);
+	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, group);
 	const { invalidate } = useThree();
 
@@ -71,25 +74,38 @@ function MiloModel({
 		applyEquippedAccessories(scene, equippedMeshNames);
 	}, [scene, equippedMeshNames]);
 
-	/// Résout un nom de clip en action, avec repli sur l'animation d'attente
-	/// puis sur le premier clip du modèle : un nom mal orthographié ne doit
-	/// jamais laisser Milo figé ou invisible
-	const resolveAction = useCallback(
-		(clipName: string) => {
-			const action = findAction(actions, clipName);
-			if (action) return action;
+	/// Animation d'attente : la seule qui tourne en boucle. Repli sur le premier
+	/// clip du modèle pour qu'un renommage ne laisse jamais Milo en T-pose.
+	const idleAction = useCallback(
+		() =>
+			findFirstAction(actions, MILO_QCM_CLIPS.waiting) ??
+			findAction(actions, Object.keys(actions)[0] ?? ""),
+		[actions],
+	);
 
-			if (import.meta.env.DEV) {
+	/// Réaction à une réponse, ou null si aucun des clips candidats n'existe.
+	///
+	/// Surtout : pas de repli sur l'attente. Une réaction se joue une fois et
+	/// se fige sur sa dernière frame ; y renvoyer l'attente la figeait elle
+	/// aussi, et le retour à la boucle était alors un fondu de l'attente vers
+	/// elle-même — c'est-à-dire rien. Milo ne bougeait plus jusqu'au
+	/// rechargement de la page.
+	const resolveReaction = useCallback(
+		(state: MiloQcmState) => {
+			const candidates = MILO_QCM_CLIPS[state];
+			const action = findFirstAction(actions, candidates);
+			const played = action?.getClip().name ?? "";
+			if (action && played.toLowerCase() !== candidates[0].toLowerCase()) {
+				warnClipFallbackOnce("MiloQcm3D", candidates[0], played);
+			}
+			if (!action && import.meta.env.DEV) {
 				console.warn(
-					`[MiloQcm3D] Animation "${clipName}" introuvable. Clips disponibles : ${Object.keys(
-						actions,
-					).join(", ")}`,
+					`[MiloQcm3D] Aucun clip pour l'état "${state}" (essayés : ${MILO_QCM_CLIPS[
+						state
+					].join(", ")}). Clips du modèle : ${Object.keys(actions).join(", ")}`,
 				);
 			}
-			return (
-				findAction(actions, MILO_QCM_CLIPS.waiting) ??
-				findAction(actions, Object.keys(actions)[0] ?? "")
-			);
+			return action;
 		},
 		[actions],
 	);
@@ -100,7 +116,13 @@ function MiloModel({
 		(next: THREE.AnimationAction | null, once: boolean) => {
 			if (!next) return;
 			const prev = currentRef.current;
-			if (prev === next && !once) return;
+			/// Déjà en train de boucler sur cette animation : la relancer
+			/// provoquerait un saut à sa première frame. En revanche si elle
+			/// est à l'arrêt — clampée par un LoopOnce, mise en pause — il faut
+			/// bel et bien la remettre en boucle.
+			const alreadyLooping =
+				prev === next && next.isRunning() && next.loop === THREE.LoopRepeat;
+			if (!once && alreadyLooping) return;
 
 			next.reset();
 			next.enabled = true;
@@ -130,24 +152,32 @@ function MiloModel({
 	/// Une réaction (bonne/mauvaise réponse) se joue une fois, l'attente boucle
 	useEffect(() => {
 		if (!actions || Object.keys(actions).length === 0) return;
-		const isReaction = state !== "waiting";
-		const action = resolveAction(MILO_QCM_CLIPS[state]);
-		reactionRef.current = isReaction ? action : null;
-		fadeTo(action, isReaction);
-	}, [state, actions, resolveAction, fadeTo]);
+		const idle = idleAction();
+		const reaction = state === "waiting" ? null : resolveReaction(state);
+
+		/// Pas de réaction jouable, ou c'est l'attente elle-même : on reste
+		/// simplement en boucle d'attente
+		if (!reaction || reaction === idle) {
+			reactionRef.current = null;
+			fadeTo(idle, false);
+			return;
+		}
+		reactionRef.current = reaction;
+		fadeTo(reaction, true);
+	}, [state, actions, idleAction, resolveReaction, fadeTo]);
 
 	/// Fin d'une réaction : retour à l'animation d'attente
 	useEffect(() => {
 		const onFinished = (event: { action: THREE.AnimationAction }) => {
 			if (event.action !== reactionRef.current) return;
 			reactionRef.current = null;
-			fadeTo(resolveAction(MILO_QCM_CLIPS.waiting), false);
+			fadeTo(idleAction(), false);
 		};
 		mixer.addEventListener("finished", onFinished);
 		return () => {
 			mixer.removeEventListener("finished", onFinished);
 		};
-	}, [mixer, fadeTo, resolveAction]);
+	}, [mixer, fadeTo, idleAction]);
 
 	/// Cadrage : indépendant de la pose, calculé une fois le modèle chargé
 	useEffect(() => {
@@ -159,8 +189,16 @@ function MiloModel({
 	}, [scene, invalidate, onReady]);
 
 	/// L'animation d'attente tourne en boucle : on rend en continu
-	useFrame((state) => {
-		updateAngelCircleGlow(scene, state.clock.elapsedTime);
+	useFrame((frameState) => {
+		/// Garde-fou : si plus rien ne tourne — clip manquant, fondu interrompu,
+		/// onglet réveillé au mauvais moment — Milo resterait figé sur sa
+		/// dernière frame. On relance l'attente.
+		const current = currentRef.current;
+		if (current && !current.isRunning()) {
+			reactionRef.current = null;
+			fadeTo(idleAction(), false);
+		}
+		updateAngelCircleGlow(scene, frameState.clock.elapsedTime);
 		invalidate();
 	});
 

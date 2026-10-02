@@ -2,14 +2,16 @@ import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } fr
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
-import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
+import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	MILO_MODEL_PATH,
 	applyEquippedAccessories,
 	cameraDistanceFor,
 	findAction,
+	findFirstAction,
 	fitMiloToHeight,
 	prepareMiloScene,
+	warnClipFallbackOnce,
 } from "@features/my-milo/utils/miloModel";
 import {
 	MILO_QCM_CLIPS,
@@ -55,10 +57,9 @@ function MiloModel({
 	onReady,
 }: Omit<DuelMilo3DProps, "className"> & { onReady: () => void }) {
 	const group = useRef<THREE.Group>(null);
-	const { scene: template, animations } = useGLTF(MILO_MODEL_PATH);
-	/// Deux Milo peuvent être à l'écran : chaque instance clone la scène,
-	/// sinon les deux modèles partageraient os et visibilité des accessoires.
-	const scene = useMemo(() => SkeletonUtils.clone(template), [template]);
+	/// Deux Milo sont à l'écran : chacun travaille sur sa propre copie, sinon
+	/// les deux modèles partageraient os et visibilité des accessoires.
+	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
 	const { invalidate } = useThree();
 
@@ -83,6 +84,7 @@ function MiloModel({
 		[onBusyChange],
 	);
 
+	/// Clip nommé, ou null s'il n'existe pas dans le modèle
 	const resolveAction = useCallback(
 		(clipName: string) => {
 			const action = findAction(actions, clipName);
@@ -98,15 +100,43 @@ function MiloModel({
 	);
 
 	const idleAction = useCallback(
-		() => resolveAction(MILO_QCM_CLIPS.waiting) ?? findAction(actions, Object.keys(actions)[0] ?? ""),
-		[actions, resolveAction],
+		() =>
+			findFirstAction(actions, MILO_QCM_CLIPS.waiting) ??
+			findAction(actions, Object.keys(actions)[0] ?? ""),
+		[actions],
+	);
+
+	/// Réaction à une réponse, ou null si aucun clip candidat n'existe. Pas de
+	/// repli sur l'attente : une réaction est jouée une fois puis clampée sur sa
+	/// dernière frame, et y envoyer l'attente la figeait définitivement.
+	const resolveReaction = useCallback(
+		(state: MiloQcmState) => {
+			const candidates = MILO_QCM_CLIPS[state];
+			const action = findFirstAction(actions, candidates);
+			const played = action?.getClip().name ?? "";
+			if (action && played.toLowerCase() !== candidates[0].toLowerCase()) {
+				warnClipFallbackOnce("DuelMilo3D", candidates[0], played);
+			}
+			if (!action && import.meta.env.DEV) {
+				console.warn(
+					`[DuelMilo3D] Aucun clip pour l'état "${state}" (essayés : ${MILO_QCM_CLIPS[state].join(", ")}).`,
+				);
+			}
+			return action;
+		},
+		[actions],
 	);
 
 	const fadeTo = useCallback(
 		(next: THREE.AnimationAction | null, once: boolean) => {
 			if (!next) return;
 			const prev = currentRef.current;
-			if (prev === next && !once) return;
+			/// Déjà en boucle sur cette animation : la relancer la ferait sauter à
+			/// sa première frame. Si elle est à l'arrêt (clampée par un LoopOnce),
+			/// il faut au contraire la remettre en boucle.
+			const alreadyLooping =
+				prev === next && next.isRunning() && next.loop === THREE.LoopRepeat;
+			if (!once && alreadyLooping) return;
 
 			next.reset();
 			next.enabled = true;
@@ -140,11 +170,20 @@ function MiloModel({
 			if (!oneShotRef.current) fadeTo(idleAction(), false);
 			return;
 		}
-		const action = resolveAction(MILO_QCM_CLIPS[state]) ?? idleAction();
+		const idle = idleAction();
+		const action = resolveReaction(state);
+		/// Rien à jouer pour cet état : on reste en attente et Milo reste
+		/// disponible pour les émotes
+		if (!action || action === idle) {
+			oneShotRef.current = null;
+			setBusy(false);
+			fadeTo(idle, false);
+			return;
+		}
 		oneShotRef.current = action;
 		setBusy(true);
 		fadeTo(action, true);
-	}, [state, actions, resolveAction, idleAction, fadeTo, setBusy]);
+	}, [state, actions, resolveReaction, idleAction, fadeTo, setBusy]);
 
 	/// Danse reçue : jouée une fois si Milo est libre
 	useEffect(() => {
@@ -181,7 +220,20 @@ function MiloModel({
 		onReady();
 	}, [scene, invalidate, onReady]);
 
-	useFrame(() => invalidate());
+	useFrame(() => {
+		/// Garde-fou : plus aucune animation active veut dire Milo figé sur sa
+		/// dernière frame — et, s'il restait une réaction en cours, plus aucune
+		/// émote acceptée. On repart de l'attente.
+		const current = currentRef.current;
+		if (current && !current.isRunning()) {
+			if (oneShotRef.current) {
+				oneShotRef.current = null;
+				setBusy(false);
+			}
+			fadeTo(idleAction(), false);
+		}
+		invalidate();
+	});
 
 	const rotationY = facing === "left" ? -0.35 : 0.35;
 

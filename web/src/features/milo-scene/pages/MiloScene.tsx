@@ -37,9 +37,11 @@ import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedM
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	prepareMiloScene,
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
 import {
@@ -58,11 +60,20 @@ interface MiloModelProps {
 
 function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
-	const { scene, animations } = useGLTF(modelPath);
+	/// Copie dédiée à la salle de classe. Montée telle quelle, la scène du .glb
+	/// — partagée avec tous les écrans — gardait la rotation posée ici, et Milo
+	/// apparaissait de travers sur la page d'accueil au retour.
+	const { scene, animations } = useMiloInstance(modelPath);
 	const { actions } = useAnimations(animations, group);
 	const prevAnimation = useRef<string | null>(null);
 
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
+
+	/// Dès la phase de rendu : masque les accessoires non équipés et désactive
+	/// le frustum culling (sinon les petits maillages du visage disparaissent)
+	useMemo(() => {
+		if (scene) prepareMiloScene(scene);
+	}, [scene]);
 
 	useEffect(() => {
 		if (!scene) return;
@@ -96,6 +107,9 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 		if (!scene) return;
 		applyEquippedAccessories(scene, equippedMeshNames);
 		applyAngelCircleGlow(scene);
+		/// Masqué par prepareMiloScene le temps que la pose et les accessoires
+		/// soient posés
+		scene.visible = true;
 	}, [scene, equippedMeshNames, accessoryMeshNames]);
 
 	/// La salle de classe rend en continu : l'auréole peut y battre

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-/// Modèle 3D de Milo. Contient les clips : Arrival, Disapointed, Explaining,
-/// HatLook, Hello, Idle, Thinking, Wrong.
+/// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
+/// Explaining, HatLook, Hello, Idle, Thinking, Wrong.
 export const MILO_MODEL_PATH = "/MiloV11.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
@@ -15,14 +15,16 @@ export const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses
 
 /// Clips d'animation présents dans MiloV11.glb. Une danse (cosmétique de
 /// type "dance") référence l'un d'eux dans son champ `mesh_name`.
+/// Liste tenue à jour d'après le .glb lui-même : un clip qui n'y figure pas
+/// ne joue jamais, la case de la boutique resterait vide.
 export const KNOWN_ANIMATION_CLIPS = [
+	"67",
 	"Arrival",
 	"Disapointed",
 	"Explaining",
 	"HatLook",
 	"Hello",
 	"Idle",
-	"Success",
 	"Thinking",
 	"Wrong",
 ];
@@ -206,6 +208,35 @@ export function findAction(
 	return key ? (actions[key] ?? null) : null;
 }
 
+const warnedFallbacks = new Set<string>();
+
+/// Prévient une fois par clip, en développement, quand l'animation souhaitée
+/// n'est pas dans le .glb et qu'un remplaçant est joué à sa place. Sans ça, le
+/// repli est invisible : on croit avoir configuré un clip qui ne joue jamais.
+export function warnClipFallbackOnce(label: string, wanted: string, used: string) {
+	if (!import.meta.env.DEV) return;
+	const key = `${label}:${wanted}`;
+	if (warnedFallbacks.has(key)) return;
+	warnedFallbacks.add(key);
+	console.warn(
+		`[${label}] Le clip "${wanted}" n'existe pas dans ${MILO_MODEL_PATH} — "${used}" est joué à la place.`,
+	);
+}
+
+/// Première action existante parmi plusieurs noms de clips candidats, ou null.
+/// Permet de viser un clip pas encore exporté dans le .glb tout en gardant un
+/// remplaçant jouable en attendant.
+export function findFirstAction(
+	actions: Record<string, THREE.AnimationAction | null>,
+	clipNames: readonly string[],
+) {
+	for (const clipName of clipNames) {
+		const action = findAction(actions, clipName);
+		if (action) return action;
+	}
+	return null;
+}
+
 /* ==========================================================================
    AURÉOLE — éclat lumineux, appliqué à ce seul maillage
    ========================================================================== */
@@ -243,16 +274,23 @@ export function applyAngelCircleGlow(scene: THREE.Object3D) {
 		if (!mesh.isMesh || mesh.name === HALO_NAME) return;
 
 		const material = mesh.material as THREE.MeshStandardMaterial;
-		if (!material || material.userData[GLOW_FLAG]) return;
+		if (!material) return;
 
-		material.emissive = new THREE.Color(GLOW_COLOR);
-		material.emissiveIntensity = GLOW_BASE;
-		/// Sans ça, le tone mapping ACES écrase l'éclat et l'anneau redevient
-		/// un simple objet doré
-		material.toneMapped = false;
-		material.userData[GLOW_FLAG] = true;
-		material.needsUpdate = true;
+		/// Les clones de Milo partagent les matériaux du modèle en cache : on ne
+		/// traite celui-ci qu'une fois, sinon on empile les traitements
+		if (!material.userData[GLOW_FLAG]) {
+			material.emissive = new THREE.Color(GLOW_COLOR);
+			material.emissiveIntensity = GLOW_BASE;
+			/// Sans ça, le tone mapping ACES écrase l'éclat et l'anneau redevient
+			/// un simple objet doré
+			material.toneMapped = false;
+			material.userData[GLOW_FLAG] = true;
+			material.needsUpdate = true;
+		}
 
+		/// L'enveloppe, elle, est un objet de la scène : chaque Milo affiché a
+		/// besoin de la sienne. La poser sous condition du matériau privait de
+		/// halo tous les clones sauf le premier.
 		if (mesh.getObjectByName(HALO_NAME)) return;
 
 		/// Enveloppe additive : c'est elle qui donne le débordement lumineux
