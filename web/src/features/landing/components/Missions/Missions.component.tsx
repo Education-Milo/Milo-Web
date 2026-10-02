@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
-import Eyebrow from "@features/landing/ui/Eyebrow.component";
 import { MISSIONS, SECTION_IDS } from "@features/landing/data/landing.data";
-import { MEDIA_DESKTOP_PIN, MEDIA_NO_PIN, gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
+import { MEDIA_DESKTOP_PIN, MEDIA_NO_PIN, ScrollTrigger, gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle } from "@features/landing/lib/animations";
 import { scrollToY } from "@features/landing/lib/smoothScroll";
 import "@features/landing/components/Missions/Missions.css";
@@ -61,7 +60,6 @@ const Missions: React.FC = () => {
 						end: () => "+=" + window.innerHeight * (count - 0.2),
 						pin: true,
 						scrub: 0.8,
-						snap: { snapTo: 1 / (count - 1), duration: { min: 0.25, max: 0.7 }, ease: "power2.inOut", delay: 0.08 },
 						onUpdate: (self) => setCurrent(Math.round(self.progress * (count - 1))),
 					},
 				});
@@ -84,6 +82,17 @@ const Missions: React.FC = () => {
 					gsap.to(img, { y: k % 2 ? 12 : -12, duration: 2 + (k % 3) * 0.4, repeat: -1, yoyo: true, ease: "sine.inOut" }),
 				);
 
+				// Aimantation sur la mission la plus proche quand le scroll s'arrête.
+				// Le `snap` de ScrollTrigger fait défiler la page lui-même et se bat
+				// avec Lenis (à-coups, surtout en remontant) : on passe par Lenis.
+				const snapToMission = () => {
+					const st = tl.scrollTrigger;
+					if (!st?.isActive) return;
+					const target = st.start + (st.end - st.start) * (Math.round(st.progress * (count - 1)) / (count - 1));
+					if (Math.abs(st.scroll() - target) > 2) scrollToY(target, 0.7);
+				};
+				ScrollTrigger.addEventListener("scrollEnd", snapToMission);
+
 				const handlers = dots.map((dot, j) => {
 					const onClick = () => {
 						const st = tl.scrollTrigger;
@@ -94,6 +103,7 @@ const Missions: React.FC = () => {
 				});
 
 				return () => {
+					ScrollTrigger.removeEventListener("scrollEnd", snapToMission);
 					section.classList.remove(PINNED_CLASS);
 					dots.forEach((dot, j) => dot.removeEventListener("click", handlers[j]));
 				};
@@ -135,7 +145,6 @@ const Missions: React.FC = () => {
 				</div>
 
 				<div className="lp-missions__head">
-					<Eyebrow>Pour les enfants</Eyebrow>
 					<h2 className="lp-display lp-section-title lp-missions__title">
 						Choisis ta <span className="lp-hl">mission</span>
 					</h2>
@@ -158,7 +167,6 @@ const Missions: React.FC = () => {
 							</div>
 							<div className="lp-mission__text">
 								<span className="lp-mission__badge">
-									<span className="lp-mission__pulse" aria-hidden="true" />
 									MISSION {i + 1}/{count}
 								</span>
 								<h3 className="lp-display">

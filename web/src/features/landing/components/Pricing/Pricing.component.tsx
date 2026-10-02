@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
-import Eyebrow from "@features/landing/ui/Eyebrow.component";
 import { PLANS, SECTION_IDS } from "@features/landing/data/landing.data";
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle } from "@features/landing/lib/animations";
@@ -65,7 +64,6 @@ const Pricing: React.FC = () => {
 	return (
 		<div className="lp-pricing" id={SECTION_IDS.pricing} ref={root}>
 			<div className="lp-section-head">
-				<Eyebrow>Abonnements</Eyebrow>
 				<h2 className="lp-display lp-section-title lp-pricing__title">
 					Adopte <span className="lp-hl">Milo</span>
 				</h2>

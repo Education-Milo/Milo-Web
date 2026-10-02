@@ -2,7 +2,6 @@ import React, { useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
-import Eyebrow from "@features/landing/ui/Eyebrow.component";
 import { FAQ_PREVIEW, SECTION_IDS } from "@features/landing/data/landing.data";
 import type { Emoji3DName } from "@features/landing/data/landing.data";
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
@@ -74,7 +73,6 @@ const FaqPreview: React.FC = () => {
 		<div className="lp-faq" id={SECTION_IDS.faq} ref={root}>
 			<div className="lp-faq__intro">
 				<Emoji3D name="speech_balloon" className="lp-faq__hero-icon" />
-				<Eyebrow>Confiance</Eyebrow>
 				<h2 className="lp-display lp-section-title lp-faq__title">
 					Questions &amp; <span className="lp-hl">réponses</span>
 				</h2>

@@ -15,7 +15,7 @@
 
 .lp-bands__band--front {
 	z-index: 2;
-	background: var(--lp-vermillon);
+	background: linear-gradient(90deg, var(--lp-mandarine) 0%, var(--lp-orange) 35%, var(--lp-brique) 70%, var(--lp-vermillon) 100%);
 	transform: translateY(-50%) rotate(-2.5deg);
 	box-shadow: 0 10px 0 var(--lp-braise);
 }

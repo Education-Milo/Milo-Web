@@ -88,16 +88,6 @@
 	color: var(--lp-ink-2);
 }
 
-.lp-footer__dot {
-	display: inline-block;
-	width: 8px;
-	height: 8px;
-	border-radius: 50%;
-	background: var(--lp-foret);
-	margin-right: 0.45rem;
-	vertical-align: 1px;
-}
-
 @media (max-width: 960px) {
 	.lp-footer__grid {
 		grid-template-columns: minmax(0, 1fr);

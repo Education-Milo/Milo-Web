@@ -6,8 +6,8 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { heroState } from "@features/landing/lib/heroState";
 
 /// Jouets 3D procéduraux qui flottent autour de Milo (palette de la charte).
-/// Ils suivent la souris, tournent plus vite au survol et s'écartent quand
-/// on quitte le hero (heroState.progress).
+/// Ils suivent la souris, tournent plus vite au survol, puis s'écartent et
+/// s'effacent quand on quitte le hero (heroState.progress).
 
 const C = {
 	creme: "#F6EBDF",
@@ -232,7 +232,10 @@ const FloatingToy: React.FC<FloatingToyProps> = ({ position, spin, rotation, sca
 			(y + float) * (1 + p * 0.5) * ease - heroState.pointerY * (0.1 + z * 0.2),
 			z + p * 1.5,
 		);
-		object.scale.setScalar(scale * ease * (1 - p * 0.3));
+		// Les jouets s'effacent avant que la fusée n'emporte la toile
+		const size = scale * ease * (1 - p);
+		object.visible = size > 0.001;
+		object.scale.setScalar(Math.max(size, 0.001));
 
 		boost.current *= 0.96;
 		if (!reducedMotion) {

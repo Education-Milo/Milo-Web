@@ -43,8 +43,7 @@ const Footer: React.FC = () => (
 				<div className="lp-footer__brand">
 					<img className="lp-footer__logo" src="/landing/logo-milo-3d.webp" alt="Milo" loading="lazy" />
 					<p>
-						L'IA qui transforme les révisions en une aventure épique pour les enfants et en sérénité pour
-						les parents.
+						Milo transforme les révisions en jeu pour les collégiens, et les parents suivent leurs progrès.
 					</p>
 					<div className="lp-footer__socials">
 						{SOCIALS.map(({ href, label, Icon }) => (
@@ -71,10 +70,7 @@ const Footer: React.FC = () => (
 
 			<div className="lp-footer__bottom">
 				<span>© {new Date().getFullYear()} — Milo Education</span>
-				<span>
-					<span className="lp-footer__dot" aria-hidden="true" />
-					Donner à chaque élève le pouvoir de réussir.
-				</span>
+				<span>Donner à chaque élève le pouvoir de réussir.</span>
 			</div>
 		</div>
 	</footer>
