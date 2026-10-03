@@ -1,44 +1,12 @@
-import React, { useId, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
+import FaqItem from "@features/landing/ui/FaqItem.component";
 import { FAQ_PREVIEW, SECTION_IDS } from "@features/landing/data/landing.data";
-import type { Emoji3DName } from "@features/landing/data/landing.data";
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle, revealUp } from "@features/landing/lib/animations";
 import "@features/landing/components/FaqPreview/FaqPreview.css";
-
-interface FaqItemProps {
-	question: string;
-	answer: string;
-	icon: Emoji3DName;
-}
-
-/// Une question : son état d'ouverture lui appartient (un hook par composant)
-const FaqItem: React.FC<FaqItemProps> = ({ question, answer, icon }) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const panelId = useId();
-	return (
-		<div className={`lp-faq__item${isOpen ? " is-open" : ""}`}>
-			<h3>
-				<button type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => setIsOpen((open) => !open)}>
-					<span className="lp-faq__icon" aria-hidden="true">
-						<Emoji3D name={icon} />
-					</span>
-					<span>{question}</span>
-					<span className="lp-faq__chevron" aria-hidden="true">
-						<ChevronDown size={20} />
-					</span>
-				</button>
-			</h3>
-			<div className="lp-faq__panel" id={panelId} role="region">
-				<div>
-					<p>{answer}</p>
-				</div>
-			</div>
-		</div>
-	);
-};
 
 /// Aperçu des questions des parents, avec un lien vers la FAQ complète
 const FaqPreview: React.FC = () => {
@@ -57,7 +25,7 @@ const FaqPreview: React.FC = () => {
 				ease: "back.out(2.2)",
 				scrollTrigger: { trigger: root.current, start: "top 80%", once: true },
 			});
-			gsap.from(q(".lp-faq__item"), {
+			gsap.from(q(".lp-faq-item"), {
 				x: 80,
 				opacity: 0,
 				duration: 0.7,

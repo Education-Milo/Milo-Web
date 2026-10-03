@@ -1,44 +1,27 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-	Send,
-	MessageSquare,
-	User,
-	Mail,
-	HelpCircle,
-	Sparkles,
-	Star,
-	Heart,
-	CheckCircle2,
-	AlertCircle,
-} from "lucide-react";
-import "../styles/Contact.css";
-import Footer from "@features/landing/components/Footer/Footer.component";
-import Navbar from "@features/landing/components/Navbar/Navbar.component";
+import { AlertCircle, ArrowRight, CheckCircle2, HelpCircle, Mail, MessageSquare, Send, User } from "lucide-react";
+import SubPage from "@features/landing/components/SubPage/SubPage.component";
+import PageHero from "@features/landing/components/SubPage/PageHero.component";
+import Emoji3D from "@features/landing/ui/Emoji3D.component";
+import { CONTACT_EMAIL, CONTACT_SUBJECTS } from "@features/landing/data/landing.data";
+import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
+import { revealTitle } from "@features/landing/lib/animations";
+import "@features/landing/styles/Contact.css";
 
-const CONTACT_EMAIL = "miloeducationeip@gmail.com";
-const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as
-	| string
-	| undefined;
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
 
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
 
+const EMPTY_FORM = { name: "", email: "", subject: CONTACT_SUBJECTS[0].value, message: "" };
+
 const ContactPage: React.FC = () => {
-	const [focused, setFocused] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
-		name: "",
-		email: "",
-		subject: "info",
-		message: "",
-	});
+	const body = useRef<HTMLDivElement>(null);
+	const [formData, setFormData] = useState(EMPTY_FORM);
 	const [status, setStatus] = useState<SubmitStatus>("idle");
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const handleChange = (
-		field: keyof typeof formData,
-		value: string
-	) => {
+	const handleChange = (field: keyof typeof formData, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
@@ -53,10 +36,7 @@ const ContactPage: React.FC = () => {
 
 		if (!WEB3FORMS_ACCESS_KEY) {
 			setStatus("error");
-			setErrorMessage(
-				"L'envoi n'est pas encore configuré. Contacte-nous directement à " +
-					CONTACT_EMAIL
-			);
+			setErrorMessage("L'envoi n'est pas encore configuré. Contacte-nous directement à " + CONTACT_EMAIL);
 			return;
 		}
 
@@ -84,194 +64,172 @@ const ContactPage: React.FC = () => {
 
 			if (result.success) {
 				setStatus("success");
-				setFormData({ name: "", email: "", subject: "info", message: "" });
+				setFormData(EMPTY_FORM);
 			} else {
 				setStatus("error");
-				setErrorMessage(
-					result.message || "Une erreur est survenue, réessaie plus tard."
-				);
+				setErrorMessage(result.message || "Une erreur est survenue, réessaie plus tard.");
 			}
 		} catch {
 			setStatus("error");
-			setErrorMessage(
-				"Impossible d'envoyer le message pour le moment. Réessaie plus tard."
-			);
+			setErrorMessage("Impossible d'envoyer le message pour le moment. Réessaie plus tard.");
 		}
 	};
 
+	useGSAP(
+		() => {
+			if (prefersReducedMotion()) return;
+			const q = gsap.utils.selector(body);
+			revealTitle(q(".lp-contact-form__title")[0]);
+			gsap.from(q(".lp-contact-form"), { y: 60, opacity: 0, duration: 0.9, ease: "power3.out", delay: 0.2 });
+			gsap.from(q(".lp-contact-aside > *"), {
+				x: 60,
+				opacity: 0,
+				duration: 0.8,
+				stagger: 0.12,
+				delay: 0.35,
+				ease: "power3.out",
+			});
+			gsap.from(q(".lp-contact-mail__milo"), {
+				yPercent: 45,
+				rotate: -10,
+				duration: 1,
+				delay: 0.7,
+				ease: "back.out(1.6)",
+			});
+		},
+		{ scope: body },
+	);
+
+	const hero = (
+		<PageHero
+			icon="fox"
+			floats={["speech_balloon", "star"]}
+			eyebrow="On discute ?"
+			title={
+				<>
+					Une question pour <span className="lp-hl">Milo</span>&nbsp;?
+				</>
+			}
+			lead="On adore recevoir du courrier. Que ce soit pour un bug, une idée de génie ou tout autre demande, n'hésite pas à nous contacter !"
+		/>
+	);
+
 	return (
-		<div className="contact-root">
-			<div className="contact-mesh"></div>
+		<SubPage hero={hero}>
+			<div className="lp-contact" ref={body}>
+				<form className="lp-contact-form" onSubmit={handleSubmit}>
+					<h2 className="lp-display lp-contact-form__title">Écris-nous</h2>
 
-			<Navbar />
-
-			<main className="contact-main">
-				<motion.div
-					className="faq-suggestion-banner"
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.3 }}
-				>
-					<div className="faq-badge">ASTUCE</div>
-					<p>
-						Une question pressante ? N'hésitez pas à jeter un œil à notre{" "}
-						<strong>
-							<Link to="/faq">FAQ</Link>
-						</strong>
-						, la réponse s'y trouve peut-être déjà !
-					</p>
-				</motion.div>
-
-				<motion.div
-					className="deco-star"
-					animate={{ rotate: 360 }}
-					transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-				>
-					<Star fill="var(--milo-orange)" color="var(--milo-orange)" size={40} />
-				</motion.div>
-				<motion.div
-					className="deco-heart"
-					animate={{ y: [0, -20, 0] }}
-					transition={{ duration: 4, repeat: Infinity }}
-				>
-					<Heart fill="var(--milo-orange)" color="var(--milo-orange)" size={30} />
-				</motion.div>
-
-				<motion.div
-					className="contact-glass-card"
-					initial={{ opacity: 0, scale: 0.95 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ type: "spring", stiffness: 100, damping: 15 }}
-				>
-					<div className="contact-intro">
-						<div className="badge-talk">
-							<Sparkles size={14} /> On discute ?
-						</div>
-						<h1>
-							Une question pour <span>Milo ?</span>
-						</h1>
-						<p>
-							On adore recevoir du courrier. Que ce soit pour un bug, une idée
-							de génie ou tout autre demande n'hésite pas à nous contacter !
-						</p>
+					<div className="lp-contact-form__row">
+						<label className="lp-field">
+							<span className="lp-field__label">
+								<User size={16} aria-hidden="true" /> Ton nom
+							</span>
+							<input
+								type="text"
+								placeholder="Nom et prénom"
+								autoComplete="name"
+								value={formData.name}
+								onChange={(e) => handleChange("name", e.target.value)}
+								required
+							/>
+						</label>
+						<label className="lp-field">
+							<span className="lp-field__label">
+								<Mail size={16} aria-hidden="true" /> Ton email
+							</span>
+							<input
+								type="email"
+								placeholder="ton-email@gmail.com"
+								autoComplete="email"
+								value={formData.email}
+								onChange={(e) => handleChange("email", e.target.value)}
+								required
+							/>
+						</label>
 					</div>
 
-					<form className="pimped-form" onSubmit={handleSubmit}>
-						<div className="form-row">
-							<div
-								className={`pimped-group ${focused === "name" ? "focused" : ""}`}
-							>
-								<label>
-									<User size={14} /> Ton nom
+					<fieldset className="lp-field lp-subjects">
+						<legend className="lp-field__label">
+							<HelpCircle size={16} aria-hidden="true" /> De quoi s'agit-il ?
+						</legend>
+						<div className="lp-subjects__grid">
+							{CONTACT_SUBJECTS.map((subject) => (
+								<label
+									key={subject.value}
+									className={`lp-subject${formData.subject === subject.value ? " is-active" : ""}`}
+								>
+									<input
+										type="radio"
+										name="subject"
+										value={subject.value}
+										checked={formData.subject === subject.value}
+										onChange={() => handleChange("subject", subject.value)}
+									/>
+									<Emoji3D name={subject.icon} className="lp-subject__icon" />
+									<span>{subject.label}</span>
 								</label>
-								<input
-									type="text"
-									placeholder="Nom et prénom"
-									value={formData.name}
-									onChange={(e) => handleChange("name", e.target.value)}
-									onFocus={() => setFocused("name")}
-									onBlur={() => setFocused(null)}
-									required
-								/>
-							</div>
-							<div
-								className={`pimped-group ${focused === "email" ? "focused" : ""}`}
-							>
-								<label>
-									<Mail size={14} /> Ton email
-								</label>
-								<input
-									type="email"
-									placeholder="ton-email@gmail.com"
-									value={formData.email}
-									onChange={(e) => handleChange("email", e.target.value)}
-									onFocus={() => setFocused("email")}
-									onBlur={() => setFocused(null)}
-									required
-								/>
-							</div>
+							))}
 						</div>
+					</fieldset>
 
-						<div
-							className={`pimped-group ${focused === "subject" ? "focused" : ""}`}
-						>
-							<label>
-								<HelpCircle size={14} /> De quoi s'agit-il ?
-							</label>
-							<select
-								value={formData.subject}
-								onChange={(e) => handleChange("subject", e.target.value)}
-								onFocus={() => setFocused("subject")}
-								onBlur={() => setFocused(null)}
-							>
-								<option value="info">Informations générales</option>
-								<option value="support">Besoin d'aide (Support)</option>
-								<option value="press">Partenariats</option>
-								<option value="betatest">Programme Beta-Testeur</option>
-							</select>
+					<label className="lp-field">
+						<span className="lp-field__label">
+							<MessageSquare size={16} aria-hidden="true" /> Ton message
+						</span>
+						<textarea
+							rows={5}
+							placeholder="Raconte-nous tout..."
+							value={formData.message}
+							onChange={(e) => handleChange("message", e.target.value)}
+							required
+							data-lenis-prevent
+						/>
+					</label>
+
+					{status === "success" && (
+						<div className="lp-contact-status lp-contact-status--success" role="status">
+							<CheckCircle2 size={20} aria-hidden="true" />
+							<span>Merci ! Ton message a bien été envoyé, on te répond vite.</span>
 						</div>
+					)}
 
-						<div
-							className={`pimped-group ${focused === "message" ? "focused" : ""}`}
-						>
-							<label>
-								<MessageSquare size={14} /> Ton message
-							</label>
-							<textarea
-								rows={4}
-								placeholder="Raconte-nous tout..."
-								value={formData.message}
-								onChange={(e) => handleChange("message", e.target.value)}
-								onFocus={() => setFocused("message")}
-								onBlur={() => setFocused(null)}
-								required
-							></textarea>
+					{status === "error" && (
+						<div className="lp-contact-status lp-contact-status--error" role="alert">
+							<AlertCircle size={20} aria-hidden="true" />
+							<span>{errorMessage}</span>
 						</div>
+					)}
 
-						{status === "success" && (
-							<motion.div
-								className="form-status form-status-success"
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-							>
-								<CheckCircle2 size={18} />
-								<span>
-									Merci ! Ton message a bien été envoyé, on te répond vite.
-								</span>
-							</motion.div>
-						)}
+					<button type="submit" className="lp-btn lp-btn--primary lp-contact-form__submit" disabled={status === "submitting"}>
+						{status === "submitting" ? "Envoi en cours..." : "Envoyer à l'équipe"}
+						<Send size={20} aria-hidden="true" />
+					</button>
+				</form>
 
-						{status === "error" && (
-							<motion.div
-								className="form-status form-status-error"
-								initial={{ opacity: 0, y: -10 }}
-								animate={{ opacity: 1, y: 0 }}
-							>
-								<AlertCircle size={18} />
-								<span>{errorMessage}</span>
-							</motion.div>
-						)}
+				<aside className="lp-contact-aside">
+					<div className="lp-contact-tip">
+						<Emoji3D name="light_bulb" className="lp-contact-tip__icon" />
+						<span className="lp-contact-tip__badge">Astuce</span>
+						<p>Une question pressante ? La réponse se trouve peut-être déjà dans notre FAQ.</p>
+						<Link to="/faq" className="lp-btn lp-btn--ghost lp-btn--sm">
+							Voir la FAQ <ArrowRight size={18} />
+						</Link>
+					</div>
 
-						<motion.button
-							type="submit"
-							className="btn-pimped-send"
-							whileHover={{ scale: 1.03 }}
-							whileTap={{ scale: 0.97 }}
-							disabled={status === "submitting"}
-						>
-							<span>
-								{status === "submitting" ? "Envoi en cours..." : "Envoyer à l'équipe"}
-							</span>
-							<div className="icon-send-circle">
-								<Send size={18} />
-							</div>
-						</motion.button>
-					</form>
-				</motion.div>
-			</main>
-
-			<Footer />
-		</div>
+					<div className="lp-contact-mail">
+						<div className="lp-contact-mail__copy">
+							<p className="lp-display lp-contact-mail__title">Plutôt par mail&nbsp;?</p>
+							<p>Écris-nous directement, on lit tout.</p>
+							<a href={`mailto:${CONTACT_EMAIL}`} className="lp-contact-mail__link">
+								{CONTACT_EMAIL}
+							</a>
+						</div>
+						<img className="lp-contact-mail__milo" src="/landing/milo-reading.webp" alt="" loading="lazy" />
+					</div>
+				</aside>
+			</div>
+		</SubPage>
 	);
 };
 

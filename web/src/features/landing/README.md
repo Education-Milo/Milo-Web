@@ -1,7 +1,7 @@
 # Feature `landing`
 
 Pages publiques : la Vitrine (`/`), la FAQ (`/faq`) et le Contact (`/contact`).
-La Vitrine suit la charte graphique Milo (`brand/`) : orange dominant, crème en
+Les trois pages suivent la charte graphique Milo (`brand/`) : orange dominant, crème en
 secondaire, vert Forêt en accent ponctuel uniquement, titres en Luckiest Guy,
 texte en Fredoka, visuels en 3D.
 
@@ -21,8 +21,9 @@ landing/
 		FaqPreview/          # aperçu de la FAQ
 		Pricing/             # formules d'abonnement
 		FinalCta/            # appel à l'action final
-	ui/                    # petites briques réutilisables (Emoji3D)
-	data/landing.data.ts   # tout le contenu éditorial (textes, prix, icônes)
+		SubPage/             # gabarit + en-tête (PageHero) des pages FAQ et Contact
+	ui/                    # petites briques réutilisables (Emoji3D, FaqItem)
+	data/landing.data.ts   # tout le contenu éditorial (textes, prix, FAQ, sujets de contact)
 	hooks/useSmoothScroll  # Lenis synchronisé avec GSAP ScrollTrigger
 	lib/                   # GSAP (plugins), scroll fluide, état partagé du hero
 	styles/                # tokens et briques communes (landing.css), mise en page
@@ -45,8 +46,10 @@ landing/
 
 - Toutes les classes CSS sont préfixées `lp-` (le CSS du projet est global).
 - Les tokens (`--lp-*`) sont posés sur la classe `.lp`, présente sur la page,
-  la navbar et le footer : ces deux derniers restent autonomes sur `/faq` et
-  `/contact`.
+  la navbar et le footer.
+- FAQ et Contact passent par `SubPage` (barre de progression, scroll fluide,
+  navbar, footer, panneau clair) et `PageHero` (décor du hero de la Vitrine) :
+  une nouvelle page secondaire n'a qu'à fournir son en-tête et son contenu.
 - Les sections épinglées (Hero, Manifesto, Missions) doivent rester dans cet
   ordre dans la page : leurs ScrollTrigger sont créés dans l'ordre du DOM.
 - Les épinglages ne s'activent qu'au-dessus de 961 × 700 px

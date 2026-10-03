@@ -1,0 +1,139 @@
+/* ==========================================================================
+   PAGES SECONDAIRES (FAQ, Contact) — en-tête sur fond crème, puis panneau
+   clair aux coins arrondis, comme le bloc parents de la Vitrine
+   ========================================================================== */
+.lp-sub main {
+	overflow-x: clip;
+}
+
+.lp-sub__panel {
+	position: relative;
+	padding: clamp(56px, 8vw, 100px) 0 0;
+	background: var(--lp-surface);
+	border-radius: clamp(36px, 6vw, 72px) clamp(36px, 6vw, 72px) 0 0;
+}
+
+/* ---------- En-tête ---------- */
+.lp-page-hero {
+	position: relative;
+	isolation: isolate;
+	padding: 170px 0 clamp(64px, 8vw, 100px);
+	text-align: center;
+}
+
+.lp-page-hero__bg {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.lp-page-hero__dots {
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(185, 51, 15, 0.14) 1.4px, transparent 1.6px);
+	background-size: 28px 28px;
+	mask-image: radial-gradient(ellipse 60% 70% at 50% 55%, #000 15%, transparent 75%);
+}
+
+.lp-page-hero__blob {
+	position: absolute;
+	border-radius: 50%;
+	filter: blur(70px);
+}
+
+.lp-page-hero__blob--1 {
+	width: 40vw;
+	height: 40vw;
+	background: var(--lp-sable);
+	top: -12vw;
+	left: -10vw;
+	opacity: 0.7;
+}
+
+.lp-page-hero__blob--2 {
+	width: 32vw;
+	height: 32vw;
+	background: var(--lp-mandarine);
+	bottom: -18vw;
+	right: -8vw;
+	opacity: 0.22;
+}
+
+.lp-page-hero__float {
+	position: absolute;
+	width: clamp(52px, 6vw, 84px);
+}
+
+.lp-page-hero__float--left {
+	left: 9%;
+	top: 46%;
+}
+
+.lp-page-hero__float--right {
+	right: 9%;
+	top: 30%;
+}
+
+.lp-page-hero__inner {
+	display: grid;
+	justify-items: center;
+	gap: 1.1rem;
+	max-width: 860px;
+}
+
+.lp-page-hero__icon {
+	width: clamp(88px, 10vw, 120px);
+	height: clamp(88px, 10vw, 120px);
+	margin-bottom: -0.3rem;
+}
+
+.lp-page-hero__eyebrow {
+	display: inline-block;
+	padding: 0.4rem 1rem;
+	border-radius: 999px;
+	background: #fff;
+	color: var(--lp-braise);
+	font-weight: 700;
+	font-size: 0.85rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	box-shadow: 0 4px 0 var(--lp-sable);
+}
+
+.lp-page-hero__title {
+	font-size: clamp(2.6rem, 6vw, 4.8rem);
+}
+
+.lp-page-hero__lead {
+	max-width: 36em;
+}
+
+.lp-page-hero__extra {
+	width: 100%;
+	margin-top: 0.8rem;
+}
+
+@media (max-width: 960px) {
+	.lp-page-hero {
+		padding-top: 120px;
+	}
+
+	.lp-page-hero__float--left {
+		left: 3%;
+		top: 62%;
+	}
+
+	.lp-page-hero__float--right {
+		right: 3%;
+		top: 24%;
+	}
+}
+
+@media (max-width: 640px) {
+	/* Doublé pour passer devant `.lp img { display: block }` */
+	.lp-page-hero .lp-page-hero__float {
+		display: none;
+	}
+}
