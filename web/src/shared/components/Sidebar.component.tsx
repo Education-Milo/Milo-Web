@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Bell, Flame, LogOut, Menu, X, Zap } from "lucide-react";
+import { Bell, ChevronRight, Flame, LogOut, Menu, X, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
@@ -8,6 +8,16 @@ import "@shared/styles/SideBar.css";
 
 /// Icônes 3D de la navigation, servies depuis /public/icons
 const navIcon = (name: string) => `/icons/${name}_icon.png`;
+
+interface NavItem {
+	label: string;
+	path: string;
+	/// Emoji de repli si l'icône 3D est introuvable
+	icon: string;
+	iconSrc?: string;
+	badge?: number;
+	disabled?: boolean;
+}
 
 interface SidebarProps {
 	onLogout: () => void;
@@ -55,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	const isParent = userProfile?.role === "Parent";
 
-	const studentNavItems = [
+	const studentNavItems: NavItem[] = [
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
 		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), badge: 3 },
 		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import") },
@@ -65,17 +75,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊", iconSrc: navIcon("my_milo") },
 	];
 
-	const progressItems = [
+	const progressItems: NavItem[] = [
 		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true },
 		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", iconSrc: navIcon("stats"), disabled: false },
 	];
 
-	const socialItems = [
+	const socialItems: NavItem[] = [
 		{ label: "Amis", path: "/friends", icon: "👥", iconSrc: navIcon("friend"), disabled: false },
 		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true },
 	];
 
-	const parentNavItems = [
+	const parentNavItems: NavItem[] = [
 		{ label: "Tableau de bord", path: "/parent/dashboard", icon: "📊", iconSrc: navIcon("stats") },
 		{ label: "Abonnement", path: "/parent/subscription", icon: "💳" },
 		{ label: "Comptes liés", path: "/parent/children", icon: "👨‍👩‍👧‍👦", disabled: true },
@@ -132,12 +142,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 		return () => window.removeEventListener("resize", onResize);
 	}, []);
 
-	const renderNavItem = (item: any) => {
+	/// Rang de chaque item dans toute la nav : sert au décalage de l'animation
+	/// d'entrée en cascade (variable CSS --i)
+	const navOrder = [
+		...activeNavItems,
+		...(isParent ? [] : [...progressItems, ...socialItems]),
+	].map((item) => item.path);
+
+	const renderNavItem = (item: NavItem) => {
 		const isDisabled = item.disabled;
 		return (
 			<button
 				type="button"
 				key={item.path}
+				style={{ "--i": navOrder.indexOf(item.path) } as React.CSSProperties}
 				className={`sb-nav-item ${isActive(item.path) ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
 				onClick={() => {
 					if (isDisabled) return;
@@ -153,15 +171,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 							alt=""
 							className="sb-nav-icon-img"
 							draggable={false}
-							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc))}
+							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc as string))}
 						/>
 					) : (
 						item.icon
 					)}
 				</span>
 				<span className="sb-nav-label">{item.label}</span>
+				{isActive(item.path) && <span className="sb-nav-pip" aria-hidden="true" />}
 				{Boolean(item.badge) && !isDisabled && (
-					<span className="sb-nav-badge">{item.badge}</span>
+					<span className="sb-nav-badge" key={item.badge}>{item.badge}</span>
 				)}
 				{isDisabled && <span className="sb-nav-tag">Bientôt</span>}
 			</button>
@@ -197,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{/* --- HEADER : Logo + bouton notifications --- */}
 				<div className="sb-header">
 					<div className="sb-logo">
-						<img src="/milo-logo.webp" alt="Milo" className="sb-logo-img" />
+						<img src="/landing/logo-milo-3d.webp" alt="Milo" className="sb-logo-img" />
 					</div>
 
 					<div className="sb-header-actions">
@@ -259,6 +278,29 @@ const Sidebar: React.FC<SidebarProps> = ({
 							</>
 						)}
 					</nav>
+
+					{/* --- CARTE DU JOUR : rappel des missions, Milo qui dépasse --- */}
+					{!isParent && (
+						<button
+							type="button"
+							className={`sb-quest ${missionsRemaining === 0 ? "is-done" : ""}`}
+							onClick={() => navigate(ROUTES.MISSIONS)}
+						>
+							<span className="sb-quest-copy">
+								<span className="sb-quest-eyebrow">Missions du jour</span>
+								<span className="sb-quest-title">
+									{missionsRemaining > 0
+										? `Encore ${missionsRemaining} à faire`
+										: "Tout est bouclé !"}
+								</span>
+								<span className="sb-quest-cta">
+									{missionsRemaining > 0 ? "C'est parti" : "Voir mes missions"}
+									<ChevronRight size={14} strokeWidth={3} />
+								</span>
+							</span>
+							<img src="/landing/milo-reading.webp" alt="" className="sb-quest-milo" draggable={false} />
+						</button>
+					)}
 
 					{/* --- FOOTER --- */}
 					<div className="sb-footer">
