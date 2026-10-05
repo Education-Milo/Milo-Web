@@ -2,6 +2,8 @@ export interface Friend {
   id: string;
   firstName: string;
   lastName: string;
+  /** Pseudo (toujours public), repli quand nom/prénom manquent */
+  username?: string;
   level: number;
   avatarUrl?: string;
   status: 'online' | 'offline' | 'in-game';

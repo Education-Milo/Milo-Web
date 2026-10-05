@@ -34,8 +34,8 @@ export const useDuelsScreen = () => {
           // direction='sent'   → je suis user_id, l'ami est friend_id
           // direction='received' → l'ami est user_id, je suis friend_id
           id: String(f.direction === "received" ? f.user_id : f.friend_id),
-          firstName: f.friend_first_name,
-          lastName: f.friend_last_name,
+          firstName: f.friend_first_name ?? "",
+          lastName: f.friend_last_name ?? "",
           level: 0,
           status: "offline" as const,
         }));
@@ -46,12 +46,19 @@ export const useDuelsScreen = () => {
         void Promise.all(
           mapped.map((f) =>
             APIAxios.get(APIRoutes.GET_User_By_Id(f.id))
-              .then((res) => [f.id, (res.data?.equipped_meshes as string[] | undefined) ?? []] as const)
-              .catch(() => [f.id, [] as string[]] as const),
+              .then((res) => [f.id, {
+                meshes: (res.data?.equipped_meshes as string[] | undefined) ?? [],
+                username: res.data?.username as string | undefined,
+              }] as const)
+              .catch(() => [f.id, { meshes: [] as string[], username: undefined }] as const),
           ),
         ).then((entries) => {
           const byId = new Map(entries);
-          setFriends((prev) => prev.map((f) => ({ ...f, equippedMeshes: byId.get(f.id) ?? [] })));
+          setFriends((prev) => prev.map((f) => ({
+            ...f,
+            equippedMeshes: byId.get(f.id)?.meshes ?? [],
+            username: byId.get(f.id)?.username ?? f.username,
+          })));
         });
       })
       .catch(() => setFriends([]))

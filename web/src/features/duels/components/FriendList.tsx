@@ -35,14 +35,14 @@ const FriendList: React.FC<FriendListProps> = ({
                 <div className="friend-avatar-placeholder">
                   <MiloAvatar
                     equippedMeshNames={friend.equippedMeshes}
-                    initials={`${friend.firstName[0] ?? ""}${friend.lastName[0] ?? ""}`}
+                    initials={`${friend.firstName[0] ?? ""}${friend.lastName[0] ?? ""}` || (friend.username?.slice(0, 2).toUpperCase() ?? "?")}
                   />
                 </div>
                 <span className={`friend-status ${friend.status}`} />
               </div>
               <div className="friend-info">
                 <span className="friend-name">
-                  {friend.firstName} {friend.lastName}
+                  {`${friend.firstName} ${friend.lastName}`.trim() || (friend.username ? `@${friend.username}` : "Ami")}
                 </span>
                 <span className={`friend-status-label friend-status-label-${friend.status}`}>
                   {friend.status === "online"
