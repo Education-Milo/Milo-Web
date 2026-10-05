@@ -6,6 +6,9 @@ import MiloAvatar from "@shared/components/MiloAvatar.component";
 import { ROUTES } from "@shared/constants/routes";
 import "@shared/styles/SideBar.css";
 
+/// Icônes 3D de la navigation, servies depuis /public/icons
+const navIcon = (name: string) => `/icons/${name}_icon.png`;
+
 interface SidebarProps {
 	onLogout: () => void;
 	userProfile: UserProfile | any;
@@ -47,30 +50,33 @@ const Sidebar: React.FC<SidebarProps> = ({
 		};
 	}, [isMobileOpen]);
 
+	/// Icônes introuvables : on retombe sur l'emoji plutôt qu'une image cassée
+	const [brokenIcons, setBrokenIcons] = useState<Set<string>>(() => new Set());
+
 	const isParent = userProfile?.role === "Parent";
 
 	const studentNavItems = [
-		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠" },
-		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", badge: 3 },
-		{ label: "Import document", path: ROUTES.OCR, icon: "📄" },
-		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅", badge: missionsRemaining },
-		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️" },
-		{ label: "Boutique", path: "/boutique", icon: "🛍️" },
-		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊" },
+		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
+		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), badge: 3 },
+		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import") },
+		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅", iconSrc: navIcon("mission"), badge: missionsRemaining },
+		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️", iconSrc: navIcon("duel") },
+		{ label: "Boutique", path: "/boutique", icon: "🛍️", iconSrc: navIcon("shop") },
+		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊", iconSrc: navIcon("my_milo") },
 	];
 
 	const progressItems = [
-		{ label: "Succès", path: "/achievements", icon: "🏆", disabled: true },
-		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", disabled: false },
+		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true },
+		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", iconSrc: navIcon("stats"), disabled: false },
 	];
 
 	const socialItems = [
-		{ label: "Amis", path: "/friends", icon: "👥", disabled: false },
-		{ label: "Classements", path: "/leaderboard", icon: "🌟", disabled: true },
+		{ label: "Amis", path: "/friends", icon: "👥", iconSrc: navIcon("friend"), disabled: false },
+		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true },
 	];
 
 	const parentNavItems = [
-		{ label: "Tableau de bord", path: "/parent/dashboard", icon: "📊" },
+		{ label: "Tableau de bord", path: "/parent/dashboard", icon: "📊", iconSrc: navIcon("stats") },
 		{ label: "Abonnement", path: "/parent/subscription", icon: "💳" },
 		{ label: "Comptes liés", path: "/parent/children", icon: "👨‍👩‍👧‍👦", disabled: true },
 		{ label: "Paramètres", path: "/settings", icon: "⚙️", disabled: true },
@@ -140,7 +146,19 @@ const Sidebar: React.FC<SidebarProps> = ({
 				}}
 				disabled={isDisabled}
 			>
-				<span className="sb-nav-icon">{item.icon}</span>
+				<span className="sb-nav-icon">
+					{item.iconSrc && !brokenIcons.has(item.iconSrc) ? (
+						<img
+							src={item.iconSrc}
+							alt=""
+							className="sb-nav-icon-img"
+							draggable={false}
+							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc))}
+						/>
+					) : (
+						item.icon
+					)}
+				</span>
 				<span className="sb-nav-label">{item.label}</span>
 				{Boolean(item.badge) && !isDisabled && (
 					<span className="sb-nav-badge">{item.badge}</span>
