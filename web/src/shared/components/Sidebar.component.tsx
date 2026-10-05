@@ -142,20 +142,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 		return () => window.removeEventListener("resize", onResize);
 	}, []);
 
-	/// Rang de chaque item dans toute la nav : sert au décalage de l'animation
-	/// d'entrée en cascade (variable CSS --i)
-	const navOrder = [
-		...activeNavItems,
-		...(isParent ? [] : [...progressItems, ...socialItems]),
-	].map((item) => item.path);
-
 	const renderNavItem = (item: NavItem) => {
 		const isDisabled = item.disabled;
 		return (
 			<button
 				type="button"
 				key={item.path}
-				style={{ "--i": navOrder.indexOf(item.path) } as React.CSSProperties}
 				className={`sb-nav-item ${isActive(item.path) ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
 				onClick={() => {
 					if (isDisabled) return;
@@ -178,9 +170,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</span>
 				<span className="sb-nav-label">{item.label}</span>
-				{isActive(item.path) && <span className="sb-nav-pip" aria-hidden="true" />}
 				{Boolean(item.badge) && !isDisabled && (
-					<span className="sb-nav-badge" key={item.badge}>{item.badge}</span>
+					<span className="sb-nav-badge">{item.badge}</span>
 				)}
 				{isDisabled && <span className="sb-nav-tag">Bientôt</span>}
 			</button>
@@ -318,22 +309,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 							<div className="sb-user-info">
 								<h4 className="sb-user-name">
 									{userProfile?.first_name || "Utilisateur"}
+									<span className="sb-user-sub">
+										{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
+									</span>
 								</h4>
-								<p className="sb-user-sub">
-									{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
-								</p>
-							</div>
-							<div className="sb-user-stats">
-								<div
-									className="sb-streak"
-									title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
-								>
-									<Flame size={14} />
-									<span>{streakDays}</span>
-								</div>
-								<div className="sb-xp" title={`${xpPoints} XP`}>
-									<Zap size={14} />
-									<span>{xpPoints}</span>
+								<div className="sb-user-stats">
+									<span
+										className="sb-streak"
+										title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
+									>
+										<Flame size={13} />
+										{streakDays}
+									</span>
+									<span className="sb-xp" title={`${xpPoints} XP`}>
+										<Zap size={13} />
+										{xpPoints}
+									</span>
 								</div>
 							</div>
 						</button>
@@ -343,9 +334,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 							className="sb-logout-btn"
 							onClick={onLogout}
 							title="Se déconnecter"
+							aria-label="Se déconnecter"
 						>
-							<LogOut size={16} />
-							<span>Se déconnecter</span>
+							<LogOut size={18} />
 						</button>
 					</div>
 				</aside>
