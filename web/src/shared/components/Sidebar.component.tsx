@@ -9,16 +9,6 @@ import "@shared/styles/SideBar.css";
 /// Icônes 3D de la navigation, servies depuis /public/icons
 const navIcon = (name: string) => `/icons/${name}_icon.png`;
 
-interface NavItem {
-	label: string;
-	path: string;
-	/// Emoji de repli si l'icône 3D est introuvable
-	icon: string;
-	iconSrc?: string;
-	badge?: number;
-	disabled?: boolean;
-}
-
 interface SidebarProps {
 	onLogout: () => void;
 	userProfile: UserProfile | any;
@@ -65,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 	const isParent = userProfile?.role === "Parent";
 
-	const studentNavItems: NavItem[] = [
+	const studentNavItems = [
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
 		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), badge: 3 },
 		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import") },
@@ -75,17 +65,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊", iconSrc: navIcon("my_milo") },
 	];
 
-	const progressItems: NavItem[] = [
+	const progressItems = [
 		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true },
 		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", iconSrc: navIcon("stats"), disabled: false },
 	];
 
-	const socialItems: NavItem[] = [
+	const socialItems = [
 		{ label: "Amis", path: "/friends", icon: "👥", iconSrc: navIcon("friend"), disabled: false },
 		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true },
 	];
 
-	const parentNavItems: NavItem[] = [
+	const parentNavItems = [
 		{ label: "Tableau de bord", path: "/parent/dashboard", icon: "📊", iconSrc: navIcon("stats") },
 		{ label: "Abonnement", path: "/parent/subscription", icon: "💳" },
 		{ label: "Comptes liés", path: "/parent/children", icon: "👨‍👩‍👧‍👦", disabled: true },
@@ -142,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		return () => window.removeEventListener("resize", onResize);
 	}, []);
 
-	const renderNavItem = (item: NavItem) => {
+	const renderNavItem = (item: any) => {
 		const isDisabled = item.disabled;
 		return (
 			<button
@@ -163,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							alt=""
 							className="sb-nav-icon-img"
 							draggable={false}
-							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc as string))}
+							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc))}
 						/>
 					) : (
 						item.icon
@@ -207,7 +197,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				{/* --- HEADER : Logo + bouton notifications --- */}
 				<div className="sb-header">
 					<div className="sb-logo">
-						<img src="/landing/logo-milo-3d.webp" alt="Milo" className="sb-logo-img" />
+						<img src="/milo-logo.webp" alt="Milo" className="sb-logo-img" />
 					</div>
 
 					<div className="sb-header-actions">
@@ -270,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						)}
 					</nav>
 
-					{/* --- CARTE DU JOUR : rappel des missions, Milo qui dépasse --- */}
+					{/* --- CARTE DU JOUR : rappel des missions, au-dessus du profil --- */}
 					{!isParent && (
 						<button
 							type="button"
@@ -309,22 +299,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 							<div className="sb-user-info">
 								<h4 className="sb-user-name">
 									{userProfile?.first_name || "Utilisateur"}
-									<span className="sb-user-sub">
-										{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
-									</span>
 								</h4>
-								<div className="sb-user-stats">
-									<span
-										className="sb-streak"
-										title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
-									>
-										<Flame size={13} />
-										{streakDays}
-									</span>
-									<span className="sb-xp" title={`${xpPoints} XP`}>
-										<Zap size={13} />
-										{xpPoints}
-									</span>
+								<p className="sb-user-sub">
+									{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
+								</p>
+							</div>
+							<div className="sb-user-stats">
+								<div
+									className="sb-streak"
+									title={`${streakDays} jour${streakDays > 1 ? "s" : ""} de suite`}
+								>
+									<Flame size={14} />
+									<span>{streakDays}</span>
+								</div>
+								<div className="sb-xp" title={`${xpPoints} XP`}>
+									<Zap size={14} />
+									<span>{xpPoints}</span>
 								</div>
 							</div>
 						</button>
@@ -334,9 +324,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 							className="sb-logout-btn"
 							onClick={onLogout}
 							title="Se déconnecter"
-							aria-label="Se déconnecter"
 						>
-							<LogOut size={18} />
+							<LogOut size={16} />
+							<span>Se déconnecter</span>
 						</button>
 					</div>
 				</aside>
