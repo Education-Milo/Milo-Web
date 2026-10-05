@@ -5,15 +5,24 @@ import { getOtherUserId } from "@features/friends/store/friend.model";
 import type { User } from "@shared/store/user/user.model";
 
 export interface FriendWithDetails extends FriendEnriched {
+	/** Toujours renvoyé par /users/{id}, ami ou non */
+	username?: string;
 	classe?: string;
     streak?: number;
 	xp?: number;
+	/** Vide pour un non-ami (le back renvoie []) */
 	interests?: { id: string; name: string }[];
 	/** Objets équipés sur le Milo de l'ami (renvoyé par /users/{id}) */
 	equipped_meshes?: string[];
 }
 
-export const useFriendDetails = (friends: FriendEnriched[]): {
+/**
+ * Complète les entrées de /friends avec les champs publics de /users/{id}
+ * (pseudo, classe, xp, streak, tenue). Nom, prénom et email ne sont jamais lus
+ * ici : ils sont `null` pour un non-ami.
+ * `live` rafraîchit toutes les 10 s (amis acceptés : streak et xp bougent).
+ */
+export const useFriendDetails = (friends: FriendEnriched[], { live = true }: { live?: boolean } = {}): {
 	friendsWithDetails: FriendWithDetails[];
 	isLoading: boolean;
 } => {
@@ -33,7 +42,7 @@ export const useFriendDetails = (friends: FriendEnriched[]): {
 				// Rafraîchi régulièrement (comme la liste d'amis, cf. friend.queries.ts)
 				// pour éviter d'afficher un streak/xp obsolète.
 				staleTime: 10 * 1000,
-				refetchInterval: 10 * 1000,
+				refetchInterval: live ? 10 * 1000 : (false as const),
 				enabled: !!otherUserId,
 			};
 		}),
@@ -45,6 +54,7 @@ export const useFriendDetails = (friends: FriendEnriched[]): {
 		const userData: User | undefined = queries[idx]?.data;
 		return {
 			...friend,
+			username: userData?.username ?? undefined,
 			classe: userData?.class_ ?? undefined,
 			streak: userData?.streak ?? undefined,
 			xp: userData?.xp ?? undefined,

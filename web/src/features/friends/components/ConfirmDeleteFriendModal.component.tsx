@@ -1,10 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { UserX, Loader } from "lucide-react";
-import type { Friend } from "@features/friends/store/friend.model";
+import { getFriendDisplayName, type Friend } from "@features/friends/store/friend.model";
 
 interface ConfirmDeleteFriendModalProps {
-	friend: Friend;
+	friend: Friend & { username?: string };
 	onConfirm: () => void;
 	onCancel: () => void;
 	isPending?: boolean;
@@ -16,7 +16,7 @@ const ConfirmDeleteFriendModal: React.FC<ConfirmDeleteFriendModalProps> = ({
 	onCancel,
 	isPending = false,
 }) => {
-	const fullName = `${friend.friend_first_name} ${friend.friend_last_name}`.trim();
+	const fullName = getFriendDisplayName(friend);
 
 	return (
 		<motion.div

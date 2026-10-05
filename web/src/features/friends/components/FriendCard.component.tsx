@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Pin, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
-import { getOtherUserId } from "@features/friends/store/friend.model";
+import { getFriendDisplayName, getFriendInitials, getOtherUserId } from "@features/friends/store/friend.model";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
 
 interface FriendCardProps {
@@ -23,13 +23,15 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	isPending = false,
 	variants,
 }) => {
-	const initials =
-		`${friend.friend_first_name[0] ?? ""}${friend.friend_last_name[0] ?? ""}`.toUpperCase();
+	const details = "classe" in friend ? friend as FriendWithDetails : null;
+	const nameSource = { ...friend, username: details?.username };
+	const initials = getFriendInitials(nameSource);
+	const displayName = getFriendDisplayName(nameSource);
+	// Demande envoyée en attente : le back ne partage pas encore les intérêts
+	const isSentRequest = isPending && friend.direction === "sent";
 
 	const isPinned = friend.is_pinned;
 	const otherUserId = getOtherUserId(friend);
-
-	const details = "classe" in friend ? friend as FriendWithDetails : null;
 
 	return (
 		<motion.div
@@ -62,9 +64,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 
 			{/* INFOS */}
 			<div className="friend-info">
-				<h3 className="friend-name">
-					{friend.friend_first_name} {friend.friend_last_name}
-				</h3>
+				<h3 className="friend-name">{displayName}</h3>
 
 				{details?.classe && (
 					<span className="friend-level">Classe : {details.classe[0]}ème</span>
@@ -91,7 +91,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 					</div>
 				)}
 
-				{ details?.interests && details.interests.length > 0 ? (
+				{isSentRequest ? null : details?.interests && details.interests.length > 0 ? (
 					<div className="friend-interests">
 						{details.interests.map((interest) => (
 							<span key={interest.id} className="friend-interest-chip">

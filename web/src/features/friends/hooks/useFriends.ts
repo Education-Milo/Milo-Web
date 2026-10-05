@@ -8,7 +8,7 @@ import {
 	useTogglePinFriend,
 } from "@features/friends/store/friend.queries";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
-import { getOtherUserId } from "@features/friends/store/friend.model";
+import { getFriendDisplayName, getOtherUserId } from "@features/friends/store/friend.model";
 import { useFriendDetails } from "@features/friends/hooks/useFriendDetails";
 import { usePinnedFriendsMigration } from "@features/friends/hooks/usePinnedFriendsMigration";
 
@@ -58,20 +58,23 @@ export const useFriends = () => {
 		[pendingFriends],
 	);
 
-	// Demandes envoyées en attente
-	const pendingSent = useMemo(
+	// Demandes envoyées en attente : le back masque nom et prénom tant que la
+	// demande n'est pas acceptée, on affiche le pseudo lu via /users/{id}.
+	const pendingSentRaw = useMemo(
 		() => pendingFriends.filter((f) => f.direction === "sent"),
 		[pendingFriends],
 	);
+	const { friendsWithDetails: pendingSent } = useFriendDetails(pendingSentRaw, { live: false });
 
 	const filteredFriends = useMemo(() => {
 		const base: FriendEnriched[] =
 			activeTab === "Invitations" ? pendingReceived :
 			activeTab === "En attente" ? pendingSent : friendsWithDetails;
+		const query = searchQuery.trim().toLowerCase();
+		if (!query) return base;
 		return base.filter((f) => {
-			const fullName =
-				`${f.friend_first_name} ${f.friend_last_name}`.toLowerCase();
-			return fullName.includes(searchQuery.toLowerCase());
+			const username = "username" in f ? (f as { username?: string }).username ?? "" : "";
+			return `${getFriendDisplayName(f)} ${username}`.toLowerCase().includes(query);
 		});
 	}, [friendsWithDetails, pendingReceived, pendingSent, searchQuery, activeTab]);
 
