@@ -5,6 +5,12 @@ import { isAxiosError } from 'axios';
 import type { AuthStore, AuthResponse, LogoutOptions } from '@shared/store/auth/auth.model';
 import APIAxios, { APIRoutes, AuthAxios, AUTH_COOKIE_MODE, authCookieParams } from '@api/axios.api';
 import { jwtDecode } from 'jwt-decode';
+import {
+  clearDemoSession,
+  loadDemoSession,
+  saveDemoSession,
+} from '@shared/store/auth/demoSession';
+import type { DemoTokenResponse } from '@features/admin/store/admin.model';
 
 /** Un seul refresh en vol : les appels concurrents partagent la même promesse. */
 let refreshInFlight: Promise<string | null> | null = null;
@@ -39,6 +45,54 @@ const PROACTIVE_REFRESH_MARGIN_S = 120;
 const extractAccessToken = (data: Partial<AuthResponse> & { accessToken?: string }) =>
   data?.access_token || data?.accessToken || '';
 
+const isJwtExpired = (token: string | undefined, marginSeconds = 60) => {
+  if (!token) return true;
+  try {
+    const decoded = jwtDecode<{ exp?: number }>(token);
+    return !decoded.exp || decoded.exp < Date.now() / 1000 + marginSeconds;
+  } catch {
+    return true;
+  }
+};
+
+/**
+ * Jeton admin pendant une bascule, sans toucher à l'état : en mode cookie,
+ * le cookie de refresh de l'admin est intact et en redonne un ; en mode
+ * legacy, celui mis de côté à l'entrée.
+ */
+const fetchAdminTokenSilently = async (legacyAdminToken?: string): Promise<string | null> => {
+  if (!AUTH_COOKIE_MODE) {
+    return legacyAdminToken && !isJwtExpired(legacyAdminToken, 0) ? legacyAdminToken : null;
+  }
+  try {
+    const response = await AuthAxios.post<AuthResponse>(APIRoutes.POST_Refresh, null, {
+      params: authCookieParams,
+    });
+    return extractAccessToken(response.data) || null;
+  } catch {
+    return null;
+  }
+};
+
+/** Nouveau jeton de démo via la route admin (pas de refresh token pour une démo). */
+const requestDemoToken = async (accountId: number, adminToken: string) => {
+  const response = await AuthAxios.post<DemoTokenResponse>(
+    APIRoutes.POST_Admin_Demo_Token(accountId),
+    null,
+    { headers: { Authorization: `Bearer ${adminToken}` } },
+  );
+  return response.data;
+};
+
+/**
+ * Changement d'identité (admin ↔ démo) : rechargement complet. Le cache de
+ * requêtes, les stores (bulletin scanné, chat, QCM…) et les WebSockets
+ * repartent de zéro, rien de l'autre identité ne subsiste en mémoire.
+ */
+const reloadAs = (path: string) => {
+  window.location.assign(path);
+};
+
 const clearLocalSession = async () => {
   const { useUserStore } = await import('@shared/store/user/user.store');
   useUserStore.getState().clearUserData();
@@ -66,9 +120,32 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       refreshAccessToken: () => {
-        if (!AUTH_COOKIE_MODE) return Promise.resolve(null);
+        const demo = loadDemoSession();
+        if (!AUTH_COOKIE_MODE && !demo) return Promise.resolve(null);
         if (!refreshInFlight) {
           refreshInFlight = (async () => {
+            // Pendant une bascule : surtout pas le refresh normal, qui rendrait
+            // silencieusement la main au compte admin. On redemande un jeton de
+            // démo avec un jeton admin obtenu sans modifier l'état.
+            if (demo) {
+              try {
+                const adminToken = await fetchAdminTokenSilently(demo.adminToken);
+                if (!adminToken) throw new Error('admin session lost');
+                const renewed = await requestDemoToken(demo.accountId, adminToken);
+                saveDemoSession({ ...demo, accessToken: renewed.access_token });
+                set({ accessToken: renewed.access_token });
+                return renewed.access_token;
+              } catch {
+                // Profil supprimé ou session admin perdue : fin de la démo.
+                // Si l'admin est encore connecté, on recharge sur son compte.
+                clearDemoSession();
+                const adminToken = await fetchAdminTokenSilently(demo.adminToken);
+                if (adminToken) window.location.assign('/');
+                return null;
+              } finally {
+                refreshInFlight = null;
+              }
+            }
             try {
               // Corps vide : le cookie httpOnly porte le refresh token
               const response = await AuthAxios.post<AuthResponse>(
@@ -105,6 +182,15 @@ export const useAuthStore = create<AuthStore>()(
 
       bootstrapSession: async () => {
         const { accessToken, isTokenExpired, refreshAccessToken } = get();
+        // Bascule en cours (rechargement de la page) : on reprend la démo
+        const demo = loadDemoSession();
+        if (demo) {
+          if (!isJwtExpired(demo.accessToken)) {
+            set({ accessToken: demo.accessToken });
+            return true;
+          }
+          return Boolean(await refreshAccessToken());
+        }
         if (accessToken && !isTokenExpired()) return true;
         if (AUTH_COOKIE_MODE) {
           if (!hasSessionHint()) return false;
@@ -238,12 +324,52 @@ export const useAuthStore = create<AuthStore>()(
         if (AUTH_COOKIE_MODE) {
           await AuthAxios.post(APIRoutes.POST_Logout).catch(() => {});
         }
+        clearDemoSession();
         setSessionHint(false);
         await clearLocalSession();
         set({ accessToken: '', tokenValidationInterval: null });
       },
 
+      enterDemo: async (accountId) => {
+        const adminToken = get().accessToken;
+        if (!adminToken) throw new Error('Not logged in');
+        // Jeton de démo demandé avec le jeton admin courant
+        const response = await APIAxios.post<DemoTokenResponse>(
+          APIRoutes.POST_Admin_Demo_Token(accountId),
+        );
+        const demoToken = response.data.access_token;
+        if (!demoToken) throw new Error('No demo token received');
+        saveDemoSession({
+          accountId,
+          role: response.data.account.role,
+          username: response.data.account.username,
+          accessToken: demoToken,
+          adminToken: AUTH_COOKIE_MODE ? undefined : adminToken,
+        });
+        // Au rechargement, bootstrapSession reprend la démo depuis sessionStorage
+        // et la page de redirection choisit l'accueil selon le rôle.
+        reloadAs('/');
+      },
+
+      exitDemo: async () => {
+        const demo = loadDemoSession();
+        clearDemoSession();
+        if (!AUTH_COOKIE_MODE) {
+          // Mode legacy : le jeton admin mis de côté redevient le jeton persisté
+          if (!demo?.adminToken || isJwtExpired(demo.adminToken, 0)) {
+            await get().logout({ remote: false });
+            reloadAs('/login');
+            return;
+          }
+          set({ accessToken: demo.adminToken });
+        }
+        // Mode cookie : au rechargement, /token/refresh (cookie admin intact)
+        // redonne un jeton admin.
+        reloadAs('/admin');
+      },
+
       logout: async ({ remote = true }: LogoutOptions = {}) => {
+        clearDemoSession();
         get().stopTokenValidation();
         if (remote && AUTH_COOKIE_MODE) {
           // Efface le cookie côté serveur ; jamais bloquant
@@ -258,6 +384,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logoutEverywhere: async () => {
+        clearDemoSession();
         const { accessToken } = get();
         get().stopTokenValidation();
         await AuthAxios.post(APIRoutes.POST_LogoutAll, null, {

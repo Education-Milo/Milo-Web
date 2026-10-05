@@ -20,7 +20,9 @@ const RedirectScreen: React.FC = () => {
 					navigate(ROUTES.PARENT.DASHBOARD, { replace: true });
 					break;
 				case "Prof":
-					navigate(ROUTES.PROF.DASHBOARD, { replace: true });
+					// Pas encore d'espace professeur : /prof/dashboard n'est pas routé et
+					// retomberait sur "/", d'où une boucle de redirections.
+					navigate(ROUTES.UNAUTHORIZED, { replace: true });
 					break;
 				case "Admin":
 					navigate(ROUTES.ADMIN.DASHBOARD, { replace: true });

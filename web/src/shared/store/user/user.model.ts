@@ -23,6 +23,8 @@ export interface User extends UserProfile {
      * Sert au rendu des avatars sans requête supplémentaire.
      */
     equipped_meshes?: string[];
+    /** Profil de démonstration emprunté par un admin (bandeau « Mode démonstration ») */
+    is_demo?: boolean;
     /** Clés brutes renvoyées par l'API (conservées par le spread) */
     class_?: ClassType;
     interests?: Interest[];

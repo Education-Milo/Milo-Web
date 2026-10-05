@@ -60,6 +60,9 @@ export interface AuditFilters {
 
 export const AUDIT_ACTION_LABELS: Record<string, string> = {
 	role_change: "Changement de rôle",
+	demo_account_create: "Profil de démo créé",
+	demo_account_switch: "Bascule en profil de démo",
+	demo_account_delete: "Profil de démo supprimé",
 	cosmetic_add: "Cosmétique ajouté",
 	cosmetic_update: "Cosmétique modifié",
 	cosmetic_retire: "Cosmétique retiré",
@@ -76,6 +79,7 @@ export interface GrantCoinsPayload {
 }
 
 export interface GrantCoinsResult {
+	userId: number | string;
 	username: string;
 	previousCoins: number;
 	newCoins: number;
@@ -117,4 +121,87 @@ export interface DeleteCosmeticResponse {
 	deleted: boolean;
 	retired: boolean;
 	owners: number;
+}
+
+// ─── Tableau de bord ────────────────────────────────────────────────────────
+
+/** GET /admin/dashboard?days= (profils de démo exclus des agrégats) */
+export interface AdminDashboard {
+	period: { days: number; from: string; to: string };
+	users: {
+		total: number;
+		by_role: Partial<Record<UserRole, number>>;
+		new: number;
+		active: number;
+		demo: number;
+	};
+	engagement: {
+		time_seconds: number;
+		lessons_read: number;
+		qcm_completed: number;
+		avg_score_pct: number | null;
+		duels_played: number;
+		duels_won: number;
+		questions_asked: number;
+		courses_scanned: number;
+		missions_completed: number;
+	};
+	economy: {
+		cosmetics: number;
+		purchases: number;
+		coins_in_circulation: number;
+	};
+	top_subjects: { subject: string; qcm_attempts: number; avg_score_pct: number | null }[];
+}
+
+// ─── Support ────────────────────────────────────────────────────────────────
+
+export interface AdminUserRow {
+	id: number;
+	username: string;
+	email: string;
+	first_name: string;
+	last_name: string;
+	role: UserRole;
+	class_: string | null;
+	xp: number;
+	miloro_coin: number;
+	streak: number;
+	is_demo: boolean;
+	created_at: string;
+}
+
+/** GET /admin/users?q=&role=&limit=&offset= */
+export interface AdminUsersPage {
+	total: number;
+	limit: number;
+	offset: number;
+	users: AdminUserRow[];
+}
+
+export interface AdminUsersFilters {
+	q?: string;
+	role?: UserRole;
+	limit: number;
+	offset: number;
+}
+
+// ─── Profils de démonstration ───────────────────────────────────────────────
+
+/** Rôles possibles pour un profil de démo (jamais Admin) */
+export const DEMO_ROLES: UserRole[] = ["Enfant", "Parent", "Prof"];
+
+export interface DemoAccount {
+	id: number;
+	username: string;
+	email: string;
+	role: UserRole;
+	class_: string | null;
+	is_demo: true;
+}
+
+export interface DemoTokenResponse {
+	access_token: string;
+	token_type: string;
+	account: DemoAccount;
 }

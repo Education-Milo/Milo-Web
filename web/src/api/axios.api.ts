@@ -120,6 +120,14 @@ export const APIRoutes = {
   // Admin API (rôle Admin uniquement)
   POST_Admin_User_Role: (userId: number | string) => `/admin/users/${userId}/role`,
   GET_Admin_Audit: '/admin/audit',
+  GET_Admin_Dashboard: '/admin/dashboard',
+  GET_Admin_Users: '/admin/users',
+  GET_Admin_User_Stats: (userId: number | string) => `/admin/users/${userId}/stats`,
+  GET_Admin_User_Activity: (userId: number | string) => `/admin/users/${userId}/activity`,
+  GET_Admin_Demo_Accounts: '/admin/demo-accounts',
+  POST_Admin_Demo_Accounts: '/admin/demo-accounts',
+  POST_Admin_Demo_Token: (userId: number | string) => `/admin/demo-accounts/${userId}/token`,
+  DELETE_Admin_Demo_Account: (userId: number | string) => `/admin/demo-accounts/${userId}`,
 
   // Cosmetics API (boutique et casier)
   GET_Cosmetics: '/cosmetics',
