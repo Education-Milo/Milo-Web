@@ -7,7 +7,14 @@ import DuelStats from "@features/duels/components/DuelStats";
 import DuelHistory from "@features/duels/components/DuelHistory";
 import LobbyToast from "@features/duels/components/LobbyToast";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import { motion } from "framer-motion";
+import MiloAvatar from "@shared/components/MiloAvatar.component";
+import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import QuizLoader from "@shared/components/quiz/QuizLoader.component";
+import { emojiSrc } from "@shared/components/quiz/quiz.assets";
+import "@shared/styles/Quiz.css";
 import "@features/duels/styles/DuelsScreen.css";
+import "@features/duels/styles/DuelGame.css";
 import miloMascot from "/buttonGo.webp";
 import duelsMilo from "/duels_milo.png";
 
@@ -25,31 +32,50 @@ const DuelsScreen: React.FC = () => {
 		waitingMessage,
 		goToLobby,
 	} = useDuelsScreen();
+	const { equippedMeshNames } = useEquippedMeshNames();
 
 	// ── Game / End screens (full takeover) ────────────────────────────────────
+	// Plein écran, sans barre latérale : rien ne doit distraire du duel
 	if (screen === "game" || screen === "end") {
-		return (
-			<ScreenLayout>
-				<DuelGame />
-			</ScreenLayout>
-		);
+		return <DuelGame />;
 	}
 
 	// ── Waiting screen ────────────────────────────────────────────────────────
 	if (screen === "waiting") {
 		return (
-			<ScreenLayout>
-				<div className="dl-fullscreen-wrap">
-					<div className="dl-waiting-card">
-						<div className="spinner" />
-						<h2 className="dl-waiting-title">⏳ En attente...</h2>
-						<p className="dl-waiting-text">{waitingMessage}</p>
-						<button className="dl-btn-ghost" onClick={goToLobby}>
-							Annuler
-						</button>
+			<QuizLoader
+				variant="duel"
+				className="dg-search"
+				eyebrow="Arène de duels"
+				title="On te trouve un adversaire"
+				highlight="adversaire"
+				messages={[waitingMessage, "Échauffe tes neurones !", "Le plus rapide gagne la manche.", "Prépare ta plus belle émote…"]}
+				art={
+					<div className="dg-search-faceoff">
+						<span className="dg-avatar dg-avatar--lg">
+							<MiloAvatar equippedMeshNames={equippedMeshNames} initials="T" />
+						</span>
+						<motion.img
+							src={emojiSrc("crossed_swords")}
+							alt=""
+							className="dg-search-swords"
+							animate={{ rotate: [-10, 10, -10], scale: [1, 1.12, 1] }}
+							transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
+						/>
+						<motion.span
+							className="dg-search-slot--mystery"
+							animate={{ rotate: [0, -8, 8, 0] }}
+							transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 0.4 }}
+						>
+							?
+						</motion.span>
 					</div>
-				</div>
-			</ScreenLayout>
+				}
+			>
+				<button type="button" className="qz-btn qz-btn--sec" onClick={goToLobby}>
+					Annuler la recherche
+				</button>
+			</QuizLoader>
 		);
 	}
 

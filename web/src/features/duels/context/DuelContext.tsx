@@ -112,12 +112,15 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   // deux sockets quand l'effet est relancé pendant l'attente (StrictMode, login).
   const sessionActiveRef = useRef(false);
   const notifConnectingRef = useRef(false);
+  /// Partie terminée, socket gardée ouverte pour les émotes de l'écran de fin
+  const endedRef = useRef(false);
 
   // ── Duel WS ──────────────────────────────────────────────────────────────
 
   const handleDuelMessage = useCallback((msg: Record<string, any>) => {
     if (msg.type === "joined") {
       duelAuthRetryRef.current = false;
+      endedRef.current = false;
       setMyIdx(msg.player_idx);
       setPlayers([]);
       setLastEmote(null);
@@ -162,11 +165,19 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
     } else if (msg.type === "end") {
       setEndData({ scores: msg.scores, winner: msg.winner });
       setScreen("end");
-      duelWsRef.current?.close();
-      duelWsRef.current = null;
+      // La socket reste ouverte : les joueurs peuvent encore s'envoyer des
+      // émotes sur l'écran de fin. Elle est fermée en quittant (lobby,
+      // revanche).
+      endedRef.current = true;
       // Le back fait avancer missions, XP, coins et streak après un duel
       refreshAfterServerAction();
     } else if (msg.type === "opponent_disconnected") {
+      // Après la fin, l'adversaire qui quitte l'écran ne doit pas nous éjecter
+      if (endedRef.current) {
+        duelWsRef.current?.close();
+        duelWsRef.current = null;
+        return;
+      }
       setScreen("lobby");
       setLobbyStatus("⚠️ Ton adversaire s'est déconnecté.");
       duelWsRef.current?.close();
@@ -345,6 +356,10 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   // ── Actions ───────────────────────────────────────────────────────────────
 
   const startMatchmaking = useCallback(() => {
+    // Revanche depuis l'écran de fin : on ferme l'ancienne partie
+    duelWsRef.current?.close();
+    duelWsRef.current = null;
+    endedRef.current = false;
     setWaitingMessage("En attente d'un adversaire...");
     setScreen("waiting");
     navigate("/duels");
@@ -404,13 +419,15 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const sendEmote = useCallback((cosmeticId: number) => {
     if (!duelWsRef.current || duelWsRef.current.readyState !== WebSocket.OPEN) return;
-    if (!currentQuestionRef.current) return; // uniquement pendant un duel en cours
+    // Pendant un duel, ou sur l'écran de fin tant que la socket est ouverte
+    if (!currentQuestionRef.current && !endedRef.current) return;
     duelWsRef.current.send(JSON.stringify({ type: "emote", cosmetic_id: cosmeticId }));
   }, []);
 
   const goToLobby = useCallback(() => {
     duelWsRef.current?.close();
     duelWsRef.current = null;
+    endedRef.current = false;
     setScreen("lobby");
     setCurrentQuestion(null);
     currentQuestionRef.current = null;

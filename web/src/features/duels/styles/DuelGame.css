@@ -1,0 +1,705 @@
+/* ============================================================
+   DUEL — écran de jeu, recherche, fin de partie
+   Tableau, cartes et série : shared/styles/Quiz.css
+   Préfixe : dg-
+   ============================================================ */
+
+/* Plein écran (sans barre latérale), tout est centré verticalement */
+.duel-game-container,
+.dg-end-wrap {
+	min-height: 100vh;
+	min-height: 100dvh;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 24px;
+	background: var(--qz-creme);
+}
+
+/* Remplace les halos flous du lobby par la trame de la charte */
+.duel-game-container::after,
+.dg-end-wrap::after { display: none; }
+
+.dg-end-wrap > .dg-end-arena { position: relative; z-index: 2; }
+/* .dl-fullscreen-wrap > * repasse ses enfants en relative : le décor reste fixe */
+.dg-end-wrap > .qz-backdrop { position: fixed; z-index: 0; }
+
+.duel-arena {
+	grid-template-columns: minmax(0, 1fr) minmax(0, 720px) minmax(0, 1fr);
+	align-items: center;
+}
+
+/* Textes posés directement sur le décor : pastille blanche pour rester lisibles */
+.dg-hint {
+	align-self: center;
+	width: fit-content;
+	margin-inline: auto;
+	padding: 8px 16px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.dg-center {
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+	min-width: 0;
+}
+
+.dg-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* ============================================================
+   TABLEAU DES SCORES
+   ============================================================ */
+.dg-scoreboard {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	border-radius: 32px;
+	background: #fff;
+	border: 2px solid var(--qz-line);
+	box-shadow: 0 8px 0 var(--qz-sable), 0 30px 50px -36px rgba(120, 50, 10, 0.45);
+}
+
+.dg-player {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas:
+		"id score"
+		"track track";
+	align-items: center;
+	gap: 8px 10px;
+	min-width: 0;
+	padding: 10px 12px;
+	border-radius: 18px;
+}
+
+.dg-player--me {
+	background: var(--qz-creme);
+	box-shadow: inset 0 0 0 2px var(--qz-sable);
+}
+
+.dg-player--opp {
+	grid-template-columns: 1fr auto;
+	grid-template-areas:
+		"score id"
+		"track track";
+	background: var(--qz-surface);
+	box-shadow: inset 0 0 0 2px var(--qz-line);
+}
+
+.dg-player-id {
+	grid-area: id;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.dg-player--opp .dg-player-id { flex-direction: row-reverse; }
+
+.dg-player-name {
+	font-weight: 700;
+	font-size: 0.9rem;
+	color: var(--milo-encre);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.dg-player-score {
+	grid-area: score;
+	justify-self: end;
+	display: inline-flex;
+	font-family: var(--f-display);
+	font-size: 2.4rem;
+	line-height: 1;
+	padding-top: 5px;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+
+.dg-player--opp .dg-player-score {
+	justify-self: start;
+	color: var(--milo-encre);
+	text-shadow: 0 0.06em 0 var(--qz-sable);
+}
+
+/* Pastilles de manches + série, sur une même ligne sous le score */
+.dg-player-foot {
+	grid-area: track;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	min-height: 30px;
+}
+
+.dg-player--opp .dg-player-foot { flex-direction: row-reverse; }
+
+.dg-player .qz-track { gap: 4px; flex-wrap: nowrap; }
+
+/* Avatar Milo (portrait 3D ou initiale) */
+.dg-avatar {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	overflow: hidden;
+	background: var(--surface);
+	box-shadow: 0 0 0 3px #fff, 0 3px 8px rgba(42, 24, 16, 0.18);
+	font-family: var(--f-display);
+	font-size: 1.1rem;
+	color: var(--milo-orange);
+}
+
+.dg-avatar img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.dg-avatar--lg { width: 84px; height: 84px; font-size: 2rem; box-shadow: 0 0 0 4px #fff, 0 8px 18px rgba(42, 24, 16, 0.2); }
+
+/* Chrono */
+.dg-timer-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+}
+
+.dg-timer {
+	--ring: var(--milo-pompon);
+	position: relative;
+	width: 76px;
+	height: 76px;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 5px 0 var(--qz-sable);
+}
+
+.dg-timer--warm { --ring: var(--milo-orange); }
+.dg-timer--hot { --ring: var(--ko); background: var(--ko-bg); }
+.dg-timer.is-frozen { --ring: var(--ok); background: var(--ok-bg); }
+
+.dg-timer svg {
+	position: absolute;
+	inset: 0;
+	transform: rotate(-90deg);
+}
+
+.dg-timer-track {
+	fill: none;
+	stroke: var(--line);
+	stroke-width: 7;
+}
+
+.dg-timer-fill {
+	fill: none;
+	stroke: var(--ring);
+	stroke-width: 7;
+	stroke-linecap: round;
+	transition: stroke-dashoffset 0.95s linear, stroke 0.3s ease;
+}
+
+.dg-timer-value {
+	position: relative;
+	display: grid;
+	place-items: center;
+	font-family: var(--f-display);
+	font-size: 1.7rem;
+	line-height: 1;
+	padding-top: 4px;
+	color: var(--milo-encre);
+}
+
+.dg-timer.is-frozen .dg-timer-value { color: var(--ok); padding-top: 0; }
+.dg-timer--hot .dg-timer-value { color: var(--ko); }
+
+.dg-round-label {
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--text-2);
+	white-space: nowrap;
+}
+
+/* ============================================================
+   BANDEAU D'ÉTAT
+   ============================================================ */
+.dg-status-slot {
+	min-height: 80px;
+}
+
+.dg-status {
+	--st: var(--ok);
+	--st-edge: #17603a;
+	--st-bg: var(--ok-bg);
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 12px 14px;
+	border-radius: 28px;
+	background: var(--st-bg);
+	border: 2px solid var(--st);
+	box-shadow: 0 6px 0 var(--st-edge);
+}
+
+.dg-status--ko { --st: var(--ko); --st-edge: #8e1a2d; --st-bg: var(--ko-bg); }
+.dg-status--timeout { --st: var(--milo-pompon); --st-edge: var(--milo-pompon-relief); --st-bg: var(--pompon-bg); }
+.dg-status--wait { --st: var(--qz-line); --st-edge: var(--qz-sable); --st-bg: #fff; }
+
+.dg-status-icon {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	background: var(--st);
+	box-shadow: inset 0 -4px 0 var(--st-edge);
+	color: #fff;
+}
+
+.dg-status--wait .dg-status-icon {
+	background: var(--milo-creme);
+	box-shadow: inset 0 0 0 2px var(--line);
+	color: var(--milo-orange);
+	animation: dg-hourglass 1.6s ease-in-out infinite;
+}
+
+.dg-status--timeout .dg-status-icon { color: var(--milo-encre); }
+
+.dg-status-text { flex: 1; min-width: 0; }
+
+.dg-status-title {
+	margin: 0;
+	font-family: var(--f-display);
+	font-size: 1.3rem;
+	line-height: 1.15;
+	letter-spacing: 0.02em;
+	color: var(--st-edge);
+}
+
+.dg-status--wait .dg-status-title {
+	flex: 1;
+	font-family: var(--f-text);
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--text-2);
+	letter-spacing: 0;
+}
+
+.dg-status--timeout .dg-status-title,
+.dg-status--timeout .dg-status-sub { color: var(--milo-encre); }
+
+.dg-status-sub {
+	margin: 2px 0 0;
+	font-size: 0.95rem;
+	font-weight: 600;
+	color: var(--st-edge);
+	overflow-wrap: anywhere;
+}
+
+.dg-next {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border-radius: 14px;
+	background: var(--surface);
+	box-shadow: inset 0 0 0 2px var(--st), 0 4px 0 var(--st-edge);
+	font-family: var(--f-display);
+	font-size: 1.4rem;
+	line-height: 1;
+	padding-top: 4px;
+	color: var(--st-edge);
+	overflow: hidden;
+}
+
+.dg-dots {
+	display: inline-flex;
+	gap: 3px;
+	margin-left: 6px;
+	vertical-align: middle;
+}
+
+.dg-dots i {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--milo-orange);
+	animation: dg-dot 1s ease-in-out infinite;
+}
+
+.dg-dots i:nth-child(2) { animation-delay: 0.15s; }
+.dg-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+.dg-hint {
+	margin: 8px auto 0;
+	text-align: center;
+	font-size: 0.92rem;
+	font-weight: 600;
+	color: var(--text-2);
+}
+
+.dg-hint .qz-kbd {
+	background: var(--surface);
+	box-shadow: inset 0 0 0 1.5px var(--line), 0 2px 0 var(--line);
+	color: var(--text-2);
+	margin: 0 2px;
+}
+
+.dg-quit {
+	align-self: center;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border: 0;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+	color: var(--text-2);
+	font-family: var(--f-text);
+	font-weight: 700;
+	font-size: 0.85rem;
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dg-quit:hover { background: var(--ko-bg); color: var(--ko); }
+
+/* ============================================================
+   FIN DE PARTIE
+   ============================================================ */
+/* Arène de fin : mon Milo | carte | Milo adverse */
+.dg-end-arena {
+	position: relative;
+	z-index: 2;
+	width: 100%;
+	max-width: 1500px;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 580px) minmax(0, 1fr);
+	align-items: center;
+	gap: 24px;
+}
+
+.dg-end-side {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	align-self: end;
+}
+
+.dg-end-side--opp { padding-bottom: 40px; }
+
+.dg-end-speech {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	z-index: 3;
+	max-width: 240px;
+	transform-origin: 20% 100%;
+}
+
+.dg-end {
+	position: relative;
+	width: 100%;
+	padding: 44px 24px 26px;
+	border-radius: 40px;
+	background: #fff;
+	border: 2px solid var(--qz-line);
+	box-shadow: 0 10px 0 var(--qz-sable), 0 40px 60px -30px rgba(80, 20, 0, 0.55);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 18px;
+	text-align: center;
+}
+
+.dg-end-emblem {
+	width: 110px;
+	height: 110px;
+	margin: -110px 0 -18px;
+	position: relative;
+	z-index: 3;
+	filter: drop-shadow(0 12px 12px rgba(80, 20, 0, 0.35));
+}
+
+.dg-end .qz-ribbon { margin-top: 0; }
+
+h1.dg-end-title {
+	font-size: clamp(2rem, 6vw, 3rem);
+}
+
+.dg-end-faceoff {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+.dg-end-player {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	padding: 18px 10px 14px;
+	border-radius: 28px;
+	background: #fff;
+	border: 2px solid var(--qz-line);
+	box-shadow: 0 6px 0 var(--qz-sable);
+}
+
+.dg-end-player.is-winner {
+	background: var(--qz-creme);
+	border-color: var(--qz-mandarine);
+	box-shadow: 0 6px 0 var(--milo-braise);
+}
+
+.dg-end-crown {
+	position: absolute;
+	top: -26px;
+	left: 8px;
+	width: 50px;
+	height: 50px;
+	filter: drop-shadow(0 6px 8px rgba(120, 50, 10, 0.3));
+}
+
+.dg-end-name {
+	max-width: 100%;
+	font-weight: 700;
+	font-size: 0.95rem;
+	color: var(--milo-encre);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.dg-end-score {
+	font-family: var(--f-display);
+	font-size: 3rem;
+	line-height: 1;
+	padding-top: 6px;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+
+.dg-end-player--opp .dg-end-score {
+	color: var(--milo-encre);
+	text-shadow: 0 0.06em 0 var(--qz-sable);
+}
+
+.dg-vs {
+	font-family: var(--f-display);
+	font-size: 2rem;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+	transform: rotate(-8deg);
+}
+
+/* Tableau récapitulatif — à la craie */
+.dg-table-wrap {
+	width: 100%;
+	padding: 10px;
+	border-radius: 22px;
+	background: linear-gradient(180deg, #b06a3b, #8a4a24 45%, #5c2e14);
+	box-shadow: 0 6px 0 #5c2e14;
+	overflow-x: auto;
+}
+
+.dg-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 6px;
+	padding: 4px 12px 8px;
+	border-radius: 14px;
+	background: var(--chalk), var(--board);
+	box-shadow: inset 0 0 0 2px var(--board-edge);
+	color: var(--board-text);
+}
+
+.dg-table caption {
+	caption-side: top;
+	padding: 0 0 8px;
+	font-family: var(--f-display);
+	font-size: 1.05rem;
+	letter-spacing: 0.02em;
+	color: var(--qz-creme);
+	text-shadow: 0 0.06em 0 var(--qz-wood-dark);
+}
+
+.dg-table th {
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	opacity: 0.85;
+	padding: 6px 4px 0;
+}
+
+.dg-table tbody th {
+	text-align: left;
+	text-transform: none;
+	letter-spacing: 0;
+	font-size: 0.9rem;
+	padding: 0 8px 0 0;
+	max-width: 110px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	opacity: 1;
+}
+
+.dg-table td {
+	text-align: center;
+	padding: 0 2px;
+}
+
+.dg-cell {
+	display: inline-grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	font-weight: 700;
+	color: #fff;
+}
+
+.dg-cell.is-ok { background: var(--ok); box-shadow: inset 0 -3px 0 #17603a; }
+.dg-cell.is-ko { background: var(--ko); box-shadow: inset 0 -3px 0 #8e1a2d; }
+.dg-cell.is-none { border: 2px dashed rgba(243, 241, 228, 0.4); color: rgba(243, 241, 228, 0.6); }
+
+.dg-end-actions {
+	display: flex;
+	gap: 14px;
+	width: 100%;
+	flex-wrap: wrap;
+}
+
+.dg-end-actions .qz-btn { flex: 1 1 160px; }
+
+/* ============================================================
+   RECHERCHE D'ADVERSAIRE (dans QuizLoader)
+   ============================================================ */
+.qz-loader.dg-search { min-height: 100vh; min-height: 100dvh; }
+
+.dg-search .qz-loader-art { place-items: center; }
+
+.dg-search-faceoff {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+}
+
+.dg-search-faceoff .dg-avatar--lg {
+	width: 104px;
+	height: 104px;
+	box-shadow: 0 0 0 5px var(--qz-creme), 0 10px 0 var(--milo-braise);
+}
+
+.dg-search-swords {
+	width: 84px;
+	height: 84px;
+	filter: drop-shadow(0 10px 12px rgba(120, 30, 5, 0.4));
+	z-index: 1;
+}
+
+.dg-search-slot--mystery {
+	display: grid;
+	place-items: center;
+	width: 104px;
+	height: 104px;
+	border-radius: 50%;
+	background: var(--qz-creme);
+	border: 3px dashed var(--milo-orange);
+	box-shadow: 0 10px 0 var(--milo-braise);
+	font-family: var(--f-display);
+	font-size: 3.2rem;
+	padding-top: 8px;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+
+/* ============================================================
+   ANIMATIONS & RESPONSIVE
+   ============================================================ */
+@keyframes dg-dot {
+	0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+	40% { transform: translateY(-5px); opacity: 1; }
+}
+
+@keyframes dg-hourglass {
+	0%, 40% { transform: rotate(0); }
+	60%, 100% { transform: rotate(180deg); }
+}
+
+@media (max-width: 1280px) {
+	.duel-arena { grid-template-columns: minmax(0, 1fr) minmax(0, 640px) minmax(0, 1fr); }
+}
+
+@media (max-width: 1100px) {
+	.duel-arena { grid-template-columns: minmax(0, 720px); }
+	.dg-end-arena { grid-template-columns: minmax(0, 580px); justify-content: center; }
+	.dg-end-side { display: none; }
+}
+
+@media (max-width: 640px) {
+	.duel-game-container { padding: 14px 10px 24px; }
+	.dg-scoreboard { padding: 10px; gap: 6px; border-radius: 22px; }
+	.dg-player { padding: 8px; gap: 6px; }
+	.dg-player-name { display: none; }
+	.dg-player-score { font-size: 1.9rem; }
+	.dg-avatar { width: 32px; height: 32px; }
+	.dg-timer { width: 62px; height: 62px; }
+	.dg-timer-value { font-size: 1.4rem; }
+	.dg-end { padding: 36px 14px 20px; border-radius: 32px; }
+	.dg-end-emblem { width: 84px; height: 84px; margin-top: -84px; }
+	.dg-avatar--lg { width: 64px; height: 64px; }
+	.dg-search-faceoff .dg-avatar--lg,
+	.dg-search-slot--mystery { width: 76px; height: 76px; font-size: 2.4rem; }
+	.dg-search-swords { width: 60px; height: 60px; }
+
+	.dg-end-score { font-size: 2.4rem; }
+	.dg-vs { font-size: 1.5rem; }
+	.dg-status { flex-wrap: wrap; }
+}
+
+@media (max-width: 420px) {
+	.dg-player-foot { flex-direction: column; }
+	.dg-player--opp .dg-player-foot { flex-direction: column; }
+	.dg-round-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dg-end::before,
+	.dg-dots i,
+	.dg-status--wait .dg-status-icon,
+	.dg-dots i { animation: none !important; }
+}
