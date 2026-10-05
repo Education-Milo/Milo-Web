@@ -9,6 +9,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAuthStore } from "@shared/store/auth/auth.store";
+import { useUserStore } from "@shared/store/user/user.store";
 import { refreshAfterServerAction } from "@shared/lib/serverActions";
 import { showToast } from "@shared/store/toast/toast.store";
 import type {
@@ -79,7 +80,11 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
   const navigate = useNavigate();
   // Booléen plutôt que le token : une rotation d'access token ne doit pas
   // fermer les WebSockets (et couper un duel en cours).
-  const hasSession = useAuthStore((state) => Boolean(state.accessToken));
+  const hasToken = useAuthStore((state) => Boolean(state.accessToken));
+  // Identité de l'utilisateur : change lors d'une bascule admin ↔ profil de démo,
+  // pas lors d'une simple rotation de jeton. Les sockets suivent l'identité.
+  const identity = useUserStore((state) => state.user?.id ?? null);
+  const hasSession = hasToken && identity !== null;
 
   const [screen, setScreen] = useState<DuelScreen>("lobby");
   const [pendingChallenge, setPendingChallenge] =
@@ -334,7 +339,7 @@ export const DuelProvider: React.FC<{ children: React.ReactNode }> = ({
       duelWs?.close();
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
     };
-  }, [hasSession, connectNotifWS]);
+  }, [hasSession, identity, connectNotifWS]);
 
   const checkPendingChallenges = async () => {
     try {

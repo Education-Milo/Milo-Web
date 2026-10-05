@@ -13,9 +13,14 @@ import type {
 	GrantCoinsPayload,
 	UpdateCosmeticResponse,
 	GrantCoinsResult,
+	AdminDashboard,
+	AdminUsersFilters,
+	AdminUsersPage,
+	DemoAccount,
 } from "@features/admin/store/admin.model";
 import type { Cosmetic } from "@features/cosmetics/store/cosmetics.model";
 import { COSMETICS_QUERY_KEY } from "@features/cosmetics/store/cosmetics.queries";
+import { STATS_QUERY_KEY } from "@shared/lib/serverActions";
 
 export const fetchAdminUser = async (username: string): Promise<AdminUserView> => {
 	const response = await APIAxios.get<AdminUserView>(
@@ -66,6 +71,8 @@ export const useChangeUserRole = () => {
 			// La fiche affichée et le journal doivent refléter le changement
 			void queryClient.invalidateQueries({ queryKey: adminUserQueryKey(data.username) });
 			void queryClient.invalidateQueries({ queryKey: ["users", "username", data.username] });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
 			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
 		},
 	});
@@ -98,6 +105,7 @@ export const grantCoins = async ({
 		{ miloro_coin: newCoins },
 	);
 	return {
+		userId,
 		username,
 		previousCoins: currentCoins,
 		newCoins: typeof response.data?.miloro_coin === "number" ? response.data.miloro_coin : newCoins,
@@ -110,8 +118,12 @@ export const useGrantCoins = () => {
 	return useMutation({
 		mutationFn: grantCoins,
 		onSuccess: (result) => {
+			// Les stats du compte affichent aussi le solde
+			void queryClient.invalidateQueries({ queryKey: [...STATS_QUERY_KEY, "user", result.userId] });
 			void queryClient.invalidateQueries({ queryKey: adminUserQueryKey(result.username) });
 			void queryClient.invalidateQueries({ queryKey: ["users", "username", result.username] });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
 			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
 		},
 	});
@@ -185,6 +197,69 @@ export const useUpdateCosmetic = () => {
 export const useDeleteCosmetic = () => {
 	const refresh = useRefreshCatalogue();
 	return useMutation({ mutationFn: deleteCosmetic, onSuccess: refresh });
+};
+
+// ─── Tableau de bord ─────────────────────────────────────────────────────────
+
+export const useAdminDashboard = (days: number) =>
+	useQuery({
+		queryKey: ["admin", "dashboard", days],
+		queryFn: async () =>
+			(await APIAxios.get<AdminDashboard>(APIRoutes.GET_Admin_Dashboard, { params: { days } })).data,
+		staleTime: 60 * 1000,
+		placeholderData: keepPreviousData,
+	});
+
+// ─── Support ─────────────────────────────────────────────────────────────────
+
+export const useAdminUsers = (filters: AdminUsersFilters) =>
+	useQuery({
+		queryKey: ["admin", "users", filters],
+		queryFn: async () => {
+			const params: Record<string, string | number> = { limit: filters.limit, offset: filters.offset };
+			if (filters.q?.trim()) params.q = filters.q.trim();
+			if (filters.role) params.role = filters.role;
+			return (await APIAxios.get<AdminUsersPage>(APIRoutes.GET_Admin_Users, { params })).data;
+		},
+		staleTime: 15 * 1000,
+		placeholderData: keepPreviousData,
+	});
+
+// ─── Profils de démonstration ────────────────────────────────────────────────
+
+export const demoAccountsQueryKey = ["admin", "demo-accounts"] as const;
+
+export const useDemoAccounts = () =>
+	useQuery({
+		queryKey: demoAccountsQueryKey,
+		queryFn: async () => (await APIAxios.get<DemoAccount[]>(APIRoutes.GET_Admin_Demo_Accounts)).data,
+		staleTime: 15 * 1000,
+	});
+
+export const useCreateDemoAccount = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (payload: { role: string; class_?: string | null }) =>
+			(await APIAxios.post<DemoAccount>(APIRoutes.POST_Admin_Demo_Accounts, payload)).data,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: demoAccountsQueryKey });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
+		},
+	});
+};
+
+export const useDeleteDemoAccount = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (accountId: number) =>
+			(await APIAxios.delete<{ deleted: boolean; user_id: number }>(
+				APIRoutes.DELETE_Admin_Demo_Account(accountId),
+			)).data,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: demoAccountsQueryKey });
+			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
+		},
+	});
 };
 
 /** Message d'erreur à afficher : le champ `detail` du backend tel quel. */

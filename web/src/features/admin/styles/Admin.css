@@ -82,8 +82,6 @@
 .ad-content { display: flex; flex-direction: column; gap: 18px; }
 
 /* Recherche */
-.ad-users { display: flex; flex-direction: column; gap: 18px; max-width: 860px; }
-.ad-search { position: relative; }
 .ad-search-box {
 	display: flex;
 	align-items: center;
@@ -105,37 +103,6 @@
 	font-weight: 600;
 	color: var(--ad-text-main);
 }
-.ad-suggestions {
-	list-style: none;
-	margin: 8px 0 0;
-	padding: 6px;
-	border-radius: 18px;
-	background: var(--ad-surface);
-	border: 1.5px solid var(--ad-border);
-	box-shadow: 0 14px 30px rgba(42, 24, 16, 0.12);
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	max-height: 260px;
-	overflow-y: auto;
-}
-.ad-suggestions button {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	width: 100%;
-	border: none;
-	background: transparent;
-	padding: 9px 12px;
-	border-radius: 12px;
-	font-family: var(--ad-font);
-	font-weight: 700;
-	font-size: 0.9rem;
-	color: var(--ad-text-main);
-	cursor: pointer;
-	text-align: left;
-}
-.ad-suggestions button:hover { background: var(--ad-accent-soft); color: var(--ad-accent); }
 
 /* Fiche */
 .ad-card {
@@ -335,7 +302,6 @@
 /* ============================================================
    POPUP : CRÉDITER DES MILOROS
    ============================================================ */
-.ad-toolbar--end { justify-content: flex-end; }
 .ad-overlay {
 	position: fixed;
 	inset: 0;
@@ -446,3 +412,104 @@
 .ad-switch input:checked + .ad-switch-track::after { transform: translateX(18px); }
 .ad-switch input:focus-visible + .ad-switch-track { outline: 2px solid var(--ad-accent); outline-offset: 2px; }
 .ad-switch-label { font-size: 0.85rem; font-weight: 700; color: var(--ad-text-main); }
+
+/* ============================================================
+   TABLEAU DE BORD
+   ============================================================ */
+.ad-tabs { flex-wrap: wrap; }
+.ad-toolbar--between { justify-content: space-between; align-items: center; }
+.ad-segmented {
+	display: inline-flex;
+	padding: 4px;
+	border-radius: 100px;
+	background: rgba(255, 255, 255, 0.8);
+	border: 2px solid #fff;
+}
+.ad-segmented-btn {
+	border: none;
+	background: transparent;
+	padding: 7px 16px;
+	border-radius: 100px;
+	font-family: var(--ad-font);
+	font-weight: 800;
+	font-size: 0.82rem;
+	color: var(--ad-text-soft);
+	cursor: pointer;
+}
+.ad-segmented-btn.active { background: var(--ad-text-main); color: #fff; }
+.ad-dashboard { display: flex; flex-direction: column; gap: 18px; }
+.ad-dashboard-body { display: flex; flex-direction: column; gap: 18px; transition: opacity 0.2s ease; }
+.ad-dashboard-body.is-fetching { opacity: 0.6; }
+.ad-dashboard-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 18px; }
+.ad-subtitle { display: inline-flex; align-items: center; gap: 8px; }
+.ad-subtitle svg { color: var(--ad-accent); }
+.ad-subtitle--sm { font-size: 0.85rem; color: var(--ad-text-soft); margin-top: 4px; }
+.ad-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.ad-tiles--stack { grid-template-columns: 1fr; }
+.ad-tile {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	border-radius: 18px;
+	background: var(--ad-bg-soft);
+}
+.ad-tile-icon {
+	flex-shrink: 0;
+	width: 38px;
+	height: 38px;
+	border-radius: 12px;
+	background: #fff;
+	color: var(--ad-accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.ad-tile-body { display: flex; flex-direction: column; min-width: 0; }
+.ad-tile-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ad-text-soft); }
+.ad-tile-value { font-size: 1.35rem; font-weight: 900; color: var(--ad-text-main); line-height: 1.2; }
+.ad-tile-hint { font-size: 0.72rem; font-weight: 600; color: var(--ad-text-muted); }
+
+/* Barres horizontales : une teinte, valeur au bout */
+.ad-barlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ad-barlist-row { display: grid; grid-template-columns: minmax(90px, 160px) minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.ad-barlist-label { font-weight: 800; font-size: 0.85rem; color: var(--ad-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ad-barlist-track { height: 12px; border-radius: 4px; background: var(--ad-bg-soft); overflow: hidden; }
+.ad-barlist-fill { display: block; height: 100%; background: var(--ad-accent); border-radius: 0 4px 4px 0; }
+.ad-barlist-value { font-size: 0.82rem; font-weight: 800; color: var(--ad-text-main); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   SUPPORT
+   ============================================================ */
+.ad-support, .ad-support-detail { display: flex; flex-direction: column; gap: 16px; }
+.ad-search-box--inline { flex: 1; min-width: 240px; box-shadow: none; border-color: var(--ad-border); }
+.ad-toolbar-count { margin-left: auto; align-self: center; }
+.ad-user-cell { display: flex; flex-direction: column; min-width: 0; }
+.ad-table--clickable tbody tr { cursor: pointer; transition: background 0.15s ease; }
+.ad-table--clickable tbody tr:hover, .ad-table--clickable tbody tr:focus-visible { background: var(--ad-accent-soft); outline: none; }
+.ad-chip--demo { margin-left: 6px; background: #FEF3C7; color: #92400E; }
+.ad-support-detail .st-page--embedded { background: rgba(255, 255, 255, 0.55); border: 2px solid #fff; }
+
+/* ============================================================
+   PROFILS DE DÉMO
+   ============================================================ */
+.ad-demo { display: flex; flex-direction: column; gap: 18px; max-width: 900px; }
+.ad-demo-intro { margin: 0; line-height: 1.5; }
+.ad-demo-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.ad-demo-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ad-demo-row {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 12px 14px;
+	border-radius: 16px;
+	background: var(--ad-bg-soft);
+}
+.ad-demo-row .ad-role-badge { margin-left: 0; }
+.ad-demo-row .ad-user-cell { flex: 1; }
+.ad-demo-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+@media (max-width: 900px) {
+	.ad-dashboard-split { grid-template-columns: 1fr; }
+	.ad-barlist-row { grid-template-columns: minmax(70px, 110px) minmax(0, 1fr) auto; }
+}

@@ -44,6 +44,13 @@ export interface AuthActions {
    * jetons locaux sont vidés. Ne connecte jamais automatiquement.
    */
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
+  /**
+   * Admin : bascule vers un profil de démonstration (rechargement de la page).
+   * Le jeton de démo remplace le jeton courant ; exitDemo revient à l'admin.
+   */
+  enterDemo: (accountId: number) => Promise<void>;
+  /** Restaure le compte admin d'origine (rechargement de la page). */
+  exitDemo: () => Promise<void>;
   /** Au démarrage : restaure une session via le cookie de refresh. */
   bootstrapSession: () => Promise<boolean>;
   /** POST /token/refresh, sérialisé : un seul appel en vol à la fois. */
