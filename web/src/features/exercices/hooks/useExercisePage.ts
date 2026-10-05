@@ -4,6 +4,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useExerciseStore } from "@features/exercices/store/exercise.store";
 import { ROUTES } from "@shared/constants/routes";
 import type { QcmQuestion } from "@features/exercices/store/exercise.model";
+import { isStreakMilestone } from "@shared/components/quiz/streak.utils";
+
+/// Durée de l'explosion plein écran au passage d'un palier de série
+const STREAK_BURST_MS = 3400;
 
 interface QcmLocationState {
 	qcmQuestions?: QcmQuestion[];
@@ -32,8 +36,11 @@ export const useExerciseScreen = () => {
 	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 	const [score, setScore] = useState(0);
 	const [streak, setStreak] = useState(0);
-	const [showStreakAnimation, setShowStreakAnimation] = useState(false);
-	const [showFireworks, setShowFireworks] = useState(false);
+	/// Palier de série à célébrer (null : rien à afficher)
+	const [burstStreak, setBurstStreak] = useState<number | null>(null);
+	/// Résultat de chaque question déjà répondue, dans l'ordre
+	const [history, setHistory] = useState<boolean[]>([]);
+	const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	// Généré une seule fois par tentative : rend POST /tracking/performance idempotent.
 	const [attemptId] = useState(createAttemptId);
 	const [bestStreak, setBestStreak] = useState(0);
@@ -84,6 +91,10 @@ export const useExerciseScreen = () => {
 		};
 	}, [generatedQuestions, lessonId, postQcm]);
 
+	useEffect(() => () => {
+		if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+	}, []);
+
 	// Données courantes
 	const totalQuestions = questions.length;
 	const currentQuestion = questions[currentQuestionIndex] ?? null;
@@ -92,29 +103,22 @@ export const useExerciseScreen = () => {
 	const progress =
 		totalQuestions > 0 ? (currentQuestionIndex / totalQuestions) * 100 : 0;
 
-	const getStreakMessage = () => {
-		if (streak >= 5) return "🔥 EN FEU ! 🔥";
-		if (streak >= 3) return "⚡ INCROYABLE ! ⚡";
-		return null;
-	};
-
 	const selectAnswer = (option: string) => {
 		if (isAnswered || !currentQuestion) return;
 		setSelectedAnswer(option);
+		const correct = option === currentQuestion.correct_answer;
+		setHistory((prev) => [...prev, correct]);
 
-		if (option === currentQuestion.correct_answer) {
+		if (correct) {
 			setScore((prev) => prev + 1);
 			const newStreak = streak + 1;
 			setStreak(newStreak);
 			setBestStreak((current) => Math.max(current, newStreak));
 
-			if (newStreak >= 3) {
-				setShowStreakAnimation(true);
-				setTimeout(() => setShowStreakAnimation(false), 2000);
-			}
-			if (newStreak >= 5) {
-				setShowFireworks(true);
-				setTimeout(() => setShowFireworks(false), 3000);
+			if (isStreakMilestone(newStreak)) {
+				setBurstStreak(newStreak);
+				if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+				burstTimerRef.current = setTimeout(() => setBurstStreak(null), STREAK_BURST_MS);
 			}
 		} else {
 			setStreak(0);
@@ -139,7 +143,13 @@ export const useExerciseScreen = () => {
 		}
 	};
 
+	const dismissStreakBurst = () => {
+		if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+		setBurstStreak(null);
+	};
+
 	return {
+		dismissStreakBurst,
 		currentQuestion,
 		currentQuestionIndex,
 		totalQuestions,
@@ -151,9 +161,9 @@ export const useExerciseScreen = () => {
 		isCorrect,
 		score,
 		streak,
-		showStreakAnimation,
-		showFireworks,
-		streakMessage: getStreakMessage(),
+		bestStreak,
+		burstStreak,
+		history,
 		selectAnswer,
 		nextQuestion,
 	};
