@@ -14,6 +14,8 @@ const RedirectScreen: React.FC = () => {
 		if (user) {
 			switch (user.role) {
 				case "Enfant":
+				case "Admin":
+					// Un admin joue aussi : il arrive sur l'accueil élève, l'administration est dans la sidebar
 					navigate(ROUTES.HOME, { replace: true });
 					break;
 				case "Parent":
@@ -23,9 +25,6 @@ const RedirectScreen: React.FC = () => {
 					// Pas encore d'espace professeur : /prof/dashboard n'est pas routé et
 					// retomberait sur "/", d'où une boucle de redirections.
 					navigate(ROUTES.UNAUTHORIZED, { replace: true });
-					break;
-				case "Admin":
-					navigate(ROUTES.ADMIN.DASHBOARD, { replace: true });
 					break;
 				default:
 					navigate(ROUTES.UNAUTHORIZED, { replace: true });

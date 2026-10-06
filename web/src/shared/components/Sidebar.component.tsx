@@ -21,8 +21,6 @@ interface SidebarProps {
 	/** Skins équipés de l'utilisateur, pour son avatar Milo */
 	avatarMeshNames?: string[];
 	onNotificationClick?: () => void;
-	/** "admin" : pages du panneau d'administration à la place de l'espace élève */
-	variant?: "app" | "admin";
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -34,7 +32,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 	missionsRemaining = 0,
 	avatarMeshNames,
 	onNotificationClick,
-	variant = "app",
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -56,9 +53,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	/// Icônes introuvables : on retombe sur l'emoji plutôt qu'une image cassée
 	const [brokenIcons, setBrokenIcons] = useState<Set<string>>(() => new Set());
 
-	const isAdmin = variant === "admin";
-	const isParent = !isAdmin && userProfile?.role === "Parent";
-	const isStudent = !isAdmin && !isParent;
+	const isParent = userProfile?.role === "Parent";
+	// Un admin a toute la navigation élève, plus le groupe « Administration »
+	const isAdmin = userProfile?.role === "Admin";
 
 	const studentNavItems = [
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
@@ -87,23 +84,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Paramètres", path: "/settings", icon: "⚙️", disabled: true },
 	];
 
-	const adminNavItems = [
-		{ label: "Tableau de bord", path: ROUTES.ADMIN.DASHBOARD, icon: "📊", iconSrc: navIcon("stats") },
-		{ label: "Support", path: ROUTES.ADMIN.SUPPORT, icon: "🛟", iconSrc: navIcon("friend") },
-		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜", iconSrc: navIcon("lesson") },
+	const adminItems = [
+		{ label: "Tableau de bord", path: ROUTES.ADMIN.DASHBOARD, icon: "📊" },
+		{ label: "Support", path: ROUTES.ADMIN.SUPPORT, icon: "🛟" },
+		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜" },
+		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕" },
+		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪" },
 	];
 
-	const adminContentItems = [
-		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕", iconSrc: navIcon("shop") },
-		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪", iconSrc: navIcon("my_milo") },
-	];
-
-	const adminAccountItems = [
-		{ label: "Paramètres", path: ROUTES.ADMIN.SETTINGS, icon: "⚙️" },
-	];
-
-	const activeNavItems = isAdmin ? adminNavItems : isParent ? parentNavItems : studentNavItems;
-	const profilePath = isAdmin ? ROUTES.ADMIN.SETTINGS : ROUTES.PROFILE;
+	const activeNavItems = isParent ? parentNavItems : studentNavItems;
 	const isActive = (path: string) => location.pathname === path;
 
 	/* =========================================================
@@ -124,6 +113,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 		if (!activeEl) {
 			setIndicator((prev) => ({ ...prev, visible: false }));
 			return;
+		}
+		// La sidebar est remontée à chaque page : on ramène l'élément actif dans
+		// la zone visible (ex. le groupe Administration, en bas de la liste)
+		const navBox = nav.getBoundingClientRect();
+		const activeBox = activeEl.getBoundingClientRect();
+		if (activeBox.bottom > navBox.bottom || activeBox.top < navBox.top) {
+			nav.scrollTop += activeBox.top - navBox.top - (navBox.height - activeBox.height) / 2;
 		}
 		const navRect = nav.getBoundingClientRect();
 		const itemRect = activeEl.getBoundingClientRect();
@@ -232,7 +228,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 							<span className="sb-mobile-btn-label">Fermer</span>
 						</button>
 
-						{!isAdmin && (
 						<button
 							type="button"
 							className="sb-icon-btn"
@@ -247,7 +242,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</span>
 							)}
 						</button>
-						)}
 					</div>
 				</div>
 
@@ -268,21 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							{activeNavItems.map(renderNavItem)}
 						</div>
 
-						{isAdmin && (
-							<>
-								<div className="sb-nav-group">
-									<div className="sb-nav-group-title">Contenu</div>
-									{adminContentItems.map(renderNavItem)}
-								</div>
-
-								<div className="sb-nav-group">
-									<div className="sb-nav-group-title">Compte</div>
-									{adminAccountItems.map(renderNavItem)}
-								</div>
-							</>
-						)}
-
-						{isStudent && (
+						{!isParent && (
 							<>
 								<div className="sb-nav-group">
 									<div className="sb-nav-group-title">Progression</div>
@@ -295,10 +275,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</div>
 							</>
 						)}
+
+						{isAdmin && (
+							<div className="sb-nav-group">
+								<div className="sb-nav-group-title">Administration</div>
+								{adminItems.map(renderNavItem)}
+							</div>
+						)}
 					</nav>
 
 					{/* --- CARTE DU JOUR : rappel des missions, au-dessus du profil --- */}
-					{isStudent && (
+					{!isParent && (
 						<button
 							type="button"
 							className={`sb-quest ${missionsRemaining === 0 ? "is-done" : ""}`}
@@ -325,7 +312,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<button
 							type="button"
 							className="sb-user-card"
-							onClick={() => navigate(profilePath)}
+							onClick={() => navigate(ROUTES.PROFILE)}
 						>
 							<div className="sb-user-avatar">
 						<MiloAvatar
@@ -338,10 +325,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 									{userProfile?.first_name || "Utilisateur"}
 								</h4>
 								<p className="sb-user-sub">
-									{isAdmin ? "Administrateur" : isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
+									{isParent
+										? "Parent"
+										: isAdmin && !userProfile?.classe
+											? "Administrateur"
+											: `Classe ${userProfile?.classe || "1"}`}
 								</p>
 							</div>
-							{!isAdmin && (
 							<div className="sb-user-stats">
 								<div
 									className="sb-streak"
@@ -355,7 +345,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 									<span>{xpPoints}</span>
 								</div>
 							</div>
-							)}
 						</button>
 
 						<button

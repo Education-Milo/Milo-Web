@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useUserStore } from "@shared/store/user/user.store";
+import { canPlay } from "@shared/constants/roles";
 import { MISSIONS_QUERY_KEY } from "@shared/lib/serverActions";
 import type {
 	DailyMission,
@@ -27,14 +28,14 @@ export const rerollMission = async (missionId: number): Promise<DailyMission> =>
  * Missions du jour. Le premier appel de la journée tire les missions,
  * les suivants renvoient les mêmes : on peut donc les garder en cache
  * et ne les rafraîchir qu'après une action (voir refreshAfterServerAction).
- * Route réservée au rôle Enfant (403 sinon) : désactivée pour les autres.
+ * Route réservée aux joueurs (élèves et admins) : désactivée pour les autres.
  */
 export const useDailyMissions = () => {
 	const role = useUserStore((state) => state.user?.role);
 	return useQuery({
 		queryKey: todayMissionsQueryKey,
 		queryFn: fetchTodayMissions,
-		enabled: role === "Enfant",
+		enabled: canPlay(role),
 		staleTime: 60 * 1000,
 	});
 };

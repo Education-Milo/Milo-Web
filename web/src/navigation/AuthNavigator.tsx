@@ -28,6 +28,7 @@ import AdminPage from "@features/admin/pages/Admin.page";
 import OcrPage from "@features/ocr/pages/OcrPage";
 import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
 import { ROUTES } from "@shared/constants/routes";
+import { PLAYER_ROLES } from "@shared/constants/roles";
 
 // Pages Parent
 import ParentDashboard from "@features/parent/pages/Dashboard.page";
@@ -73,12 +74,12 @@ const AuthNavigator: React.FC = () => {
 					}
 				/>
 
-				{/* ==================== ROUTES USER (Élève) ==================== */}
+				{/* ==================== ROUTES USER (Élève, et admins qui jouent aussi) ==================== */}
 
 				<Route
 					path="/milo"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MiloScene />
 						</ProtectedRoute>
 					}
@@ -87,7 +88,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/home"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<HomeScreen />
 						</ProtectedRoute>
 					}
@@ -96,7 +97,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path={ROUTES.COURSES}
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<CoursesPage />
 						</ProtectedRoute>
 					}
@@ -105,7 +106,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/courses/:subjectId"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<CourseDetailScreen />
 						</ProtectedRoute>
 					}
@@ -114,7 +115,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/course-milo/:lessonId"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MiloScene />
 						</ProtectedRoute>
 					}
@@ -123,7 +124,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/course-milo/:lessonId/question-ouverte"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MiloScene />
 						</ProtectedRoute>
 					}
@@ -132,7 +133,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path={ROUTES.OCR}
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<OcrPage />
 						</ProtectedRoute>
 					}
@@ -141,7 +142,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path={ROUTES.GENERATED_EXERCISE}
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<GeneratedExercisePage />
 						</ProtectedRoute>
 					}
@@ -150,7 +151,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/missions"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MissionsPage />
 						</ProtectedRoute>
 					}
@@ -159,7 +160,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path={ROUTES.STATS}
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<StatsPage />
 						</ProtectedRoute>
 					}
@@ -168,7 +169,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/duels"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<DuelsPage />
 						</ProtectedRoute>
 					}
@@ -177,7 +178,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path={ROUTES.QCM_GENERATED}
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<ExerciseScreen />
 						</ProtectedRoute>
 					}
@@ -186,7 +187,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/qcm/:lessonId"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<ExerciseScreen />
 						</ProtectedRoute>
 					}
@@ -195,7 +196,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/exercise-result"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<ExerciseResultScreen />
 						</ProtectedRoute>
 					}
@@ -203,7 +204,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/mon-milo"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MyMiloPage />
 						</ProtectedRoute>
 					}
@@ -211,7 +212,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/boutique"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<BoutiquePage />
 						</ProtectedRoute>
 					}
@@ -220,7 +221,7 @@ const AuthNavigator: React.FC = () => {
 				<Route
 					path="/friends"
 					element={
-						<ProtectedRoute allowedRoles={["Enfant"]}>
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<FriendsPage />
 						</ProtectedRoute>
 					}
