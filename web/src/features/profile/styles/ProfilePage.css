@@ -58,6 +58,7 @@
 .pf-card > *:not(.pf-card-glow) { position: relative; z-index: 1; }
 .pf-identity { animation-delay: 0.1s; }
 .pf-security { animation-delay: 0.22s; }
+.pf-subtitle { margin: 4px 0 -6px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-3); }
 .pf-interests { animation-delay: 0.16s; }
 .pf-stats { animation-delay: 0.28s; }
 .pf-card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1.5px dashed var(--pf-border-soft); }

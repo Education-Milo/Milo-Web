@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import type { LoginFormData, FormErrors } from "@shared/types/auth.types";
 import { ROUTES } from "@shared/constants/routes";
 import type { UserRole } from "@shared/store/user/user.model";
+import type { TwoFactorChallenge } from "@shared/store/auth/auth.model";
+
+/** Défi de double authentification en cours, avec son échéance locale */
+export interface PendingTwoFactor {
+	challenge: TwoFactorChallenge;
+	expiresAt: number;
+}
 
 export const useLoginForm = () => {
 	const [formData, setFormData] = useState<LoginFormData>({
@@ -15,6 +22,7 @@ export const useLoginForm = () => {
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [isLoading, setIsLoading] = useState(false);
 	const [generalError, setGeneralError] = useState("");
+	const [twoFactor, setTwoFactor] = useState<PendingTwoFactor | null>(null);
 	const navigate = useNavigate();
 	const login = useAuthStore((state) => state.login);
 	const user = useUserStore((state) => state.user);
@@ -66,9 +74,15 @@ export const useLoginForm = () => {
 		if (Object.keys(newErrors).length === 0) {
 			setIsLoading(true);
 			try {
-				await login(formData.email.trim(), formData.password);
-				const role = useUserStore.getState().user?.role ?? user?.role;
-				navigate(getRedirectPath(role), { replace: true });
+				const result = await login(formData.email.trim(), formData.password);
+				if (result.status === "two_factor") {
+					setTwoFactor({
+						challenge: result.challenge,
+						expiresAt: Date.now() + result.challenge.expires_in * 1000,
+					});
+					return;
+				}
+				redirectAfterLogin();
 			} catch (error: any) {
 				console.error("❌ Erreur de connexion:", error);
 				const errorMessage =
@@ -96,6 +110,24 @@ export const useLoginForm = () => {
 		}
 	};
 
+	function redirectAfterLogin() {
+		const role = useUserStore.getState().user?.role ?? user?.role;
+		navigate(getRedirectPath(role), { replace: true });
+	}
+
+	/** Second facteur validé : la session est ouverte */
+	const handleTwoFactorSuccess = () => {
+		setTwoFactor(null);
+		redirectAfterLogin();
+	};
+
+	/** Défi abandonné ou mort : retour au formulaire, mot de passe à ressaisir */
+	const handleTwoFactorRestart = useCallback((message?: string) => {
+		setTwoFactor(null);
+		setFormData((prev) => ({ ...prev, password: "" }));
+		setGeneralError(message ?? "");
+	}, []);
+
 	const handleForgotPassword = () => {
 		navigate(ROUTES.FORGOT_PASSWORD);
 	};
@@ -114,5 +146,8 @@ export const useLoginForm = () => {
 		handleForgotPassword,
 		handleSignUp,
 		navigate,
+		twoFactor,
+		handleTwoFactorSuccess,
+		handleTwoFactorRestart,
 	};
 };

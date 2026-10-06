@@ -285,7 +285,7 @@ const AuthNavigator: React.FC = () => {
 
 				{/* ==================== ROUTES ADMIN ==================== */}
 				<Route
-					path={ROUTES.ADMIN.DASHBOARD}
+					path={`${ROUTES.ADMIN.DASHBOARD}/*`}
 					element={
 						<ProtectedRoute allowedRoles={["Admin"]}>
 							<AdminPage />

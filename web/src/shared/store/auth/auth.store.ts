@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import qs from 'qs';
 import { isAxiosError } from 'axios';
-import type { AuthStore, AuthResponse, LogoutOptions } from '@shared/store/auth/auth.model';
+import type {
+  AuthStore,
+  AuthResponse,
+  LoginResponse,
+  LogoutOptions,
+} from '@shared/store/auth/auth.model';
 import APIAxios, { APIRoutes, AuthAxios, AUTH_COOKIE_MODE, authCookieParams } from '@api/axios.api';
 import { jwtDecode } from 'jwt-decode';
 import {
@@ -35,6 +40,30 @@ const hasSessionHint = () => {
     return localStorage.getItem(SESSION_HINT_KEY) === '1';
   } catch {
     return true;
+  }
+};
+
+/**
+ * Appareil de confiance hors mode cookie : le back renvoie `device_token` dans
+ * le corps de /token/2fa, à présenter en `X-Device-Token` aux /token suivants.
+ * En mode cookie, c'est le cookie httpOnly `milo_device` qui fait ce travail et
+ * rien n'est stocké ici.
+ */
+const DEVICE_TOKEN_KEY = 'milo_device_token';
+const loadDeviceToken = () => {
+  if (AUTH_COOKIE_MODE) return null;
+  try {
+    return localStorage.getItem(DEVICE_TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+const saveDeviceToken = (token: string | undefined) => {
+  if (AUTH_COOKIE_MODE || !token) return;
+  try {
+    localStorage.setItem(DEVICE_TOKEN_KEY, token);
+  } catch {
+    // stockage indisponible : le code sera simplement redemandé
   }
 };
 
@@ -250,6 +279,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       login: async (email, password) => {
+        const deviceToken = loadDeviceToken();
         const data = qs.stringify({
           grant_type: "password",
           username: email,
@@ -258,18 +288,48 @@ export const useAuthStore = create<AuthStore>()(
           client_id: "",
           client_secret: "",
         });
-        const response = await APIAxios.post<AuthResponse>(
+        const response = await APIAxios.post<LoginResponse>(
           APIRoutes.POST_Login,
           data,
           {
             params: authCookieParams,
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
+              ...(deviceToken ? { 'X-Device-Token': deviceToken } : {}),
             },
           }
         );
+        // Mot de passe vérifié, second facteur attendu : aucune session encore
+        if (response.data.two_factor_required) {
+          return { status: 'two_factor', challenge: response.data };
+        }
+        await get().openSession(response.data);
+        return { status: 'authenticated' };
+      },
+
+      completeTwoFactor: async ({ challengeToken, method, code, trustDevice, deviceName }) => {
+        const response = await APIAxios.post<AuthResponse>(
+          APIRoutes.POST_Login_2FA,
+          {
+            challenge_token: challengeToken,
+            method,
+            code: code.trim(),
+            trust_device: trustDevice,
+            ...(trustDevice && deviceName?.trim() ? { device_name: deviceName.trim() } : {}),
+          },
+          { params: authCookieParams },
+        );
+        saveDeviceToken(response.data.device_token);
+        await get().openSession(response.data);
+      },
+
+      sendTwoFactorEmail: async (challengeToken) => {
+        await APIAxios.post(APIRoutes.POST_Login_2FA_Email, { challenge_token: challengeToken });
+      },
+
+      openSession: async (data: AuthResponse) => {
         // refresh_token vaut null : il est dans le cookie, on n'en garde rien en JS
-        const token = extractAccessToken(response.data);
+        const token = extractAccessToken(data);
         if (!token) {
           throw new Error('No access token received from server');
         }

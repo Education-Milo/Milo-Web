@@ -21,6 +21,8 @@ interface SidebarProps {
 	/** Skins équipés de l'utilisateur, pour son avatar Milo */
 	avatarMeshNames?: string[];
 	onNotificationClick?: () => void;
+	/** "admin" : pages du panneau d'administration à la place de l'espace élève */
+	variant?: "app" | "admin";
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -32,6 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	missionsRemaining = 0,
 	avatarMeshNames,
 	onNotificationClick,
+	variant = "app",
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -53,7 +56,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	/// Icônes introuvables : on retombe sur l'emoji plutôt qu'une image cassée
 	const [brokenIcons, setBrokenIcons] = useState<Set<string>>(() => new Set());
 
-	const isParent = userProfile?.role === "Parent";
+	const isAdmin = variant === "admin";
+	const isParent = !isAdmin && userProfile?.role === "Parent";
+	const isStudent = !isAdmin && !isParent;
 
 	const studentNavItems = [
 		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
@@ -82,7 +87,23 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Paramètres", path: "/settings", icon: "⚙️", disabled: true },
 	];
 
-	const activeNavItems = isParent ? parentNavItems : studentNavItems;
+	const adminNavItems = [
+		{ label: "Tableau de bord", path: ROUTES.ADMIN.DASHBOARD, icon: "📊", iconSrc: navIcon("stats") },
+		{ label: "Support", path: ROUTES.ADMIN.SUPPORT, icon: "🛟", iconSrc: navIcon("friend") },
+		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜", iconSrc: navIcon("lesson") },
+	];
+
+	const adminContentItems = [
+		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕", iconSrc: navIcon("shop") },
+		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪", iconSrc: navIcon("my_milo") },
+	];
+
+	const adminAccountItems = [
+		{ label: "Paramètres", path: ROUTES.ADMIN.SETTINGS, icon: "⚙️" },
+	];
+
+	const activeNavItems = isAdmin ? adminNavItems : isParent ? parentNavItems : studentNavItems;
+	const profilePath = isAdmin ? ROUTES.ADMIN.SETTINGS : ROUTES.PROFILE;
 	const isActive = (path: string) => location.pathname === path;
 
 	/* =========================================================
@@ -111,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 			height: itemRect.height,
 			visible: true,
 		});
-	}, [location.pathname, isParent]);
+	}, [location.pathname, isParent, isAdmin]);
 
 	/* Re-mesure si la fenêtre est redimensionnée */
 	useEffect(() => {
@@ -211,6 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							<span className="sb-mobile-btn-label">Fermer</span>
 						</button>
 
+						{!isAdmin && (
 						<button
 							type="button"
 							className="sb-icon-btn"
@@ -225,6 +247,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 								</span>
 							)}
 						</button>
+						)}
 					</div>
 				</div>
 
@@ -245,7 +268,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 							{activeNavItems.map(renderNavItem)}
 						</div>
 
-						{!isParent && (
+						{isAdmin && (
+							<>
+								<div className="sb-nav-group">
+									<div className="sb-nav-group-title">Contenu</div>
+									{adminContentItems.map(renderNavItem)}
+								</div>
+
+								<div className="sb-nav-group">
+									<div className="sb-nav-group-title">Compte</div>
+									{adminAccountItems.map(renderNavItem)}
+								</div>
+							</>
+						)}
+
+						{isStudent && (
 							<>
 								<div className="sb-nav-group">
 									<div className="sb-nav-group-title">Progression</div>
@@ -261,7 +298,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					</nav>
 
 					{/* --- CARTE DU JOUR : rappel des missions, au-dessus du profil --- */}
-					{!isParent && (
+					{isStudent && (
 						<button
 							type="button"
 							className={`sb-quest ${missionsRemaining === 0 ? "is-done" : ""}`}
@@ -288,7 +325,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						<button
 							type="button"
 							className="sb-user-card"
-							onClick={() => navigate("/profile")}
+							onClick={() => navigate(profilePath)}
 						>
 							<div className="sb-user-avatar">
 						<MiloAvatar
@@ -301,9 +338,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 									{userProfile?.first_name || "Utilisateur"}
 								</h4>
 								<p className="sb-user-sub">
-									{isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
+									{isAdmin ? "Administrateur" : isParent ? "Parent" : `Classe ${userProfile?.classe || "1"}`}
 								</p>
 							</div>
+							{!isAdmin && (
 							<div className="sb-user-stats">
 								<div
 									className="sb-streak"
@@ -317,6 +355,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 									<span>{xpPoints}</span>
 								</div>
 							</div>
+							)}
 						</button>
 
 						<button

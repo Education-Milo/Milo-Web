@@ -1,14 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-	FlaskConical,
-	LayoutDashboard,
-	LifeBuoy,
-	LogOut,
-	ScrollText,
-	ShieldCheck,
-	Shirt,
-} from "lucide-react";
+import React from "react";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, Settings, Shirt } from "lucide-react";
+import Sidebar from "@shared/components/Sidebar.component";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import { ROUTES } from "@shared/constants/routes";
@@ -17,23 +10,58 @@ import CosmeticsManager from "@features/admin/components/CosmeticsManager";
 import AdminDashboard from "@features/admin/components/AdminDashboard";
 import AdminSupport from "@features/admin/components/AdminSupport";
 import DemoProfiles from "@features/admin/components/DemoProfiles";
+import AdminSettings from "@features/admin/components/AdminSettings";
 import "@features/admin/styles/Admin.css";
 
-type AdminTab = "dashboard" | "support" | "cosmetics" | "demo" | "audit";
-
-const TABS: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
-	{ id: "dashboard", label: "Tableau de bord", icon: <LayoutDashboard size={16} /> },
-	{ id: "support", label: "Support", icon: <LifeBuoy size={16} /> },
-	{ id: "cosmetics", label: "Cosmétiques", icon: <Shirt size={16} /> },
-	{ id: "demo", label: "Profils de démo", icon: <FlaskConical size={16} /> },
-	{ id: "audit", label: "Journal", icon: <ScrollText size={16} /> },
+const SECTIONS: { path: string; title: string; subtitle: string; icon: React.ReactNode }[] = [
+	{
+		path: ROUTES.ADMIN.DASHBOARD,
+		title: "Tableau de bord",
+		subtitle: "Activité de la plateforme sur la période choisie",
+		icon: <LayoutDashboard size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.SUPPORT,
+		title: "Support",
+		subtitle: "Comptes, statistiques, rôles, miloros et double authentification",
+		icon: <LifeBuoy size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.AUDIT,
+		title: "Journal",
+		subtitle: "Toutes les actions d'administration, tracées",
+		icon: <ScrollText size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.COSMETICS,
+		title: "Cosmétiques",
+		subtitle: "Catalogue de la boutique",
+		icon: <Shirt size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.DEMO,
+		title: "Profils de démo",
+		subtitle: "Comptes fictifs pour voir l'application avec un autre rôle",
+		icon: <FlaskConical size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.SETTINGS,
+		title: "Paramètres",
+		subtitle: "Ton compte administrateur et sa sécurité",
+		icon: <Settings size={22} />,
+	},
 ];
+
+/** Chemin relatif à /admin pour les routes imbriquées ("" pour le tableau de bord). */
+const relative = (path: string) => path.slice(ROUTES.ADMIN.DASHBOARD.length + 1);
 
 const AdminPage: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const me = useUserStore((state) => state.user);
 	const logout = useAuthStore((state) => state.logout);
-	const [tab, setTab] = useState<AdminTab>("dashboard");
+
+	const section = SECTIONS.find((s) => s.path === location.pathname.replace(/\/+$/, "")) ?? SECTIONS[0];
 
 	const handleLogout = async () => {
 		await logout();
@@ -41,49 +69,38 @@ const AdminPage: React.FC = () => {
 	};
 
 	return (
-		<div className="ad-page">
-			<header className="ad-header">
-				<div className="ad-header-title">
-					<ShieldCheck size={22} />
-					<div>
-						<h1>Administration</h1>
-						<p>Activité de la plateforme, comptes, catalogue et profils de démonstration</p>
+		<>
+			<Sidebar
+				variant="admin"
+				onLogout={handleLogout}
+				userProfile={{ first_name: me?.first_name ?? "", last_name: me?.last_name ?? "", role: me?.role }}
+			/>
+			<main className="main-container">
+				<div className="ad-page">
+					<header className="ad-header">
+						<div className="ad-header-title">
+							{section.icon}
+							<div>
+								<h1>{section.title}</h1>
+								<p>{section.subtitle}</p>
+							</div>
+						</div>
+					</header>
+
+					<div className="ad-content">
+						<Routes>
+							<Route index element={<AdminDashboard />} />
+							<Route path={relative(ROUTES.ADMIN.SUPPORT)} element={<AdminSupport />} />
+							<Route path={relative(ROUTES.ADMIN.AUDIT)} element={<AuditLog />} />
+							<Route path={relative(ROUTES.ADMIN.COSMETICS)} element={<CosmeticsManager />} />
+							<Route path={relative(ROUTES.ADMIN.DEMO)} element={<DemoProfiles />} />
+							<Route path={relative(ROUTES.ADMIN.SETTINGS)} element={<AdminSettings />} />
+							<Route path="*" element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
+						</Routes>
 					</div>
 				</div>
-				<div className="ad-header-user">
-					<span>
-						{me?.first_name} {me?.last_name}
-						<span className="ad-muted"> · @{me?.username}</span>
-					</span>
-					<button type="button" className="ad-btn ad-btn--ghost" onClick={handleLogout}>
-						<LogOut size={15} /> Se déconnecter
-					</button>
-				</div>
-			</header>
-
-			<nav className="ad-tabs" role="tablist" aria-label="Sections">
-				{TABS.map((t) => (
-					<button
-						key={t.id}
-						type="button"
-						role="tab"
-						aria-selected={tab === t.id}
-						className={`ad-tab ${tab === t.id ? "active" : ""}`}
-						onClick={() => setTab(t.id)}
-					>
-						{t.icon} {t.label}
-					</button>
-				))}
-			</nav>
-
-			<main className="ad-content">
-				{tab === "dashboard" && <AdminDashboard />}
-				{tab === "support" && <AdminSupport />}
-				{tab === "cosmetics" && <CosmeticsManager />}
-				{tab === "demo" && <DemoProfiles />}
-				{tab === "audit" && <AuditLog />}
 			</main>
-		</div>
+		</>
 	);
 };
 

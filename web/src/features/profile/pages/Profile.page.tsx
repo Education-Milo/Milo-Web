@@ -13,6 +13,8 @@ import {
 	Heart,
 	Lock,
 	Mail,
+	MonitorSmartphone,
+	ShieldCheck,
 	Plus,
 	RotateCcw,
 	Sparkles,
@@ -25,6 +27,9 @@ import "@features/profile/styles/ProfilePage.css";
 import { useProfilePage } from "@features/profile/hooks/useProfilePage";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
+import TwoFactorPanel from "@features/security/components/TwoFactorPanel";
+import TrustedDevicesPanel from "@features/security/components/TrustedDevicesPanel";
+import SessionsPanel from "@features/security/components/SessionsPanel";
 
 const CLASSES = [
 	{ value: "6eme", label: "6ème" },
@@ -276,6 +281,34 @@ const ProfilePage: React.FC = () => {
 									<span>Se déconnecter de tous les appareils</span>
 								</button>
 							</div>
+						</section>
+
+						{/* DOUBLE AUTHENTIFICATION */}
+						<section className="pf-card pf-theme-teal pf-security">
+							<span className="pf-card-glow" aria-hidden="true" />
+							<header className="pf-card-header">
+								<div className="pf-card-title-wrap">
+									<ShieldCheck size={20} className="pf-card-icon" />
+									<h2 className="pf-card-title">Double authentification</h2>
+								</div>
+								<span className="pf-card-sub">Un code en plus du mot de passe</span>
+							</header>
+							<TwoFactorPanel />
+						</section>
+
+						{/* APPAREILS ET SESSIONS */}
+						<section className="pf-card pf-theme-amber pf-security">
+							<span className="pf-card-glow" aria-hidden="true" />
+							<header className="pf-card-header">
+								<div className="pf-card-title-wrap">
+									<MonitorSmartphone size={20} className="pf-card-icon" />
+									<h2 className="pf-card-title">Appareils et sessions</h2>
+								</div>
+							</header>
+							<h3 className="pf-subtitle">Appareils de confiance</h3>
+							<TrustedDevicesPanel />
+							<h3 className="pf-subtitle">Sessions ouvertes</h3>
+							<SessionsPanel />
 						</section>
 					</div>
 

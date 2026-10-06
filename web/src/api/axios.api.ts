@@ -97,6 +97,27 @@ export const APIRoutes = {
   POST_Password_Forgot: '/password/forgot',
   POST_Password_Reset: '/password/reset',
 
+  // Double authentification : connexion en deux temps (sans Bearer)
+  POST_Login_2FA: '/token/2fa',
+  POST_Login_2FA_Email: '/token/2fa/email',
+  // Réglages du second facteur (Bearer)
+  GET_2FA_Status: '/2fa/status',
+  POST_2FA_Totp_Setup: '/2fa/totp/setup',
+  POST_2FA_Totp_Confirm: '/2fa/totp/confirm',
+  DELETE_2FA_Totp: '/2fa/totp',
+  POST_2FA_Email_Enable: '/2fa/email/enable',
+  POST_2FA_Email_Confirm: '/2fa/email/confirm',
+  POST_2FA_Email_Send_Code: '/2fa/email/send-code',
+  DELETE_2FA_Email: '/2fa/email',
+  POST_2FA_Recovery_Codes: '/2fa/recovery-codes',
+  GET_2FA_Devices: '/2fa/devices',
+  DELETE_2FA_Device: (deviceId: number | string) => `/2fa/devices/${deviceId}`,
+  DELETE_2FA_Devices: '/2fa/devices',
+  // Sessions ouvertes (une par refresh token)
+  GET_Sessions: '/sessions',
+  PATCH_Session: (sessionId: number | string) => `/sessions/${sessionId}`,
+  DELETE_Session: (sessionId: number | string) => `/sessions/${sessionId}`,
+
   // User API
   GET_Me: '/users/me',
   PUT_Update_user: (userId: string) => `/users/${userId}`,
@@ -128,6 +149,7 @@ export const APIRoutes = {
   POST_Admin_Demo_Accounts: '/admin/demo-accounts',
   POST_Admin_Demo_Token: (userId: number | string) => `/admin/demo-accounts/${userId}/token`,
   DELETE_Admin_Demo_Account: (userId: number | string) => `/admin/demo-accounts/${userId}`,
+  DELETE_Admin_User_2FA: (userId: number | string) => `/admin/users/${userId}/2fa`,
 
   // Cosmetics API (boutique et casier)
   GET_Cosmetics: '/cosmetics',

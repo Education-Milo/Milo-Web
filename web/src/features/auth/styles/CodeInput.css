@@ -1,0 +1,57 @@
+/* Saisie d'un code à 6 chiffres (réinitialisation, double authentification) */
+
+.code-input {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.code-input-boxes {
+	display: flex;
+	justify-content: center;
+	gap: 0.55rem;
+}
+
+.code-input-box {
+	width: 3rem;
+	height: 3.4rem;
+	border-radius: 16px;
+	border: 2px solid rgba(241, 223, 203, 0.8);
+	background: rgba(255, 255, 255, 0.9);
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--milo-encre);
+	font-family: inherit;
+	outline: none;
+	transition: 0.25s;
+}
+
+.code-input-box:focus {
+	border-color: var(--milo-orange);
+	box-shadow: 0 10px 25px rgba(255, 84, 29, 0.15);
+}
+
+.code-input-box:disabled {
+	opacity: 0.6;
+}
+
+.code-input-boxes.has-error .code-input-box {
+	border-color: var(--ko-bg);
+}
+
+.code-input-error {
+	color: var(--ko);
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-align: center;
+	margin: 0;
+}
+
+@media (max-width: 400px) {
+	.code-input-box {
+		width: 2.5rem;
+		height: 3rem;
+		font-size: 1.25rem;
+	}
+}
