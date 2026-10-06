@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import "@features/auth/styles/CodeInput.css";
 
 interface CodeInputProps {
 	value: string;
@@ -106,7 +107,7 @@ const CodeInput: React.FC<CodeInputProps> = ({
 					/>
 				))}
 			</div>
-			{error && <p className="forgot-error-text code-input-error">{error}</p>}
+			{error && <p className="code-input-error">{error}</p>}
 		</div>
 	);
 };

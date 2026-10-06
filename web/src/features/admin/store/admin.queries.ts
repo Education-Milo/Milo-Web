@@ -225,6 +225,21 @@ export const useAdminUsers = (filters: AdminUsersFilters) =>
 		placeholderData: keepPreviousData,
 	});
 
+/**
+ * Secours : retire tous les facteurs d'un compte, ses codes de secours et ses
+ * appareils de confiance (sessions conservées). Tracé dans le journal.
+ */
+export const useResetUserTwoFactor = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async ({ userId, reason }: { userId: number; reason: string }) =>
+			(await APIAxios.delete(APIRoutes.DELETE_Admin_User_2FA(userId), { data: { reason } })).data,
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ["admin", "audit"] });
+		},
+	});
+};
+
 // ─── Profils de démonstration ────────────────────────────────────────────────
 
 export const demoAccountsQueryKey = ["admin", "demo-accounts"] as const;

@@ -8,6 +8,36 @@ export interface AuthResponse {
   token_type: string;
   /** Toujours null en mode cookie : le refresh est dans le cookie httpOnly. */
   refresh_token: string | null;
+  two_factor_required?: false;
+  /** Renvoyé par /token/2fa avec trust_device, hors mode cookie uniquement. */
+  device_token?: string;
+}
+
+export type TwoFactorMethod = 'totp' | 'email' | 'recovery';
+
+/** Réponse de /token quand un second facteur est attendu. */
+export interface TwoFactorChallenge {
+  two_factor_required: true;
+  /** N'ouvre aucune API : sert uniquement à /token/2fa. Usage unique, 5 essais. */
+  challenge_token: string;
+  /** Méthodes réellement utilisables ("recovery" absent sans code restant). */
+  methods: TwoFactorMethod[];
+  /** Durée de vie du défi, en secondes. */
+  expires_in: number;
+}
+
+export type LoginResponse = AuthResponse | TwoFactorChallenge;
+
+export type LoginResult =
+  | { status: 'authenticated' }
+  | { status: 'two_factor'; challenge: TwoFactorChallenge };
+
+export interface TwoFactorLoginPayload {
+  challengeToken: string;
+  method: TwoFactorMethod;
+  code: string;
+  trustDevice: boolean;
+  deviceName?: string;
 }
 
 export interface ApiError {
@@ -31,7 +61,17 @@ export interface LogoutOptions {
 }
 
 export interface AuthActions {
-  login: (email: string, password: string) => Promise<void>;
+  /**
+   * POST /token. Sans second facteur (ou appareil de confiance), la session
+   * est ouverte ; sinon renvoie le défi à compléter via completeTwoFactor.
+   */
+  login: (email: string, password: string) => Promise<LoginResult>;
+  /** POST /token/2fa : termine une connexion en deux étapes. */
+  completeTwoFactor: (payload: TwoFactorLoginPayload) => Promise<void>;
+  /** POST /token/2fa/email : envoie le code de connexion par email. */
+  sendTwoFactorEmail: (challengeToken: string) => Promise<void>;
+  /** Interne : mémorise le jeton d'accès reçu et charge /users/me. */
+  openSession: (data: AuthResponse) => Promise<void>;
   register: (email: string, password: string, lastName: string, firstName: string, role: string, classe?: string, username?: string) => Promise<void>;
   logout: (options?: LogoutOptions) => Promise<void>;
   /** POST /logout/all : déconnecte tous les appareils, puis nettoie localement. */
