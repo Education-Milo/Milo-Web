@@ -11,17 +11,18 @@ interface MainButtonComponentProps {
 	loading?: boolean;
 	className?: string;
 	icon?: React.ReactNode;
+	disabled?: boolean;
 }
 
 const MainButtonComponent = (props: MainButtonComponentProps) => {
-	const { title, onPress, className, loading, icon } = props;
+	const { title, onPress, className, loading, icon, disabled } = props;
 	const colors = useColors();
 
 	return (
 		<button
 			className={cn("main-button", className)}
 			onClick={onPress}
-			disabled={loading}
+			disabled={loading || disabled}
 		>
 			<div className="main-button-inner">
 				{loading ? (

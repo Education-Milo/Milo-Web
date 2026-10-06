@@ -11,6 +11,7 @@ import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/Login.css";
 import miloLogo from "/milo-logo.webp";
 import MainButtonComponent from "@shared/components/MainButton.component";
+import TwoFactorStep from "@features/auth/components/TwoFactorStep.component";
 
 const Login: React.FC = () => {
 	const {
@@ -22,6 +23,9 @@ const Login: React.FC = () => {
 		handleSubmit,
 		handleForgotPassword,
 		handleSignUp,
+		twoFactor,
+		handleTwoFactorSuccess,
+		handleTwoFactorRestart,
 	} = useLoginForm();
 	const location = useLocation();
 	const successMessage =
@@ -46,6 +50,15 @@ const Login: React.FC = () => {
 					animate={{ opacity: 1, scale: 1 }}
 					transition={{ type: "spring", stiffness: 100, damping: 15 }}
 				>
+					{twoFactor ? (
+						<TwoFactorStep
+							challenge={twoFactor.challenge}
+							expiresAt={twoFactor.expiresAt}
+							onSuccess={handleTwoFactorSuccess}
+							onRestart={handleTwoFactorRestart}
+						/>
+					) : (
+					<>
 					<div className="login-intro">
 						<img src={miloLogo} alt="Milo Logo" className="login-logo" />
 						<h2 className="form-title">Content de te revoir !</h2>
@@ -116,6 +129,8 @@ const Login: React.FC = () => {
 							</p>
 						</div>
 					</div>
+					</>
+					)}
 				</motion.div>
 			</main>
 		</div>

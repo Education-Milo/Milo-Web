@@ -11,6 +11,7 @@ import StatsView from "@features/stats/components/StatsView";
 import { usePerformances } from "@features/stats/store/stats.queries";
 import GrantCoinsModal from "@features/admin/components/GrantCoinsModal";
 import UserRoleForm from "@features/admin/components/UserRoleForm";
+import ResetTwoFactorForm from "@features/admin/components/ResetTwoFactorForm";
 import { KIND_LABELS, formatDuration, formatRelativeDate } from "@features/stats/utils/stats.format";
 
 const PAGE_SIZE = 50;
@@ -110,6 +111,9 @@ const UserDetail: React.FC<UserDetailProps> = ({ user, onBack, onUpdate }) => {
 					</dl>
 
 					<UserRoleForm user={user} onChanged={(result) => onUpdate({ role: result.role })} />
+
+					{/* Un profil de démo ne peut pas activer la 2FA : rien à désactiver */}
+					{!user.is_demo && <ResetTwoFactorForm key={user.id} user={user} />}
 				</section>
 
 				{isGranting && (

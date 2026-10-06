@@ -40,5 +40,10 @@ export const ROUTES = {
 
 	ADMIN: {
 		DASHBOARD: "/admin",
+		SUPPORT: "/admin/support",
+		AUDIT: "/admin/journal",
+		COSMETICS: "/admin/cosmetiques",
+		DEMO: "/admin/demo",
+		SETTINGS: "/admin/parametres",
 	},
 } as const;
