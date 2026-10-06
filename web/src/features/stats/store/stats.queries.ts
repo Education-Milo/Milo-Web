@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useUserStore } from "@shared/store/user/user.store";
+import { canPlay } from "@shared/constants/roles";
 import { STATS_QUERY_KEY } from "@shared/lib/serverActions";
 import { useStatsScope, type StatsScope } from "@features/stats/context/StatsScope";
 import type {
@@ -63,10 +64,10 @@ export const fetchActivities = async (
 
 const scopeKey = (scope: StatsScope) => (scope.kind === "user" ? ["user", scope.userId] : ["me"]);
 
-/** Pour soi : routes réservées aux élèves. Pour un autre compte : panel admin. */
+/** Pour soi : routes réservées aux joueurs. Pour un autre compte : panel admin. */
 const useIsEnabled = (scope: StatsScope) => {
-	const isStudent = useUserStore((state) => state.user?.role === "Enfant");
-	return scope.kind === "user" || isStudent;
+	const isPlayer = useUserStore((state) => canPlay(state.user?.role));
+	return scope.kind === "user" || isPlayer;
 };
 
 /**

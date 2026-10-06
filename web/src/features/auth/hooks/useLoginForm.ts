@@ -32,11 +32,10 @@ export const useLoginForm = () => {
 			case "Parent":
 				return ROUTES.PARENT.DASHBOARD;
 			case "Enfant":
+			case "Admin":
 				return ROUTES.HOME;
 			case "Prof":
 				return ROUTES.UNAUTHORIZED;
-			case "Admin":
-				return ROUTES.ADMIN.DASHBOARD;
 			default:
 				return ROUTES.UNAUTHORIZED;
 		}
