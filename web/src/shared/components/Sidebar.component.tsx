@@ -87,6 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const adminItems = [
 		{ label: "Tableau de bord", path: ROUTES.ADMIN.DASHBOARD, icon: "📊" },
 		{ label: "Support", path: ROUTES.ADMIN.SUPPORT, icon: "🛟" },
+		{ label: "Modération IA", path: ROUTES.ADMIN.MODERATION, icon: "🛡️" },
 		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜" },
 		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕" },
 		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪" },

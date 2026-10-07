@@ -36,6 +36,9 @@ import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedModal.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import "@features/milo-scene/styles/MiloScene.css";
+import DistressNotice from "@shared/components/DistressNotice.component";
+import { isDistressReply } from "@shared/lib/distress";
+import { AI_LIMITS } from "@shared/lib/aiRequests";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
@@ -403,8 +406,11 @@ const LessonActions: React.FC<{
 	onBackToLessons: () => void;
 	onBackToCourseDetail: () => void;
 	onOpenQuestionNewQuestion: () => void;
+	/** Le cours n'a pas pu être chargé : message et retour aux leçons */
+	loadError?: string | null;
 }> = ({
 	phase,
+	loadError,
 	isFreeChatMode,
 	isOpenQuestionMode,
 	openQuestionPhase,
@@ -415,6 +421,17 @@ const LessonActions: React.FC<{
 	onBackToCourseDetail,
 	onOpenQuestionNewQuestion,
 }) => {
+	if (loadError) {
+		return (
+			<div className="lesson-actions glass-panel" role="alert">
+				<span className="lesson-loading-text">{loadError}</span>
+				<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
+					<span>Revenir aux leçons</span>
+				</button>
+			</div>
+		);
+	}
+
 	if (phase === "loading") {
 		return (
 			<div className="lesson-actions glass-panel">
@@ -523,13 +540,19 @@ const LessonActions: React.FC<{
 };
 
 /* ── Chat input pour poser une question ── */
+/** Le compteur n'apparaît qu'en approchant de la limite, pour ne pas distraire. */
+const COUNTER_THRESHOLD = 0.8;
+
 const ChatInput: React.FC<{
 	value: string;
 	onChange: (val: string) => void;
 	onSend: () => void;
 	disabled: boolean;
 	placeholder?: string;
-}> = ({ value, onChange, onSend, disabled, placeholder = "Pose une question à Milo..." }) => {
+	/** Borne du champ côté back (422 au-delà) */
+	maxLength: number;
+}> = ({ value, onChange, onSend, disabled, placeholder = "Pose une question à Milo...", maxLength }) => {
+	const showCounter = value.length >= maxLength * COUNTER_THRESHOLD;
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter" && !e.shiftKey && value.trim()) {
 			e.preventDefault();
@@ -548,7 +571,13 @@ const ChatInput: React.FC<{
 					onKeyDown={handleKeyDown}
 					autoFocus
 					disabled={disabled}
+					maxLength={maxLength}
 				/>
+				{showCounter && (
+					<span className={`chat-input-counter ${value.length >= maxLength ? "is-full" : ""}`} aria-live="polite">
+						{value.length} / {maxLength}
+					</span>
+				)}
 				<button className="chat-send-btn" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Envoyer">
 					<FiSend size={16} />
 				</button>
@@ -845,6 +874,7 @@ const MiloScene: React.FC = () => {
 		question,
 		setQuestion,
 		reply,
+		loadError,
 		handleSendQuestion,
 		handleNextPart,
 		handleBackToLessons,
@@ -946,6 +976,15 @@ const MiloScene: React.FC = () => {
 		},
 		[maxScrollRow, scrollBoardBy],
 	);
+	// Réponse ouverte : insérée dans une consigne, d'où une borne plus basse
+	const chatMaxLength = isOpenQuestionMode
+		? AI_LIMITS.STUDENT_ANSWER
+		: isFreeChatMode
+			? AI_LIMITS.CHAT_REQUEST
+			: AI_LIMITS.LESSON_QUESTION;
+	const [dismissedDistressText, setDismissedDistressText] = useState<string | null>(null);
+	const showDistressNotice =
+		phase !== "loading" && isDistressReply(boardFullText) && dismissedDistressText !== boardFullText;
 	const chatPlaceholder = isOpenQuestionMode
 		? isOpenQuestionBusy
 			? "Milo prépare..."
@@ -1055,6 +1094,7 @@ const MiloScene: React.FC = () => {
 				onBackToLessons={handleBackToLessons}
 				onBackToCourseDetail={handleBackToCourseDetail}
 				onOpenQuestionNewQuestion={handleOpenQuestionNewQuestion}
+				loadError={loadError}
 			/>
 
 			{isLessonFullyFinished && (
@@ -1077,7 +1117,13 @@ const MiloScene: React.FC = () => {
 					onSend={handleSendQuestion}
 					disabled={phase === "answering"}
 					placeholder={chatPlaceholder}
+					maxLength={chatMaxLength}
 				/>
+			)}
+
+			{/* Réponse de détresse : en entier, numéros d'aide cliquables */}
+			{showDistressNotice && (
+				<DistressNotice text={boardFullText} onClose={() => setDismissedDistressText(boardFullText)} />
 			)}
 
 			{showReviewBoardButton && (

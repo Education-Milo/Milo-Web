@@ -150,6 +150,10 @@ export const APIRoutes = {
   POST_Admin_Demo_Token: (userId: number | string) => `/admin/demo-accounts/${userId}/token`,
   DELETE_Admin_Demo_Account: (userId: number | string) => `/admin/demo-accounts/${userId}`,
   DELETE_Admin_User_2FA: (userId: number | string) => `/admin/users/${userId}/2fa`,
+  // Modération et usage de l'IA (comptes de démo exclus des agrégats)
+  GET_Admin_Moderation: '/admin/moderation',
+  GET_Admin_Moderation_Events: '/admin/moderation/events',
+  GET_Admin_AI_Usage: '/admin/ai-usage',
 
   // Cosmetics API (boutique et casier)
   GET_Cosmetics: '/cosmetics',

@@ -737,6 +737,19 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* Compteur affiché près de la limite de longueur imposée par le back */
+.chat-input-counter {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.chat-input-counter.is-full {
+  color: #ffb199;
+}
+
 .chat-input {
   flex: 1;
   background: transparent;

@@ -18,6 +18,7 @@ import {
 	FlaskConical,
 } from "lucide-react";
 import { ROLE_LABELS } from "@features/admin/store/admin.model";
+import { BarList, Tile, fmt } from "@features/admin/components/DashboardParts";
 import { getAdminErrorMessage, useAdminDashboard } from "@features/admin/store/admin.queries";
 import { formatDuration, formatPercent } from "@features/stats/utils/stats.format";
 import type { UserRole } from "@shared/store/user/user.model";
@@ -30,49 +31,6 @@ const PERIODS = [
 ];
 
 const ROLE_ORDER: UserRole[] = ["Enfant", "Parent", "Prof", "Admin"];
-
-const fmt = (n: number) => n.toLocaleString("fr-FR");
-
-const Tile: React.FC<{ icon: React.ReactNode; label: string; value: string; hint?: string }> = ({
-	icon,
-	label,
-	value,
-	hint,
-}) => (
-	<div className="ad-tile">
-		<div className="ad-tile-icon">{icon}</div>
-		<div className="ad-tile-body">
-			<span className="ad-tile-label">{label}</span>
-			<span className="ad-tile-value">{value}</span>
-			{hint && <span className="ad-tile-hint">{hint}</span>}
-		</div>
-	</div>
-);
-
-/** Barres horizontales, une seule teinte, valeur écrite au bout de chaque barre. */
-const BarList: React.FC<{ rows: { label: string; value: number; note?: string }[]; unit?: string }> = ({
-	rows,
-	unit = "",
-}) => {
-	const max = Math.max(1, ...rows.map((r) => r.value));
-	return (
-		<ul className="ad-barlist">
-			{rows.map((row) => (
-				<li key={row.label} className="ad-barlist-row" title={`${row.label} : ${fmt(row.value)}${unit}`}>
-					<span className="ad-barlist-label">{row.label}</span>
-					<span className="ad-barlist-track">
-						<span className="ad-barlist-fill" style={{ width: `${(row.value / max) * 100}%` }} />
-					</span>
-					<span className="ad-barlist-value">
-						{fmt(row.value)}
-						{unit}
-						{row.note && <span className="ad-muted"> · {row.note}</span>}
-					</span>
-				</li>
-			))}
-		</ul>
-	);
-};
 
 const AdminDashboard: React.FC = () => {
 	const [days, setDays] = useState(30);

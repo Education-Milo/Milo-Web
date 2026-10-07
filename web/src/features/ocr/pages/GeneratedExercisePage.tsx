@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock, Download, Eye, Lightbulb, Send } from "lucide-react";
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
+import DistressText from "@shared/components/DistressText.component";
+import "@shared/styles/Distress.css";
+import { AI_LIMITS, clampText, getAiErrorMessage } from "@shared/lib/aiRequests";
 import { ROUTES } from "@shared/constants/routes";
 import { useGeneratedExerciseStore } from "../store/generatedExercise.store";
 import type { GeneratedExercise } from "../types/ocr.types";
@@ -93,7 +96,7 @@ const GeneratedExercisePage: React.FC = () => {
 				`Donne l'indice ${index + 1} pour aider l'élève à résoudre cet exercice. L'indice doit être progressif, sans donner la réponse complète.`,
 			);
 			formData.append("conversation_id", generatedExercise.conversationId);
-			formData.append("context", generatedExercise.exercise);
+			formData.append("context", clampText(generatedExercise.exercise, AI_LIMITS.CONTEXT));
 
 			const { data } = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
 				headers: { "Content-Type": "multipart/form-data" },
@@ -114,8 +117,8 @@ const GeneratedExercisePage: React.FC = () => {
 					return hint;
 				}),
 			);
-		} catch {
-			setHintError("Impossible de récupérer l'indice pour le moment.");
+		} catch (err) {
+			setHintError(getAiErrorMessage(err, { fallback: "Impossible de récupérer l'indice pour le moment." }));
 			setHints((current) =>
 				current.map((hint, hintIndex) =>
 					hintIndex === index ? { ...hint, isLoading: false } : hint,
@@ -134,9 +137,9 @@ const GeneratedExercisePage: React.FC = () => {
 			const formData = new FormData();
 			formData.append(
 				"chat_request",
-				`Tu es un professeur bienveillant qui corrige la réponse d'un élève.
+				// L'énoncé part dans `context` : chat_request est limité à 2 000 caractères
+				`Tu es un professeur bienveillant qui corrige la réponse d'un élève à l'exercice fourni en contexte.
 
-				Énoncé de l'exercice : "${generatedExercise.exercise}"
 				Réponse de l'élève : "${studentAnswer.trim()}"
 
 				Donne un retour constructif et encourageant en 3 parties :
@@ -149,7 +152,7 @@ const GeneratedExercisePage: React.FC = () => {
 				Sois chaleureux, bref et pédagogique.`,
 			);
 			formData.append("conversation_id", generatedExercise.conversationId);
-			formData.append("context", generatedExercise.exercise);
+			formData.append("context", clampText(generatedExercise.exercise, AI_LIMITS.CONTEXT));
 
 			const { data } = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
 				headers: { "Content-Type": "multipart/form-data" },
@@ -160,8 +163,8 @@ const GeneratedExercisePage: React.FC = () => {
 
 			setAnswerFeedback(content);
 			setHasSubmittedAnswer(true);
-		} catch {
-			setAnswerError("Impossible d'envoyer ta réponse pour le moment. Réessaie !");
+		} catch (err) {
+			setAnswerError(getAiErrorMessage(err, { fallback: "Impossible d'envoyer ta réponse pour le moment. Réessaie !" }));
 		} finally {
 			setIsSubmittingAnswer(false);
 		}
@@ -254,7 +257,13 @@ const GeneratedExercisePage: React.FC = () => {
 								onChange={(event) => setStudentAnswer(event.target.value)}
 								placeholder="Écris ta réponse ici avant de demander trop d'aide..."
 								disabled={isSubmittingAnswer}
+								maxLength={AI_LIMITS.STUDENT_ANSWER}
 							/>
+							{studentAnswer.length >= AI_LIMITS.STUDENT_ANSWER * 0.8 && (
+								<p className="ocr-answer-counter" aria-live="polite">
+									{studentAnswer.length} / {AI_LIMITS.STUDENT_ANSWER} caractères
+								</p>
+							)}
 							{answerError && <p className="ocr-hint-error">{answerError}</p>}
 							<button
 								type="button"
@@ -276,7 +285,7 @@ const GeneratedExercisePage: React.FC = () => {
 								<div className="ocr-ex-feedback-box">
 									<h3>Correction de Milo</h3>
 									{splitParagraphs(answerFeedback).map((paragraph, index) => (
-										<p key={`feedback-${paragraph}-${index}`}>{paragraph}</p>
+										<p key={`feedback-${paragraph}-${index}`}><DistressText text={paragraph} /></p>
 									))}
 								</div>
 							)}
@@ -314,7 +323,7 @@ const GeneratedExercisePage: React.FC = () => {
 										</div>
 
 										{hint.content ? (
-											<p className="ocr-hint-content">{hint.content}</p>
+											<p className="ocr-hint-content"><DistressText text={hint.content} /></p>
 										) : (
 											<button
 												type="button"

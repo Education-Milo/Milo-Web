@@ -1,0 +1,79 @@
+/* Réponses de détresse : lisibles en entier, numéros d'aide cliquables */
+
+.distress-tel {
+	color: var(--milo-vert);
+	font-weight: 800;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	white-space: nowrap;
+}
+
+.distress-notice {
+	position: fixed;
+	z-index: 900;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: min(520px, calc(100vw - 32px));
+	max-height: calc(100vh - 48px);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px 22px;
+	border-radius: 24px;
+	background: var(--surface);
+	border: 2px solid var(--line);
+	box-shadow: 0 24px 60px rgba(42, 24, 16, 0.25);
+	color: var(--text);
+	font-family: var(--f-text);
+}
+
+.distress-notice-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.distress-notice-header h2 {
+	flex: 1;
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 800;
+}
+
+.distress-notice-icon {
+	display: grid;
+	place-items: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 12px;
+	background: var(--ok-bg);
+	color: var(--milo-vert);
+	flex-shrink: 0;
+}
+
+.distress-notice-close {
+	display: grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	border: none;
+	border-radius: 11px;
+	background: transparent;
+	color: var(--text-2);
+	cursor: pointer;
+}
+
+.distress-notice-close:hover {
+	background: var(--surface-2);
+}
+
+/* Défile si besoin, mais jamais tronquée ni repliée */
+.distress-notice-text {
+	margin: 0;
+	overflow-y: auto;
+	white-space: pre-wrap;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.6;
+}
