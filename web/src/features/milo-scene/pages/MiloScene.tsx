@@ -287,7 +287,7 @@ const Scene3D: React.FC<{
 		<Suspense fallback={null}>
 			<ClassroomLighting />
 			<Environment preset="park" />
-			<Classroom modelPath="/classroom.glb" />
+			<Classroom modelPath="/classroom2.glb" />
 			<MiloModel modelPath="/MiloV11.glb" activeAnimation={activeAnimation} />
             {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
             <Tableau text={reply || displayedText} isEditing={false} />
