@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useUserStore } from '@shared/store/user/user.store';
 import type { UserProfile } from '@shared/store/user/user.model';
+import { showToast } from '@shared/store/toast/toast.store';
+import { AI_LIMITS, INTERESTS_LIMIT_MESSAGE, getErrorStatus } from '@shared/lib/aiRequests';
 
 export interface PasswordFormData {
   new_password: string;
@@ -174,8 +176,8 @@ export const useProfilePage = () => {
   };
 
   const handleAdd = async (interestName?: string) => {
-    const nameToProcess = interestName || newInterest;
-    if (!nameToProcess.trim()) return;
+    const nameToProcess = (interestName || newInterest).trim().slice(0, AI_LIMITS.INTEREST_NAME);
+    if (!nameToProcess) return;
 
     try {
       await addUserInterest(nameToProcess);
@@ -184,6 +186,13 @@ export const useProfilePage = () => {
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout:", error);
+      // 409 : limite de 20 centres d'intérêt atteinte
+      showToast(
+        getErrorStatus(error) === 409
+          ? INTERESTS_LIMIT_MESSAGE
+          : "Impossible d'ajouter ce centre d'intérêt pour le moment.",
+        "error",
+      );
     }
   };
 

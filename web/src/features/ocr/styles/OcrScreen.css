@@ -1205,3 +1205,13 @@
 		box-shadow: none;
 	}
 }
+
+/* Compteur de la réponse libre, près de la limite de longueur */
+.ocr-answer-counter {
+	margin: 0.25rem 0 0;
+	text-align: right;
+	color: var(--text-3);
+	font-size: 0.8rem;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+}

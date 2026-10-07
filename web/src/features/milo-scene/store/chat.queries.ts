@@ -1,5 +1,6 @@
 import APIAxios, { APIRoutes } from "@api/axios.api";
 import { refreshAfterServerAction } from "@shared/lib/serverActions";
+import { AI_LIMITS, clampText } from "@shared/lib/aiRequests";
 import type { LessonPart } from "@features/milo-scene/store/chat.model";
 
 export const fetchLessonParts = async (lessonId: number, context: string = "", signal?: AbortSignal): Promise<LessonPart[]> => {
@@ -7,7 +8,7 @@ export const fetchLessonParts = async (lessonId: number, context: string = "", s
         APIRoutes.POST_Chat_Lesson,
         {
             chat_request: "",
-            context: context
+            context: clampText(context, AI_LIMITS.CONTEXT)
         },
         { params: { lesson_id: lessonId }, signal },
     );
@@ -23,8 +24,8 @@ export const sendChatMessage = async (
     conversation_id?: string
 ): Promise<string> => {
     const response = await APIAxios.post(APIRoutes.POST_Lesson_Question, {
-        part_content: partContent,
-        question: question,
+        part_content: clampText(partContent, AI_LIMITS.PART_CONTENT),
+        question: clampText(question, AI_LIMITS.LESSON_QUESTION),
         conversation_id: conversation_id
     });
     // Le back fait avancer les missions après /chat_lesson_question
@@ -38,9 +39,9 @@ export const sendFreeChatMessage = async (
     context: string = ""
 ): Promise<string> => {
     const formData = new FormData();
-    formData.append("chat_request", question);
+    formData.append("chat_request", clampText(question, AI_LIMITS.CHAT_REQUEST));
     formData.append("conversation_id", conversationId);
-    formData.append("context", context);
+    formData.append("context", clampText(context, AI_LIMITS.CONTEXT));
 
     const response = await APIAxios.post(APIRoutes.POST_Free_Chat, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -54,15 +55,24 @@ const extractChatText = (data: any) =>
 const extractConversationId = (data: any) =>
     String(data?.conversation_id ?? data?.conversationId ?? "").trim();
 
+/**
+ * `chat_request` est borné à 2 000 caractères : le texte du cours passe par
+ * `context` (8 000), jamais dans la consigne elle-même.
+ */
 export const sendOpenQuestionChatMessage = async ({
     chatRequest,
     conversationId,
+    context,
 }: {
     chatRequest: string;
     conversationId?: string;
+    context?: string;
 }): Promise<{ text: string; conversationId: string }> => {
     const formData = new FormData();
-    formData.append("chat_request", chatRequest);
+    formData.append("chat_request", clampText(chatRequest, AI_LIMITS.CHAT_REQUEST));
+    if (context) {
+        formData.append("context", clampText(context, AI_LIMITS.CONTEXT));
+    }
 
     if (conversationId) {
         formData.append("conversation_id", conversationId);

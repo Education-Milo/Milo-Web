@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, Shirt } from "lucide-react";
+import { FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
 import AuditLog from "@features/admin/components/AuditLog";
@@ -8,6 +8,7 @@ import CosmeticsManager from "@features/admin/components/CosmeticsManager";
 import AdminDashboard from "@features/admin/components/AdminDashboard";
 import AdminSupport from "@features/admin/components/AdminSupport";
 import DemoProfiles from "@features/admin/components/DemoProfiles";
+import AdminModeration from "@features/admin/components/AdminModeration";
 import "@features/admin/styles/Admin.css";
 
 const SECTIONS: { path: string; title: string; subtitle: string; icon: React.ReactNode }[] = [
@@ -22,6 +23,12 @@ const SECTIONS: { path: string; title: string; subtitle: string; icon: React.Rea
 		title: "Support",
 		subtitle: "Comptes, statistiques, rôles, miloros et double authentification",
 		icon: <LifeBuoy size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.MODERATION,
+		title: "Modération IA",
+		subtitle: "Volume des requêtes IA et signalements du filtre de modération",
+		icon: <ShieldAlert size={22} />,
 	},
 	{
 		path: ROUTES.ADMIN.AUDIT,
@@ -68,6 +75,7 @@ const AdminPage: React.FC = () => {
 					<Routes>
 						<Route index element={<AdminDashboard />} />
 						<Route path={relative(ROUTES.ADMIN.SUPPORT)} element={<AdminSupport />} />
+						<Route path={relative(ROUTES.ADMIN.MODERATION)} element={<AdminModeration />} />
 						<Route path={relative(ROUTES.ADMIN.AUDIT)} element={<AuditLog />} />
 						<Route path={relative(ROUTES.ADMIN.COSMETICS)} element={<CosmeticsManager />} />
 						<Route path={relative(ROUTES.ADMIN.DEMO)} element={<DemoProfiles />} />

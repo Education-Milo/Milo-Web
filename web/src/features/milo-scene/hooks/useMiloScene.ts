@@ -10,6 +10,7 @@ import type { LessonPart } from "@features/milo-scene/store/chat.model";
 import type { MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import { useActivityTracker } from "@shared/hooks/useActivityTracker";
+import { clampText, getAiErrorMessage } from "@shared/lib/aiRequests";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -44,9 +45,14 @@ const buildLessonContext = (lessonParts: LessonPart[]) =>
 		.join("\n\n")
 		.trim();
 
-const buildGeneratePrompt = (context: string, studentName: string) =>
+/** Question générée par Milo, rappelée dans la consigne : courte par nature */
+const QUESTION_MAX = 600;
+
+// Le texte du cours n'est pas dans ces consignes : il part dans le champ
+// `context` de /chat (chat_request est limité à 2 000 caractères).
+const buildGeneratePrompt = (studentName: string) =>
 	`Tu es un professeur bienveillant. 
-Génère UNE SEULE question ouverte de réflexion sur le thème suivant : "${context}".
+Génère UNE SEULE question ouverte de réflexion sur la notion du cours fourni en contexte.
 La question doit être précise, pédagogique et adaptée à un collégien.
 L'élève s'appelle "${studentName}".
 Continue la conversation en cours sans saluer l'élève.
@@ -56,13 +62,11 @@ Réponds UNIQUEMENT avec la question, sans introduction ni numérotation.`;
 const buildFeedbackPrompt = (
 	question: string,
 	answer: string,
-	context: string,
 	studentName: string,
 ) =>
-	`Tu es un professeur bienveillant qui corrige une réponse d'élève.
+	`Tu es un professeur bienveillant qui corrige une réponse d'élève sur le cours fourni en contexte.
 
-Notion : "${context}"
-Question : "${question}"
+Question : "${clampText(question, QUESTION_MAX)}"
 Réponse de l'élève : "${answer}"
 
 Donne un retour constructif et encourageant en 3 parties :
@@ -77,13 +81,11 @@ Sois chaleureux, bref et pédagogique. L'élève s'appelle "${studentName}".`;
 const buildHelpPrompt = (
 	question: string,
 	helpRequest: string,
-	context: string,
 	studentName: string,
 ) =>
-	`Tu es un professeur bienveillant qui aide un élève sans donner directement toute la réponse.
+	`Tu es un professeur bienveillant qui aide un élève sans donner directement toute la réponse, sur le cours fourni en contexte.
 
-Notion : "${context}"
-Question ouverte actuelle : "${question}"
+Question ouverte actuelle : "${clampText(question, QUESTION_MAX)}"
 Demande de l'élève : "${helpRequest}"
 
 L'élève s'appelle "${studentName}".
@@ -117,6 +119,8 @@ export const useMiloScene = (
 	const [currentPartIndex, setCurrentPartIndex] = useState(0);
 	const [maxVisitedPartIndex, setMaxVisitedPartIndex] = useState(0);
 	const [phase, setPhase] = useState<LessonPhase>("loading");
+	/** Échec du chargement du cours (quota IA, erreur serveur…) */
+	const [loadError, setLoadError] = useState<string | null>(null);
 	const [displayedText, setDisplayedText] = useState("");
 
 	// ── Chat state ────────────────────────────────────────────────────────────
@@ -178,8 +182,9 @@ export const useMiloScene = (
 
 			try {
 				const data = await sendOpenQuestionChatMessage({
-					chatRequest: buildGeneratePrompt(context, studentName),
+					chatRequest: buildGeneratePrompt(studentName),
 					conversationId: openQuestionConversationIdRef.current,
+					context,
 				});
 
 				if (data.conversationId) {
@@ -197,7 +202,7 @@ export const useMiloScene = (
 			} catch (err) {
 				console.error("Erreur génération question ouverte :", err);
 				setOpenQuestionText("");
-				setReply("Désolé, je n'arrive pas à générer une question pour le moment.");
+				setReply(getAiErrorMessage(err, { fallback: "Désolé, je n'arrive pas à générer une question pour le moment." }));
 				setPhase("waiting");
 				setOpenQuestionPhase("feedback");
 				setActiveAnimation("Idle");
@@ -219,6 +224,7 @@ export const useMiloScene = (
 		const load = async () => {
 			try {
 				setPhase("loading");
+				setLoadError(null);
 				const lessonParts = await fetchLessonParts(lessonId, "", controller.signal);
 				setParts(lessonParts);
 				setCurrentPartIndex(0);
@@ -231,6 +237,8 @@ export const useMiloScene = (
 			} catch (err: any) {
 				if (err.name === 'CanceledError') return;
             	console.error("Erreur :", err);
+				// Pas de nouvel essai automatique (quota IA) : l'élève relance lui-même
+				setLoadError(getAiErrorMessage(err, { fallback: "Milo n'arrive pas à préparer ce cours pour le moment." }));
 			}
 		};
 
@@ -367,9 +375,10 @@ export const useMiloScene = (
 		try {
 			const data = await sendOpenQuestionChatMessage({
 				chatRequest: isHelpRequest
-					? buildHelpPrompt(openQuestionText, inputText, context, studentName)
-					: buildFeedbackPrompt(openQuestionText, inputText, context, studentName),
+					? buildHelpPrompt(openQuestionText, inputText, studentName)
+					: buildFeedbackPrompt(openQuestionText, inputText, studentName),
 				conversationId: openQuestionConversationId,
+				context,
 			});
 
 			if (data.conversationId) {
@@ -400,9 +409,11 @@ export const useMiloScene = (
 		} catch (err) {
 			console.error("Erreur question ouverte :", err);
 			setReply(
-				isHelpRequest
-					? "Désolé, je n'arrive pas à donner un indice pour le moment."
-					: "Désolé, je n'arrive pas à corriger ta réponse pour le moment.",
+				getAiErrorMessage(err, {
+					fallback: isHelpRequest
+						? "Désolé, je n'arrive pas à donner un indice pour le moment."
+						: "Désolé, je n'arrive pas à corriger ta réponse pour le moment.",
+				}),
 			);
 			setOpenQuestionResponseKind(isHelpRequest ? "help" : "feedback");
 			setPhase("waiting");
@@ -454,7 +465,7 @@ export const useMiloScene = (
 			}, 4000);
 		} catch (err) {
 			console.error("Erreur envoi question :", err);
-			setReply("Désolé, une erreur est survenue. Réessaie !");
+			setReply(getAiErrorMessage(err, { fallback: "Désolé, une erreur est survenue. Réessaie !" }));
 			setPhase("waiting");
 			setActiveAnimation("Idle");
 		}
@@ -547,6 +558,7 @@ export const useMiloScene = (
 	return {
 		// Lesson
 		phase,
+		loadError,
 		parts,
 		currentPart,
 		currentPartIndex,

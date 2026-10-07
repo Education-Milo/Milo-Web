@@ -5,6 +5,7 @@ import { useExerciseStore } from "@features/exercices/store/exercise.store";
 import { ROUTES } from "@shared/constants/routes";
 import type { QcmQuestion } from "@features/exercices/store/exercise.model";
 import { isStreakMilestone } from "@shared/components/quiz/streak.utils";
+import { getAiErrorMessage } from "@shared/lib/aiRequests";
 
 /// Durée de l'explosion plein écran au passage d'un palier de série
 const STREAK_BURST_MS = 3400;
@@ -78,8 +79,8 @@ export const useExerciseScreen = () => {
 				if (!isIgnore) {
 					setQuestions(data);
 				}
-			} catch {
-				setError("Impossible de charger le QCM.");
+			} catch (err) {
+				setError(getAiErrorMessage(err, { fallback: "Impossible de charger le QCM." }));
 			} finally {
 				setLoading(false);
 			}

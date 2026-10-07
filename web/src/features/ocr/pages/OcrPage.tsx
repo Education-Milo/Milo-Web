@@ -9,6 +9,7 @@ import { Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import miloGreeting from "/buttonGo.webp";
 import "@features/ocr/styles/OcrScreen.css";
+import { getAiErrorMessage } from "@shared/lib/aiRequests";
 
 /**
  * Page principale du workflow OCR.
@@ -100,7 +101,11 @@ const OcrPage: React.FC = () => {
 						<div className="ocr-error-banner" role="alert">
 							<span>⚠️</span>
 							<span>
-								{error.message || "Une erreur est survenue lors de l'envoi."}
+								{/* 400 : image refusée par la modération, `detail` affiché tel quel */}
+								{getAiErrorMessage(error, {
+									fallback: "Une erreur est survenue lors de l'envoi.",
+									showDetailOn400: true,
+								})}
 							</span>
 						</div>
 					)}

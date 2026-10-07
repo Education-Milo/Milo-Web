@@ -12,6 +12,8 @@ import { usePerformances } from "@features/stats/store/stats.queries";
 import GrantCoinsModal from "@features/admin/components/GrantCoinsModal";
 import UserRoleForm from "@features/admin/components/UserRoleForm";
 import ResetTwoFactorForm from "@features/admin/components/ResetTwoFactorForm";
+import UserModerationSummary from "@features/admin/components/UserModerationSummary";
+import UserAiUsage from "@features/admin/components/UserAiUsage";
 import { KIND_LABELS, formatDuration, formatRelativeDate } from "@features/stats/utils/stats.format";
 
 const PAGE_SIZE = 50;
@@ -114,6 +116,9 @@ const UserDetail: React.FC<UserDetailProps> = ({ user, onBack, onUpdate }) => {
 
 					{/* Un profil de démo ne peut pas activer la 2FA : rien à désactiver */}
 					{!user.is_demo && <ResetTwoFactorForm key={user.id} user={user} />}
+
+					{/* Les comptes de démo sont exclus de la modération côté back */}
+					{!user.is_demo && <UserModerationSummary userId={user.id} />}
 				</section>
 
 				{isGranting && (
@@ -123,6 +128,8 @@ const UserDetail: React.FC<UserDetailProps> = ({ user, onBack, onUpdate }) => {
 						onGranted={(result) => onUpdate({ miloro_coin: result.newCoins })}
 					/>
 				)}
+
+				<UserAiUsage key={user.id} userId={user.id} />
 
 				<UserPerformances />
 

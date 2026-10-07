@@ -28,6 +28,7 @@ import { useProfilePage } from "@features/profile/hooks/useProfilePage";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
 import TwoFactorPanel from "@features/security/components/TwoFactorPanel";
+import { AI_LIMITS } from "@shared/lib/aiRequests";
 import TrustedDevicesPanel from "@features/security/components/TrustedDevicesPanel";
 import SessionsPanel from "@features/security/components/SessionsPanel";
 
@@ -354,6 +355,7 @@ const ProfilePage: React.FC = () => {
 									className="pf-input pf-add-input"
 									placeholder="Ajouter un centre d'intérêt..."
 									value={newInterest}
+									maxLength={AI_LIMITS.INTEREST_NAME}
 									onChange={(e) => setNewInterest(e.target.value)}
 									onKeyDown={(e) => e.key === "Enter" && handleAdd()}
 								/>
