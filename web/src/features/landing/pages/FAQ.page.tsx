@@ -1,20 +1,16 @@
-import React, { useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 import SubPage from "@features/landing/components/SubPage/SubPage.component";
 import PageHero from "@features/landing/components/SubPage/PageHero.component";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import FaqItem from "@features/landing/ui/FaqItem.component";
 import { FAQ_CATEGORIES, FAQ_ENTRIES } from "@features/landing/data/landing.data";
-import type { Emoji3DName, FaqCategory } from "@features/landing/data/landing.data";
+import type { FaqCategory } from "@features/landing/data/landing.data";
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle, revealUp } from "@features/landing/lib/animations";
+import { scrollToSection } from "@features/landing/lib/smoothScroll";
 import "@features/landing/styles/FAQ.css";
-
-const ALL = "Toutes";
-type Filter = FaqCategory | typeof ALL;
-
-const FILTERS: { name: Filter; icon: Emoji3DName }[] = [{ name: ALL, icon: "sparkles" }, ...FAQ_CATEGORIES];
 
 /// Minuscules sans accents : « securite » trouve « Sécurité »
 const normalize = (text: string) =>
@@ -23,10 +19,17 @@ const normalize = (text: string) =>
 		.replace(/[̀-ͯ]/g, "")
 		.toLowerCase();
 
+/// Ancre d'une catégorie : « Sécurité » → #faq-securite (liens profonds)
+const sectionId = (category: FaqCategory) => `faq-${normalize(category)}`;
+
+/// Marge sous la navbar quand on saute à une catégorie
+const CATEGORY_SCROLL_OFFSET = -110;
+
 const FAQPage: React.FC = () => {
 	const body = useRef<HTMLDivElement>(null);
+	const { hash } = useLocation();
 	const [search, setSearch] = useState("");
-	const [filter, setFilter] = useState<Filter>(ALL);
+	const [activeCategory, setActiveCategory] = useState<FaqCategory>(FAQ_CATEGORIES[0].name);
 
 	// Questions qui correspondent à la recherche (question ou réponse)
 	const matches = useMemo(() => {
@@ -35,12 +38,47 @@ const FAQPage: React.FC = () => {
 		return FAQ_ENTRIES.filter((entry) => normalize(`${entry.question} ${entry.answer}`).includes(needle));
 	}, [search]);
 
-	const countOf = (name: Filter) =>
-		name === ALL ? matches.length : matches.filter((entry) => entry.category === name).length;
+	const groups = FAQ_CATEGORIES.map((cat) => ({
+		...cat,
+		entries: matches.filter((entry) => entry.category === cat.name),
+	})).filter((group) => group.entries.length > 0);
 
-	const groups = FAQ_CATEGORIES.filter((cat) => filter === ALL || cat.name === filter)
-		.map((cat) => ({ ...cat, entries: matches.filter((entry) => entry.category === cat.name) }))
-		.filter((group) => group.entries.length > 0);
+	// Catégories affichées, pour relancer le suivi de lecture quand la recherche en masque
+	const visibleKey = groups.map((group) => group.name).join("|");
+
+	// La catégorie surlignée doit rester visible (une recherche peut la masquer)
+	const current = groups.some((group) => group.name === activeCategory) ? activeCategory : groups[0]?.name;
+
+	// Suivi de lecture : la catégorie au tiers haut de l'écran s'allume à gauche
+	useEffect(() => {
+		const observer = new IntersectionObserver(
+			(entries) =>
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) setActiveCategory((entry.target as HTMLElement).dataset.category as FaqCategory);
+				}),
+			{ rootMargin: "-25% 0px -65% 0px" },
+		);
+		visibleKey.split("|").forEach((name) => {
+			const el = name && document.getElementById(sectionId(name as FaqCategory));
+			if (el) observer.observe(el);
+		});
+		return () => observer.disconnect();
+	}, [visibleKey]);
+
+	// Arrivée sur une ancre (ex. /faq#faq-securite)
+	useEffect(() => {
+		if (!hash) return;
+		const id = decodeURIComponent(hash.slice(1));
+		const timer = window.setTimeout(() => scrollToSection(id, CATEGORY_SCROLL_OFFSET), 300);
+		return () => window.clearTimeout(timer);
+	}, [hash]);
+
+	const goTo = (e: React.MouseEvent, category: FaqCategory) => {
+		const id = sectionId(category);
+		if (scrollToSection(id, CATEGORY_SCROLL_OFFSET)) e.preventDefault();
+		setActiveCategory(category);
+		history.replaceState(null, "", `#${id}`);
+	};
 
 	useGSAP(
 		() => {
@@ -105,32 +143,43 @@ const FAQPage: React.FC = () => {
 		<SubPage hero={hero}>
 			<div ref={body}>
 				<div className="lp-faq-page">
-					<aside className="lp-faq-page__aside">
+					<nav className="lp-faq-page__aside" aria-labelledby="lp-faq-cats-label">
 						<p className="lp-faq-page__aside-title" id="lp-faq-cats-label">
 							Catégories
 						</p>
-						<div className="lp-faq-cats" role="group" aria-labelledby="lp-faq-cats-label">
-							{FILTERS.map((cat) => (
-								<button
-									key={cat.name}
-									type="button"
-									className={`lp-faq-cat${filter === cat.name ? " is-active" : ""}`}
-									aria-pressed={filter === cat.name}
-									onClick={() => setFilter(cat.name)}
-								>
-									<Emoji3D name={cat.icon} className="lp-faq-cat__icon" />
-									<span className="lp-faq-cat__label">{cat.name}</span>
-									<span className="lp-faq-cat__count">{countOf(cat.name)}</span>
-								</button>
-							))}
+						<div className="lp-faq-cats">
+							{FAQ_CATEGORIES.map((cat) => {
+								const count = groups.find((group) => group.name === cat.name)?.entries.length ?? 0;
+								const isActive = cat.name === current;
+								return (
+									<a
+										key={cat.name}
+										href={`#${sectionId(cat.name)}`}
+										className={`lp-faq-cat${isActive ? " is-active" : ""}${count === 0 ? " is-empty" : ""}`}
+										aria-current={isActive ? "location" : undefined}
+										aria-disabled={count === 0 || undefined}
+										tabIndex={count === 0 ? -1 : undefined}
+										onClick={(e) => (count === 0 ? e.preventDefault() : goTo(e, cat.name))}
+									>
+										<Emoji3D name={cat.icon} className="lp-faq-cat__icon" />
+										<span className="lp-faq-cat__label">{cat.name}</span>
+										<span className="lp-faq-cat__count">{count}</span>
+									</a>
+								);
+							})}
 						</div>
-					</aside>
+					</nav>
 
-					{/* La clé rejoue l'entrée des cartes à chaque changement de catégorie */}
-					<div className="lp-faq-page__results" key={filter}>
+					<div className="lp-faq-page__results">
 						{groups.map((group) => (
-							<section key={group.name} className="lp-faq-group" aria-labelledby={`lp-faq-${group.name}`}>
-								<h2 className="lp-faq-group__title" id={`lp-faq-${group.name}`}>
+							<section
+								key={group.name}
+								id={sectionId(group.name)}
+								data-category={group.name}
+								className="lp-faq-group"
+								aria-labelledby={`${sectionId(group.name)}-title`}
+							>
+								<h2 className="lp-faq-group__title" id={`${sectionId(group.name)}-title`}>
 									<Emoji3D name={group.icon} />
 									{group.name}
 								</h2>

@@ -198,7 +198,9 @@
 	}
 }
 
-@media (max-width: 960px) {
+/* Menu burger : en dessous, logo + 6 pastilles + actions ne tiennent plus
+   sur une ligne (le logo serait écrasé) */
+@media (max-width: 1160px) {
 	.lp-nav__waves {
 		height: 150px;
 	}

@@ -113,8 +113,16 @@
 	font: inherit;
 	font-weight: 600;
 	text-align: left;
+	text-decoration: none;
 	cursor: pointer;
-	transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s, color 0.2s;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+
+/* Catégorie sans résultat pour la recherche en cours */
+.lp-faq-cat.is-empty {
+	opacity: 0.45;
+	cursor: default;
+	pointer-events: none;
 }
 
 .lp-faq-cat:hover {

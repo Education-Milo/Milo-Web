@@ -8,7 +8,7 @@ import "@features/landing/styles/landing.css";
 import "@features/landing/components/Navbar/Navbar.css";
 
 /// Sections de la Vitrine suivies par le scrollspy
-const SPY_SECTIONS = [SECTION_IDS.concept, SECTION_IDS.kids, SECTION_IDS.parents];
+const SPY_SECTIONS = [SECTION_IDS.concept, SECTION_IDS.kids, SECTION_IDS.parents, SECTION_IDS.pricing];
 
 type NavItem = { label: string } & ({ section: string } | { to: string });
 
@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
 	{ label: "Concept", section: SECTION_IDS.concept },
 	{ label: "Pour les enfants", section: SECTION_IDS.kids },
 	{ label: "Pour les parents", section: SECTION_IDS.parents },
+	{ label: "Tarifs", section: SECTION_IDS.pricing },
 	{ label: "FAQ", to: "/faq" },
 	{ label: "Contact", to: "/contact" },
 ];

@@ -13,16 +13,19 @@ export function setLenis(instance: Lenis | null) {
 }
 
 /// Fait défiler jusqu'à une section de la page. Retourne false si l'élément
-/// n'existe pas (on n'est pas sur la Vitrine).
-export function scrollToSection(id: string) {
+/// n'existe pas (on n'est pas sur la page qui la contient).
+///
+/// Une section épinglée par GSAP (Hero, Manifeste, Missions) est enveloppée
+/// dans un `.pin-spacer` et décalée à l'intérieur pendant l'épinglage : sa
+/// propre position ne dit plus où elle commence. On vise alors le haut de
+/// l'enveloppe, sans décalage, puisque l'épinglage démarre en « top top ».
+export function scrollToSection(id: string, offset = SCROLL_OFFSET) {
 	const target = document.getElementById(id);
 	if (!target) return false;
-	if (lenis) {
-		lenis.scrollTo(target, { offset: SCROLL_OFFSET, duration: 1.2 });
-	} else {
-		const top = target.getBoundingClientRect().top + window.scrollY + SCROLL_OFFSET;
-		window.scrollTo({ top, behavior: "smooth" });
-	}
+	const spacer = target.parentElement?.classList.contains("pin-spacer") ? target.parentElement : null;
+	const anchor = spacer ?? target;
+	const top = anchor.getBoundingClientRect().top + window.scrollY + (spacer ? 0 : offset);
+	scrollToY(Math.max(0, top));
 	return true;
 }
 
