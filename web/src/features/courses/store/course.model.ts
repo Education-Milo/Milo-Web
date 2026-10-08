@@ -44,6 +44,8 @@ export interface CourseWithChapters extends Courses {
 export interface CourseState {
     subjects: Subject[];
     coursesWithChapters: CourseWithChapters[];
+    /** Matière dont `coursesWithChapters` contient le détail */
+    loadedSubjectId: number | null;
     loading: boolean;
     error: string | null;
 }

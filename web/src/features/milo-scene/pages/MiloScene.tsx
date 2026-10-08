@@ -1,1196 +1,1017 @@
-import React, {
-	Suspense,
-	useRef,
-	useState,
-	useEffect,
-	useCallback,
-	useMemo,
-} from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import {
-	Environment,
-	useGLTF,
-	useAnimations,
-	useProgress,
-	Text,
-} from "@react-three/drei";
-import * as THREE from "three";
-import {
-	FiSend,
-	FiSettings,
-	FiX,
-	FiHelpCircle,
-	FiArrowLeft,
-	FiArrowUp,
-	FiChevronRight,
-	FiChevronLeft,
-	FiChevronUp,
-	FiChevronDown,
-	FiCheckCircle,
-	FiEdit3,
-	FiRefreshCw,
-	FiMaximize2,
-} from "react-icons/fi";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useProgress } from "@react-three/drei";
+import QuizLoader from "@shared/components/quiz/QuizLoader.component";
 import { useLocation, useParams } from "react-router-dom";
+import {
+	ArrowLeft,
+	ArrowRight,
+	BookOpen,
+	CircleHelp,
+	FastForward,
+	Flag,
+	Maximize2,
+	MousePointerClick,
+	PencilLine,
+	RotateCcw,
+	Square,
+	Volume2,
+	X,
+} from "lucide-react";
+import ClassroomScene3D from "@features/milo-scene/components/ClassroomScene3D.component";
+import LessonBoard, { type PassageAction } from "@features/milo-scene/components/LessonBoard.component";
+import MiloAnswer from "@features/milo-scene/components/MiloAnswer.component";
+import SheetPaper, { type SheetMode } from "@features/milo-scene/components/SheetPaper.component";
+import RichText from "@features/milo-scene/components/RichText.component";
+import ChalkTitle from "@features/milo-scene/components/ChalkTitle.component";
+import ClassQuiz from "@features/milo-scene/components/ClassQuiz.component";
+import CourseSwitcher from "@features/milo-scene/components/CourseSwitcher.component";
+import NotesPostIt from "@features/milo-scene/components/NotesPostIt.component";
 import HelpModal from "@features/milo-scene/components/HelpModal.component";
 import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedModal.component";
+import ClassSheet from "@features/milo-scene/components/ClassSheet.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
-import "@features/milo-scene/styles/MiloScene.css";
+import { useSpeech } from "@features/milo-scene/hooks/useSpeech";
+import { useMemoStore, type MemoItem } from "@features/milo-scene/store/memo.store";
+import { useMiloFreeChatStore, type MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
+import { flattenSentences, parseBoardText, plainText } from "@features/milo-scene/utils/lessonText";
+import { useCourseStore } from "@features/courses/store/course.store";
+import { useUserStore } from "@shared/store/user/user.store";
+import { getSubjectVisuals } from "@shared/constants/courses";
 import DistressNotice from "@shared/components/DistressNotice.component";
 import { isDistressReply } from "@shared/lib/distress";
 import { AI_LIMITS } from "@shared/lib/aiRequests";
-import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
-import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
-import {
-	applyAngelCircleGlow,
-	applyEquippedAccessories,
-	prepareMiloScene,
-	updateAngelCircleGlow,
-} from "@features/my-milo/utils/miloModel";
-import {
-	useMiloFreeChatStore,
-	type MiloFreeChatSession,
-} from "@features/milo-scene/store/freeChat.store";
+import "@features/milo-scene/styles/Classroom.css";
 
-/* ============================
-   3D Models — inchangés
-   ============================ */
+const NARROW_QUERY = "(max-width: 899px)";
+const LOADING_LINES = [
+	"Milo range ses craies…",
+	"Il efface le tableau…",
+	"Il installe ton bureau…",
+	"Presque prêt !",
+]
+const HINT_STORAGE_KEY = "milo-class-hint-seen";
+const EMPTY_MEMOS: MemoItem[] = [];
 
-interface MiloModelProps {
-	modelPath: string;
-	activeAnimation: string;
-}
+const readFlag = (key: string) => {
+	try {
+		return localStorage.getItem(key) === "1";
+	} catch {
+		return false;
+	}
+};
 
-function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
-	const group = useRef<THREE.Group>(null);
-	/// Copie dédiée à la salle de classe. Montée telle quelle, la scène du .glb
-	/// — partagée avec tous les écrans — gardait la rotation posée ici, et Milo
-	/// apparaissait de travers sur la page d'accueil au retour.
-	const { scene, animations } = useMiloInstance(modelPath);
-	const { actions } = useAnimations(animations, group);
-	const prevAnimation = useRef<string | null>(null);
+const writeFlag = (key: string) => {
+	try {
+		localStorage.setItem(key, "1");
+	} catch {
+		/* stockage indisponible : l'astuce reviendra, ce n'est pas grave */
+	}
+};
 
-	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
-
-	/// Dès la phase de rendu : masque les accessoires non équipés et désactive
-	/// le frustum culling (sinon les petits maillages du visage disparaissent)
-	useMemo(() => {
-		if (scene) prepareMiloScene(scene);
-	}, [scene]);
-
+const useMediaQuery = (query: string) => {
+	const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
 	useEffect(() => {
-		if (!scene) return;
-		scene.traverse((child) => {
-			if ((child as THREE.Mesh).isMesh) {
-				child.castShadow = true;
-				child.receiveShadow = false;
-			}
-		});
-	}, [scene]);
-
-	useEffect(() => {
-		if (!actions || !activeAnimation) return;
-		const CROSSFADE_DURATION = 0.5;
-		const nextAction = actions[activeAnimation];
-		if (!nextAction) return;
-		const prevName = prevAnimation.current;
-		const prevAction = prevName ? actions[prevName] : null;
-		nextAction.reset();
-		nextAction.setLoop(THREE.LoopRepeat, Infinity);
-		nextAction.play();
-		if (prevAction && prevAction !== nextAction) {
-			prevAction.crossFadeTo(nextAction, CROSSFADE_DURATION, true);
-		} else {
-			nextAction.fadeIn(CROSSFADE_DURATION);
-		}
-		prevAnimation.current = activeAnimation;
-	}, [actions, activeAnimation]);
-
-	useEffect(() => {
-		if (!scene) return;
-		applyEquippedAccessories(scene, equippedMeshNames);
-		applyAngelCircleGlow(scene);
-		/// Masqué par prepareMiloScene le temps que la pose et les accessoires
-		/// soient posés
-		scene.visible = true;
-	}, [scene, equippedMeshNames, accessoryMeshNames]);
-
-	/// La salle de classe rend en continu : l'auréole peut y battre
-	useFrame((state) => {
-		updateAngelCircleGlow(scene, state.clock.elapsedTime);
-	});
-
-	return (
-		<group ref={group}>
-			<primitive object={scene} scale={[0.45, 0.45, 0.45]} position={[2.2, -2.3, 1.4]} rotation={[0, -0.4, 0]} />
-		</group>
-	);
-}
-
-function Classroom({ modelPath }: { modelPath: string }) {
-	const { scene } = useGLTF(modelPath);
-	useEffect(() => {
-		if (!scene) return;
-		scene.traverse((child) => {
-			if ((child as THREE.Mesh).isMesh) {
-				child.castShadow = false;
-				child.receiveShadow = true;
-			}
-		});
-	}, [scene]);
-	return <primitive object={scene} scale={[1, 1, 1]} position={[-2, -2.5, 6.95]} rotation={[0, 0, 0]} />;
-}
-
-interface TextPanelProps {
-	text: string;
-	isEditing: boolean;
-}
-
-const Tableau: React.FC<TextPanelProps> = ({ text, isEditing }) => {
-	const displayText = text || (isEditing ? "|" : "");
-	return (
-		<group position={[0, 0, 0.5]}>
-			<Text position={[-3.8, 1.6, 0.01]} fontSize={0.15} color="white" anchorX="left" anchorY="top" maxWidth={4.5} overflowWrap="break-word" clipRect={[-0.2, -2.8, 5, 0.2]}>
-				{displayText}
-			</Text>
-		</group>
-	);
+		const list = window.matchMedia(query);
+		const onChange = () => setMatches(list.matches);
+		list.addEventListener("change", onChange);
+		return () => list.removeEventListener("change", onChange);
+	}, [query]);
+	return matches;
 };
 
-const Feuille: React.FC<TextPanelProps & { onPanelClick: () => void }> = ({ text, isEditing, onPanelClick }) => {
-	const displayText = text || (isEditing ? "|" : "Cliquez pour poser une question...");
-	const [isHovered, setIsHovered] = useState(false);
-	const meshRef = useRef<THREE.Mesh>(null);
-	const glowRef = useRef<THREE.Mesh>(null);
-	const glowOpacity = useRef(0);
-
-	useFrame((_, delta) => {
-		const target = isHovered ? 1 : 0;
-		glowOpacity.current = THREE.MathUtils.lerp(glowOpacity.current, target, delta * 8);
-		if (glowRef.current) {
-			(glowRef.current.material as THREE.MeshBasicMaterial).opacity = glowOpacity.current * 0.55;
-		}
-	});
-
-	const noRaycast = useCallback(() => null, []);
-
-	return (
-		<group position={[0, -0.65, 4.2]} rotation={[-Math.PI / 2, 0, 0]} scale={0.55}>
-			<mesh ref={glowRef} position={[0, 0, -0.005]} raycast={noRaycast}>
-				<planeGeometry args={[2.7, 2.7]} />
-				<meshBasicMaterial color="#60b0ff" transparent opacity={0} side={THREE.DoubleSide} />
-			</mesh>
-			<mesh ref={meshRef} position={[0, 0, 0.01]}
-				onPointerOver={(e) => { e.stopPropagation(); setIsHovered(true); document.body.style.cursor = "pointer"; }}
-				onPointerOut={() => { setIsHovered(false); document.body.style.cursor = "auto"; }}
-				onClick={(e) => { e.stopPropagation(); onPanelClick(); }}
-			>
-				<planeGeometry args={[2.5, 2.5]} />
-				<meshStandardMaterial color={isHovered ? "#c4c4c4" : "white"} side={THREE.DoubleSide} emissive={isHovered ? "#aaccff" : "#000000"} emissiveIntensity={isHovered ? 0.15 : 0} />
-			</mesh>
-			<Text position={[-1.05, 1.05, 0.02]} fontSize={0.12} color="black" anchorX="left" anchorY="top" maxWidth={2.1} lineHeight={1.4} overflowWrap="break-word" raycast={noRaycast} clipRect={[-0.2, -2.25, 2.3, 0.2]}>
-				{displayText}
-			</Text>
-		</group>
-	);
-};
-
-const ClassroomLighting: React.FC = () => {
-	const sunRef = useRef<THREE.DirectionalLight>(null);
-	useEffect(() => {
-		if (!sunRef.current) return;
-		const light = sunRef.current;
-		light.shadow.mapSize.set(512, 512);
-		light.shadow.camera.near = 2;
-		light.shadow.camera.far = 22;
-		light.shadow.camera.left = -7;
-		light.shadow.camera.right = 7;
-		light.shadow.camera.top = 7;
-		light.shadow.camera.bottom = -7;
-		light.shadow.bias = -0.0025;
-		light.shadow.normalBias = 0.04;
-		light.shadow.camera.updateProjectionMatrix();
-	}, []);
-	return (
-		<>
-			<ambientLight intensity={0.7} color="#cdcbc8" />
-			<hemisphereLight args={["#ffffff", "#d9c7a7", 0.4]} />
-			<directionalLight ref={sunRef} position={[10, 12, 4]} intensity={2.4} color="#fffffe" castShadow />
-			<directionalLight position={[-5, 6, 6]} intensity={0.5} color="#fdfbf9" />
-		</>
-	);
-};
-
-const CameraController: React.FC<{ targetY: number }> = ({ targetY }) => {
-	const { camera } = useThree();
-	const lookAtVec = useRef(new THREE.Vector3(0, 0, 0));
-	useFrame(() => {
-		const cur = lookAtVec.current;
-		cur.y = THREE.MathUtils.lerp(cur.y, targetY, 0.05);
-		camera.lookAt(cur);
-	});
-	return null;
-};
-
-const IntroCamera: React.FC<{ onDone: () => void }> = ({ onDone }) => {
-	const { camera } = useThree();
-	const progress = useRef(0);
-	const done = useRef(false);
-	const startPos = useRef(new THREE.Vector3(0, 2, 12));
-	const endPos = useRef(new THREE.Vector3(0, 0, 5));
-	const startLookAt = useRef(new THREE.Vector3(0, 1, 0));
-	const endLookAt = useRef(new THREE.Vector3(0, 0, 0));
-
-	useFrame((_, delta) => {
-		if (done.current) return;
-		progress.current = Math.min(progress.current + delta * 0.4, 1);
-		const t = progress.current < 0.5
-			? 4 * progress.current ** 3
-			: 1 - Math.pow(-2 * progress.current + 2, 3) / 2;
-		camera.position.lerpVectors(startPos.current, endPos.current, t);
-		const lookAt = new THREE.Vector3().lerpVectors(startLookAt.current, endLookAt.current, t);
-		camera.lookAt(lookAt);
-		if (progress.current >= 1) {
-			done.current = true;
-			onDone();
-		}
-	});
-	return null;
-};
-
-/// Monté seulement une fois les modèles du <Suspense> résolus. On attend deux
-/// frames avant de prévenir : la première passe de useFrame précède le rendu,
-/// on éviterait sinon de masquer l'overlay une frame trop tôt.
-const SceneReadySignal: React.FC<{ onReady: () => void }> = ({ onReady }) => {
-	const frames = useRef(0);
-	useFrame(() => {
-		if (frames.current > 1) return;
-		frames.current += 1;
-		if (frames.current === 2) onReady();
-	});
-	return null;
-};
-
-const Scene3D: React.FC<{
-	cameraY: number;
-	reply: string;
-	activeAnimation: string;
-	text: string;
-	isEditing: boolean;
-	onPanelClick: () => void;
-	introActive: boolean;
-	onIntroDone: () => void;
-	displayedText: string;
-	onReady: () => void;
-}> = ({ cameraY, reply, activeAnimation, text, isEditing, onPanelClick, introActive, onIntroDone, displayedText, onReady }) => (
-	<Canvas shadows camera={{ position: [0, 0, 5], fov: 60 }} className="three-canvas">
-		<Suspense fallback={null}>
-			<ClassroomLighting />
-			<Environment preset="park" />
-			<Classroom modelPath="/classroom2.glb" />
-			<MiloModel modelPath="/MiloV11.glb" activeAnimation={activeAnimation} />
-            {/* MODIFICATION ICI : On affiche le cours, ou la réponse de Milo s'il y en a une */}
-            <Tableau text={reply || displayedText} isEditing={false} />
-            <Feuille text={text} isEditing={isEditing} onPanelClick={onPanelClick} />
-			{introActive ? <IntroCamera onDone={onIntroDone} /> : <CameraController targetY={cameraY} />}
-			<SceneReadySignal onReady={onReady} />
-		</Suspense>
-	</Canvas>
-);
-
-/* ============================
-   UI Components
-   ============================ */
-
-const ANIMATIONS = ["Idle", "Thinking", "Explaining", "Wrong", "Disapointed"] as const;
-const BOARD_FULL_TEXT_MIN_LENGTH = 650;
-const BOARD_PAGE_CHARS_PER_LINE = 65; // marge de sécurité vs maxWidth du <Text> 3D
-const BOARD_PAGE_VISIBLE_LINES = 9;
-
-const AnimationControls: React.FC<{
-	activeAnimation: string;
-	onAnimationChange: (anim: string) => void;
-	visible: boolean;
-	onClose: () => void;
-}> = ({ activeAnimation, onAnimationChange, visible, onClose }) => (
-	<div className={`controls-panel glass-panel ${!visible ? "collapsed" : ""}`}>
-		<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-			<h3 style={{ margin: 0 }}>Animations</h3>
-			<button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: 4, display: "flex", transition: "color 0.2s" }}
-				onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-				onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}>
-				<FiX size={16} />
-			</button>
-		</div>
-		{ANIMATIONS.map((anim) => (
-			<label key={anim} className={`control-label ${activeAnimation === anim ? "active" : ""}`} onClick={() => onAnimationChange(anim)}>
-				<div className={`custom-radio ${activeAnimation === anim ? "selected" : ""}`}><div className="custom-radio-dot" /></div>
-				{anim}
-			</label>
-		))}
-	</div>
-);
-
-/* ── Barre de progression du cours ── */
-const LessonProgressBar: React.FC<{
-	current: number;
-	total: number;
-	percent: number;
-	canGoPrev: boolean;
-	canGoNext: boolean;
-	onPrev: () => void;
-	onNext: () => void;
-}> = ({ current, total, percent, canGoPrev, canGoNext, onPrev, onNext }) => (
-	<div className="lesson-progress-bar glass-panel">
-		{total > 1 && (
-			<button
-				type="button"
-				className="lesson-progress-nav-btn"
-				onClick={onPrev}
-				disabled={!canGoPrev}
-				aria-label="Revoir la partie précédente"
-				title="Partie précédente"
-			>
-				<FiChevronLeft size={16} />
-			</button>
-		)}
-		<div className="lesson-progress-content">
-			<span className="lesson-progress-label">Partie {current} / {total}</span>
-			<div className="lesson-progress-track">
-				<div className="lesson-progress-fill" style={{ width: `${percent}%` }} />
-			</div>
-		</div>
-		{total > 1 && (
-			<button
-				type="button"
-				className="lesson-progress-nav-btn"
-				onClick={onNext}
-				disabled={!canGoNext}
-				aria-label="Revoir la partie suivante"
-				title="Partie suivante"
-			>
-				<FiChevronRight size={16} />
-			</button>
-		)}
-	</div>
-);
-
-/* ── Panneau de cours affiché sur le tableau ── */
-// const LessonPanel: React.FC<{
-// 	title: string;
-// 	content: string;
-// 	phase: string;
-// 	reply: string;
-// }> = ({ title, content, phase, reply }) => (
-// 	<div className="lesson-panel glass-panel">
-// 		<h3 className="lesson-panel-title">{title}</h3>
-// 		<p className="lesson-panel-content">{content}</p>
-// 		{reply && phase === "waiting" && (
-// 			<div className="lesson-reply">
-// 				<span className="lesson-reply-label">🦊 Milo :</span>
-// 				<p>{reply}</p>
-// 			</div>
-// 		)}
-// 	</div>
-// );
-
-/* ── Boutons d'action en bas ── */
-const LessonActions: React.FC<{
-	phase: string;
-	isFreeChatMode: boolean;
-	isOpenQuestionMode: boolean;
-	openQuestionPhase: string;
-	openQuestionInputMode: "answer" | "help";
-	onNext: () => void;
-	onOpenQuestionModeChange: (mode: "answer" | "help") => void;
-	onBackToLessons: () => void;
-	onBackToCourseDetail: () => void;
-	onOpenQuestionNewQuestion: () => void;
-	/** Le cours n'a pas pu être chargé : message et retour aux leçons */
-	loadError?: string | null;
-}> = ({
-	phase,
-	loadError,
-	isFreeChatMode,
-	isOpenQuestionMode,
-	openQuestionPhase,
-	openQuestionInputMode,
-	onNext,
-	onOpenQuestionModeChange,
-	onBackToLessons,
-	onBackToCourseDetail,
-	onOpenQuestionNewQuestion,
-}) => {
-	if (loadError) {
-		return (
-			<div className="lesson-actions glass-panel" role="alert">
-				<span className="lesson-loading-text">{loadError}</span>
-				<button className="lesson-btn lesson-btn--primary" onClick={onBackToLessons}>
-					<span>Revenir aux leçons</span>
-				</button>
-			</div>
-		);
-	}
-
-	if (phase === "loading") {
-		return (
-			<div className="lesson-actions glass-panel">
-				<span className="lesson-loading-text">
-					{isFreeChatMode
-						? "Milo prépare la discussion..."
-						: isOpenQuestionMode
-							? "Milo prépare une question..."
-						: "Milo prépare ton cours..."}
-				</span>
-			</div>
-		);
-	}
-
-	if (isOpenQuestionMode && phase === "answering") {
-		return (
-			<div className="lesson-actions glass-panel">
-				<span className="lesson-loading-text">
-					{openQuestionPhase === "helping"
-						? "Milo prépare une aide..."
-						: "Milo corrige ta réponse..."}
-				</span>
-			</div>
-		);
-	}
-
-	if (phase === "finished") {
-		// Leçon "normale" terminée : gérée par le check flottant + LessonFinishedModal
-		// rendus au niveau de MiloScene, pas ici.
-		if (!isFreeChatMode && !isOpenQuestionMode) return null;
-
-		return (
-			<div className="lesson-actions glass-panel lesson-finished">
-				<p>
-					{isFreeChatMode
-						? "Discussion terminée."
-						: "Tu peux continuer la discussion ou revenir aux cours."}
-				</p>
-				<button
-					className="lesson-btn lesson-btn--primary"
-					onClick={isOpenQuestionMode ? onBackToCourseDetail : onBackToLessons}
-				>
-					<FiArrowLeft size={16} />
-					Retour
-				</button>
-			</div>
-		);
-	}
-
-	if (phase === "waiting") {
-		if (isOpenQuestionMode) {
-			if (openQuestionPhase === "feedback") {
-				return (
-					<div className="lesson-actions glass-panel">
-						<button className="lesson-btn lesson-btn--primary" onClick={onOpenQuestionNewQuestion}>
-							<FiRefreshCw size={16} />
-							<span>Nouvelle question</span>
-						</button>
-						<button className="lesson-btn lesson-btn--secondary" onClick={onBackToCourseDetail}>
-							<FiArrowLeft size={16} />
-							<span>Retour au cours</span>
-						</button>
-					</div>
-				);
-			}
-
-			return (
-				<div className="lesson-actions glass-panel">
-					<button
-						className={`lesson-btn lesson-btn--secondary ${openQuestionInputMode === "answer" ? "lesson-btn--active" : ""}`}
-						onClick={() => onOpenQuestionModeChange("answer")}
-					>
-						<FiEdit3 size={16} />
-						<span>Répondre</span>
-					</button>
-					<button
-						className={`lesson-btn lesson-btn--secondary ${openQuestionInputMode === "help" ? "lesson-btn--active" : ""}`}
-						onClick={() => onOpenQuestionModeChange("help")}
-					>
-						<FiHelpCircle size={16} />
-						<span>Demander de l'aide</span>
-					</button>
-				</div>
-			);
-		}
-
-		// Poser une question se fait en cliquant sur la feuille 3D, et avancer
-		// dans la leçon via la flèche à côté de "Partie X / Y" : ce bandeau ne
-		// reste utile qu'en mode chat libre, qui n'a ni feuille de relecture
-		// ni flèche de partie suivante pour terminer la discussion.
-		if (isFreeChatMode) {
-			return (
-				<div className="lesson-actions glass-panel">
-					<button className="lesson-btn lesson-btn--primary" onClick={onNext}>
-						<span>Terminer la discussion</span>
-						<FiChevronRight size={16} />
-					</button>
-				</div>
-			);
-		}
-
-		return null;
-	}
-
-	return null;
-};
-
-/* ── Chat input pour poser une question ── */
-/** Le compteur n'apparaît qu'en approchant de la limite, pour ne pas distraire. */
-const COUNTER_THRESHOLD = 0.8;
-
-const ChatInput: React.FC<{
-	value: string;
-	onChange: (val: string) => void;
-	onSend: () => void;
-	disabled: boolean;
-	placeholder?: string;
-	/** Borne du champ côté back (422 au-delà) */
-	maxLength: number;
-}> = ({ value, onChange, onSend, disabled, placeholder = "Pose une question à Milo...", maxLength }) => {
-	const showCounter = value.length >= maxLength * COUNTER_THRESHOLD;
-	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === "Enter" && !e.shiftKey && value.trim()) {
-			e.preventDefault();
-			onSend();
-		}
-	};
-	return (
-		<div className="chat-input-area">
-			<div className="chat-input-wrapper glass-panel">
-				<input
-					className="chat-input"
-					type="text"
-					placeholder={placeholder}
-					value={value}
-					onChange={(e) => onChange(e.target.value)}
-					onKeyDown={handleKeyDown}
-					autoFocus
-					disabled={disabled}
-					maxLength={maxLength}
-				/>
-				{showCounter && (
-					<span className={`chat-input-counter ${value.length >= maxLength ? "is-full" : ""}`} aria-live="polite">
-						{value.length} / {maxLength}
-					</span>
-				)}
-				<button className="chat-send-btn" onClick={onSend} disabled={disabled || !value.trim()} aria-label="Envoyer">
-					<FiSend size={16} />
-				</button>
-			</div>
-		</div>
-	);
-};
-
-// Découpe une ligne en "rangées" de tableau en respectant les mots,
-// comme le ferait le retour à la ligne du rendu 3D (mais en plus strict).
-const wrapLineIntoRows = (
-	line: string,
-	maxChars = BOARD_PAGE_CHARS_PER_LINE,
-): string[] => {
-	if (!line.trim()) return [""];
-
-	const rows: string[] = [];
-	let current = "";
-
-	for (const rawWord of line.split(/\s+/)) {
-		let word = rawWord;
-
-		// Mot plus long qu'une rangée entière : on le coupe (cas rare, URLs, etc.)
-		while (word.length > maxChars) {
-			if (current) {
-				rows.push(current);
-				current = "";
-			}
-			rows.push(word.slice(0, maxChars));
-			word = word.slice(maxChars);
-		}
-		if (!word) continue;
-
-		if (!current) {
-			current = word;
-		} else if (current.length + 1 + word.length <= maxChars) {
-			current += ` ${word}`;
-		} else {
-			rows.push(current);
-			current = word;
-		}
-	}
-
-	if (current) rows.push(current);
-	return rows.length ? rows : [""];
-};
-
-// Barre de scroll verticale pour le tableau (molette + drag)
-const BoardScrollbar: React.FC<{
-	scrollRow: number;
-	maxScrollRow: number;
-	totalRows: number;
-	visibleRows: number;
-	onScrollTo: (row: number) => void;
-	onStep: (delta: number) => void;
-}> = ({ scrollRow, maxScrollRow, totalRows, visibleRows, onScrollTo, onStep }) => {
-	const trackRef = useRef<HTMLDivElement>(null);
-	const draggingRef = useRef(false);
-
-	const thumbHeightPercent = Math.max(12, (visibleRows / totalRows) * 100);
-	const thumbTopPercent =
-		maxScrollRow > 0 ? (scrollRow / maxScrollRow) * (100 - thumbHeightPercent) : 0;
-
-	const rowFromClientY = useCallback(
-		(clientY: number) => {
-			const track = trackRef.current;
-			if (!track) return scrollRow;
-			const rect = track.getBoundingClientRect();
-			const ratio = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
-			return Math.round(ratio * maxScrollRow);
-		},
-		[maxScrollRow, scrollRow],
-	);
-
-	const handleTrackMouseDown = useCallback(
-		(e: React.MouseEvent) => {
-			e.preventDefault();
-			draggingRef.current = true;
-			onScrollTo(rowFromClientY(e.clientY));
-
-			const handleMove = (moveEvent: MouseEvent) => {
-				if (!draggingRef.current) return;
-				onScrollTo(rowFromClientY(moveEvent.clientY));
-			};
-			const handleUp = () => {
-				draggingRef.current = false;
-				window.removeEventListener("mousemove", handleMove);
-				window.removeEventListener("mouseup", handleUp);
-			};
-			window.addEventListener("mousemove", handleMove);
-			window.addEventListener("mouseup", handleUp);
-		},
-		[onScrollTo, rowFromClientY],
-	);
-
-	if (totalRows <= visibleRows) return null;
-
-	return (
-		<div className="board-scrollbar glass-panel" aria-label="Défiler le tableau">
-			<button
-				type="button"
-				className="board-scrollbar-btn"
-				onClick={() => onStep(-1)}
-				disabled={scrollRow <= 0}
-				aria-label="Remonter dans le tableau"
-				title="Remonter"
-			>
-				<FiChevronUp size={14} />
-			</button>
-			<div className="board-scrollbar-track" ref={trackRef} onMouseDown={handleTrackMouseDown}>
-				<div
-					className="board-scrollbar-thumb"
-					style={{ height: `${thumbHeightPercent}%`, top: `${thumbTopPercent}%` }}
-				/>
-			</div>
-			<button
-				type="button"
-				className="board-scrollbar-btn"
-				onClick={() => onStep(1)}
-				disabled={scrollRow >= maxScrollRow}
-				aria-label="Descendre dans le tableau"
-				title="Descendre"
-			>
-				<FiChevronDown size={14} />
-			</button>
-		</div>
-	);
-};
-
+/// Écran d'attente de la charte : soleil feu, Milo, objets 3D en orbite
 const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
 	const { progress } = useProgress();
 	/// La progression peut repartir en arrière quand un nouveau fichier démarre :
 	/// on n'affiche que la valeur la plus haute atteinte
 	const [shown, setShown] = useState(0);
-	useEffect(() => {
-		setShown((current) => Math.max(current, progress));
-	}, [progress]);
+	useEffect(() => setShown((current) => Math.max(current, progress)), [progress]);
+	const value = done ? 100 : Math.round(shown);
 
 	return (
-		<div className={`scene-loading-overlay${done ? " is-done" : ""}`}>
-			<video className="loading-video" src="/loading.webm" autoPlay loop muted playsInline />
-			<span className="loading-text">Chargement de la scène...</span>
-			<div className="loading-progress">
-				<div
-					className="loading-progress-fill"
-					style={{ width: `${done ? 100 : Math.round(shown)}%` }}
-				/>
-			</div>
-		</div>
-	);
-};
-
-const BoardFullTextModal: React.FC<{
-	text: string;
-	isOpen: boolean;
-	onClose: () => void;
-}> = ({ text, isOpen, onClose }) => {
-	useEffect(() => {
-		if (!isOpen) return;
-
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "Escape") {
-				onClose();
-			}
-		};
-
-		document.body.style.overflow = "hidden";
-		window.addEventListener("keydown", handleKeyDown);
-
-		return () => {
-			document.body.style.overflow = "auto";
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [isOpen, onClose]);
-
-	if (!isOpen) return null;
-
-	return (
-		<div className="board-modal-overlay" onClick={onClose}>
-			<div
-				className="board-modal-content glass-panel"
-				onClick={(event) => event.stopPropagation()}
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="board-modal-title"
+		<div className={`cls-loading${done ? " is-done" : ""}`}>
+			<QuizLoader
+				eyebrow="Salle de classe"
+				title="On entre en classe !"
+				highlight="classe"
+				messages={LOADING_LINES}
 			>
-				<div className="board-modal-header">
-					<h2 id="board-modal-title">Tableau</h2>
-					<button className="board-modal-close" onClick={onClose} aria-label="Fermer">
-						<FiX size={20} />
-					</button>
-				</div>
-				<div className="board-modal-scroll">
-					<p>{text}</p>
-				</div>
-			</div>
+				<span className="cls-loading-pct" aria-live="polite">
+					{value < 100 ? `Chargement de la salle · ${value} %` : "C'est prêt !"}
+				</span>
+			</QuizLoader>
 		</div>
 	);
 };
-
-const LeaveConfirmModal: React.FC<{
-	isOpen: boolean;
-	onCancel: () => void;
-	onConfirm: () => void;
-}> = ({ isOpen, onCancel, onConfirm }) => {
-	useEffect(() => {
-		if (!isOpen) return;
-
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (event.key === "Escape") {
-				onCancel();
-			}
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen, onCancel]);
-
-	if (!isOpen) return null;
-
-	return (
-		<div className="leave-confirm-overlay" onClick={onCancel}>
-			<div
-				className="leave-confirm-content glass-panel"
-				onClick={(event) => event.stopPropagation()}
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="leave-confirm-title"
-			>
-				<h2 id="leave-confirm-title">Quitter la salle de classe ?</h2>
-				<p>Ta progression sur cette partie ne sera pas sauvegardée.</p>
-				<div className="leave-confirm-actions">
-					<button className="lesson-btn lesson-btn--secondary" onClick={onCancel}>
-						Annuler
-					</button>
-					<button className="lesson-btn lesson-btn--danger" onClick={onConfirm}>
-						<FiX size={16} />
-						<span>Quitter</span>
-					</button>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const IntroOverlay: React.FC<{ visible: boolean }> = ({ visible }) => {
-	if (!visible) return null;
-	return (
-		<div className="intro-overlay">
-		</div>
-	);
-};
-
-/* ============================
-   Main Component
-   ============================ */
 
 const MiloScene: React.FC = () => {
-	// Récupère l'id de la leçon depuis les params de route
-	const { lessonId } = useParams<{ lessonId: string }>();
+	const { lessonId: lessonIdParam } = useParams<{ lessonId: string }>();
+	const lessonId = lessonIdParam ? Number(lessonIdParam) : undefined;
+	const hasLesson = typeof lessonId === "number" && !Number.isNaN(lessonId);
 	const location = useLocation();
+	const reduceMotion = useReducedMotion();
 	const isOpenQuestionRoute = location.pathname.includes("/question-ouverte");
 	const storedFreeChatSession = useMiloFreeChatStore((state) => state.session);
-	const routedFreeChatSession = (
-		location.state as { freeChatSession?: MiloFreeChatSession } | null
-	)?.freeChatSession;
+	const routedFreeChatSession = (location.state as { freeChatSession?: MiloFreeChatSession } | null)?.freeChatSession;
 	const freeChatSession = routedFreeChatSession ?? storedFreeChatSession;
-	const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
-	const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-	const [showLessonFinishedModal, setShowLessonFinishedModal] = useState(false);
-	const [boardScrollRow, setBoardScrollRow] = useState(0);
-	const [userScrolledUp, setUserScrolledUp] = useState(false);
 
+	const scene = useMiloScene(lessonId, freeChatSession, isOpenQuestionRoute);
 	const {
-		// Lesson
 		phase,
-		displayedText,
-		progressPercent,
-		maxVisitedPartIndex,
-		canGoToPreviousPart,
-		canGoToNextPart,
-		handleGoToPreviousPart,
-		handleGoToNextPart,
 		parts,
+		currentPart,
 		currentPartIndex,
+		maxVisitedPartIndex,
+		displayedText,
 		isFreeChatMode,
 		isOpenQuestionMode,
-		openQuestionPhase,
-		openQuestionInputMode,
-		handleOpenQuestionInputModeChange,
-		handleOpenQuestionReviewBoard,
+		thread,
+	} = scene;
+	const isLessonMode = !isFreeChatMode && !isOpenQuestionMode;
 
-		// Chat
-		question,
-		setQuestion,
-		reply,
-		loadError,
-		handleSendQuestion,
-		handleNextPart,
-		handleBackToLessons,
-		handleBackToCourseDetail,
-		handleStartQcm,
-		handleStartOpenQuestion,
-		handleOpenQuestionNewQuestion,
+	const speech = useSpeech();
+	const narrow = useMediaQuery(NARROW_QUERY);
+	const user = useUserStore((state) => state.user);
+	const studentName = `${user?.first_name ?? ""}`.trim() || user?.username || "toi";
 
-		// 3D
-		activeAnimation,
-		setActiveAnimation,
-		cameraY,
-		isEditing,
-		handlePanelClick,
-		handleIntroDone,
-		showControls,
-		setShowControls,
-		showHelp,
-		setShowHelp,
-		sceneReady,
-		markSceneReady,
-		introActive,
-		showIntroText,
-	} = useMiloScene(lessonId ? Number(lessonId) : undefined, freeChatSession, isOpenQuestionRoute);
-
-	// L'overlay reste monté le temps de son fondu de sortie, puis disparaît
-	// (sinon la vidéo de chargement continue de tourner dans le vide).
-	const [isOverlayGone, setIsOverlayGone] = useState(false);
-	useEffect(() => {
-		if (!sceneReady) return;
-		const t = setTimeout(() => setIsOverlayGone(true), 600);
-		return () => clearTimeout(t);
-	}, [sceneReady]);
-
-	const isLessonFullyFinished =
-		phase === "finished" && !isFreeChatMode && !isOpenQuestionMode;
-	const isOpenQuestionBusy =
-		openQuestionPhase === "submitted" || openQuestionPhase === "helping";
-	const showOpenQuestionInput =
-		isOpenQuestionMode &&
-		((openQuestionPhase === "answering" && isEditing) || isOpenQuestionBusy);
-	const showRegularChatInput =
-		!isOpenQuestionMode && (phase === "questioning" || phase === "answering");
-	const showReviewBoardButton =
-		isOpenQuestionMode && isEditing && openQuestionPhase === "answering";
-	const boardFullText = isOpenQuestionMode ? displayedText : reply || displayedText;
-	const boardRows = useMemo(
-		() => boardFullText.split("\n").flatMap((line) => wrapLineIntoRows(line)),
-		[boardFullText],
-	);
-	const maxScrollRow = Math.max(0, boardRows.length - BOARD_PAGE_VISIBLE_LINES);
-	const boardVisibleText = useMemo(
-		() => boardRows.slice(boardScrollRow, boardScrollRow + BOARD_PAGE_VISIBLE_LINES).join("\n"),
-		[boardRows, boardScrollRow],
-	);
-	const showBoardFullTextButton =
-		phase !== "loading" && boardFullText.trim().length > BOARD_FULL_TEXT_MIN_LENGTH;
-	const scrollBoardBy = useCallback(
-		(deltaRows: number) => {
-			const next = Math.min(maxScrollRow, Math.max(0, boardScrollRow + deltaRows));
-			setBoardScrollRow(next);
-			setUserScrolledUp(next < maxScrollRow);
-		},
-		[maxScrollRow, boardScrollRow],
-	);
-	const handleBoardScrollTo = useCallback(
-		(row: number) => {
-			const next = Math.min(maxScrollRow, Math.max(0, row));
-			setBoardScrollRow(next);
-			setUserScrolledUp(next < maxScrollRow);
-		},
-		[maxScrollRow],
-	);
-	const handleBoardResume = useCallback(() => {
-		setUserScrolledUp(false);
-	}, []);
-	// En revoyant une partie déjà lue, on repart du début de son texte (pas du bas).
-	const handleReviewPreviousPart = useCallback(() => {
-		handleGoToPreviousPart();
-		setBoardScrollRow(0);
-		setUserScrolledUp(true);
-	}, [handleGoToPreviousPart]);
-	const handleReviewNextPart = useCallback(() => {
-		// Si on est déjà sur la partie la plus avancée, la flèche fait avancer la
-		// leçon (nouveau texte, machine à écrire) : le scroll suit alors le texte
-		// qui s'écrit via l'effet "texte vidé" existant, pas de reset manuel ici.
-		const isReviewingPastPart = currentPartIndex < maxVisitedPartIndex;
-		handleGoToNextPart();
-		if (isReviewingPastPart) {
-			setBoardScrollRow(0);
-			setUserScrolledUp(true);
+	// ── Leçon dans le catalogue (titre, chapitre, matière) ──
+	const coursesWithChapters = useCourseStore((state) => state.coursesWithChapters);
+	const subjects = useCourseStore((state) => state.subjects);
+	const loadedSubjectId = useCourseStore((state) => state.loadedSubjectId);
+	const lessonInfo = useMemo(() => {
+		for (const course of coursesWithChapters) {
+			for (const chapter of course.chapters) {
+				const lesson = chapter.lessons.find((l) => l.id === lessonId);
+				if (lesson) return { lesson, chapter };
+			}
 		}
-	}, [handleGoToNextPart, currentPartIndex, maxVisitedPartIndex]);
-	const handleBoardWheel = useCallback(
-		(e: React.WheelEvent) => {
-			if (maxScrollRow <= 0) return;
-			const rows = Math.sign(e.deltaY) * Math.max(1, Math.round(Math.abs(e.deltaY) / 40));
-			scrollBoardBy(rows);
-		},
-		[maxScrollRow, scrollBoardBy],
+		return null;
+	}, [coursesWithChapters, lessonId]);
+	const subject = subjects.find((s) => s.id === loadedSubjectId);
+	const subjectEmoji = lessonInfo ? getSubjectVisuals(subject?.title).emoji : "📚";
+
+	const lessonTitle = isFreeChatMode
+		? (scene.sourceLabel ?? "Ton document")
+		: (lessonInfo?.lesson.title ?? (parts.length > 1 ? parts[0].title : undefined) ?? "Ta leçon");
+	const lessonSubtitle = isFreeChatMode
+		? "Discussion avec Milo"
+		: isOpenQuestionMode
+			? "Question ouverte"
+			: (lessonInfo?.chapter.title ?? subject?.title ?? "Salle de classe");
+
+	// ── Fiche de révision ──
+	const memoKey = hasLesson ? `lesson-${lessonId}` : "libre";
+	const memoItems = useMemoStore((state) => state.memos[memoKey]) ?? EMPTY_MEMOS;
+	const addMemo = useMemoStore((state) => state.add);
+	const removeMemo = useMemoStore((state) => state.remove);
+	const [notesBump, setNotesBump] = useState(0);
+	/// Colle une note sur le post-it ; le post-it fait un bond sur le bureau
+	const saveNote = (text: string, source: string) => {
+		if (memoItems.some((m) => m.text === text)) return;
+		addMemo(memoKey, { text, source });
+		setNotesBump((n) => n + 1);
+	};
+	const savedTexts = useMemo(() => new Set(memoItems.map((m) => m.text)), [memoItems]);
+
+	// ── État de l'interface ──
+	const [boardMode, setBoardMode] = useState<"lesson" | "quiz">("lesson");
+	/** Le tableau montre le cours, ou la dernière réponse de Milo */
+	const [boardFocus, setBoardFocus] = useState<"lesson" | "milo">("lesson");
+	const [isEditing, setIsEditing] = useState(false);
+	const [sheetMode, setSheetMode] = useState<SheetMode>({ kind: isOpenQuestionRoute ? "open" : "question" });
+	const [draft, setDraft] = useState("");
+	const [zoomed, setZoomed] = useState(false);
+	const [showSwitcher, setShowSwitcher] = useState(false);
+	const [notesOpen, setNotesOpen] = useState(false);
+	const [showHelp, setShowHelp] = useState(false);
+	const [showLeave, setShowLeave] = useState(false);
+	const [showFinished, setShowFinished] = useState(false);
+	const [hintSeen, setHintSeen] = useState(() => readFlag(HINT_STORAGE_KEY));
+	const [dismissedDistressId, setDismissedDistressId] = useState<string | null>(null);
+	const [isOverlayGone, setIsOverlayGone] = useState(false);
+
+	// L'écran de chargement reste monté le temps de son fondu de sortie
+	useEffect(() => {
+		if (!scene.sceneReady) return;
+		const t = setTimeout(() => setIsOverlayGone(true), 700);
+		return () => clearTimeout(t);
+	}, [scene.sceneReady]);
+
+	// Nouvelle leçon (changement de leçon) : tableau et feuille propres
+	useEffect(() => {
+		setBoardMode("lesson");
+		setBoardFocus("lesson");
+		setShowFinished(false);
+		setShowSwitcher(false);
+		setIsEditing(false);
+		setDraft("");
+		setSheetMode({ kind: isOpenQuestionRoute ? "open" : "question" });
+		speech.stop();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [lessonId, isOpenQuestionRoute]);
+
+	// Une leçon choisie dans « Changer de leçon » (même la leçon en cours) ferme la fenêtre
+	useEffect(() => setShowSwitcher(false), [location.key]);
+
+	// Changement de partie : on revient au cours et on coupe la lecture
+	useEffect(() => {
+		speech.stop();
+		setBoardFocus("lesson");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentPartIndex]);
+
+	// Fin de leçon : la célébration s'ouvre d'elle-même
+	useEffect(() => {
+		if (phase === "finished" && isLessonMode) setShowFinished(true);
+	}, [phase, isLessonMode]);
+
+	// Chaque nouvelle demande à Milo s'affiche au tableau
+	const lastMessage = thread[thread.length - 1];
+	const lastMessageId = lastMessage?.id;
+	useEffect(() => {
+		if (lastMessage?.from === "milo") setBoardFocus("milo");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [lastMessageId]);
+
+	const latestMiloIndex = thread.map((m) => m.from).lastIndexOf("milo");
+	const latestMilo = latestMiloIndex >= 0 ? thread[latestMiloIndex] : undefined;
+	const latestRequest = latestMiloIndex > 0 ? thread[latestMiloIndex - 1] : undefined;
+	const distressMessage =
+		latestMilo && !latestMilo.pending && isDistressReply(latestMilo.text) && dismissedDistressId !== latestMilo.id
+			? latestMilo
+			: null;
+
+	// ── Lecture à voix haute ──
+	const partSentences = useMemo(
+		() => flattenSentences(parseBoardText(currentPart?.content ?? displayedText)),
+		[currentPart, displayedText],
 	);
-	// Réponse ouverte : insérée dans une consigne, d'où une borne plus basse
+	const speakingIndex = speech.queueId === "part" && speech.activeKey !== null ? Number(speech.activeKey) : null;
+	const listeningPart = speech.queueId === "part";
+	const toggleListenPart = () => {
+		if (listeningPart) {
+			speech.stop();
+			return;
+		}
+		if (phase === "reading") scene.skipTypewriter();
+		speech.speak("part", partSentences.map((s) => ({ key: String(s.index), text: plainText(s.text) })));
+	};
+
+	const markHintSeen = () => {
+		if (hintSeen) return;
+		setHintSeen(true);
+		writeFlag(HINT_STORAGE_KEY);
+	};
+
+	// ── Feuille ──
+	const canUseSheet = phase !== "loading" && !scene.loadError;
+	const stopSpeech = speech.stop;
+	const openSheet = useCallback(
+		(mode?: SheetMode) => {
+			if (!canUseSheet) return;
+			stopSpeech();
+			setZoomed(false);
+			setSheetMode(mode ?? { kind: isOpenQuestionMode ? "open" : "question" });
+			setNotesOpen(false);
+			setIsEditing(true);
+		},
+		[canUseSheet, stopSpeech, isOpenQuestionMode],
+	);
+	const closeSheet = useCallback(() => setIsEditing(false), []);
+
+	const sendSheet = () => {
+		const text = draft.trim();
+		if (!text || scene.isMiloBusy) return;
+		if (sheetMode.kind === "exercise") {
+			void scene.answerExercise(sheetMode.messageId, sheetMode.statement, text);
+		} else {
+			scene.sendStudentMessage(text);
+		}
+		setDraft("");
+		setIsEditing(false);
+		setSheetMode({ kind: isOpenQuestionMode ? "open" : "question" });
+	};
+
+	const askFromSheet = (ask: () => Promise<unknown>) => {
+		setIsEditing(false);
+		void ask();
+	};
+
+	// ── Actions sur une phrase du tableau ──
+	const handlePassageAction = (action: PassageAction, text: string) => {
+		markHintSeen();
+		if (action === "listen") {
+			speech.speak("passage", [{ key: "passage", text }]);
+			return;
+		}
+		if (action === "save") {
+			saveNote(text, currentPart?.title ?? lessonTitle);
+			return;
+		}
+		setZoomed(false);
+		if (action === "explain") void scene.explainPassage(text);
+		if (action === "example") void scene.exampleForPassage(text);
+		if (action === "exercise") void scene.exerciseForPassage(text);
+	};
+
+	const openQuiz = () => {
+		if (!hasLesson) return;
+		speech.stop();
+		setShowFinished(false);
+		setIsEditing(false);
+		setBoardMode("quiz");
+	};
+
+	const askWhyFromQuiz = (question: string, picked: string, correct: string) => {
+		setBoardMode("lesson");
+		void scene.explainQuizMistake(question, picked, correct);
+	};
+
+
+	const anyOverlayOpen = showSwitcher || notesOpen || showHelp || showLeave || showFinished || zoomed;
+
+	// ── Clavier : ← → pour changer de partie ──
+	useEffect(() => {
+		if (!isLessonMode || boardMode !== "lesson" || anyOverlayOpen || isEditing) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
+			const target = event.target as HTMLElement;
+			if (target.closest("input, textarea, [role='menu'], [contenteditable='true']")) return;
+			if (event.key === "ArrowRight" && phase !== "loading") {
+				event.preventDefault();
+				if (phase === "finished") setShowFinished(true);
+				else scene.goNext();
+			} else if (event.key === "ArrowLeft") {
+				event.preventDefault();
+				scene.goPrevious();
+			}
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [isLessonMode, boardMode, anyOverlayOpen, isEditing, phase, scene]);
+
+	// Échap repose la feuille ou le post-it, et referme le tableau agrandi
+	useEffect(() => {
+		if (!(isEditing || zoomed || notesOpen)) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key !== "Escape") return;
+			setIsEditing(false);
+			setNotesOpen(false);
+			setZoomed(false);
+		};
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, [isEditing, zoomed, notesOpen]);
+
+	const toggleNotes = () => {
+		setIsEditing(false);
+		setZoomed(false);
+		setNotesOpen((open) => !open);
+	};
+
+	// ── Bouton principal ──
+	const isAtFrontier = currentPartIndex >= maxVisitedPartIndex;
+	const isLastPart = currentPartIndex === parts.length - 1;
+	const primary = (() => {
+		if (phase === "reading") return { label: "Tout afficher", Icon: FastForward, onClick: scene.skipTypewriter };
+		if (phase === "finished") return { label: "Et maintenant ?", Icon: Flag, onClick: () => setShowFinished(true) };
+		if (isLastPart && isAtFrontier) return { label: "Terminer la leçon", Icon: Flag, onClick: scene.goNext };
+		return { label: "Partie suivante", Icon: ArrowRight, onClick: scene.goNext };
+	})();
+
 	const chatMaxLength = isOpenQuestionMode
 		? AI_LIMITS.STUDENT_ANSWER
 		: isFreeChatMode
 			? AI_LIMITS.CHAT_REQUEST
 			: AI_LIMITS.LESSON_QUESTION;
-	const [dismissedDistressText, setDismissedDistressText] = useState<string | null>(null);
-	const showDistressNotice =
-		phase !== "loading" && isDistressReply(boardFullText) && dismissedDistressText !== boardFullText;
-	const chatPlaceholder = isOpenQuestionMode
-		? isOpenQuestionBusy
-			? "Milo prépare..."
-			: openQuestionInputMode === "help"
-				? "Demande un indice ou une précision..."
-				: "Écris ta réponse..."
-		: "Pose une question à Milo...";
+	const sheetMaxLength = sheetMode.kind === "exercise" ? AI_LIMITS.STUDENT_ANSWER : chatMaxLength;
 
-	// Nouvelle partie / nouveau texte : on repart du haut, suivi auto réactivé.
-	useEffect(() => {
-		if (boardFullText === "") {
-			setBoardScrollRow(0);
-			setUserScrolledUp(false);
+	// ════════════════════════════════════════════════════════════════════
+	// Contenu du tableau : écrit sur le tableau 3D (ou en grand sur demande)
+	// ════════════════════════════════════════════════════════════════════
+	const renderBoard = () => {
+		if (scene.loadError) {
+			return (
+				<div className="cls-board-state" role="alert">
+					<img src="/landing/emoji/light_bulb.webp" alt="" aria-hidden="true" />
+					<p>{scene.loadError}</p>
+					<div className="cls-board-state-actions">
+						<button type="button" className="cls-btn cls-btn--ghost-chalk" onClick={scene.handleBackToLessons}>
+							Revenir aux leçons
+						</button>
+						<button type="button" className="cls-btn cls-btn--primary" onClick={scene.retryLoad}>
+							<RotateCcw size={18} aria-hidden="true" />
+							Réessayer
+						</button>
+					</div>
+				</div>
+			);
 		}
-	}, [boardFullText]);
 
-	// Suivi automatique du texte pendant l'écriture, sauf si l'élève a scrollé manuellement.
-	useEffect(() => {
-		setBoardScrollRow((current) => (userScrolledUp ? Math.min(current, maxScrollRow) : maxScrollRow));
-	}, [boardRows.length, maxScrollRow, userScrolledUp]);
+		if (phase === "loading") {
+			return (
+				<div className="cls-board-state" role="status">
+					<img className="cls-board-loading-fox" src="/landing/emoji/fox.webp" alt="" aria-hidden="true" />
+					<p className="cls-board-loading">
+						{isOpenQuestionMode ? "Milo prépare une " : "Milo prépare ton "}
+						<span className="is-hl">{isOpenQuestionMode ? "question" : "cours"}</span>
+					</p>
+					<span className="cls-chalk-dots" aria-hidden="true">
+						<i />
+						<i />
+						<i />
+					</span>
+				</div>
+			);
+		}
 
-	// Si l'élève revoit une partie précédente après avoir vu l'écran de fin,
-	// on referme la modale de fin de leçon.
-	useEffect(() => {
-		if (!isLessonFullyFinished) setShowLessonFinishedModal(false);
-	}, [isLessonFullyFinished]);
+		if (boardMode === "quiz" && hasLesson) {
+			return (
+				<ClassQuiz
+					lessonId={lessonId}
+					lessonTitle={lessonTitle}
+					onClose={() => setBoardMode("lesson")}
+					onReact={scene.playReaction}
+					onAskWhy={askWhyFromQuiz}
+				/>
+			);
+		}
+
+		if (isOpenQuestionMode) {
+			const reply = latestMilo;
+			return (
+				<div className="cls-board-view">
+					<header className="cls-board-head">
+						<div className="cls-board-titles">
+							<span className="cls-chalk-eyebrow">
+								<i />
+								Question de Milo
+							</span>
+							<h2 className="cls-board-title cls-board-title--question">{scene.openQuestionText}</h2>
+						</div>
+					</header>
+					<div className="cls-board-content">
+						{reply && (
+							<section className="cls-board-reply">
+								<span className="cls-chalk-eyebrow">
+									<i />
+									{reply.pending
+										? "Milo réfléchit…"
+										: reply.action === "openHelp"
+											? "Indice de Milo"
+											: "Correction de Milo"}
+								</span>
+								{reply.pending ? (
+									<span className="cls-chalk-dots" aria-label="Milo réfléchit">
+										<i />
+										<i />
+										<i />
+									</span>
+								) : (
+									<RichText text={reply.text} className="cls-rich cls-rich--chalk" />
+								)}
+							</section>
+						)}
+					</div>
+					<footer className="cls-board-tools">
+						{scene.openQuestionPhase === "feedback" ? (
+							<button
+								type="button"
+								className="cls-btn cls-btn--primary cls-btn--sm"
+								onClick={scene.newOpenQuestion}
+								disabled={scene.isMiloBusy}
+							>
+								<RotateCcw size={18} aria-hidden="true" />
+								Une autre question
+							</button>
+						) : (
+							<button
+								type="button"
+								className="cls-btn cls-btn--primary cls-btn--sm"
+								onClick={() => openSheet()}
+								disabled={scene.isMiloBusy}
+							>
+								<PencilLine size={18} aria-hidden="true" />
+								Répondre sur ma feuille
+							</button>
+						)}
+						<span className="cls-board-tools-spacer" />
+						{!narrow && (
+							<button type="button" className="cls-btn cls-btn--chalk cls-btn--sm" onClick={scene.handleBackToLesson}>
+								<BookOpen size={18} aria-hidden="true" />
+								Relire la leçon
+							</button>
+						)}
+					</footer>
+				</div>
+			);
+		}
+
+		if (boardFocus === "milo" && latestMilo) {
+			return (
+				<MiloAnswer
+					request={latestRequest}
+					answer={latestMilo}
+					onBack={() => {
+						speech.stop();
+						setBoardFocus("lesson");
+					}}
+					backLabel={isFreeChatMode ? "Revenir au document" : "Revenir au cours"}
+					canListen={speech.supported}
+					isSpeaking={speech.queueId === `msg-${latestMilo.id}`}
+					onListen={() =>
+						speech.speak(`msg-${latestMilo.id}`, [{ key: latestMilo.id, text: plainText(latestMilo.text) }])
+					}
+					onStopListening={speech.stop}
+					isSaved={savedTexts.has(latestMilo.text.trim())}
+					onSave={() => saveNote(latestMilo.text.trim(), "Expliqué par Milo")}
+					onAnswerExercise={() => {
+						if (latestMilo.exercise) {
+							openSheet({ kind: "exercise", messageId: latestMilo.id, statement: latestMilo.exercise.statement });
+						}
+					}}
+					onRevealSolution={() => {
+						if (latestMilo.exercise) void scene.revealSolution(latestMilo.id, latestMilo.exercise.statement);
+					}}
+				/>
+			);
+		}
+
+		const eyebrow = isFreeChatMode
+			? "Ton document"
+			: parts.length > 0
+				? `Partie ${currentPartIndex + 1} sur ${parts.length}`
+				: "Leçon";
+		const showHint = !hintSeen && (phase === "ready" || phase === "finished");
+
+		return (
+			<div className="cls-board-view">
+				<header className="cls-board-head">
+					<div className="cls-board-titles">
+						<span className="cls-chalk-eyebrow">
+							<i />
+							{eyebrow}
+						</span>
+						<ChalkTitle text={currentPart?.title ?? lessonTitle} />
+					</div>
+					<div className="cls-board-head-tools">
+						{speech.supported && (
+							<button
+								type="button"
+								className={`cls-btn cls-btn--chalk cls-btn--sm${listeningPart ? " is-on" : ""}`}
+								onClick={toggleListenPart}
+								aria-pressed={listeningPart}
+							>
+								{listeningPart ? <Square size={15} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+								{listeningPart ? "Arrêter" : "Écouter"}
+							</button>
+						)}
+						{!zoomed && !narrow && (
+							<button
+								type="button"
+								className="cls-btn cls-btn--chalk cls-btn--sm cls-btn--icon"
+								onClick={() => setZoomed(true)}
+								aria-label="Lire le tableau en grand"
+								title="Lire le tableau en grand"
+							>
+								<Maximize2 size={20} />
+							</button>
+						)}
+					</div>
+				</header>
+				<LessonBoard
+					text={displayedText}
+					isWriting={phase === "reading"}
+					interactive={phase === "ready" || phase === "finished"}
+					speakingIndex={speakingIndex}
+					savedTexts={savedTexts}
+					canListen={speech.supported}
+					onAction={handlePassageAction}
+					onSkip={scene.skipTypewriter}
+					compact={narrow}
+				/>
+				<p id="cls-board-hint" className={`cls-board-hint${showHint ? "" : " cls-sr-only"}`}>
+					<MousePointerClick size={18} aria-hidden="true" />
+					{narrow ? "Touche" : "Passe ta souris sur"} une phrase : Milo peut la ré-expliquer, te donner un exemple ou
+					un exercice.
+				</p>
+
+				{/* Sur ordinateur, la navigation est écrite en bas du tableau : le
+				    bureau reste libre pour la feuille, le cahier et le post-it */}
+				{!narrow && isLessonMode && parts.length > 0 && (
+					<footer className="cls-board-nav">
+						<button
+							type="button"
+							className="cls-btn cls-btn--chalk cls-btn--sm cls-btn--icon"
+							onClick={scene.goPrevious}
+							disabled={currentPartIndex === 0}
+							aria-label="Partie précédente"
+							title="Partie précédente"
+						>
+							<ArrowLeft size={20} />
+						</button>
+						<ol className="cls-steps cls-steps--chalk" aria-label={`Progression : ${scene.progressPercent} %`}>
+							{parts.map((part, i) => {
+								const visited = i <= maxVisitedPartIndex;
+								const state = i === currentPartIndex ? "is-current" : visited ? "is-visited" : "is-locked";
+								return (
+									<li key={part.id ?? i}>
+										<button
+											type="button"
+											className={`cls-step ${state}`}
+											onClick={() => scene.goToPart(i)}
+											disabled={!visited}
+											aria-current={i === currentPartIndex ? "step" : undefined}
+											aria-label={`Partie ${i + 1} : ${part.title}${visited ? "" : " (pas encore lue)"}`}
+											title={part.title}
+										>
+											<span />
+										</button>
+									</li>
+								);
+							})}
+						</ol>
+						<span className="cls-board-nav-count">
+							{currentPartIndex + 1} / {parts.length}
+						</span>
+						<button type="button" className="cls-btn cls-btn--primary cls-btn--sm cls-btn--next" onClick={primary.onClick}>
+							<span>{primary.label}</span>
+							<primary.Icon size={20} aria-hidden="true" />
+						</button>
+					</footer>
+				)}
+
+				{!narrow && isFreeChatMode && (
+					<footer className="cls-board-nav cls-board-nav--end">
+						<button type="button" className="cls-btn cls-btn--primary cls-btn--sm" onClick={scene.handleBackToLessons}>
+							Terminer la discussion
+							<ArrowRight size={18} aria-hidden="true" />
+						</button>
+					</footer>
+				)}
+			</div>
+		);
+	};
+
+	const boardViewKey = scene.loadError
+		? "error"
+		: phase === "loading"
+			? "loading"
+			: boardMode === "quiz" && hasLesson
+				? "quiz"
+				: isOpenQuestionMode
+					? `open-${scene.openQuestionText.length}`
+					: boardFocus === "milo" && latestMilo
+						? `milo-${latestMilo.id}`
+						: `lesson-${currentPartIndex}`;
+	/// Chaque changement de vue du tableau : on efface, puis on réécrit
+	const boardNode = (
+		<AnimatePresence mode="wait" initial={false}>
+			<motion.div
+				key={boardViewKey}
+				className="cls-board-anim"
+				initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14, filter: "blur(6px)" }}
+				animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+				exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -10, filter: "blur(6px)" }}
+				transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+			>
+				{renderBoard()}
+			</motion.div>
+		</AnimatePresence>
+	);
+	// Sur mobile, le tableau 3D est trop petit pour être lu : un toucher l'agrandit
+	const board3D = zoomed ? null : narrow ? (
+		<div className="cls-board-tap" onClickCapture={(e) => {
+			e.stopPropagation();
+			e.preventDefault();
+			setZoomed(true);
+		}}>
+			{boardNode}
+		</div>
+	) : (
+		boardNode
+	);
+
+	const sheetNode = (
+		<SheetPaper
+			isEditing={isEditing}
+			mode={sheetMode}
+			value={draft}
+			onChange={setDraft}
+			onSend={sendSheet}
+			onClose={closeSheet}
+			maxLength={sheetMaxLength}
+			busy={scene.isMiloBusy}
+			onSimplify={isLessonMode ? () => askFromSheet(scene.simplifyPart) : undefined}
+			onSummarize={isLessonMode ? () => askFromSheet(scene.summarizePart) : undefined}
+			openInputMode={scene.openQuestionInputMode}
+			onOpenInputModeChange={scene.setOpenQuestionInputMode}
+			hideIdle={narrow}
+		/>
+	);
+
+	const uiIn = scene.sceneReady;
+	const enter = (delay: number) =>
+		reduceMotion
+			? { initial: { opacity: 0 }, animate: { opacity: uiIn ? 1 : 0 }, transition: { duration: 0.3 } }
+			: {
+					initial: { opacity: 0, y: -16 },
+					animate: uiIn ? { opacity: 1, y: 0 } : { opacity: 0, y: -16 },
+					transition: { duration: 0.5, delay: uiIn ? delay : 0, ease: [0.2, 0.8, 0.2, 1] as const },
+				};
+
+	const notesNode = (
+		<NotesPostIt
+			isHeld={notesOpen}
+			lessonTitle={lessonTitle}
+			items={memoItems}
+			onAdd={(text) => saveNote(text, "Mes propres notes")}
+			onRemove={(id) => removeMemo(memoKey, id)}
+			onRevise={() => {
+				setNotesOpen(false);
+				setBoardMode("lesson");
+				void scene.reviseNotes(memoItems.map((m) => plainText(m.text)));
+			}}
+			onClose={() => setNotesOpen(false)}
+			busy={scene.isMiloBusy}
+			hideIdle={narrow}
+		/>
+	);
+
+	/// Sur ordinateur, tout se passe sur le tableau et le bureau ; la barre
+	/// du bas ne sert qu'aux petits écrans
+	const showBottomBar = narrow && !isEditing && !notesOpen && boardMode === "lesson" && !scene.loadError;
+	const askLabel = isOpenQuestionMode ? "Répondre sur ma feuille" : "Poser une question";
 
 	return (
-		<div className="milo-scene-root" onWheel={handleBoardWheel}>
-			{!isOverlayGone && <LoadingOverlay done={sceneReady} />}
+		<div className={`cls-root${narrow ? " is-narrow" : ""}`}>
+			{!isOverlayGone && <LoadingOverlay done={scene.sceneReady} />}
 
-			<Scene3D
-				cameraY={cameraY}
-				reply=""
-				activeAnimation={activeAnimation}
-				text={question}
+			<ClassroomScene3D
+				activeAnimation={scene.activeAnimation}
+				introRunning={scene.sceneReady}
+				introDone={!scene.introActive}
+				onIntroDone={scene.handleIntroDone}
+				onReady={scene.markSceneReady}
 				isEditing={isEditing}
-				onPanelClick={handlePanelClick}
-				introActive={introActive}
-				onIntroDone={handleIntroDone}
-				displayedText={boardVisibleText}
-				onReady={markSceneReady}
+				onSheetClick={() => openSheet()}
+				isNotesOpen={notesOpen}
+				onNotesClick={toggleNotes}
+				notesBump={notesBump}
+				boardVisible={uiIn}
+				board={board3D}
+				sheet={sheetNode}
+				notes={notesNode}
 			/>
 
-			<IntroOverlay visible={showIntroText && sceneReady} />
+			<div className="cls-ui">
+				{/* ── Barre du haut ── */}
+				<motion.header className="cls-top" {...enter(0.1)}>
+					<button type="button" className="cls-btn cls-btn--secondary cls-btn--sm" onClick={() => setShowLeave(true)}>
+						<ArrowLeft size={18} aria-hidden="true" />
+						<span className="cls-hide-sm">Quitter</span>
+						<span className="cls-sr-only cls-show-sm">Quitter la salle de classe</span>
+					</button>
 
-			{showBoardFullTextButton && (
-				<button
-					className="board-full-text-btn glass-panel"
-					onClick={() => setIsBoardModalOpen(true)}
-					aria-label="Lire tout le tableau"
-					title="Lire tout le tableau"
-				>
-					<FiMaximize2 size={18} />
-					<span>Lire tout</span>
-				</button>
+					<div className="cls-top-id">
+						<span className="cls-top-emoji" aria-hidden="true">
+							{isFreeChatMode ? "📄" : subjectEmoji}
+						</span>
+						<div className="cls-top-titles">
+							<span className="cls-top-sub">{lessonSubtitle}</span>
+							<h1 className="cls-top-title">{lessonTitle}</h1>
+						</div>
+					</div>
+
+					<nav className="cls-top-actions" aria-label="Outils de la classe">
+						{hasLesson && !isFreeChatMode && (
+							<button
+								type="button"
+								className={`cls-btn cls-btn--secondary cls-btn--sm${boardMode === "quiz" ? " is-on" : ""}`}
+								onClick={() => (boardMode === "quiz" ? setBoardMode("lesson") : openQuiz())}
+								disabled={phase === "loading"}
+								title="Teste-toi sur toute la leçon"
+							>
+								<img className="cls-btn-emoji" src="/landing/emoji/bullseye.webp" alt="" aria-hidden="true" />
+								<span className="cls-label-long">{boardMode === "quiz" ? "Revenir au cours" : "Quiz de la leçon"}</span>
+								<span className="cls-label-short">{boardMode === "quiz" ? "Cours" : "Quiz"}</span>
+							</button>
+						)}
+						{!isFreeChatMode && (
+							<button
+								type="button"
+								className="cls-btn cls-btn--secondary cls-btn--sm"
+								onClick={() => setShowSwitcher(true)}
+								title="Changer de leçon"
+							>
+								<img className="cls-btn-emoji" src="/landing/emoji/books.webp" alt="" aria-hidden="true" />
+								<span className="cls-label-long">Changer de leçon</span>
+								<span className="cls-label-short">Leçons</span>
+							</button>
+						)}
+						<button
+							type="button"
+							className={`cls-btn cls-btn--secondary cls-btn--sm${notesOpen ? " is-on" : ""}${notesBump ? " cls-bump" : ""}`}
+							key={`notes-${notesBump}`}
+							onClick={toggleNotes}
+							aria-pressed={notesOpen}
+							title="Mon post-it de notes pour réviser"
+						>
+							<img className="cls-btn-emoji" src="/landing/emoji/card_index_dividers.webp" alt="" aria-hidden="true" />
+							<span>Mes notes</span>
+							{memoItems.length > 0 && <span className="cls-count">{memoItems.length}</span>}
+						</button>
+						<button
+							type="button"
+							className="cls-icon-btn cls-icon-btn--solid"
+							onClick={() => setShowHelp(true)}
+							aria-label="Comment ça marche ?"
+							title="Comment ça marche ?"
+						>
+							<CircleHelp size={20} />
+						</button>
+					</nav>
+				</motion.header>
+
+				{/* ── Barre du bas : les gestes de la classe ── */}
+				<AnimatePresence>
+					{showBottomBar && uiIn && (
+						<motion.nav
+							key="bottom"
+							className="cls-bottom"
+							aria-label="Navigation dans la leçon"
+							initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
+							transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+						>
+							<div className="cls-bottom-group cls-bottom-group--ask">
+								<button
+									type="button"
+									className="cls-btn cls-btn--secondary"
+									onClick={() => openSheet()}
+									disabled={!canUseSheet || scene.isMiloBusy}
+								>
+									<img className="cls-btn-emoji" src="/landing/emoji/fox.webp" alt="" aria-hidden="true" />
+									<span className="cls-hide-xs">{askLabel}</span>
+									<span className="cls-show-xs">{isOpenQuestionMode ? "Répondre" : "Question"}</span>
+								</button>
+							</div>
+
+							<div className="cls-bottom-group cls-bottom-group--nav">
+								{isLessonMode && parts.length > 0 && (
+									<>
+										<button
+											type="button"
+											className="cls-btn cls-btn--secondary cls-btn--icon"
+											onClick={scene.goPrevious}
+											disabled={currentPartIndex === 0 || phase === "loading"}
+											aria-label="Partie précédente"
+											title="Partie précédente"
+										>
+											<ArrowLeft size={20} />
+										</button>
+
+										<ol className="cls-steps cls-hide-xs" aria-label={`Progression : ${scene.progressPercent} %`}>
+											{parts.map((part, i) => {
+												const visited = i <= maxVisitedPartIndex;
+												const state = i === currentPartIndex ? "is-current" : visited ? "is-visited" : "is-locked";
+												return (
+													<li key={part.id ?? i}>
+														<button
+															type="button"
+															className={`cls-step ${state}`}
+															onClick={() => scene.goToPart(i)}
+															disabled={!visited || phase === "loading"}
+															aria-current={i === currentPartIndex ? "step" : undefined}
+															aria-label={`Partie ${i + 1} : ${part.title}${visited ? "" : " (pas encore lue)"}`}
+															title={part.title}
+														>
+															<span />
+														</button>
+													</li>
+												);
+											})}
+										</ol>
+
+										<button
+											type="button"
+											className="cls-btn cls-btn--primary cls-btn--next"
+											onClick={primary.onClick}
+											disabled={phase === "loading"}
+										>
+											<span>{primary.label}</span>
+											<primary.Icon size={20} aria-hidden="true" />
+										</button>
+									</>
+								)}
+
+								{isFreeChatMode && (
+									<button type="button" className="cls-btn cls-btn--primary" onClick={scene.handleBackToLessons}>
+										Terminer
+										<ArrowRight size={18} aria-hidden="true" />
+									</button>
+								)}
+
+								{isOpenQuestionMode && (
+									<button type="button" className="cls-btn cls-btn--secondary" onClick={scene.handleBackToLesson}>
+										<BookOpen size={18} aria-hidden="true" />
+										<span className="cls-hide-xs">Relire la leçon</span>
+										<span className="cls-show-xs">Leçon</span>
+									</button>
+								)}
+
+							</div>
+						</motion.nav>
+					)}
+				</AnimatePresence>
+			</div>
+
+			{/* ── Tableau en grand (lecture confortable, mobile) ── */}
+			<AnimatePresence>
+				{zoomed && (
+					<motion.div
+						className="cls-zoom"
+						role="dialog"
+						aria-modal="true"
+						aria-label="Tableau en grand"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+					>
+						<motion.div
+							className="cls-zoom-board"
+							initial={reduceMotion ? false : { scale: 0.92, y: 20 }}
+							animate={{ scale: 1, y: 0 }}
+							transition={{ type: "spring", stiffness: 340, damping: 32 }}
+						>
+							<button
+								type="button"
+								className="cls-icon-btn cls-icon-btn--chalk cls-zoom-close"
+								onClick={() => setZoomed(false)}
+								aria-label="Revenir à la classe"
+								autoFocus
+							>
+								<X size={22} />
+							</button>
+							<div className="cls-chalkboard is-flat">{boardNode}</div>
+						</motion.div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+
+			{distressMessage && (
+				<DistressNotice text={distressMessage.text} onClose={() => setDismissedDistressId(distressMessage.id)} />
 			)}
 
-			<BoardScrollbar
-				scrollRow={boardScrollRow}
-				maxScrollRow={maxScrollRow}
-				totalRows={boardRows.length}
-				visibleRows={BOARD_PAGE_VISIBLE_LINES}
-				onScrollTo={handleBoardScrollTo}
-				onStep={scrollBoardBy}
-			/>
-
-			{userScrolledUp && boardScrollRow < maxScrollRow && (
-				<button className="board-resume-btn glass-panel" onClick={handleBoardResume}>
-					<FiChevronDown size={16} />
-					<span>Reprendre en bas</span>
-				</button>
-			)}
-
-			{/* Barre de progression */}
-			{parts.length > 0 && phase !== "loading" && (
-				<LessonProgressBar
-					current={currentPartIndex + 1}
-					total={parts.length}
-					percent={progressPercent}
-					canGoPrev={canGoToPreviousPart}
-					canGoNext={canGoToNextPart}
-					onPrev={handleReviewPreviousPart}
-					onNext={handleReviewNextPart}
-				/>
-			)}
-
-			{/* Panneau de cours */}
-			{/* {currentPart && phase !== "loading" && (
-				<LessonPanel
-					title={currentPart.title}
-					content={displayedText}
-					phase={phase}
-					reply={reply}
-				/>
-			)} */}
-
-			{/* Actions (suite / question / fin) */}
-			<LessonActions
-				phase={phase}
-				isFreeChatMode={isFreeChatMode}
-				isOpenQuestionMode={isOpenQuestionMode}
-				openQuestionPhase={openQuestionPhase}
-				openQuestionInputMode={openQuestionInputMode}
-				onNext={handleNextPart}
-				onOpenQuestionModeChange={handleOpenQuestionInputModeChange}
-				onBackToLessons={handleBackToLessons}
-				onBackToCourseDetail={handleBackToCourseDetail}
-				onOpenQuestionNewQuestion={handleOpenQuestionNewQuestion}
-				loadError={loadError}
-			/>
-
-			{isLessonFullyFinished && (
-				<button
-					type="button"
-					className="lesson-complete-check"
-					onClick={() => setShowLessonFinishedModal(true)}
-					aria-label="Leçon terminée, voir les options pour continuer"
-					title="Leçon terminée !"
-				>
-					<FiCheckCircle size={28} />
-				</button>
-			)}
-
-			{/* Input question / réponse */}
-			{(showRegularChatInput || showOpenQuestionInput) && (
-				<ChatInput
-					value={question}
-					onChange={setQuestion}
-					onSend={handleSendQuestion}
-					disabled={phase === "answering"}
-					placeholder={chatPlaceholder}
-					maxLength={chatMaxLength}
-				/>
-			)}
-
-			{/* Réponse de détresse : en entier, numéros d'aide cliquables */}
-			{showDistressNotice && (
-				<DistressNotice text={boardFullText} onClose={() => setDismissedDistressText(boardFullText)} />
-			)}
-
-			{showReviewBoardButton && (
-				<button
-					className="review-board-btn glass-panel"
-					onClick={handleOpenQuestionReviewBoard}
-					aria-label="Revoir le tableau"
-					title="Revoir le tableau"
-				>
-					<FiArrowUp size={18} />
-				</button>
-			)}
-
-			{/* Animation controls disabled for now. */}
-			{false && (
-				<AnimationControls
-					activeAnimation={activeAnimation}
-					onAnimationChange={setActiveAnimation}
-					visible={showControls}
-					onClose={() => setShowControls(false)}
-				/>
-			)}
-
-			{false && !showControls && (
-				<button className="panel-toggle-btn" onClick={() => setShowControls(true)} aria-label="Ouvrir les paramètres">
-					<FiSettings size={18} />
-				</button>
-			)}
-
-			<button className="help-btn" onClick={() => setShowHelp(true)} aria-label="Aide" title="Aide">
-				<FiHelpCircle size={22} />
-			</button>
-
-			<button
-				className="close-btn"
-				onClick={() => setShowLeaveConfirm(true)}
-				aria-label="Quitter la salle de classe"
-				title="Quitter la salle de classe"
-			>
-				<FiX size={22} />
-			</button>
-
-			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} imageUrl="/help.webp" />
+			<CourseSwitcher isOpen={showSwitcher} onClose={() => setShowSwitcher(false)} currentLessonId={lessonId} />
+			<HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
 			<LessonFinishedModal
-				isOpen={showLessonFinishedModal}
-				onClose={() => setShowLessonFinishedModal(false)}
-				onStartQcm={handleStartQcm}
-				onStartOpenQuestion={handleStartOpenQuestion}
-				onBackToLessons={handleBackToLessons}
-			/>
-			<BoardFullTextModal
-				text={boardFullText}
-				isOpen={isBoardModalOpen}
-				onClose={() => setIsBoardModalOpen(false)}
-			/>
-			<LeaveConfirmModal
-				isOpen={showLeaveConfirm}
-				onCancel={() => setShowLeaveConfirm(false)}
-				onConfirm={() => {
-					setShowLeaveConfirm(false);
-					if (isOpenQuestionMode) {
-						handleBackToCourseDetail();
-					} else {
-						handleBackToLessons();
-					}
+				isOpen={showFinished}
+				onClose={() => setShowFinished(false)}
+				studentName={studentName}
+				onStartQuiz={openQuiz}
+				onStartOpenQuestion={scene.handleStartOpenQuestion}
+				onChangeLesson={() => {
+					setShowFinished(false);
+					setShowSwitcher(true);
+				}}
+				onReview={() => {
+					setShowFinished(false);
+					scene.reviewLesson();
 				}}
 			/>
+			<ClassSheet
+				isOpen={showLeave}
+				onClose={() => setShowLeave(false)}
+				variant="center"
+				title="Quitter la salle de classe ?"
+				footer={
+					<>
+						<button type="button" className="cls-btn cls-btn--secondary" onClick={() => setShowLeave(false)}>
+							Rester en classe
+						</button>
+						<button
+							type="button"
+							className="cls-btn cls-btn--danger"
+							onClick={() => {
+								setShowLeave(false);
+								speech.stop();
+								scene.handleBackToLessons();
+							}}
+						>
+							<X size={18} aria-hidden="true" />
+							Quitter
+						</button>
+					</>
+				}
+			>
+				<p className="cls-sheet-text">
+					Les explications de Milo ne seront pas gardées.{" "}
+					{memoItems.length > 0 && "Tes notes, elles, restent sur ton post-it."}
+				</p>
+			</ClassSheet>
 		</div>
 	);
 };
