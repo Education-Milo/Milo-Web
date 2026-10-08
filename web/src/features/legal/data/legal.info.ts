@@ -64,15 +64,16 @@ export const LEGAL_INFO = {
 	 * pas encore de purge automatique : les données suivent la vie du compte.
 	 */
 	retention: {
-		account: "Tant que ton compte existe. Il est supprimé, avec ton profil et ta progression, à ta demande.",
+		account:
+			"Tant que ton compte est utilisé. Il est supprimé, avec ton profil et ta progression, à ta demande ou automatiquement après 2 ans sans connexion.",
 		activity: "Tant que ton compte existe ; effacées avec lui.",
 		aiExchanges:
 			"Tes messages à Milo et les photos que tu importes ne sont pas conservés : ils sont traités puis oubliés. Seuls le type d'activité (question posée, QCM généré…) et des mesures techniques (volume, durée) sont gardés.",
 		moderation:
-			"Seulement la catégorie et la date, jamais le contenu. Gardés après la suppression du compte, rattachés à un simple numéro.",
+			"Seulement la catégorie et la date, jamais le contenu. Supprimés au bout d'1 an, y compris après la suppression du compte (ils sont alors rattachés à un simple numéro).",
 		securityLogs:
 			"Sessions : 14 jours après la dernière utilisation. Appareils de confiance : 30 jours. Codes de vérification : 10 à 15 minutes.",
-		/** Les messages du formulaire arrivent par email (Web3Forms) : rien dans le code */
-		contact: null as string | null,
+		/** Les messages du formulaire arrivent par email (Web3Forms) et y restent */
+		contact: "Supprimés de la boîte mail de l'équipe 3 ans après le dernier échange." as string | null,
 	},
 };
