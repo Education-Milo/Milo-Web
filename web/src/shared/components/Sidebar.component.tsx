@@ -67,9 +67,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊", iconSrc: navIcon("my_milo") },
 	];
 
+	// Les statistiques vivent désormais dans le profil (ROUTES.STATS y redirige)
 	const progressItems = [
 		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true },
-		{ label: "Statistiques", path: ROUTES.STATS, icon: "📊", iconSrc: navIcon("stats"), disabled: false },
 	];
 
 	const socialItems = [

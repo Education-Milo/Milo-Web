@@ -23,7 +23,6 @@ import ExerciseScreen from "@features/exercices/pages/Exercise.page";
 import MyMiloPage from "@features/my-milo/pages/MyMilo.page";
 import BoutiquePage from "@features/milo-shop/pages/MiloShop.page";
 import FriendsPage from "@features/friends/pages/Friends.page";
-import StatsPage from "@features/stats/pages/Stats.page";
 import AdminPage from "@features/admin/pages/Admin.page";
 import OcrPage from "@features/ocr/pages/OcrPage";
 import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
@@ -157,14 +156,8 @@ const AuthNavigator: React.FC = () => {
 					}
 				/>
 
-				<Route
-					path={ROUTES.STATS}
-					element={
-						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
-							<StatsPage />
-						</ProtectedRoute>
-					}
-				/>
+				{/* Les statistiques sont intégrées au profil : anciens liens redirigés */}
+				<Route path={ROUTES.STATS} element={<Navigate to={ROUTES.PROFILE} replace />} />
 
 				<Route
 					path="/duels"
