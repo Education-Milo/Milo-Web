@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { ExternalLink, Instagram, Linkedin } from "lucide-react";
+import { LEGAL_DOCS } from "@features/legal/data/legal.docs";
 import "@features/landing/styles/landing.css";
 import "@features/landing/components/Footer/Footer.css";
 
@@ -20,12 +21,8 @@ const COLUMNS = [
 		],
 	},
 	{
-		title: "Sécurité",
-		links: [
-			{ to: "/confidentialite", label: "Confidentialité" },
-			{ to: "/charte", label: "Charte IA" },
-			{ to: "/mentions", label: "Légal" },
-		],
+		title: "Légal",
+		links: LEGAL_DOCS.map((doc) => ({ to: doc.path, label: doc.shortTitle })),
 	},
 	{
 		title: "Support",

@@ -1,0 +1,455 @@
+/* ==========================================================================
+   PAGES LÉGALES — posées sur le gabarit SubPage de la landing (tokens --lp-*)
+   Classes préfixées `lg-` : le CSS du projet est global.
+   ========================================================================== */
+
+/* ---------- Date et version (dans l'en-tête) ---------- */
+.lg-meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin: 0;
+}
+
+.lg-meta span {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45em;
+	padding: 0.45rem 0.95rem;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	color: var(--lp-ink-2);
+	font-weight: 600;
+	font-size: 0.92rem;
+}
+
+.lg-meta svg { color: var(--lp-braise); }
+
+/* ---------- Information à compléter ---------- */
+.lg-fill {
+	display: inline-block;
+	padding: 0.05em 0.55em;
+	border-radius: 8px;
+	border: 2px dashed var(--milo-pompon-relief);
+	background: var(--pompon-bg);
+	color: var(--milo-braise);
+	font-weight: 700;
+	font-size: 0.92em;
+	line-height: 1.5;
+}
+
+/* ---------- En bref ---------- */
+.lg-summary {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	gap: clamp(16px, 2.6vw, 28px);
+	align-items: start;
+	max-width: 960px;
+	margin: 0 auto clamp(44px, 6vw, 72px);
+	padding: clamp(22px, 3.4vw, 36px);
+	border-radius: 32px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 8px 0 var(--lp-sable);
+}
+
+.lg-summary-icon { width: clamp(56px, 7vw, 80px); height: auto; }
+
+.lg-summary-title {
+	margin: 0 0 0.8rem;
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	font-size: clamp(1.6rem, 3vw, 2.1rem);
+	line-height: 1.05;
+}
+
+.lg-summary ul {
+	display: grid;
+	gap: 0.7rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lg-summary li {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr);
+	gap: 0.7rem;
+	align-items: start;
+	font-size: 1.05rem;
+	line-height: 1.5;
+}
+
+.lg-summary a {
+	color: var(--lp-braise);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+	overflow-wrap: anywhere;
+}
+
+.lg-summary li svg {
+	box-sizing: content-box;
+	padding: 4px;
+	border-radius: 50%;
+	background: var(--lp-creme);
+	color: var(--lp-foret);
+}
+
+/* ---------- Corps : sommaire + texte ---------- */
+.lg-body {
+	display: grid;
+	grid-template-columns: 270px minmax(0, 1fr);
+	gap: clamp(28px, 5vw, 64px);
+	align-items: start;
+}
+
+.lg-toc {
+	position: sticky;
+	top: 120px;
+	max-height: calc(100vh - 140px);
+	overflow-y: auto;
+	padding: 18px;
+	border-radius: 26px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 5px 0 var(--lp-sable);
+	scrollbar-width: thin;
+}
+
+.lg-toc-title {
+	margin: 0 0 0.6rem 0.4rem;
+	font-family: var(--lp-f-display);
+	font-size: 1.25rem;
+	color: var(--lp-milo);
+}
+
+.lg-toc-list {
+	display: grid;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lg-toc-list a {
+	display: grid;
+	grid-template-columns: 26px minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: start;
+	padding: 0.5rem 0.6rem;
+	border-radius: 14px;
+	color: var(--lp-ink-2);
+	font-weight: 600;
+	font-size: 0.93rem;
+	line-height: 1.35;
+	text-decoration: none;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.lg-toc-list a:hover { background: var(--lp-creme); color: var(--lp-brique); }
+
+.lg-toc-num {
+	display: grid;
+	place-items: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--lp-creme);
+	color: var(--lp-braise);
+	font-size: 0.8rem;
+	font-weight: 700;
+}
+
+.lg-toc-list a.is-active { background: var(--lp-creme); color: var(--lp-ink); }
+.lg-toc-list a.is-active .lg-toc-num { background: var(--lp-feu-nav); color: #fff; }
+
+.lg-toc-mobile { display: none; }
+
+/* ---------- Sections ---------- */
+.lg-article {
+	display: grid;
+	gap: clamp(36px, 5vw, 52px);
+	min-width: 0;
+	max-width: 780px;
+}
+
+.lg-section { scroll-margin-top: 110px; }
+
+.lg-section-title {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	margin: 0 0 1rem;
+	font-family: var(--lp-f-text);
+	font-weight: 700;
+	font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+	line-height: 1.25;
+	color: var(--lp-ink);
+}
+
+.lg-section-num {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 40px;
+	height: 40px;
+	border-radius: 14px;
+	background: var(--lp-feu);
+	color: #fff;
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	font-size: 1.15rem;
+	box-shadow: 0 4px 0 var(--lp-braise);
+}
+
+.lg-prose {
+	display: grid;
+	gap: 0.9rem;
+	color: var(--lp-ink-2);
+	font-size: 1.04rem;
+	line-height: 1.7;
+}
+
+.lg-prose p,
+.lg-prose ul,
+.lg-prose ol { margin: 0; }
+
+.lg-prose strong { color: var(--lp-ink); }
+
+.lg-prose h3 {
+	margin: 0.6rem 0 -0.3rem;
+	font-size: 1.08rem;
+	font-weight: 700;
+	color: var(--lp-ink);
+}
+
+.lg-prose ul,
+.lg-prose ol { padding-left: 1.3rem; display: grid; gap: 0.4rem; }
+.lg-prose li::marker { color: var(--lp-milo); }
+
+.lg-prose a {
+	color: var(--lp-braise);
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
+}
+
+.lg-prose a:hover { color: var(--lp-vermillon); }
+
+/* Fiche d'identité (éditeur, hébergeur…) */
+.lg-facts {
+	display: grid;
+	margin: 0;
+	padding: 6px 18px;
+	border-radius: 20px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+}
+
+.lg-facts > div {
+	display: grid;
+	grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1fr);
+	gap: 4px 16px;
+	padding: 0.7rem 0;
+	border-bottom: 2px dashed var(--lp-creme);
+}
+
+.lg-facts > div:last-child { border-bottom: 0; }
+.lg-facts dt { font-weight: 700; color: var(--lp-ink); }
+.lg-facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Encadrés */
+.lg-note {
+	padding: 1rem 1.2rem;
+	border-radius: 18px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	border-left: 6px solid var(--lp-mandarine);
+}
+
+.lg-note--green { border-left-color: var(--lp-foret); }
+
+/* Tableaux */
+.lg-table-wrap {
+	overflow-x: auto;
+	border-radius: 18px;
+	border: 2px solid var(--lp-line);
+	background: #fff;
+}
+
+.lg-table {
+	width: 100%;
+	min-width: 560px;
+	border-collapse: collapse;
+	font-size: 0.95rem;
+	line-height: 1.5;
+}
+
+.lg-table th,
+.lg-table td {
+	padding: 0.75rem 0.9rem;
+	text-align: left;
+	vertical-align: top;
+	border-bottom: 2px solid var(--lp-creme);
+}
+
+.lg-table th {
+	background: var(--lp-creme);
+	color: var(--lp-ink);
+	font-weight: 700;
+}
+
+.lg-table tr:last-child td { border-bottom: 0; }
+.lg-table code { font-size: 0.86em; color: var(--lp-braise); overflow-wrap: anywhere; }
+
+/* Deux colonnes « oui / non » (Charte IA) */
+.lg-dos {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.lg-dos > div {
+	display: grid;
+	align-content: start;
+	gap: 0.6rem;
+	padding: 1rem 1.1rem;
+	border-radius: 20px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+}
+
+.lg-prose .lg-dos h3 { margin: 0; }
+
+/* Numéros d'aide */
+.lg-prose .lg-helplines {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	padding: 0;
+	list-style: none;
+}
+
+.lg-helplines li {
+	display: grid;
+	gap: 0.2rem;
+	padding: 1rem;
+	border-radius: 20px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 4px 0 var(--lp-sable);
+	text-align: center;
+	line-height: 1.4;
+}
+
+.lg-prose .lg-helplines a {
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	font-size: 1.8rem;
+	text-decoration: none;
+	color: var(--lp-milo);
+}
+
+/* ---------- Autres documents ---------- */
+.lg-others { margin-top: clamp(64px, 9vw, 110px); }
+
+.lg-others-title {
+	margin: 0 0 1.2rem;
+	font-family: var(--lp-f-display);
+	font-weight: 400;
+	font-size: clamp(1.7rem, 3vw, 2.3rem);
+	text-align: center;
+}
+
+.lg-others-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 14px;
+}
+
+.lg-doc-card {
+	display: grid;
+	justify-items: start;
+	align-content: start;
+	gap: 0.35rem;
+	padding: 18px;
+	border-radius: 24px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 5px 0 var(--lp-sable);
+	color: var(--lp-ink);
+	text-decoration: none;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.lg-doc-card:hover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--lp-sable); border-color: var(--lp-sable); }
+.lg-doc-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--lp-sable); }
+.lg-doc-card-icon { width: 44px; height: 44px; margin-bottom: 0.2rem; }
+.lg-doc-card-title { font-weight: 700; line-height: 1.3; }
+.lg-doc-card-text { color: var(--lp-ink-2); font-size: 0.9rem; line-height: 1.4; }
+
+/* Encart final. L'espace avant le footer est un padding du panneau : une
+   marge basse sur ce dernier élément traverserait le panneau (fusion des
+   marges) et laisserait voir le fond crème de la page. */
+.lg .lp-sub__panel { padding-bottom: clamp(64px, 8vw, 96px); }
+
+.lg-help {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 14px 22px;
+	max-width: 760px;
+	margin: clamp(36px, 5vw, 56px) auto 0;
+	padding: 18px 22px;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 5px 0 var(--lp-sable);
+	text-align: center;
+}
+
+@media (max-width: 640px) {
+	.lg-help { border-radius: 28px; }
+}
+
+.lg-help p { margin: 0; color: var(--lp-ink-2); }
+.lg-help strong { color: var(--lp-ink); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+	.lg-body { grid-template-columns: minmax(0, 1fr); }
+	.lg-toc { display: none; }
+
+	.lg-toc-mobile {
+		display: block;
+		border-radius: 22px;
+		background: #fff;
+		border: 2px solid var(--lp-line);
+		box-shadow: 0 5px 0 var(--lp-sable);
+	}
+
+	.lg-toc-mobile summary {
+		padding: 1rem 1.2rem;
+		font-family: var(--lp-f-display);
+		font-size: 1.2rem;
+		color: var(--lp-milo);
+		cursor: pointer;
+	}
+
+	.lg-toc-mobile .lg-toc-list { padding: 0 0.6rem 0.8rem; }
+	.lg-article { max-width: none; }
+}
+
+@media (max-width: 640px) {
+	.lg-summary { grid-template-columns: minmax(0, 1fr); }
+	.lg-facts > div { grid-template-columns: minmax(0, 1fr); }
+	.lg-dos,
+	.lg-prose .lg-helplines { grid-template-columns: minmax(0, 1fr); }
+	.lg-section-num { width: 34px; height: 34px; border-radius: 12px; font-size: 1rem; }
+}
