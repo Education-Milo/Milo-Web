@@ -26,7 +26,7 @@ import { useStats } from "@features/stats/store/stats.queries";
 import { useStatsScope } from "@features/stats/context/StatsScope";
 import { useDuelStats } from "@features/stats/hooks/useDuelStats";
 import type { StatsPeriodDays } from "@features/stats/store/stats.model";
-import { formatDuration, formatPercent } from "@features/stats/utils/stats.format";
+import { XP_PER_LEVEL, formatDuration, formatPercent, levelFromXp } from "@features/stats/utils/stats.format";
 import "@features/stats/styles/Stats.css";
 
 const PERIODS: { days: StatsPeriodDays; label: string }[] = [
@@ -34,8 +34,6 @@ const PERIODS: { days: StatsPeriodDays; label: string }[] = [
 	{ days: 30, label: "30 jours" },
 	{ days: 90, label: "90 jours" },
 ];
-
-const XP_PER_LEVEL = 500;
 
 const UPCOMING_ACHIEVEMENTS = [
 	{ id: "first-course", label: "Premier cours terminé", icon: Award },
@@ -60,9 +58,7 @@ const StatsView: React.FC = () => {
 	const totals = data?.totals;
 	const qcm = data?.qcm;
 
-	const level = data ? Math.floor(data.xp / XP_PER_LEVEL) + 1 : 1;
-	const xpIntoLevel = data ? data.xp % XP_PER_LEVEL : 0;
-	const xpProgressPct = data ? Math.min((xpIntoLevel / XP_PER_LEVEL) * 100, 100) : 0;
+	const { level, xpIntoLevel, progressPct: xpProgressPct } = levelFromXp(data?.xp ?? 0);
 
 	const activeDaysPct =
 		data && data.period.days > 0

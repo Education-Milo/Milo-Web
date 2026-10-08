@@ -32,45 +32,52 @@ const ACTIVITY_ICONS: Record<string, React.ReactNode> = {
 	friend_accepted: <UserPlus size={16} />,
 };
 
-const ActivityFeed: React.FC = () => {
+/** Liste des 7 derniers jours d'activité, sans carte autour (réutilisée par le profil). */
+export const ActivityFeedList: React.FC = () => {
 	const { data: activities = [], isLoading, isError } = useActivities(7, 20);
 
 	return (
-		<section className="st-card st-feed">
-			<header className="st-card-header">
-				<div className="st-card-title-wrap">
-					<div className="st-card-icon"><Activity size={18} /></div>
-					<div>
-						<h2 className="st-card-title">Activité récente</h2>
-						<p className="st-card-subtitle">Les 7 derniers jours</p>
-					</div>
-				</div>
-			</header>
-			<div className="st-card-body">
-				{isLoading && <p className="st-empty-inline">Chargement...</p>}
-				{isError && <p className="st-empty-inline">Impossible de charger ton activité.</p>}
-				{!isLoading && !isError && activities.length === 0 && (
-					<p className="st-empty-inline">Rien cette semaine. À toi de jouer !</p>
-				)}
-				<ul className="st-feed-list">
-					{activities.map((a) => (
-						<li key={a.id} className="st-feed-row">
-							<div className={`st-feed-icon st-feed-icon--${a.activity_type}`}>
-								{ACTIVITY_ICONS[a.activity_type] ?? <Activity size={16} />}
-							</div>
-							<div className="st-feed-body">
-								<span className="st-feed-label">{describeActivity(a)}</span>
-								<span className="st-feed-meta">
-									{formatRelativeDate(a.created_at)}
-									{a.duration_seconds > 0 ? ` · ${formatDuration(a.duration_seconds)}` : ""}
-								</span>
-							</div>
-						</li>
-					))}
-				</ul>
-			</div>
-		</section>
+		<>
+			{isLoading && <p className="st-empty-inline">Chargement...</p>}
+			{isError && <p className="st-empty-inline">Impossible de charger ton activité.</p>}
+			{!isLoading && !isError && activities.length === 0 && (
+				<p className="st-empty-inline">Rien cette semaine. À toi de jouer !</p>
+			)}
+			<ul className="st-feed-list">
+				{activities.map((a) => (
+					<li key={a.id} className="st-feed-row">
+						<div className={`st-feed-icon st-feed-icon--${a.activity_type}`}>
+							{ACTIVITY_ICONS[a.activity_type] ?? <Activity size={16} />}
+						</div>
+						<div className="st-feed-body">
+							<span className="st-feed-label">{describeActivity(a)}</span>
+							<span className="st-feed-meta">
+								{formatRelativeDate(a.created_at)}
+								{a.duration_seconds > 0 ? ` · ${formatDuration(a.duration_seconds)}` : ""}
+							</span>
+						</div>
+					</li>
+				))}
+			</ul>
+		</>
 	);
 };
+
+const ActivityFeed: React.FC = () => (
+	<section className="st-card st-feed">
+		<header className="st-card-header">
+			<div className="st-card-title-wrap">
+				<div className="st-card-icon"><Activity size={18} /></div>
+				<div>
+					<h2 className="st-card-title">Activité récente</h2>
+					<p className="st-card-subtitle">Les 7 derniers jours</p>
+				</div>
+			</div>
+		</header>
+		<div className="st-card-body">
+			<ActivityFeedList />
+		</div>
+	</section>
+);
 
 export default ActivityFeed;

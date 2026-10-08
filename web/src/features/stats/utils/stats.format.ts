@@ -1,5 +1,18 @@
 import type { ActivityItem, PerformanceKind } from "@features/stats/store/stats.model";
 
+/** XP à gagner pour passer un niveau (niveau 1 à 0 XP). */
+export const XP_PER_LEVEL = 500;
+
+/** 1230 XP → niveau 3, 230 XP dans le niveau, 46 % de la barre */
+export const levelFromXp = (xp: number) => {
+	const xpIntoLevel = xp % XP_PER_LEVEL;
+	return {
+		level: Math.floor(xp / XP_PER_LEVEL) + 1,
+		xpIntoLevel,
+		progressPct: Math.min((xpIntoLevel / XP_PER_LEVEL) * 100, 100),
+	};
+};
+
 /** 7260 → "2 h 01", 540 → "9 min", 0 → "0 min" */
 export const formatDuration = (seconds: number): string => {
 	const total = Math.max(0, Math.round(seconds));
