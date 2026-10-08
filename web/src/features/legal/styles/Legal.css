@@ -393,14 +393,29 @@
 .lg-doc-card-title { font-weight: 700; line-height: 1.3; }
 .lg-doc-card-text { color: var(--lp-ink-2); font-size: 0.9rem; line-height: 1.4; }
 
+/* Encart final. L'espace avant le footer est un padding du panneau : une
+   marge basse sur ce dernier élément traverserait le panneau (fusion des
+   marges) et laisserait voir le fond crème de la page. */
+.lg .lp-sub__panel { padding-bottom: clamp(64px, 8vw, 96px); }
+
 .lg-help {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
 	gap: 14px 22px;
-	margin: clamp(36px, 5vw, 56px) 0 clamp(64px, 8vw, 96px);
+	max-width: 760px;
+	margin: clamp(36px, 5vw, 56px) auto 0;
+	padding: 18px 22px;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--lp-line);
+	box-shadow: 0 5px 0 var(--lp-sable);
 	text-align: center;
+}
+
+@media (max-width: 640px) {
+	.lg-help { border-radius: 28px; }
 }
 
 .lg-help p { margin: 0; color: var(--lp-ink-2); }
