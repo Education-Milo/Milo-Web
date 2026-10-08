@@ -13,6 +13,7 @@ import type {
 export const useCourseStore = create<CourseStore>((set) => ({
 	subjects: [],
 	coursesWithChapters: [],
+	loadedSubjectId: null,
 	loading: false,
 	error: null,
 
@@ -72,7 +73,7 @@ export const useCourseStore = create<CourseStore>((set) => ({
 
 	load_course_detail: async (subjectId: number) => {
 		try {
-			set({ loading: true, error: null, coursesWithChapters: [] });
+			set({ loading: true, error: null, coursesWithChapters: [], loadedSubjectId: subjectId });
 			const coursesRes = await APIAxios.get(APIRoutes.GET_Courses, {
 				params: { subject_id: subjectId },
 			});

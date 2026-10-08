@@ -76,9 +76,27 @@ a { color: var(--accent-text); }
 
 button, input, select, textarea { font-family: inherit; }
 
+/* Anneau de focus clavier de la charte landing (vert tableau) */
 :focus-visible {
-	outline: 3px solid var(--milo-pompon);
+	outline: 3px solid var(--milo-vert);
 	outline-offset: 3px;
+}
+
+/* Zones de saisie : pas de cadre autour du texte qu'on tape. Le curseur et
+   la bordure du champ (orange au focus) suffisent à montrer où l'on écrit. */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus-visible,
+[contenteditable="true"]:focus,
+[contenteditable="true"]:focus-visible {
+	outline: none;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea {
+	caret-color: var(--milo-orange);
 }
 
 ::selection { background: var(--milo-lettre); color: var(--milo-encre); }
