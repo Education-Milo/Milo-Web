@@ -141,14 +141,27 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	);
 }
 
+/// Luminosité du bake Blender : 1 = la texture telle que bakée
+const BAKE_BRIGHTNESS = 1.1;
+
 function Classroom({ modelPath }: { modelPath: string }) {
 	const { scene } = useGLTF(modelPath);
 	useEffect(() => {
 		if (!scene) return;
 		scene.traverse((child) => {
-			if ((child as THREE.Mesh).isMesh) {
-				child.castShadow = false;
-				child.receiveShadow = true;
+			const mesh = child as THREE.Mesh;
+			if (!mesh.isMesh) return;
+			mesh.castShadow = false;
+			mesh.receiveShadow = true;
+			/// Matériaux « unlit » : l'éclairage est dans la texture bakée, les
+			/// lumières de la scène n'y changent rien. Le tone mapping ACES
+			/// l'assombrirait par rapport au rendu Blender : on l'affiche tel quel.
+			const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+			for (const material of materials) {
+				if (!(material instanceof THREE.MeshBasicMaterial)) continue;
+				material.toneMapped = false;
+				material.color.setScalar(BAKE_BRIGHTNESS);
+				material.needsUpdate = true;
 			}
 		});
 	}, [scene]);
