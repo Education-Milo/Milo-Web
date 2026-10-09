@@ -39,6 +39,7 @@ import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	findAction,
 	prepareMiloScene,
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
@@ -94,54 +95,54 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 		scene.visible = true;
 	}, [scene, equippedMeshNames, accessoryMeshNames]);
 
+	/// Action qui joue en ce moment : tout fondu part d'elle. Sans ce suivi,
+	/// équiper un chapeau pendant l'arrivée faisait partir HatLook d'un Idle
+	/// arrêté, l'arrivée restait à plein poids et les deux poses se mélangeaient.
+	const currentRef = useRef<THREE.AnimationAction | null>(null);
+
+	const idleAction = useCallback(
+		() => findAction(actions, "Idle") ?? findAction(actions, Object.keys(actions)[0] ?? ""),
+		[actions],
+	);
+
+	const fadeTo = useCallback((next: THREE.AnimationAction | null, once: boolean) => {
+		if (!next) return;
+		const prev = currentRef.current;
+		if (prev === next && !once) return;
+		next.reset();
+		next.setEffectiveTimeScale(1);
+		next.setEffectiveWeight(1);
+		next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity);
+		next.clampWhenFinished = once;
+		next.play();
+		if (prev && prev !== next) next.crossFadeFrom(prev, 0.3, false);
+		currentRef.current = next;
+	}, []);
+
+	/// Entrée en scène, puis attente en boucle
+	useEffect(() => {
+		if (Object.keys(actions).length === 0) return;
+		const arrival = findAction(actions, "Arrival");
+		if (arrival) fadeTo(arrival, true);
+		else fadeTo(idleAction(), false);
+	}, [actions, fadeTo, idleAction]);
+
+	/// Un clip joué une fois (arrivée, HatLook) revient à l'attente, sauf s'il
+	/// a déjà été remplacé par un autre
+	useEffect(() => {
+		const onFinished = (e: { action: THREE.AnimationAction }) => {
+			if (e.action === currentRef.current) fadeTo(idleAction(), false);
+		};
+		mixer.addEventListener("finished", onFinished);
+		return () => {
+			mixer.removeEventListener("finished", onFinished);
+		};
+	}, [mixer, fadeTo, idleAction]);
+
 	useEffect(() => {
 		if (hatTrigger === 0) return;
-		const hatName = Object.keys(actions).find((n) => n.toLowerCase() === "hatlook");
-		const hatAction = hatName ? actions[hatName] : null;
-		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
-		const idleAction = idleName ? actions[idleName] : null;
-
-		if (hatAction && idleAction) {
-			hatAction.reset().setLoop(THREE.LoopOnce, 1);
-			hatAction.clampWhenFinished = true;
-			hatAction.play().crossFadeFrom(idleAction, 0.3, true);
-
-			const onFinished = (e: { action: THREE.AnimationAction }) => {
-				if (e.action === hatAction) {
-					idleAction.reset().play().crossFadeFrom(hatAction, 0.3, true);
-				}
-			};
-			mixer.addEventListener("finished", onFinished);
-			return () => {
-				mixer.removeEventListener("finished", onFinished);
-			};
-		}
-	}, [hatTrigger, actions, mixer]);
-
-	useEffect(() => {
-		const arrivalName = Object.keys(actions).find((n) => n.toLowerCase() === "arrival");
-		const arrivalAction = arrivalName ? actions[arrivalName] : null;
-		const idleName = Object.keys(actions).find((n) => n.toLowerCase() === "idle") || Object.keys(actions)[0];
-		const idleAction = idleName ? actions[idleName] : null;
-
-		if (arrivalAction && idleAction) {
-			arrivalAction.setLoop(THREE.LoopOnce, 1);
-			arrivalAction.clampWhenFinished = true;
-			arrivalAction.reset().play();
-
-			const onFinished = (e: { action: THREE.AnimationAction }) => {
-				if (e.action === arrivalAction) {
-					idleAction.reset().crossFadeFrom(arrivalAction, 0.3, true).play();
-				}
-			};
-			mixer.addEventListener("finished", onFinished);
-			return () => {
-				mixer.removeEventListener("finished", onFinished);
-			};
-		} else if (idleAction) {
-			idleAction.reset().play();
-		}
-	}, [actions, mixer]);
+		fadeTo(findAction(actions, "HatLook"), true);
+	}, [hatTrigger, actions, fadeTo]);
 
 	useFrame((state, delta) => {
 		if (groupRef.current) {
