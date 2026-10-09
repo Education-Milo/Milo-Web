@@ -190,7 +190,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 		<>
 			{/* --- BARRE MOBILE : logo + bouton hamburger --- */}
 			<div className="sb-mobile-topbar">
-				<img src="/milo-logo.webp" alt="Milo" className="sb-mobile-logo" />
+				<img
+					src="/milo-logo.webp"
+					alt="Milo, accueil"
+					className="sb-mobile-logo"
+					onClick={() => navigate(ROUTES.HOME)}
+					style={{ cursor: "pointer" }}
+				/>
 				<button
 					type="button"
 					className="sb-mobile-toggle"
@@ -214,7 +220,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 			<aside className={`sb-sidebar ${isMobileOpen ? "open" : ""}`}>
 				{/* --- HEADER : Logo + bouton notifications --- */}
 				<div className="sb-header">
-					<div className="sb-logo">
+					<div
+						className="sb-logo"
+						role="link"
+						tabIndex={0}
+						aria-label="Retour à l'accueil"
+						onClick={() => navigate(ROUTES.HOME)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter") navigate(ROUTES.HOME);
+						}}
+					>
 						<img src="/milo-logo.webp" alt="Milo" className="sb-logo-img" />
 					</div>
 
