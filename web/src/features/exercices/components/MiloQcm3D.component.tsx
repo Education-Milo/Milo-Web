@@ -39,9 +39,10 @@ const FRAME_HEIGHT = 1.9;
 const CAMERA_FOV = 20;
 /// 0 = Milo regarde droit vers l'utilisateur
 const ROTATION_Y = 0;
-/// Décalage vers la gauche du cadre : garde son visage dégagé de la carte de
+/// Décalage horizontal dans le cadre (0 = centré) : le cadre lui-même est
+/// poussé vers la droite en CSS pour que Milo ne soit plus coupé à gauche
 /// question, quelle que soit la largeur de l'écran
-const OFFSET_X = -0.3;
+const OFFSET_X = 0;
 
 const FOCUS_Y = FRAME_TOP - FRAME_HEIGHT / 2;
 const CAMERA_DISTANCE = cameraDistanceFor(FRAME_HEIGHT, CAMERA_FOV);

@@ -153,7 +153,7 @@ const BoutiquePage: React.FC = () => {
 
 						<div className="ms-hero__art" aria-hidden="true">
 							<div className="ms-hero__sun" />
-							<img className="ms-hero__milo" src="/landing/milo-reading.webp" alt="" draggable={false} />
+							<img className="ms-hero__milo" src="/shop.png" alt="" draggable={false} />
 							<img className="ms-hero__e ms-hero__e--1" src="/landing/emoji/t_shirt.webp" alt="" />
 							<img className="ms-hero__e ms-hero__e--2" src="/landing/emoji/sparkles.webp" alt="" />
 							<img className="ms-hero__e ms-hero__e--3" src="/landing/emoji/gem_stone.webp" alt="" />

@@ -451,7 +451,7 @@ h1.result-title { font-size: clamp(2rem, 5vw, 2.8rem); }
      feedback ou l'animation de série apparaissent, et Milo se décalait
      avec elle (ses pieds sortaient de l'écran par intermittence) */
   position: fixed;
-  left: 0;
+  left: clamp(0px, 4vw, 80px);
   bottom: 0;
   width: 440px;
   height: 540px;
