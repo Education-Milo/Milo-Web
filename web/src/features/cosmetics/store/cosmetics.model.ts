@@ -6,6 +6,7 @@ export type CosmeticType =
 	| "cosmetic_shoes"
 	| "cosmetic_gloves"
 	| "cosmetic_tie"
+	| "cosmetic_mustache"
 	| "sticker"
 	| "dance";
 
@@ -76,6 +77,7 @@ export const SKIN_TYPES: CosmeticType[] = [
 	"cosmetic_shoes",
 	"cosmetic_gloves",
 	"cosmetic_tie",
+	"cosmetic_mustache",
 ];
 
 export const WHEEL_TYPES: CosmeticType[] = ["sticker", "dance"];
@@ -95,6 +97,7 @@ export const TYPE_LABELS: Record<CosmeticType, string> = {
 	cosmetic_shoes: "Chaussures",
 	cosmetic_gloves: "Gants",
 	cosmetic_tie: "Cravates & nœuds",
+	cosmetic_mustache: "Moustaches",
 	sticker: "Stickers",
 	dance: "Danses",
 };
@@ -107,6 +110,7 @@ export const TYPE_ICONS: Record<CosmeticType, string> = {
 	cosmetic_shoes: "👟",
 	cosmetic_gloves: "🧤",
 	cosmetic_tie: "🎀",
+	cosmetic_mustache: "🥸",
 	sticker: "🌟",
 	dance: "💃",
 };
