@@ -89,6 +89,13 @@ export const RARITIES: CosmeticRarity[] = ["commun", "rare", "tres rare", "epiqu
 export const isSkinType = (type: CosmeticType) => SKIN_TYPES.includes(type);
 export const isWheelType = (type: CosmeticType) => WHEEL_TYPES.includes(type);
 
+/**
+ * Ce que `mesh_name` désigne pour un type : un maillage (tenue), un clip
+ * (danse) ou rien (sticker). Passer d'une tenue à une autre garde le maillage.
+ */
+export const meshKind = (type: CosmeticType): "mesh" | "clip" | null =>
+	isSkinType(type) ? "mesh" : type === "dance" ? "clip" : null;
+
 export const TYPE_LABELS: Record<CosmeticType, string> = {
 	cosmetic_hat: "Chapeaux",
 	cosmetic_glasses: "Lunettes",
