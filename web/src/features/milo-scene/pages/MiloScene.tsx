@@ -8,13 +8,16 @@ import {
 	ArrowRight,
 	BookOpen,
 	CircleHelp,
+	Clock,
 	FastForward,
 	Flag,
 	Maximize2,
+	Moon,
 	MousePointerClick,
 	PencilLine,
 	RotateCcw,
 	Square,
+	Sun,
 	Volume2,
 	X,
 } from "lucide-react";
@@ -32,6 +35,7 @@ import LessonFinishedModal from "@features/milo-scene/components/LessonFinishedM
 import ClassSheet from "@features/milo-scene/components/ClassSheet.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import { useSpeech } from "@features/milo-scene/hooks/useSpeech";
+import { useDayNight, type DayNightMode } from "@features/milo-scene/hooks/useDayNight";
 import { useMemoStore, type MemoItem } from "@features/milo-scene/store/memo.store";
 import { useMiloFreeChatStore, type MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 import { flattenSentences, parseBoardText, plainText } from "@features/milo-scene/utils/lessonText";
@@ -51,6 +55,13 @@ const LOADING_LINES = [
 	"Presque prêt !",
 ]
 const HINT_STORAGE_KEY = "milo-class-hint-seen";
+
+/// TEMPORAIRE : bouton de test de l'ambiance jour / nuit (à retirer)
+const DAY_NIGHT_BUTTON: Record<DayNightMode, { icon: typeof Sun; label: string; title: string }> = {
+	auto: { icon: Clock, label: "Auto", title: "Ambiance selon l'heure (test : passer en nuit)" },
+	night: { icon: Moon, label: "Nuit", title: "Nuit forcée (test : passer en jour)" },
+	day: { icon: Sun, label: "Jour", title: "Jour forcé (test : revenir à l'heure)" },
+};
 const EMPTY_MEMOS: MemoItem[] = [];
 
 const readFlag = (key: string) => {
@@ -185,6 +196,7 @@ const MiloScene: React.FC = () => {
 	const [showSwitcher, setShowSwitcher] = useState(false);
 	const [notesOpen, setNotesOpen] = useState(false);
 	const [showHelp, setShowHelp] = useState(false);
+	const dayNight = useDayNight();
 	const [showLeave, setShowLeave] = useState(false);
 	const [showFinished, setShowFinished] = useState(false);
 	const [hintSeen, setHintSeen] = useState(() => readFlag(HINT_STORAGE_KEY));
@@ -763,6 +775,7 @@ const MiloScene: React.FC = () => {
 				board={board3D}
 				sheet={sheetNode}
 				notes={notesNode}
+				nightTarget={dayNight.nightTarget}
 			/>
 
 			<div className="cls-ui">
@@ -822,6 +835,21 @@ const MiloScene: React.FC = () => {
 							<span>Mes notes</span>
 							{memoItems.length > 0 && <span className="cls-count">{memoItems.length}</span>}
 						</button>
+						{/* TEMPORAIRE : test de l'ambiance jour / nuit (à retirer) */}
+						{(() => {
+							const { icon: Icon, label, title } = DAY_NIGHT_BUTTON[dayNight.mode];
+							return (
+								<button
+									type="button"
+									className={`cls-btn cls-btn--secondary cls-btn--sm${dayNight.mode !== "auto" ? " is-on" : ""}`}
+									onClick={dayNight.cycleMode}
+									title={title}
+								>
+									<Icon size={18} aria-hidden="true" />
+									<span>{label}</span>
+								</button>
+							);
+						})()}
 						<button
 							type="button"
 							className="cls-icon-btn cls-icon-btn--solid"

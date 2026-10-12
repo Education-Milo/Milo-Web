@@ -1,6 +1,6 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Html, useAnimations, useGLTF } from "@react-three/drei";
+import { Environment, Html, useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
@@ -168,8 +168,163 @@ function Classroom({ modelPath }: { modelPath: string }) {
 	return <primitive object={scene} scale={[1, 1, 1]} position={[-2, -2.5, 6.95]} rotation={[0, 0, 0]} />;
 }
 
-const ClassroomLighting: React.FC = () => {
+/// ── Ambiance jour / nuit ──
+/// La salle est bakée : sa lumière est dans les textures. La nuit a son propre
+/// bake (mêmes UV, mêmes atlas) ; le shader mélange les deux selon `value`
+/// (0 = jour, 1 = nuit). Milo, lui, est éclairé en temps réel : ses lumières
+/// suivent le même mélange.
+interface NightMix {
+	value: number;
+	/** Les textures de nuit sont branchées sur les matériaux */
+	ready: boolean;
+}
+
+/// Clé : nom de l'image de bake dans classroom2.glb
+const NIGHT_MAPS = {
+	Bake_Salle: "/classroom/Bake_Salle_nuit.webp",
+	Bake_Mobilier: "/classroom/Bake_Mobilier_nuit.webp",
+	Bake_Objets: "/classroom/Bake_Objets_nuit.webp",
+} as const;
+type BakeName = keyof typeof NIGHT_MAPS;
+const isBakeName = (name: string): name is BakeName => name in NIGHT_MAPS;
+
+/// Vitesse de la transition jour ↔ nuit (amortissement)
+const NIGHT_FADE = 1.6;
+
+function NightBake({ modelPath, mix }: { modelPath: string; mix: NightMix }) {
+	const { scene } = useGLTF(modelPath);
+	const maps = useTexture(NIGHT_MAPS);
+
+	useLayoutEffect(() => {
+		const patched: THREE.MeshBasicMaterial[] = [];
+		scene.traverse((child) => {
+			const mesh = child as THREE.Mesh;
+			if (!mesh.isMesh) return;
+			const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+			for (const material of materials) {
+				if (!(material instanceof THREE.MeshBasicMaterial) || !material.map) continue;
+				const name = material.map.name;
+				if (!isBakeName(name) || patched.includes(material)) continue;
+				const day = material.map;
+				/// Le tableau lit le même atlas que les objets mais sur un autre jeu
+				/// d'UV : chaque matériau a sa propre copie de la texture de nuit
+				const night = maps[name].clone();
+				/// Mêmes conventions que la texture du GLB : sinon image retournée,
+				/// couleurs délavées ou mauvais jeu d'UV
+				night.flipY = day.flipY;
+				night.channel = day.channel;
+				night.colorSpace = day.colorSpace;
+				night.anisotropy = day.anisotropy;
+				night.needsUpdate = true;
+				material.onBeforeCompile = (shader) => {
+					shader.uniforms.nightMap = { value: night };
+					shader.uniforms.nightMix = mix;
+					shader.fragmentShader = shader.fragmentShader
+						.replace(
+							"#include <map_pars_fragment>",
+							"#include <map_pars_fragment>\nuniform sampler2D nightMap;\nuniform float nightMix;",
+						)
+						.replace(
+							"#include <map_fragment>",
+							`#ifdef USE_MAP
+	diffuseColor *= mix( texture2D( map, vMapUv ), texture2D( nightMap, vMapUv ), nightMix );
+#endif`,
+						);
+				};
+				material.customProgramCacheKey = () => "classroom-night-bake";
+				material.needsUpdate = true;
+				patched.push(material);
+			}
+		});
+		mix.ready = true;
+		return () => {
+			mix.ready = false;
+			for (const material of patched) {
+				material.onBeforeCompile = THREE.Material.prototype.onBeforeCompile;
+				material.customProgramCacheKey = THREE.Material.prototype.customProgramCacheKey;
+				material.needsUpdate = true;
+			}
+		};
+	}, [scene, maps, mix]);
+
+	return null;
+}
+
+/// Textures de nuit absentes ou illisibles : la salle reste en jour, au lieu
+/// de faire tomber toute la scène 3D
+class NightBakeBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
+	state = { failed: false };
+	static getDerivedStateFromError() {
+		return { failed: true };
+	}
+	componentDidCatch(error: unknown) {
+		console.warn("[classroom] textures de nuit indisponibles, la salle reste en jour", error);
+	}
+	render() {
+		return this.state.failed ? null : this.props.children;
+	}
+}
+
+/// Amène le mélange vers la cible, une fois les textures de nuit branchées
+const NightMixDriver: React.FC<{ mix: NightMix; target: number }> = ({ mix, target }) => {
+	useFrame((_, delta) => {
+		/// Sans textures de nuit, le mélange reste où il est (0 de jour, la
+		/// valeur de départ si on arrive de nuit et que la scène charge encore)
+		if (!mix.ready) return;
+		mix.value =
+			Math.abs(target - mix.value) < 0.002 ? target : THREE.MathUtils.damp(mix.value, target, NIGHT_FADE, delta);
+	});
+	return null;
+};
+
+/// Lumières de Milo : [jour, nuit]. La nuit, la salle n'est plus éclairée que
+/// par ses plafonniers tamisés et la lampe du tableau : lumière chaude et douce
+/// venue d'en haut, un peu de bleu lunaire de côté. Réglé sur le bake de nuit :
+/// plus chaud, Milo virait au rouge.
+const LIGHT_LOOKS = {
+	ambient: { intensity: [0.7, 0.36], color: ["#cdcbc8", "#a49eaa"] },
+	hemi: { intensity: [0.4, 0.2], color: ["#ffffff", "#ffe2bf"] },
+	sun: { intensity: [2.4, 1.2], color: ["#fffffe", "#ffdcb4"] },
+	fill: { intensity: [0.5, 0.25], color: ["#fdfbf9", "#9aaee6"] },
+	environment: [1, 0.35],
+} as const;
+
+type LightLook = { intensity: readonly [number, number]; color: readonly [string, string] };
+const colorPair = (look: LightLook) => [new THREE.Color(look.color[0]), new THREE.Color(look.color[1])] as const;
+
+const ClassroomLighting: React.FC<{ mix: NightMix }> = ({ mix }) => {
 	const sunRef = useRef<THREE.DirectionalLight>(null);
+	const ambientRef = useRef<THREE.AmbientLight>(null);
+	const hemiRef = useRef<THREE.HemisphereLight>(null);
+	const fillRef = useRef<THREE.DirectionalLight>(null);
+	const colors = useMemo(
+		() => ({
+			ambient: colorPair(LIGHT_LOOKS.ambient),
+			hemi: colorPair(LIGHT_LOOKS.hemi),
+			sun: colorPair(LIGHT_LOOKS.sun),
+			fill: colorPair(LIGHT_LOOKS.fill),
+		}),
+		[],
+	);
+	const lastMix = useRef(-1);
+
+	useFrame(({ scene }) => {
+		const t = mix.value;
+		if (t === lastMix.current) return;
+		lastMix.current = t;
+		const lights: [THREE.Light | null, LightLook, readonly [THREE.Color, THREE.Color]][] = [
+			[ambientRef.current, LIGHT_LOOKS.ambient, colors.ambient],
+			[hemiRef.current, LIGHT_LOOKS.hemi, colors.hemi],
+			[sunRef.current, LIGHT_LOOKS.sun, colors.sun],
+			[fillRef.current, LIGHT_LOOKS.fill, colors.fill],
+		];
+		for (const [light, look, [day, night]] of lights) {
+			if (!light) continue;
+			light.intensity = THREE.MathUtils.lerp(look.intensity[0], look.intensity[1], t);
+			light.color.lerpColors(day, night, t);
+		}
+		scene.environmentIntensity = THREE.MathUtils.lerp(LIGHT_LOOKS.environment[0], LIGHT_LOOKS.environment[1], t);
+	});
 	useEffect(() => {
 		if (!sunRef.current) return;
 		const light = sunRef.current;
@@ -186,10 +341,10 @@ const ClassroomLighting: React.FC = () => {
 	}, []);
 	return (
 		<>
-			<ambientLight intensity={0.7} color="#cdcbc8" />
-			<hemisphereLight args={["#ffffff", "#d9c7a7", 0.4]} />
+			<ambientLight ref={ambientRef} intensity={0.7} color="#cdcbc8" />
+			<hemisphereLight ref={hemiRef} args={["#ffffff", "#d9c7a7", 0.4]} />
 			<directionalLight ref={sunRef} position={[10, 12, 4]} intensity={2.4} color="#fffffe" castShadow />
-			<directionalLight position={[-5, 6, 6]} intensity={0.5} color="#fdfbf9" />
+			<directionalLight ref={fillRef} position={[-5, 6, 6]} intensity={0.5} color="#fdfbf9" />
 		</>
 	);
 };
@@ -436,7 +591,11 @@ interface ClassroomScene3DProps {
 	board: React.ReactNode;
 	sheet: React.ReactNode;
 	notes: React.ReactNode;
+	/** Ambiance visée : 0 = jour, 1 = nuit (cf. useDayNight) */
+	nightTarget: number;
 }
+
+const CLASSROOM_MODEL = "/classroom2.glb";
 
 const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	activeAnimation,
@@ -453,28 +612,54 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	board,
 	sheet,
 	notes,
-}) => (
-	<Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 2, 12], fov: CAMERA_FOV }} className="cls-canvas">
-		<Suspense fallback={null}>
-			<ClassroomLighting />
-			<Environment preset="park" />
-			<Classroom modelPath="/classroom2.glb" />
-			<MiloModel modelPath="/MiloV11.glb" activeAnimation={activeAnimation} />
-			<Board visible={boardVisible}>{board}</Board>
-			<DeskItem config={SHEET} isHeld={isEditing} onPick={onSheetClick} label="feuille">
-				{sheet}
-			</DeskItem>
-			<DeskItem config={POSTIT} isHeld={isNotesOpen} onPick={onNotesClick} label="post-it" bumpKey={notesBump}>
-				{notes}
-			</DeskItem>
-			{introDone ? (
-				<CameraRig isEditing={isEditing || isNotesOpen} />
-			) : (
-				<IntroCamera running={introRunning} onDone={onIntroDone} />
+	nightTarget,
+}) => {
+	/// Arrivée de nuit : le chargement attend les textures de nuit, la salle
+	/// apparaît directement dans la bonne ambiance. Arrivée de jour : elles ne
+	/// sont téléchargées que si la nuit tombe (ou si on la force), puis fondu.
+	const [nightAtStart] = useState(() => nightTarget > 0);
+	const [nightWanted, setNightWanted] = useState(nightAtStart);
+	useEffect(() => {
+		if (nightTarget > 0) setNightWanted(true);
+	}, [nightTarget]);
+	const [mix] = useState<NightMix>(() => ({ value: nightAtStart ? nightTarget : 0, ready: false }));
+
+	return (
+		<Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 2, 12], fov: CAMERA_FOV }} className="cls-canvas">
+			<NightMixDriver mix={mix} target={nightTarget} />
+			<Suspense fallback={null}>
+				<ClassroomLighting mix={mix} />
+				<Environment preset="park" />
+				<Classroom modelPath={CLASSROOM_MODEL} />
+				{nightAtStart && (
+					<NightBakeBoundary>
+						<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
+					</NightBakeBoundary>
+				)}
+				<MiloModel modelPath="/MiloV11.glb" activeAnimation={activeAnimation} />
+				<Board visible={boardVisible}>{board}</Board>
+				<DeskItem config={SHEET} isHeld={isEditing} onPick={onSheetClick} label="feuille">
+					{sheet}
+				</DeskItem>
+				<DeskItem config={POSTIT} isHeld={isNotesOpen} onPick={onNotesClick} label="post-it" bumpKey={notesBump}>
+					{notes}
+				</DeskItem>
+				{introDone ? (
+					<CameraRig isEditing={isEditing || isNotesOpen} />
+				) : (
+					<IntroCamera running={introRunning} onDone={onIntroDone} />
+				)}
+				<SceneReadySignal onReady={onReady} />
+			</Suspense>
+			{!nightAtStart && nightWanted && (
+				<NightBakeBoundary>
+					<Suspense fallback={null}>
+						<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
+					</Suspense>
+				</NightBakeBoundary>
 			)}
-			<SceneReadySignal onReady={onReady} />
-		</Suspense>
-	</Canvas>
-);
+		</Canvas>
+	);
+};
 
 export default ClassroomScene3D;
