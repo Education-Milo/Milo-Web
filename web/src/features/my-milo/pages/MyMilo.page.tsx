@@ -64,8 +64,8 @@ const OUTFIT_SLOTS: CosmeticType[] = [
 	"cosmetic_pant",
 	"cosmetic_shoes",
 ];
-/** Les gants n'ont pas de case dédiée : affichés seulement si l'élève en possède. */
-const OPTIONAL_SLOTS: CosmeticType[] = ["cosmetic_gloves"];
+/** Gants et moustaches n'ont pas de case dédiée : affichés seulement si l'élève en possède. */
+const OPTIONAL_SLOTS: CosmeticType[] = ["cosmetic_mustache", "cosmetic_gloves"];
 
 type PickerTarget = { kind: "outfit"; type: CosmeticType } | { kind: "wheel"; slot: number };
 
