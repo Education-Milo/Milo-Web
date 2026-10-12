@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
+import { BookOpenCheck, FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
 import AuditLog from "@features/admin/components/AuditLog";
@@ -9,6 +9,7 @@ import AdminDashboard from "@features/admin/components/AdminDashboard";
 import AdminSupport from "@features/admin/components/AdminSupport";
 import DemoProfiles from "@features/admin/components/DemoProfiles";
 import AdminModeration from "@features/admin/components/AdminModeration";
+import AdminProgrammes from "@features/admin/components/programmes/AdminProgrammes";
 import "@features/admin/styles/Admin.css";
 
 const SECTIONS: { path: string; title: string; subtitle: string; icon: React.ReactNode }[] = [
@@ -29,6 +30,12 @@ const SECTIONS: { path: string; title: string; subtitle: string; icon: React.Rea
 		title: "Modération IA",
 		subtitle: "Volume des requêtes IA et signalements du filtre de modération",
 		icon: <ShieldAlert size={22} />,
+	},
+	{
+		path: ROUTES.ADMIN.PROGRAMMES,
+		title: "Programmes scolaires",
+		subtitle: "Matières, cours, chapitres et leçons, import des programmes officiels et base de connaissances de Milo",
+		icon: <BookOpenCheck size={22} />,
 	},
 	{
 		path: ROUTES.ADMIN.AUDIT,
@@ -76,6 +83,7 @@ const AdminPage: React.FC = () => {
 						<Route index element={<AdminDashboard />} />
 						<Route path={relative(ROUTES.ADMIN.SUPPORT)} element={<AdminSupport />} />
 						<Route path={relative(ROUTES.ADMIN.MODERATION)} element={<AdminModeration />} />
+						<Route path={relative(ROUTES.ADMIN.PROGRAMMES)} element={<AdminProgrammes />} />
 						<Route path={relative(ROUTES.ADMIN.AUDIT)} element={<AuditLog />} />
 						<Route path={relative(ROUTES.ADMIN.COSMETICS)} element={<CosmeticsManager />} />
 						<Route path={relative(ROUTES.ADMIN.DEMO)} element={<DemoProfiles />} />

@@ -45,5 +45,6 @@ export const ROUTES = {
 		COSMETICS: "/admin/cosmetiques",
 		DEMO: "/admin/demo",
 		MODERATION: "/admin/moderation",
+		PROGRAMMES: "/admin/programmes",
 	},
 } as const;
