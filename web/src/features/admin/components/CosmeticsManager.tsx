@@ -4,6 +4,7 @@ import EditCosmeticModal from "@features/admin/components/EditCosmeticModal";
 import { showToast } from "@shared/store/toast/toast.store";
 import {
 	ALL_TYPES,
+	meshKind,
 	RARITIES,
 	RARITY_LABELS,
 	TYPE_ICONS,
@@ -210,9 +211,12 @@ const CosmeticsManager: React.FC = () => {
 								onChange={(e) => {
 									const type = e.target.value as CosmeticType;
 									update("type", type);
-									// Maillages et clips ne sont pas interchangeables : on repart de zéro
-									update("meshChoice", "");
-									update("meshCustom", "");
+									// Même famille (ex. chapeau → lunettes) : le maillage saisi est conservé ;
+									// maillages et clips ne sont pas interchangeables
+									if (meshKind(type) !== meshKind(form.type)) {
+										update("meshChoice", "");
+										update("meshCustom", "");
+									}
 								}}
 							>
 								{ALL_TYPES.map((t) => (

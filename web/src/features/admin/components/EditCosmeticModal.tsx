@@ -7,6 +7,7 @@ import {
 	TYPE_ICONS,
 	TYPE_LABELS,
 	isSkinType,
+	meshKind,
 	type Cosmetic,
 	type CosmeticRarity,
 	type CosmeticType,
@@ -234,9 +235,14 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 									onChange={(e) => {
 										const type = e.target.value as CosmeticType;
 										update("type", type);
-										// Maillages et clips ne sont pas interchangeables : on repart de zéro
-										update("meshChoice", "");
-										update("meshCustom", "");
+										// Même famille (ex. chapeau → lunettes) : le maillage est conservé.
+										// Maillages et clips ne sont pas interchangeables : sinon on repart
+										// de zéro, ou de la valeur d'origine si on revient à sa famille.
+										if (meshKind(type) !== meshKind(form.type)) {
+											const original = meshKind(type) === meshKind(cosmetic.type) ? toForm(cosmetic) : null;
+											update("meshChoice", original?.meshChoice ?? "");
+											update("meshCustom", original?.meshCustom ?? "");
+										}
 									}}
 								>
 									{ALL_TYPES.map((t) => (
