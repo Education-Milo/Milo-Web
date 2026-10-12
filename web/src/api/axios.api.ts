@@ -154,6 +154,19 @@ export const APIRoutes = {
   GET_Admin_Moderation: '/admin/moderation',
   GET_Admin_Moderation_Events: '/admin/moderation/events',
   GET_Admin_AI_Usage: '/admin/ai-usage',
+  // Programmes scolaires : catalogue matières > cours > chapitres > leçons
+  GET_Admin_Catalogue: '/admin/catalogue',
+  POST_Admin_Catalogue_Node: (type: string) => `/admin/${type}`,
+  PATCH_Admin_Catalogue_Node: (type: string, id: number) => `/admin/${type}/${id}`,
+  DELETE_Admin_Catalogue_Node: (type: string, id: number) => `/admin/${type}/${id}`,
+  POST_Admin_Programme_Import: '/admin/programmes/import',
+  POST_Admin_Programme_Extract_PDF: '/admin/programmes/extract-pdf',
+  // Base de connaissances (RAG) partagée par tous les élèves
+  GET_Admin_RAG_Documents: '/admin/rag/documents',
+  POST_Admin_RAG_Documents: '/admin/rag/documents',
+  PUT_Admin_RAG_Document: (filename: string) => `/admin/rag/documents/${encodeURIComponent(filename)}`,
+  DELETE_Admin_RAG_Document: (filename: string) => `/admin/rag/documents/${encodeURIComponent(filename)}`,
+  POST_Add_Programme_To_RAG: '/add_programme_to_rag',
 
   // Cosmetics API (boutique et casier)
   GET_Cosmetics: '/cosmetics',
