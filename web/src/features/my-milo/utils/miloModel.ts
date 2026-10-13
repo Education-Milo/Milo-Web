@@ -2,11 +2,28 @@ import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// Explaining, HatLook, Hello, Idle, Thinking, Wrong.
-export const MILO_MODEL_PATH = "/MiloV11.glb";
+export const MILO_MODEL_PATH = "/MiloV12.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
 /// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
 export const BODY_MESH_NAME = "Milo";
+
+/// Torse de Milo (ventre, dos, épaules, haut des bras), détaché du corps dans
+/// MiloV12.glb. Il est masqué quand un haut est porté : la fourrure ne peut
+/// alors plus traverser le vêtement, quelle que soit l'animation.
+export const TORSO_MESH_NAME = "Milo_torse";
+
+/// Nœuds qui forment le corps de Milo (jamais traités comme des accessoires)
+const BODY_PART_NAMES = new Set([BODY_MESH_NAME, TORSO_MESH_NAME]);
+
+/// Propriété personnalisée posée dans Blender sur un haut (t-shirt, pull…) et
+/// exportée dans le .glb (extras du nœud → userData côté three) : quand
+/// l'accessoire est visible, le torse de Milo est masqué.
+export const COVERS_TORSO_FLAG = "cache_torse";
+
+/// Hauts connus, au cas où un .glb serait exporté sans les propriétés
+/// personnalisées (option « Custom Properties » décochée)
+const KNOWN_TORSO_COVERING_MESH_NAMES = new Set(["tshirt"]);
 
 /// Accessoires présents dans MiloV9 / V10 / V11 .glb. Cette base dépend du
 /// fichier 3D, pas du catalogue : elle garantit qu'un Milo "nu" reste nu même
@@ -41,16 +58,37 @@ export function registerAccessoryMeshNames(names: Iterable<string>) {
 	for (const name of names) ACCESSORY_MESH_NAMES.add(name);
 }
 
-/// Vrai si l'objet appartient au corps de Milo : le nœud `Milo` lui-même, ou
-/// l'un de ses sous-maillages quand le .glb découpe le corps en plusieurs
-/// primitives (le chargeur crée alors un groupe `Milo` contenant des meshes).
+/// Vrai si l'objet appartient au corps de Milo : le nœud `Milo` (ou son torse
+/// `Milo_torse`) lui-même, ou l'un de ses sous-maillages quand le .glb découpe
+/// le corps en plusieurs primitives (le chargeur crée alors un groupe `Milo`
+/// contenant des meshes).
 export function isBodyPart(object: THREE.Object3D) {
 	let current: THREE.Object3D | null = object;
 	while (current) {
-		if (current.name === BODY_MESH_NAME) return true;
+		if (BODY_PART_NAMES.has(current.name)) return true;
 		current = current.parent;
 	}
 	return false;
+}
+
+/// Vrai si l'accessoire est un haut qui recouvre le torse
+export function coversTorso(accessory: THREE.Object3D) {
+	return (
+		accessory.userData?.[COVERS_TORSO_FLAG] === true ||
+		KNOWN_TORSO_COVERING_MESH_NAMES.has(accessory.name)
+	);
+}
+
+/// Masque le torse de Milo si un haut visible le recouvre, l'affiche sinon.
+/// Sans effet sur un ancien .glb qui n'a pas de torse séparé.
+export function updateTorsoVisibility(scene: THREE.Object3D) {
+	let covered = false;
+	forEachAccessoryRoot(scene, (accessory) => {
+		if (accessory.visible && coversTorso(accessory)) covered = true;
+	});
+	scene.traverse((child) => {
+		if (child.name === TORSO_MESH_NAME) child.visible = !covered;
+	});
 }
 
 function containsMesh(object: THREE.Object3D) {
@@ -65,7 +103,7 @@ function containsMesh(object: THREE.Object3D) {
 function containsBody(object: THREE.Object3D) {
 	let found = false;
 	object.traverse((child) => {
-		if (child.name === BODY_MESH_NAME) found = true;
+		if (BODY_PART_NAMES.has(child.name)) found = true;
 	});
 	return found;
 }
@@ -126,17 +164,21 @@ export function prepareMiloScene(scene: THREE.Object3D) {
 	forEachAccessoryRoot(scene, (accessory) => {
 		accessory.visible = false;
 	});
+	updateTorsoVisibility(scene);
 	applyAngelCircleGlow(scene);
 }
 
-/// N'affiche que les accessoires équipés dans "Mon Milo"
+/// N'affiche que les accessoires équipés dans "Mon Milo". Un haut équipé
+/// masque en plus le torse de Milo (cf. updateTorsoVisibility).
 export function applyEquippedAccessories(
 	scene: THREE.Object3D,
-	equippedMeshNames: string[],
+	equippedMeshNames: Iterable<string>,
 ) {
+	const equipped = new Set(equippedMeshNames);
 	forEachAccessoryRoot(scene, (accessory) => {
-		accessory.visible = equippedMeshNames.includes(accessory.name);
+		accessory.visible = equipped.has(accessory.name);
 	});
+	updateTorsoVisibility(scene);
 }
 
 /// Boîte englobante du corps de Milo, accessoires exclus, exprimée dans le

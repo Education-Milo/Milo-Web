@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
 	applyAngelCircleGlow,
-	forEachAccessoryRoot,
+	applyEquippedAccessories,
 	isBodyPart,
 } from "@features/my-milo/utils/miloModel";
 
@@ -14,7 +14,7 @@ import {
 /// donc UN seul rendu hors écran, partagé, dont le résultat est mis en cache
 /// par combinaison d'accessoires : quelques images pour toute l'application.
 
-const MODEL_PATH = "/MiloV11.glb";
+const MODEL_PATH = "/MiloV12.glb";
 /// Taille de rendu : l'avatar est affiché bien plus petit, on garde de la marge
 /// pour les écrans à forte densité
 const RENDER_SIZE = 256;
@@ -164,10 +164,8 @@ export async function renderMiloAvatar(
 		if (!rigPromise) rigPromise = buildRig();
 		const rig = await rigPromise;
 
-		const equipped = new Set(meshNames);
-		forEachAccessoryRoot(rig.model, (accessory) => {
-			accessory.visible = equipped.has(accessory.name);
-		});
+		/// Même règle que les scènes 3D : un haut porté masque le torse
+		applyEquippedAccessories(rig.model, meshNames);
 
 		rig.renderer.render(rig.scene, rig.camera);
 		const url = rig.renderer.domElement.toDataURL("image/png");
