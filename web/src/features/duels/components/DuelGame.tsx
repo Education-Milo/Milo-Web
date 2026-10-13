@@ -17,6 +17,7 @@ import QuizBackdrop from "@shared/components/quiz/QuizBackdrop.component";
 import { emojiSrc } from "@shared/components/quiz/quiz.assets";
 import DuelMilo3D, { type DuelDance } from "@features/duels/components/DuelMilo3D.component";
 import EmoteWheel from "@features/duels/components/EmoteWheel.component";
+import { cosmeticImageSrc } from "@features/cosmetics/store/cosmetics.model";
 import type { MiloQcmState } from "@features/exercices/data/miloQcm.animations";
 import "@features/duels/styles/DuelsScreen.css";
 import "@features/duels/styles/DuelGame.css";
@@ -119,8 +120,8 @@ const DuelGame: React.FC = () => {
   useEffect(() => {
     if (!lastEmote) return;
     const { player_idx: idx, cosmetic, seq } = lastEmote;
-    if (cosmetic.type === "sticker" && cosmetic.image_url) {
-      setStickers((current) => ({ ...current, [idx]: { url: cosmetic.image_url as string, name: cosmetic.name, seq } }));
+    if (cosmetic.type === "sticker" && cosmetic.image) {
+      setStickers((current) => ({ ...current, [idx]: { url: cosmeticImageSrc(cosmetic.image)!, name: cosmetic.name, seq } }));
       if (stickerTimersRef.current[idx]) clearTimeout(stickerTimersRef.current[idx]);
       stickerTimersRef.current[idx] = setTimeout(() => {
         setStickers((current) => ({ ...current, [idx]: undefined }));

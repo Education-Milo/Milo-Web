@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { AlertTriangle, CheckCircle2, ImageOff, Loader, Pencil, Plus, Trash2 } from "lucide-react";
+import CosmeticImageDropzone from "@features/admin/components/CosmeticImageDropzone";
 import EditCosmeticModal from "@features/admin/components/EditCosmeticModal";
 import { showToast } from "@shared/store/toast/toast.store";
 import {
 	ALL_TYPES,
+	cosmeticImageSrc,
 	meshKind,
 	RARITIES,
 	RARITY_LABELS,
@@ -17,6 +19,8 @@ import {
 import { KNOWN_ACCESSORY_MESH_NAMES, KNOWN_ANIMATION_CLIPS } from "@features/my-milo/utils/miloModel";
 import {
 	getAdminErrorMessage,
+	getCosmeticImageErrorMessage,
+	isImageFileError,
 	useAddCosmetic,
 	useAdminCosmetics,
 	useDeleteCosmetic,
@@ -29,7 +33,6 @@ interface FormState {
 	type: CosmeticType;
 	price: string;
 	rarity: CosmeticRarity;
-	image_url: string;
 	/** Valeur du sélecteur : un maillage connu, "" pour aucun, ou MESH_OTHER */
 	meshChoice: string;
 	/** Saisie libre quand meshChoice === MESH_OTHER */
@@ -41,27 +44,18 @@ const INITIAL_FORM: FormState = {
 	type: "cosmetic_hat",
 	price: "100",
 	rarity: "commun",
-	image_url: "",
 	meshChoice: "",
 	meshCustom: "",
 };
 
-const isValidUrl = (value: string) => {
-	try {
-		const url = new URL(value, window.location.origin);
-		return url.protocol === "http:" || url.protocol === "https:";
-	} catch {
-		return false;
-	}
-};
-
 /** Aperçu de l'image d'un cosmétique, avec repli sur le pictogramme du type. */
-const CosmeticThumb: React.FC<{ url: string | null; type: CosmeticType; size?: number }> = ({
-	url,
+const CosmeticThumb: React.FC<{ image: string | null; type: CosmeticType; size?: number }> = ({
+	image,
 	type,
 	size = 40,
 }) => {
 	const [failed, setFailed] = useState(false);
+	const url = cosmeticImageSrc(image);
 	if (!url || failed) {
 		return (
 			<span className="ad-thumb ad-thumb--placeholder" style={{ width: size, height: size }} aria-hidden="true">
@@ -83,9 +77,10 @@ const CosmeticThumb: React.FC<{ url: string | null; type: CosmeticType; size?: n
 
 const CosmeticsManager: React.FC = () => {
 	const [form, setForm] = useState<FormState>(INITIAL_FORM);
-	const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [errors, setErrors] = useState<Partial<Record<keyof FormState | "image", string>>>({});
 	const [submitError, setSubmitError] = useState<string | null>(null);
-	const [previewFailed, setPreviewFailed] = useState(false);
+	const [onlyMissing, setOnlyMissing] = useState(false);
 	const [confirmDelete, setConfirmDelete] = useState<Cosmetic | null>(null);
 	const [editing, setEditing] = useState<Cosmetic | null>(null);
 
@@ -107,28 +102,28 @@ const CosmeticsManager: React.FC = () => {
 		setForm((current) => ({ ...current, [key]: value }));
 		setErrors((current) => ({ ...current, [key]: undefined }));
 		setSubmitError(null);
-		if (key === "image_url") setPreviewFailed(false);
+	};
+
+	const selectImage = (file: File) => {
+		setImageFile(file);
+		setErrors((current) => ({ ...current, image: undefined }));
+		setSubmitError(null);
 	};
 
 	const validate = () => {
-		const next: Partial<Record<keyof FormState, string>> = {};
+		const next: Partial<Record<keyof FormState | "image", string>> = {};
 		if (!form.name.trim()) next.name = "Le nom est requis.";
 		else if (form.name.trim().length > 255) next.name = "255 caractères maximum.";
 		const price = Number(form.price);
 		if (form.price.trim() === "" || !Number.isInteger(price) || price < 0) {
 			next.price = "Un nombre entier positif ou nul.";
 		}
-		if (form.image_url.trim() && !isValidUrl(form.image_url.trim())) {
-			next.image_url = "Adresse invalide (http ou https).";
-		} else if (form.image_url.trim().length > 500) {
-			next.image_url = "500 caractères maximum.";
-		}
 		if (usesMesh && form.meshChoice === MESH_OTHER) {
 			if (!form.meshCustom.trim()) next.meshCustom = isDance ? "Indique le nom du clip." : "Indique le nom du maillage.";
 			else if (form.meshCustom.trim().length > 100) next.meshCustom = "100 caractères maximum.";
 		}
 		if (isDance && !meshName) next.meshChoice = "Une danse doit référencer un clip d'animation.";
-		if (form.type === "sticker" && !form.image_url.trim()) next.image_url = "Un sticker doit avoir une image.";
+		if (form.type === "sticker" && !imageFile) next.image = "Un sticker doit avoir une image.";
 		setErrors(next);
 		return Object.keys(next).length === 0;
 	};
@@ -143,16 +138,21 @@ const CosmeticsManager: React.FC = () => {
 				type: form.type,
 				price: Number(form.price),
 				rarity: form.rarity,
-				image_url: form.image_url.trim() || null,
 				mesh_name: meshName,
+				// Même requête que les autres champs : pas de « créer puis téléverser »
+				image: imageFile,
 			},
 			{
 				onSuccess: (created) => {
 					showToast(`« ${created.name} » ajouté au catalogue.`, "success");
 					setForm({ ...INITIAL_FORM, type: form.type, rarity: form.rarity });
-					setPreviewFailed(false);
+					setImageFile(null);
 				},
-				onError: (err) => setSubmitError(getAdminErrorMessage(err)),
+				onError: (err) => {
+					// Le fichier en cause : message près de la zone de dépôt
+					if (isImageFileError(err)) setErrors((current) => ({ ...current, image: getCosmeticImageErrorMessage(err) }));
+					else setSubmitError(getCosmeticImageErrorMessage(err));
+				},
 			},
 		);
 	};
@@ -177,8 +177,10 @@ const CosmeticsManager: React.FC = () => {
 		});
 	};
 
-	const previewUrl = form.image_url.trim();
-	const showPreview = previewUrl.length > 0 && isValidUrl(previewUrl);
+	const missingImage = catalogue.filter((item) => !item.image);
+	const missingStickers = missingImage.filter((item) => item.type === "sticker").length;
+	// Le filtre s'efface de lui-même une fois toutes les images téléversées
+	const shownCatalogue = onlyMissing && missingImage.length > 0 ? missingImage : catalogue;
 
 	return (
 		<div className="ad-cosmetics">
@@ -211,6 +213,7 @@ const CosmeticsManager: React.FC = () => {
 								onChange={(e) => {
 									const type = e.target.value as CosmeticType;
 									update("type", type);
+									setErrors((current) => ({ ...current, image: undefined }));
 									// Même famille (ex. chapeau → lunettes) : le maillage saisi est conservé ;
 									// maillages et clips ne sont pas interchangeables
 									if (meshKind(type) !== meshKind(form.type)) {
@@ -289,45 +292,30 @@ const CosmeticsManager: React.FC = () => {
 							</label>
 						)}
 
-						<label className="ad-field ad-field--grow">
-							<span>Image (URL)</span>
-							<input
-								type="url"
-								inputMode="url"
-								value={form.image_url}
-								maxLength={500}
-								placeholder="https://…/image.png"
-								onChange={(e) => update("image_url", e.target.value)}
+						<div className="ad-field ad-field--full">
+							<span>Image {form.type === "sticker" ? "(obligatoire pour un sticker)" : "(facultative)"}</span>
+							<CosmeticImageDropzone
+								file={imageFile}
+								image={null}
+								type={form.type}
+								onSelect={selectImage}
+								onRemove={imageFile ? () => setImageFile(null) : undefined}
+								busy={addMutation.isPending}
+								busyLabel="Ajout au catalogue…"
+								error={errors.image}
+								hint={imageFile ? undefined : "PNG, JPEG, WebP ou GIF · 2 Mo maximum · envoyée avec l'objet"}
 							/>
-							{errors.image_url && <em className="ad-field-error">{errors.image_url}</em>}
-						</label>
+						</div>
 					</div>
 
 					{/* Prévisualisation de l'objet tel qu'il apparaîtra en boutique */}
 					<div className="ad-cosmetic-preview" aria-live="polite">
-						<div className="ad-cosmetic-preview-frame">
-							{showPreview && !previewFailed ? (
-								<img
-									src={previewUrl}
-									alt="Prévisualisation"
-									onError={() => setPreviewFailed(true)}
-									draggable={false}
-								/>
-							) : (
-								<span className="ad-cosmetic-preview-placeholder">
-									{showPreview && previewFailed ? <ImageOff size={28} /> : TYPE_ICONS[form.type]}
-								</span>
-							)}
-						</div>
 						<div className="ad-cosmetic-preview-meta">
 							<strong>{form.name.trim() || "Nom de l'objet"}</strong>
 							<span>{TYPE_LABELS[form.type]} · {RARITY_LABELS[form.rarity]} · {Number(form.price) || 0} miloros</span>
 							{isSkin && <span className="ad-muted">Maillage : {meshName ?? "aucun"}</span>}
 							{isDance && <span className="ad-muted">Clip d'animation : {meshName ?? "à choisir"}</span>}
-							{showPreview && previewFailed && (
-								<span className="ad-field-error">L'image ne se charge pas à cette adresse.</span>
-							)}
-							{!previewUrl && <span className="ad-muted">Sans image, la boutique affiche le pictogramme du type.</span>}
+							{!imageFile && <span className="ad-muted">Sans image, la boutique affiche le pictogramme du type ({TYPE_ICONS[form.type]}).</span>}
 						</div>
 					</div>
 
@@ -349,7 +337,26 @@ const CosmeticsManager: React.FC = () => {
 
 			{/* Catalogue */}
 			<section className="ad-card">
-				<h2 className="ad-subtitle">Catalogue ({catalogue.length})</h2>
+				<div className="ad-catalogue-head">
+					<h2 className="ad-subtitle">Catalogue ({catalogue.length})</h2>
+					{missingImage.length > 0 && (
+						<label className="ad-switch">
+							<input type="checkbox" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.target.checked)} />
+							<span className="ad-switch-track" aria-hidden="true" />
+							<span className="ad-switch-label">Sans image seulement ({missingImage.length})</span>
+						</label>
+					)}
+				</div>
+				{missingImage.length > 0 && (
+					<p className={`ad-alert ${missingStickers > 0 ? "ad-alert--error" : "ad-alert--info"}`}>
+						<ImageOff size={16} />
+						<span>
+							{missingImage.length} objet{missingImage.length > 1 ? "s" : ""} sans image : la boutique affiche le pictogramme du type.
+							{missingStickers > 0 &&
+								` Dont ${missingStickers} sticker${missingStickers > 1 ? "s" : ""}, qui n'affiche${missingStickers > 1 ? "nt" : ""} rien en duel : téléverse leur image.`}
+						</span>
+					</p>
+				)}
 				{isLoading && <p className="ad-muted">Chargement du catalogue...</p>}
 				{isError && catalogue.length === 0 && (
 					<p className="ad-alert ad-alert--error">{getAdminErrorMessage(error)}</p>
@@ -372,14 +379,22 @@ const CosmeticsManager: React.FC = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{catalogue.map((item) => (
+								{shownCatalogue.map((item) => (
 									<tr key={item.id} className={item.is_active ? "" : "is-inactive"}>
 										<td>
 											<div className="ad-cosmetic-cell">
-												<CosmeticThumb url={item.image_url} type={item.type} />
+												<CosmeticThumb image={item.image} type={item.type} />
 												<div>
 													<strong>{item.name}</strong>
 													<span className="ad-muted"> #{item.id}</span>
+													{!item.image && (
+														<span
+															className={`ad-chip ad-chip--no-image ${item.type === "sticker" ? "is-blocking" : ""}`}
+															title="Ouvre « Modifier » pour téléverser l'image"
+														>
+															<ImageOff size={11} /> Sans image
+														</span>
+													)}
 												</div>
 											</div>
 										</td>

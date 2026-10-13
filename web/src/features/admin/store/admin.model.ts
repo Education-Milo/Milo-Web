@@ -86,14 +86,15 @@ export interface GrantCoinsResult {
 	amount: number;
 }
 
-/** POST /cosmetics/add */
+/** POST /cosmetics/add, envoyé en multipart/form-data */
 export interface CosmeticCreatePayload {
 	name: string;
 	type: string;
 	price: number;
 	rarity: string;
-	image_url?: string | null;
 	mesh_name?: string | null;
+	/** Obligatoire pour un sticker, facultatif sinon */
+	image?: File | null;
 }
 
 /** PUT /cosmetics/update/{id} : n'envoyer QUE les champs modifiés. */
@@ -102,7 +103,6 @@ export interface CosmeticUpdatePayload {
 	type?: string;
 	price?: number;
 	rarity?: string;
-	image_url?: string | null;
 	mesh_name?: string | null;
 	is_active?: boolean;
 }
@@ -115,6 +115,21 @@ export interface UpdateCosmeticResponse {
 	unequipped: number;
 	cosmetic: import("@features/cosmetics/store/cosmetics.model").Cosmetic;
 }
+
+/** PUT /cosmetics/{id}/image */
+export interface UploadCosmeticImageResponse {
+	replaced: boolean;
+	cosmetic: import("@features/cosmetics/store/cosmetics.model").Cosmetic;
+}
+
+/** DELETE /cosmetics/{id}/image : removed vaut false s'il n'y avait pas d'image. */
+export interface RemoveCosmeticImageResponse {
+	removed: boolean;
+}
+
+/** Formats et poids acceptés par le back (qui vérifie les octets, pas l'extension). */
+export const COSMETIC_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+export const COSMETIC_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
 /** DELETE /cosmetics/delete/{id} : supprimé si personne ne le possède, sinon retiré. */
 export interface DeleteCosmeticResponse {

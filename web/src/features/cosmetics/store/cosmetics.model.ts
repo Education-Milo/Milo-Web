@@ -19,7 +19,8 @@ export interface Cosmetic {
 	type: CosmeticType;
 	price: number;
 	rarity: CosmeticRarity;
-	image_url: string | null;
+	/** Chemin relatif versionné (`/cosmetics/42/image?v=…`), null sans image. */
+	image: string | null;
 	/** Maillage à accrocher au modèle 3D ; null pour un sticker ou une danse. */
 	mesh_name: string | null;
 	is_active: boolean;
@@ -129,6 +130,15 @@ export const RARITY_LABELS: Record<CosmeticRarity, string> = {
 	epique: "Épique",
 	legendaire: "Légendaire",
 };
+
+const API_BASE = String(import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/, "");
+
+/**
+ * URL affichable d'une image de cosmétique. Le `?v=` fourni par le back est
+ * gardé tel quel : il ne change qu'au téléversement, l'image est servie avec un
+ * cache immuable, ajouter un cache-buster casserait ce cache.
+ */
+export const cosmeticImageSrc = (image: string | null | undefined) => (image ? `${API_BASE}${image}` : null);
 
 /** Slug CSS stable : "tres rare" → "tres-rare". */
 export const raritySlug = (rarity: string) => rarity.toLowerCase().replace(/\s+/g, "-");

@@ -51,7 +51,8 @@ export interface DuelCosmetic {
   name: string;
   /** Skin : maillage 3D ; danse : nom du clip d'animation ; sticker : null */
   mesh_name: string | null;
-  image_url: string | null;
+  /** Chemin relatif de l'image, à préfixer par la base de l'API */
+  image: string | null;
 }
 
 /** Message `start` : un joueur avec sa tenue et sa roue */
