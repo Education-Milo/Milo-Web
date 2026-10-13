@@ -10,6 +10,8 @@ import type {
 	CosmeticCreatePayload,
 	CosmeticUpdatePayload,
 	DeleteCosmeticResponse,
+	RemoveCosmeticImageResponse,
+	UploadCosmeticImageResponse,
 	GrantCoinsPayload,
 	UpdateCosmeticResponse,
 	GrantCoinsResult,
@@ -139,8 +141,20 @@ export const fetchAdminCosmetics = async (): Promise<Cosmetic[]> => {
 	return response.data;
 };
 
-export const addCosmetic = async (payload: CosmeticCreatePayload): Promise<Cosmetic> => {
-	const response = await APIAxios.post<Cosmetic>(APIRoutes.POST_Cosmetics_Add, payload);
+/**
+ * Multipart : postForm/putForm et non post/put, car l'instance force
+ * `Content-Type: application/json`, ce qui ferait sérialiser le FormData en
+ * JSON. Avec un type multipart, axios laisse le navigateur poser la frontière.
+ */
+export const addCosmetic = async ({ image, mesh_name, ...fields }: CosmeticCreatePayload): Promise<Cosmetic> => {
+	const form = new FormData();
+	form.append("name", fields.name);
+	form.append("type", fields.type);
+	form.append("price", String(fields.price));
+	form.append("rarity", fields.rarity);
+	if (mesh_name) form.append("mesh_name", mesh_name);
+	if (image) form.append("image", image);
+	const response = await APIAxios.postForm<Cosmetic>(APIRoutes.POST_Cosmetics_Add, form);
 	return response.data;
 };
 
@@ -158,6 +172,23 @@ export const updateCosmetic = async (
 export const deleteCosmetic = async (cosmeticId: number): Promise<DeleteCosmeticResponse> => {
 	const response = await APIAxios.delete<DeleteCosmeticResponse>(
 		APIRoutes.DELETE_Cosmetics_Delete(cosmeticId),
+	);
+	return response.data;
+};
+
+export const uploadCosmeticImage = async (cosmeticId: number, file: File): Promise<UploadCosmeticImageResponse> => {
+	const form = new FormData();
+	form.append("image", file);
+	const response = await APIAxios.putForm<UploadCosmeticImageResponse>(
+		APIRoutes.PUT_Cosmetic_Image(cosmeticId),
+		form,
+	);
+	return response.data;
+};
+
+export const removeCosmeticImage = async (cosmeticId: number): Promise<RemoveCosmeticImageResponse> => {
+	const response = await APIAxios.delete<RemoveCosmeticImageResponse>(
+		APIRoutes.DELETE_Cosmetic_Image(cosmeticId),
 	);
 	return response.data;
 };
@@ -192,6 +223,19 @@ export const useUpdateCosmetic = () => {
 			updateCosmetic(cosmeticId, payload),
 		onSuccess: refresh,
 	});
+};
+
+export const useUploadCosmeticImage = () => {
+	const refresh = useRefreshCatalogue();
+	return useMutation({
+		mutationFn: ({ cosmeticId, file }: { cosmeticId: number; file: File }) => uploadCosmeticImage(cosmeticId, file),
+		onSuccess: refresh,
+	});
+};
+
+export const useRemoveCosmeticImage = () => {
+	const refresh = useRefreshCatalogue();
+	return useMutation({ mutationFn: removeCosmeticImage, onSuccess: refresh });
 };
 
 export const useDeleteCosmetic = () => {
@@ -276,6 +320,26 @@ export const useDeleteDemoAccount = () => {
 		},
 	});
 };
+
+const IMAGE_ERROR_FALLBACKS: Record<number, string> = {
+	400: "Fichier vide ou format non reconnu (PNG, JPEG, WebP ou GIF).",
+	413: "Fichier trop lourd : 2 Mo maximum.",
+	422: "Requête refusée : un sticker exige une image et pas de maillage, une danse exige un clip.",
+	403: "Action réservée aux administrateurs.",
+};
+
+/** Erreurs de téléversement : `detail` du back, sinon un message par code (un 413 du proxy n'a pas de JSON). */
+export const getCosmeticImageErrorMessage = (error: unknown): string => {
+	if (isAxiosError(error) && typeof error.response?.data?.detail !== "string") {
+		const fallback = IMAGE_ERROR_FALLBACKS[error.response?.status ?? 0];
+		if (fallback && !Array.isArray(error.response?.data?.detail)) return fallback;
+	}
+	return getAdminErrorMessage(error);
+};
+
+/** Codes renvoyés par le back quand le fichier lui-même est en cause. */
+export const isImageFileError = (error: unknown) =>
+	isAxiosError(error) && [400, 413].includes(error.response?.status ?? 0);
 
 /** Message d'erreur à afficher : le champ `detail` du backend tel quel. */
 export const getAdminErrorMessage = (error: unknown): string => {

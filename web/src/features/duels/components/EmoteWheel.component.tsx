@@ -3,6 +3,7 @@ import { Smile, X } from "lucide-react";
 import type { DuelCosmetic } from "@shared/types/duels";
 import { useUserStore } from "@shared/store/user/user.store";
 import { arrangeWheel } from "@features/cosmetics/utils/wheelSlots";
+import { cosmeticImageSrc } from "@features/cosmetics/store/cosmetics.model";
 
 /// Le serveur accepte une émote par seconde : on réarme le bouton après ce délai
 const COOLDOWN_MS = 1000;
@@ -58,8 +59,8 @@ const EmoteWheel: React.FC<EmoteWheelProps> = ({ items, busy, onPick }) => {
 								title={item.name}
 								onClick={() => handlePick(item.id)}
 							>
-								{item.image_url ? (
-									<img src={item.image_url} alt={item.name} draggable={false} />
+								{item.image ? (
+									<img src={cosmeticImageSrc(item.image)!} alt={item.name} draggable={false} />
 								) : (
 									<span aria-hidden="true">{item.type === "dance" ? "💃" : "🌟"}</span>
 								)}

@@ -269,6 +269,55 @@
 .ad-chip--ok { display: inline-flex; align-items: center; gap: 4px; background: var(--ad-success-soft); color: var(--ad-success); }
 .ad-chip--off { background: var(--ad-bg-soft); color: var(--ad-text-soft); }
 .ad-btn--sm { padding: 6px 12px; font-size: 0.75rem; gap: 5px; }
+
+/* Image de cosmétique : zone de dépôt (clic ou glisser-déposer) */
+.ad-field--full { flex-basis: 100%; }
+.ad-dropzone-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.ad-field .ad-dropzone-wrap span { font-size: inherit; font-weight: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
+.ad-dropzone {
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 14px 16px;
+	border: 2px dashed var(--ad-border);
+	border-radius: 18px;
+	background: var(--ad-surface);
+	cursor: pointer;
+	transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.ad-dropzone:hover,
+.ad-dropzone:focus-visible { border-color: var(--ad-accent); outline: none; box-shadow: 0 0 0 3px var(--ad-accent-glow); }
+.ad-dropzone.is-dragging { border-style: solid; border-color: var(--ad-accent); background: var(--ad-accent-soft); box-shadow: 0 0 0 4px var(--ad-accent-glow); }
+.ad-dropzone.is-dragging .ad-dropzone-preview { transform: scale(1.05); }
+.ad-dropzone.has-error { border-color: var(--ad-danger); }
+.ad-dropzone.is-busy { cursor: progress; opacity: 0.8; }
+.ad-dropzone-preview {
+	position: relative;
+	flex-shrink: 0;
+	width: 84px;
+	height: 84px;
+	border-radius: 16px;
+	background: radial-gradient(circle, #fff 0%, var(--milo-creme) 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	transition: transform 0.15s ease;
+	pointer-events: none;
+}
+.ad-dropzone-preview img { max-width: 72px; max-height: 72px; object-fit: contain; }
+.ad-dropzone-busy { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.7); }
+.ad-dropzone-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 0.85rem; pointer-events: none; }
+.ad-dropzone-text strong { display: inline-flex; align-items: center; gap: 6px; font-size: 0.95rem; }
+.ad-field .ad-dropzone-wrap .ad-muted { color: var(--ad-text-muted); font-size: 0.78rem; overflow-wrap: anywhere; }
+.ad-dropzone-error { display: flex; align-items: center; gap: 6px; margin: 0; font-style: normal; }
+
+/* Catalogue : objets sans image, faciles à repérer */
+.ad-catalogue-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ad-catalogue-head .ad-switch { min-width: 0; width: auto; padding-top: 0; }
+.ad-chip--no-image { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; background: #FEF3C7; color: #92400E; vertical-align: middle; }
+.ad-chip--no-image.is-blocking { background: var(--ad-danger-soft); color: var(--ad-danger); }
 .ad-inline-confirm { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 700; color: var(--ad-danger); }
 
 /* ============================================================

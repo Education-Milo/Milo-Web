@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, ImageOff, Loader, Pencil, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader, Pencil, X } from "lucide-react";
+import CosmeticImageDropzone from "@features/admin/components/CosmeticImageDropzone";
 import {
 	ALL_TYPES,
 	RARITIES,
@@ -14,7 +15,14 @@ import {
 } from "@features/cosmetics/store/cosmetics.model";
 import { KNOWN_ACCESSORY_MESH_NAMES, KNOWN_ANIMATION_CLIPS } from "@features/my-milo/utils/miloModel";
 import type { CosmeticUpdatePayload, UpdateCosmeticResponse } from "@features/admin/store/admin.model";
-import { getAdminErrorMessage, useUpdateCosmetic } from "@features/admin/store/admin.queries";
+import {
+	getAdminErrorMessage,
+	getCosmeticImageErrorMessage,
+	useRemoveCosmeticImage,
+	useUpdateCosmetic,
+	useUploadCosmeticImage,
+} from "@features/admin/store/admin.queries";
+import { showToast } from "@shared/store/toast/toast.store";
 
 const MESH_OTHER = "__other__";
 
@@ -28,20 +36,10 @@ interface FormState {
 	type: CosmeticType;
 	price: string;
 	rarity: CosmeticRarity;
-	image_url: string;
 	meshChoice: string;
 	meshCustom: string;
 	is_active: boolean;
 }
-
-const isValidUrl = (value: string) => {
-	try {
-		const url = new URL(value, window.location.origin);
-		return url.protocol === "http:" || url.protocol === "https:";
-	} catch {
-		return false;
-	}
-};
 
 const toForm = (c: Cosmetic): FormState => {
 	const mesh = c.mesh_name ?? "";
@@ -53,7 +51,6 @@ const toForm = (c: Cosmetic): FormState => {
 		type: c.type,
 		price: String(c.price),
 		rarity: c.rarity,
-		image_url: c.image_url ?? "",
 		meshChoice: known ? mesh : MESH_OTHER,
 		meshCustom: known ? "" : mesh,
 		is_active: c.is_active,
@@ -62,11 +59,17 @@ const toForm = (c: Cosmetic): FormState => {
 
 const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose }) => {
 	const [form, setForm] = useState<FormState>(() => toForm(cosmetic));
-	const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+	const [errors, setErrors] = useState<Partial<Record<keyof FormState | "image", string>>>({});
 	const [submitError, setSubmitError] = useState<string | null>(null);
-	const [previewFailed, setPreviewFailed] = useState(false);
 	const [result, setResult] = useState<UpdateCosmeticResponse | null>(null);
 	const updateMutation = useUpdateCosmetic();
+	/// L'image vit hors du formulaire : chaque dépôt part aussitôt (PUT /cosmetics/{id}/image)
+	const [image, setImage] = useState<string | null>(cosmetic.image);
+	const [uploadingFile, setUploadingFile] = useState<File | null>(null);
+	const [imageError, setImageError] = useState<string | null>(null);
+	const uploadMutation = useUploadCosmeticImage();
+	const removeMutation = useRemoveCosmeticImage();
+	const imageBusy = uploadMutation.isPending || removeMutation.isPending;
 
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
@@ -90,7 +93,36 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 		setForm((current) => ({ ...current, [key]: value }));
 		setErrors((current) => ({ ...current, [key]: undefined }));
 		setSubmitError(null);
-		if (key === "image_url") setPreviewFailed(false);
+		if (key === "type") setErrors((current) => ({ ...current, image: undefined }));
+	};
+
+	const handleImageSelect = (file: File) => {
+		setImageError(null);
+		setUploadingFile(file);
+		uploadMutation.mutate(
+			{ cosmeticId: cosmetic.id, file },
+			{
+				onSuccess: (data) => {
+					// URL renvoyée telle quelle : son ?v= neuf suffit à contourner le cache
+					setImage(data.cosmetic.image);
+					setErrors((current) => ({ ...current, image: undefined }));
+					showToast(data.replaced ? "Image remplacée." : "Image ajoutée.", "success");
+				},
+				onError: (err) => setImageError(getCosmeticImageErrorMessage(err)),
+				onSettled: () => setUploadingFile(null),
+			},
+		);
+	};
+
+	const handleImageRemove = () => {
+		setImageError(null);
+		removeMutation.mutate(cosmetic.id, {
+			onSuccess: () => {
+				setImage(null);
+				showToast("Image retirée : la boutique affiche de nouveau le pictogramme.", "success");
+			},
+			onError: (err) => setImageError(getCosmeticImageErrorMessage(err)),
+		});
 	};
 
 	/** Seuls les champs qui diffèrent de l'objet actuel partent au serveur. */
@@ -102,8 +134,6 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 		const price = Number(form.price);
 		if (price !== cosmetic.price) payload.price = price;
 		if (form.rarity !== cosmetic.rarity) payload.rarity = form.rarity;
-		const imageUrl = form.image_url.trim() || null;
-		if (imageUrl !== (cosmetic.image_url ?? null)) payload.image_url = imageUrl;
 		if (meshName !== (cosmetic.mesh_name ?? null)) payload.mesh_name = meshName;
 		if (form.is_active !== cosmetic.is_active) payload.is_active = form.is_active;
 		return payload;
@@ -114,24 +144,19 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 	const typeWillChange = payload.type !== undefined;
 
 	const validate = () => {
-		const next: Partial<Record<keyof FormState, string>> = {};
+		const next: Partial<Record<keyof FormState | "image", string>> = {};
 		if (!form.name.trim()) next.name = "Le nom est requis.";
 		else if (form.name.trim().length > 255) next.name = "255 caractères maximum.";
 		const price = Number(form.price);
 		if (form.price.trim() === "" || !Number.isInteger(price) || price < 0) {
 			next.price = "Un nombre entier positif ou nul.";
 		}
-		if (form.image_url.trim() && !isValidUrl(form.image_url.trim())) {
-			next.image_url = "Adresse invalide (http ou https).";
-		} else if (form.image_url.trim().length > 500) {
-			next.image_url = "500 caractères maximum.";
-		}
 		if (usesMesh && form.meshChoice === MESH_OTHER) {
 			if (!form.meshCustom.trim()) next.meshCustom = isDance ? "Indique le nom du clip." : "Indique le nom du maillage.";
 			else if (form.meshCustom.trim().length > 100) next.meshCustom = "100 caractères maximum.";
 		}
 		if (isDance && !meshName) next.meshChoice = "Une danse doit référencer un clip d'animation.";
-		if (form.type === "sticker" && !form.image_url.trim()) next.image_url = "Un sticker doit avoir une image.";
+		if (form.type === "sticker" && !image) next.image = "Un sticker doit avoir une image : dépose-la avant d'enregistrer.";
 		setErrors(next);
 		return Object.keys(next).length === 0;
 	};
@@ -153,8 +178,8 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 		);
 	};
 
-	const previewUrl = form.image_url.trim();
-	const showPreview = previewUrl.length > 0 && isValidUrl(previewUrl);
+	/// Un sticker n'a rien d'autre à afficher en duel : on remplace son image, on ne la retire pas
+	const canRemoveImage = !!image && cosmetic.type !== "sticker" && form.type !== "sticker";
 
 	return (
 		<div className="ad-overlay" onClick={onClose} role="presentation">
@@ -315,18 +340,26 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 								</label>
 							)}
 
-							<label className="ad-field ad-field--grow">
-								<span>Image (URL)</span>
-								<input
-									type="url"
-									inputMode="url"
-									value={form.image_url}
-									maxLength={500}
-									placeholder="https://…/image.png"
-									onChange={(e) => update("image_url", e.target.value)}
+							<div className="ad-field ad-field--full">
+								<span>Image · enregistrée dès le dépôt</span>
+								<CosmeticImageDropzone
+									file={uploadingFile}
+									image={image}
+									type={form.type}
+									onSelect={handleImageSelect}
+									onRemove={canRemoveImage ? handleImageRemove : undefined}
+									busy={imageBusy}
+									busyLabel={removeMutation.isPending ? "Retrait de l'image…" : "Envoi de l'image…"}
+									error={imageError ?? errors.image}
+									hint={
+										image
+											? undefined
+											: form.type === "sticker"
+												? "Obligatoire pour un sticker · PNG, JPEG, WebP ou GIF · 2 Mo maximum"
+												: "Sans image : pictogramme du type · PNG, JPEG, WebP ou GIF · 2 Mo maximum"
+									}
 								/>
-								{errors.image_url && <em className="ad-field-error">{errors.image_url}</em>}
-							</label>
+							</div>
 
 							<label className="ad-switch">
 								<input
@@ -342,28 +375,11 @@ const EditCosmeticModal: React.FC<EditCosmeticModalProps> = ({ cosmetic, onClose
 						</div>
 
 						<div className="ad-cosmetic-preview" aria-live="polite">
-							<div className="ad-cosmetic-preview-frame">
-								{showPreview && !previewFailed ? (
-									<img
-										src={previewUrl}
-										alt="Prévisualisation"
-										onError={() => setPreviewFailed(true)}
-										draggable={false}
-									/>
-								) : (
-									<span className="ad-cosmetic-preview-placeholder">
-										{showPreview && previewFailed ? <ImageOff size={28} /> : TYPE_ICONS[form.type]}
-									</span>
-								)}
-							</div>
 							<div className="ad-cosmetic-preview-meta">
 								<strong>{form.name.trim() || "Nom de l'objet"}</strong>
 								<span>{TYPE_LABELS[form.type]} · {RARITY_LABELS[form.rarity]} · {Number(form.price) || 0} miloros</span>
 								{isSkin && <span className="ad-muted">Maillage : {meshName ?? "aucun"}</span>}
 								{isDance && <span className="ad-muted">Clip d'animation : {meshName ?? "à choisir"}</span>}
-								{showPreview && previewFailed && (
-									<span className="ad-field-error">L'image ne se charge pas à cette adresse.</span>
-								)}
 								<span className="ad-muted">
 									{changedFields.length === 0
 										? "Aucune modification pour l'instant."

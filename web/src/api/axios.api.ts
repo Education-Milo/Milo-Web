@@ -173,6 +173,10 @@ export const APIRoutes = {
   POST_Cosmetics_Add: '/cosmetics/add',
   DELETE_Cosmetics_Delete: (cosmeticId: number) => `/cosmetics/delete/${cosmeticId}`,
   PUT_Cosmetics_Update: (cosmeticId: number) => `/cosmetics/update/${cosmeticId}`,
+  // Image servie sans Bearer (GET /cosmetics/{id}/image, via cosmeticImageSrc) ;
+  // téléversement en multipart et retour à l'emoji, réservés aux admins
+  PUT_Cosmetic_Image: (cosmeticId: number) => `/cosmetics/${cosmeticId}/image`,
+  DELETE_Cosmetic_Image: (cosmeticId: number) => `/cosmetics/${cosmeticId}/image`,
   GET_Locker: (userId: string | number) => `/user/${userId}/locker`,
   POST_Locker_Add: (userId: string | number) => `/user/${userId}/locker/add`,
   PUT_Locker_Equip: (userId: string | number) => `/user/${userId}/locker/equip`,
