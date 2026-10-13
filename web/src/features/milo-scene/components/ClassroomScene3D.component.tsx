@@ -277,17 +277,20 @@ const NightMixDriver: React.FC<{ mix: NightMix; target: number }> = ({ mix, targ
 	return null;
 };
 
-/// Lumières de Milo : [jour, nuit]. La nuit, la salle n'est plus éclairée que
-/// par ses plafonniers tamisés et la lampe du tableau : lumière chaude et douce
-/// venue d'en haut, un peu de bleu lunaire de côté. Réglé sur le bake de nuit :
-/// plus chaud, Milo virait au rouge.
+/// Lumières de Milo : [jour, nuit], accordées aux bakes de la salle.
+/// Jour (midi) : le soleil entre par la fenêtre (à gauche, en hauteur), ciel
+/// légèrement bleuté en ambiance. Nuit (soirée) : la lumière vient des
+/// plafonniers, chaude mais douce (plus chaude, Milo virait au rouge), un peu
+/// de bleu lunaire de côté.
 const LIGHT_LOOKS = {
-	ambient: { intensity: [0.7, 0.36], color: ["#cdcbc8", "#a49eaa"] },
-	hemi: { intensity: [0.4, 0.2], color: ["#ffffff", "#ffe2bf"] },
-	sun: { intensity: [2.4, 1.2], color: ["#fffffe", "#ffdcb4"] },
-	fill: { intensity: [0.5, 0.25], color: ["#fdfbf9", "#9aaee6"] },
-	environment: [1, 0.35],
+	ambient: { intensity: [0.6, 0.4], color: ["#d6d3cf", "#b3aaa4"] },
+	hemi: { intensity: [0.45, 0.26], color: ["#eef4ff", "#ffe8d0"] },
+	sun: { intensity: [2.6, 1.15], color: ["#fff4e6", "#ffe9d2"] },
+	fill: { intensity: [0.35, 0.22], color: ["#fdfbf9", "#a6b6e6"] },
+	environment: [1, 0.38],
 } as const;
+/// Position de la lumière principale : fenêtre (jour) → plafonniers (nuit)
+const SUN_POSITION = [new THREE.Vector3(-6.6, 9.2, 4.1), new THREE.Vector3(1, 12, 3)] as const;
 
 type LightLook = { intensity: readonly [number, number]; color: readonly [string, string] };
 const colorPair = (look: LightLook) => [new THREE.Color(look.color[0]), new THREE.Color(look.color[1])] as const;
@@ -323,6 +326,7 @@ const ClassroomLighting: React.FC<{ mix: NightMix }> = ({ mix }) => {
 			light.intensity = THREE.MathUtils.lerp(look.intensity[0], look.intensity[1], t);
 			light.color.lerpColors(day, night, t);
 		}
+		sunRef.current?.position.lerpVectors(SUN_POSITION[0], SUN_POSITION[1], t);
 		scene.environmentIntensity = THREE.MathUtils.lerp(LIGHT_LOOKS.environment[0], LIGHT_LOOKS.environment[1], t);
 	});
 	useEffect(() => {
@@ -341,10 +345,11 @@ const ClassroomLighting: React.FC<{ mix: NightMix }> = ({ mix }) => {
 	}, []);
 	return (
 		<>
-			<ambientLight ref={ambientRef} intensity={0.7} color="#cdcbc8" />
-			<hemisphereLight ref={hemiRef} args={["#ffffff", "#d9c7a7", 0.4]} />
-			<directionalLight ref={sunRef} position={[10, 12, 4]} intensity={2.4} color="#fffffe" castShadow />
-			<directionalLight ref={fillRef} position={[-5, 6, 6]} intensity={0.5} color="#fdfbf9" />
+			{/* Valeurs de départ (jour) : ClassroomLighting les recale à chaque changement d'ambiance */}
+			<ambientLight ref={ambientRef} intensity={0.6} color="#d6d3cf" />
+			<hemisphereLight ref={hemiRef} args={["#eef4ff", "#d9c7a7", 0.45]} />
+			<directionalLight ref={sunRef} position={SUN_POSITION[0]} intensity={2.6} color="#fff4e6" castShadow />
+			<directionalLight ref={fillRef} position={[-5, 6, 6]} intensity={0.35} color="#fdfbf9" />
 		</>
 	);
 };

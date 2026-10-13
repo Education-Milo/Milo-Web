@@ -59,10 +59,12 @@ const LEGACY_INVENTORY_KEY = "milo-inventory-storage";
 const OUTFIT_SLOTS: CosmeticType[] = [
 	"cosmetic_hat",
 	"cosmetic_glasses",
+	"cosmetic_mustache",
 	"cosmetic_tie",
 	"cosmetic_shirt",
 	"cosmetic_pant",
 	"cosmetic_shoes",
+	"cosmetic_gloves",
 ];
 /** Gants et moustaches n'ont pas de case dédiée : affichés seulement si l'élève en possède. */
 const OPTIONAL_SLOTS: CosmeticType[] = ["cosmetic_mustache", "cosmetic_gloves"];
@@ -193,10 +195,10 @@ const MyMiloPage: React.FC = () => {
 	}, [items]);
 
 	const outfitSlots = useMemo(
-		() => [
-			...OUTFIT_SLOTS,
-			...OPTIONAL_SLOTS.filter((type) => items.some((item) => item.type === type)),
-		],
+		() =>
+			OUTFIT_SLOTS.filter(
+				(type) => !OPTIONAL_SLOTS.includes(type) || items.some((item) => item.type === type),
+			),
 		[items],
 	);
 
