@@ -9,7 +9,7 @@ export interface RegisterFormData {
     email: string;
     password: string;
     confirmPassword: string;
-    role: string;
+    /** Élève uniquement : '6eme' | '5eme' | '4eme' | '3eme'. */
     classe: string;
   }
 

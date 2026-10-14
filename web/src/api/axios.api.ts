@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 export const AUTH_COOKIE_MODE =
   String(import.meta.env.VITE_AUTH_COOKIE_MODE ?? 'true') !== 'false';
 
-/** Paramètres à joindre aux appels /token, /register, /token/refresh. */
+/** Paramètres à joindre aux appels /token, /register/*, /token/refresh. */
 export const authCookieParams = AUTH_COOKIE_MODE ? { cookie: true } : undefined;
 
 const baseConfig: CreateAxiosDefaults = {
@@ -48,7 +48,7 @@ APIAxios.interceptors.request.use(
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-/** Routes qui ne doivent jamais provoquer de refresh sur 401. */
+/** Routes qui ne doivent jamais provoquer de refresh sur 401 (préfixes : '/register' couvre /register/student et /register/parent). */
 const AUTH_ENDPOINTS = ['/token', '/register', '/logout'];
 
 // 🔹 Intercepteur de réponse : sur 401, un seul refresh puis rejeu de la requête
@@ -87,7 +87,9 @@ APIAxios.interceptors.response.use(
 
 // 🔹 Routes centralisées
 export const APIRoutes = {
-  POST_Register: '/register',
+  // Inscription : une route par rôle, le rôle est déduit de la route
+  POST_Register_Student: '/register/student',
+  POST_Register_Parent: '/register/parent',
   POST_Login: '/token',
   POST_Refresh: '/token/refresh',
   POST_Logout: '/logout',

@@ -339,33 +339,23 @@ export const useAuthStore = create<AuthStore>()(
         await useUserStore.getState().getMe(true);
       },
 
-      register: async (email, password, lastName, firstName, role, classe, username) => {
-        try {
-          const response = await APIAxios.post<AuthResponse>(
-            APIRoutes.POST_Register,
-            {
-              email,
-              password,
-              first_name: firstName,
-              last_name: lastName,
-              role,
-              class_: classe,
-              username,
-            },
-            { params: authCookieParams },
-          );
-          const token = extractAccessToken(response.data);
-          if (!token) {
-            throw new Error('No access token received from server');
-          }
-          set({ accessToken: token });
-          setSessionHint(true);
-          const { useUserStore } = await import('@shared/store/user/user.store');
-          await useUserStore.getState().getMe(true);
-        } catch (error) {
-          console.error('Register error:', error);
-          throw error;
-        }
+      registerStudent: async (payload) => {
+        const response = await APIAxios.post<AuthResponse>(
+          APIRoutes.POST_Register_Student,
+          payload,
+          { params: authCookieParams },
+        );
+        await get().openSession(response.data);
+      },
+
+      registerParent: async ({ first_name, last_name, username, email, password }) => {
+        // Corps reconstruit champ par champ : rien d'autre ne doit partir
+        const response = await APIAxios.post<AuthResponse>(
+          APIRoutes.POST_Register_Parent,
+          { first_name, last_name, username, email, password },
+          { params: authCookieParams },
+        );
+        await get().openSession(response.data);
       },
 
       forgetPassword: async (email) => {
