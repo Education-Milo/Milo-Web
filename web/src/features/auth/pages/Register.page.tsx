@@ -134,7 +134,7 @@ const Register: React.FC = () => {
 							/>
 						</div>
 
-						{formData.role === "Élève" && (
+						{roleDef.slug === "eleve" && (
 							<ClassSelector
 								value={formData.classe}
 								onChange={(classe: string) => handleInputChange("classe", classe)}

@@ -1,6 +1,21 @@
+import type { ClassType } from '@shared/store/user/user.model';
+
 export interface LoginCredentials {
   username: string;
   password: string;
+}
+
+/** Champs communs aux deux routes d'inscription. */
+export interface ParentRegisterPayload {
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface StudentRegisterPayload extends ParentRegisterPayload {
+  class_: ClassType;
 }
 
 export interface AuthResponse {
@@ -72,7 +87,10 @@ export interface AuthActions {
   sendTwoFactorEmail: (challengeToken: string) => Promise<void>;
   /** Interne : mémorise le jeton d'accès reçu et charge /users/me. */
   openSession: (data: AuthResponse) => Promise<void>;
-  register: (email: string, password: string, lastName: string, firstName: string, role: string, classe?: string, username?: string) => Promise<void>;
+  /** POST /register/student : le rôle Enfant est déduit de la route. */
+  registerStudent: (payload: StudentRegisterPayload) => Promise<void>;
+  /** POST /register/parent : n'accepte aucun champ en plus (ni role ni class_, sinon 422). */
+  registerParent: (payload: ParentRegisterPayload) => Promise<void>;
   logout: (options?: LogoutOptions) => Promise<void>;
   /** POST /logout/all : déconnecte tous les appareils, puis nettoie localement. */
   logoutEverywhere: () => Promise<void>;
