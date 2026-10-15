@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// Explaining, HatLook, Hello, Idle, Thinking, Wrong.
-export const MILO_MODEL_PATH = "/MiloV12.glb";
+export const MILO_MODEL_PATH = "/MiloV13.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
 /// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
@@ -28,7 +28,13 @@ const KNOWN_TORSO_COVERING_MESH_NAMES = new Set(["tshirt"]);
 /// Accessoires présents dans MiloV9 / V10 / V11 .glb. Cette base dépend du
 /// fichier 3D, pas du catalogue : elle garantit qu'un Milo "nu" reste nu même
 /// quand la boutique est vide ou pas encore chargée.
-export const KNOWN_ACCESSORY_MESH_NAMES = ["3dglasses", "glasses", "pixelglasses", "tie", "tophat"];
+export const KNOWN_ACCESSORY_MESH_NAMES = [
+	"3dglasses",
+	"glasses",
+	"pixelglasses",
+	"tie",
+	"tophat",
+];
 
 /// Clips d'animation présents dans MiloV11.glb. Une danse (cosmétique de
 /// type "dance") référence l'un d'eux dans son champ `mesh_name`.
