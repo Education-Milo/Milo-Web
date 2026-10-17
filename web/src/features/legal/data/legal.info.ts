@@ -36,16 +36,15 @@ export const LEGAL_INFO = {
 			address: "440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis",
 			url: "https://vercel.com",
 		},
-		/**
-		 * API, base de données et envoi des emails : instance OVHcloud Public
-		 * Cloud (réseau PCI-GRA11, Gravelines) ; le SPF du domaine n'autorise
-		 * que les serveurs mail d'OVH.
-		 */
+		/** API et base de données : machine virtuelle fournie par l'école au projet EIP */
 		api: {
+			name: "Epitech",
+			address: "24 rue Pasteur, 94270 Le Kremlin-Bicêtre, France",
+			url: "https://www.epitech.eu",
+		},
+		/** Envoi des emails : le SPF du domaine n'autorise que les serveurs mail d'OVH */
+		email: {
 			name: "OVH SAS (OVHcloud)",
-			address: "2 rue Kellermann, 59100 Roubaix, France",
-			datacenter: "Gravelines (Nord), France",
-			url: "https://www.ovhcloud.com",
 		},
 	},
 

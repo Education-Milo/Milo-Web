@@ -70,9 +70,9 @@ const SECTIONS: LegalSection[] = [
 				</dl>
 				<h3>Serveurs et données</h3>
 				<p>
-					Les comptes et la progression sont stockés en France, dans le centre de données de{" "}
-					{hosting.api.datacenter.replace(", France", "")}. Les emails de Milo (codes de connexion, mot de passe
-					oublié) partent du même hébergeur.
+					Les comptes et la progression sont stockés en France, sur une machine virtuelle fournie par{" "}
+					{hosting.api.name}, l'école qui encadre le projet. Les emails de Milo (codes de connexion, mot de passe
+					oublié) sont envoyés par le service mail d'{hosting.email.name}.
 				</p>
 				<dl className="lg-facts">
 					<div>
@@ -177,7 +177,7 @@ const MentionsPage: React.FC = () => (
 		lead="Qui se cache derrière Milo, où il est hébergé, et à qui s'adresser."
 		summary={[
 			`Milo est un projet étudiant de fin d'études ${publisher.school}, sans entreprise derrière.`,
-			"L'application web est hébergée par Vercel, et tes données chez OVHcloud, en France.",
+			"L'application web est hébergée par Vercel, et tes données sur un serveur fourni par Epitech, en France.",
 			<>
 				Pour toute question ou signalement : <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
 			</>,

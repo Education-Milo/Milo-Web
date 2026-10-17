@@ -185,8 +185,11 @@ const SECTIONS: LegalSection[] = [
 				<p>Nous faisons aussi appel à des prestataires, qui n'utilisent tes données que pour nous :</p>
 				<ul>
 					<li>
-						<strong>Hébergement des données et envoi des emails</strong> : {hosting.api.name}, serveurs à{" "}
-						{hosting.api.datacenter} ;
+						<strong>Hébergement des données</strong> : une machine virtuelle en France, fournie par{" "}
+						{hosting.api.name}, l'école qui encadre le projet ;
+					</li>
+					<li>
+						<strong>Envoi des emails</strong> (codes de connexion, mot de passe oublié) : {hosting.email.name} ;
 					</li>
 					<li>
 						<strong>Hébergement de l'application web</strong> : {hosting.web.name} (États-Unis), qui reçoit
@@ -355,7 +358,7 @@ const PrivacyPage: React.FC = () => (
 		summary={[
 			"Nous ne collectons que ce qui sert à apprendre avec Milo.",
 			"Pas de publicité, et tes données ne sont jamais vendues.",
-			"Tes données sont stockées en France, chez OVHcloud. Tes messages à Milo ne sont pas conservés.",
+			"Tes données sont stockées en France, sur un serveur fourni par Epitech. Tes messages à Milo ne sont pas conservés.",
 			"Moins de 15 ans : ton compte se crée avec l'accord d'un parent.",
 			<>
 				Tu peux tout consulter, corriger ou supprimer en écrivant à <Mail />.
