@@ -1,21 +1,11 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Environment, useAnimations } from "@react-three/drei";
-import {
-	WandSparkles,
-	Crown,
-	ShoppingBag,
-	Shirt,
-	Sparkles,
-	Loader,
-	Star,
-	Undo2,
-	Swords,
-	Plus,
-} from "lucide-react";
+import { Backpack, Plus, ShoppingBag, Sparkles, Swords, Undo2 } from "lucide-react";
+import "@features/milo-shop/styles/MiloShop.css";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "@shared/store/toast/toast.store";
@@ -43,8 +33,11 @@ import {
 	prepareMiloScene,
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
-import { CosmeticVisual } from "@features/milo-shop/pages/MiloShop.page";
+import CosmeticVisual from "@features/milo-shop/components/CosmeticVisual.component";
+import { formatMiloros } from "@features/milo-shop/utils/format";
 import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
+import DuelWheel from "@features/my-milo/components/DuelWheel.component";
+import MiloBubble from "@features/my-milo/components/MiloBubble.component";
 import {
 	WHEEL_SLOT_COUNT,
 	arrangeWheel,
@@ -68,6 +61,40 @@ const OUTFIT_SLOTS: CosmeticType[] = [
 ];
 /** Gants et moustaches n'ont pas de case dédiée : affichés seulement si l'élève en possède. */
 const OPTIONAL_SLOTS: CosmeticType[] = ["cosmetic_mustache", "cosmetic_gloves"];
+
+/// --- Mise en scène (affichage seulement) ------------------------------------
+/// Côté de Milo où se range chaque case : la tête à gauche, le corps à droite
+const SLOT_SIDES: Partial<Record<CosmeticType, "left" | "right">> = {
+	cosmetic_hat: "left",
+	cosmetic_glasses: "left",
+	cosmetic_mustache: "left",
+	cosmetic_gloves: "left",
+	cosmetic_tie: "right",
+	cosmetic_shirt: "right",
+	cosmetic_pant: "right",
+	cosmetic_shoes: "right",
+};
+/// Hauteur de chaque case dans la scène (en % de la scène)
+const SLOT_Y: Partial<Record<CosmeticType, number>> = {
+	cosmetic_hat: 23,
+	cosmetic_glasses: 39,
+	cosmetic_mustache: 55,
+	cosmetic_gloves: 71,
+	cosmetic_tie: 38,
+	cosmetic_shirt: 54,
+	cosmetic_pant: 70,
+	cosmetic_shoes: 86,
+};
+/// Ce que dit Milo quand on vient de l'habiller
+const OUTFIT_CHEERS = [
+	(name: string) => `J'adore ${name} !`,
+	(name: string) => `Trop classe, ${name} !`,
+	(name: string) => `${name}, c'est tout moi !`,
+];
+const WHEEL_CHEERS = [
+	(name: string) => `${name} est prêt pour le duel !`,
+	(name: string) => `Hâte d'envoyer ${name} en duel !`,
+];
 
 type PickerTarget = { kind: "outfit"; type: CosmeticType } | { kind: "wheel"; slot: number };
 
@@ -317,7 +344,7 @@ const MyMiloPage: React.FC = () => {
 		return {
 			title: `Emplacement ${picker.slot + 1} de la roue`,
 			subtitle: "Un sticker ou une danse à utiliser pendant les duels",
-			icon: <Swords size={20} />,
+			icon: <Swords size={24} />,
 			items: ownedWheelItems,
 			currentId: current?.id ?? null,
 			usedElsewhereIds: usedElsewhere,
@@ -327,178 +354,276 @@ const MyMiloPage: React.FC = () => {
 		};
 	})();
 
+	// ── Mise en scène (affichage seulement) ──────────────────────────────────
+	const calm = useReducedMotion() ?? false;
+
+	/// Milo commente ce qu'on vient de lui mettre. On compare l'équipement à
+	/// celui du rendu précédent ; le premier chargement ne déclenche rien.
+	const [cheer, setCheer] = useState<string | null>(null);
+	const seenOutfit = useRef<Map<CosmeticType, number> | null>(null);
+	const seenWheel = useRef<Set<number> | null>(null);
+	useEffect(() => {
+		if (!locker) return;
+		const outfit = new Map([...equippedByType].map(([type, item]) => [type, item.id]));
+		const wheel = new Set(wheelItems.map((item) => item.id));
+		const prevOutfit = seenOutfit.current;
+		const prevWheel = seenWheel.current;
+		seenOutfit.current = outfit;
+		seenWheel.current = wheel;
+		if (!prevOutfit || !prevWheel) return;
+
+		const newOutfit = [...equippedByType.values()].find((item) => prevOutfit.get(item.type) !== item.id);
+		const newWheel = wheelItems.find((item) => !prevWheel.has(item.id));
+		if (newOutfit) setCheer(OUTFIT_CHEERS[newOutfit.id % OUTFIT_CHEERS.length](newOutfit.name));
+		else if (newWheel) setCheer(WHEEL_CHEERS[newWheel.id % WHEEL_CHEERS.length](newWheel.name));
+		else if (outfit.size === 0 && wheel.size === 0 && (prevOutfit.size > 0 || prevWheel.size > 0)) {
+			setCheer("Me revoilà au naturel !");
+		}
+	}, [locker, equippedByType, wheelItems]);
+
+	const bubbleText = isLoading
+		? "J'ouvre mon casier…"
+		: isError
+			? "Mon casier refuse de s'ouvrir…"
+			: (cheer ??
+				(equippedByType.size === 0
+					? "Je n'ai rien sur le dos ! Choisis-moi une tenue."
+					: "Touche une case pour changer ma tenue."));
+
 	return (
 		<ScreenLayout>
-			<div className="mymilo-container">
-				<div className="milo-bg-glow"></div>
-
-				<motion.header
-					className="mymilo-header"
-					initial={{ opacity: 0, y: -20 }}
-					animate={{ opacity: 1, y: 0 }}
-				>
-					<div className="header-left">
-						<h1 className="page-title">
-							<WandSparkles className="sparkle-icon" /> Mon Milo
-						</h1>
-						<p className="page-subtitle">Compose sa tenue et prépare ta roue de duel</p>
-					</div>
-
-					<div className="header-actions">
-						<motion.button
-							className="btn-shop-pimped"
-							onClick={() => navigate("/boutique")}
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-						>
-							<ShoppingBag size={18} /> <span>Boutique</span>
-						</motion.button>
-						{locker && (
-							<div className="collection-score-pimped" title="Ton solde de miloros">
-								<Star className="icon-crown-animated" size={20} />
-								<span className="score-val">{locker.miloro_coin.toLocaleString("fr-FR")}</span>
-							</div>
-						)}
-						<div className="collection-score-pimped" title="Objets dans ton casier">
-							<Crown className="icon-crown-animated" size={22} />
-							<span className="score-val">{items.length}</span>
-						</div>
-						<button
-							type="button"
-							className="btn-unequip-all"
-							onClick={unequipAll}
-							disabled={isBusy}
-							title="Retire la tenue complète et la roue. Tes objets restent dans ton casier."
-						>
-							<Undo2 size={16} /> <span>Tout enlever</span>
-						</button>
-					</div>
-				</motion.header>
-
-				<main className="mymilo-content">
-					<motion.div
-						className="milo-model-card"
-						initial={{ x: -50, opacity: 0 }}
-						animate={{ x: 0, opacity: 1 }}
-						transition={{ delay: 0.2 }}
+			<div className="mm">
+				<div className="mm-wrap">
+					{/* ---------- En-tête ---------- */}
+					<motion.header
+						className="mm-head"
+						initial={calm ? false : { opacity: 0, y: -14 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.45, ease: "easeOut" }}
 					>
-						<div className="milo-light-ray"></div>
-						<div style={{ height: "525px", width: "150%", marginLeft: "-25%", zIndex: 10 }}>
-							<Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-								<Environment preset="sunset" environmentIntensity={1.2} />
-								<directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" castShadow />
-								<ambientLight intensity={0.2} />
-								<MiloModel3D hatTrigger={hatTrigger} />
-							</Canvas>
+						<div className="mm-head__copy">
+							<h1 className="mm-title">Mon Milo</h1>
+							<p className="mm-lead">Touche une case autour de Milo pour changer sa tenue, puis prépare ta roue de duel.</p>
 						</div>
-						<div className="milo-shadow"></div>
-					</motion.div>
 
-					<motion.div
-						className="vestiaire-glass-box lk-box"
-						initial={{ x: 50, opacity: 0 }}
-						animate={{ x: 0, opacity: 1 }}
-						transition={{ delay: 0.3 }}
-					>
-						{isLoading && (
-							<div className="locker-state">
-								<Loader size={26} className="locker-spin" />
-								<p>Ouverture du casier...</p>
-							</div>
-						)}
-						{isError && (
-							<div className="locker-state">
-								<p>Impossible de charger ton casier pour le moment.</p>
-							</div>
-						)}
-
-						{locker && (
-							<div className="lk-columns">
-								{/* ── Tenue : une case par emplacement, de la tête aux pieds ── */}
-								<section className="lk-section">
-									<header className="lk-section-header">
-										<h2 className="section-title">
-											<Shirt size={22} /> Tenue
-										</h2>
-										<span className="lk-count">{equippedByType.size}/{outfitSlots.length}</span>
-									</header>
-									<ul className="outfit-slots">
-										{outfitSlots.map((type) => {
-											const item = equippedByType.get(type);
-											return (
-												<li key={type}>
-													<button
-														type="button"
-														className={`outfit-slot ${item ? `is-filled rarity-${raritySlug(item.rarity)}` : "is-empty"}`}
-														onClick={() => setPicker({ kind: "outfit", type })}
-														disabled={isBusy}
-														title={item ? `${TYPE_LABELS[type]} : ${item.name}` : `${TYPE_LABELS[type]} : rien d'équipé`}
-													>
-														<span className="outfit-slot-bg" aria-hidden="true">{TYPE_ICONS[type]}</span>
-														<span className="outfit-slot-visual">
-															{item ? <CosmeticVisual item={item} className="outfit-slot-img" /> : <Plus size={22} />}
-														</span>
-														<span className="outfit-slot-text">
-															<span className="outfit-slot-type">{TYPE_LABELS[type]}</span>
-															<span className="outfit-slot-name">{item ? item.name : "Vide"}</span>
-														</span>
-														{item?.rarity === "legendaire" && <Sparkles className="legendary-sparkle" size={16} />}
-													</button>
-												</li>
-											);
-										})}
-									</ul>
-								</section>
-
-								{/* ── Roue des duels : deux rangées de trois emplacements ── */}
-								<section className="lk-section">
-									<header className="lk-section-header">
-										<h2 className="section-title">
-											<Swords size={22} /> Roue des duels
-										</h2>
-										<span className={`lk-count ${wheelUsed >= wheelSize ? "is-full" : ""}`}>
-											{wheelUsed}/{wheelSize}
-										</span>
-									</header>
-									<p className="lk-hint">Stickers et danses envoyés à ton adversaire pendant un duel.</p>
-									<div className="duel-wheel">
-										{wheelSlots.map((item, slot) => (
-											<button
-												key={slot}
-												type="button"
-												className={`wheel-slot-card ${item ? `is-filled wheel-slot-card--${item.type}` : "is-empty"}`}
-												onClick={() => setPicker({ kind: "wheel", slot })}
-												disabled={isBusy}
-												title={item ? `Emplacement ${slot + 1} : ${item.name}` : `Emplacement ${slot + 1} : vide`}
-											>
-												<span className="wheel-slot-index">{slot + 1}</span>
-												<span className="wheel-slot-visual">
-													{item ? (
-														<CosmeticVisual item={item} className="wheel-slot-img" />
-													) : (
-														<Plus size={20} />
-													)}
-												</span>
-												<span className="wheel-slot-name">
-													{item ? item.name : "Libre"}
-												</span>
-											</button>
-										))}
+						<div className="mm-head__side">
+							<div className="mm-head__stats">
+								{locker && (
+									<div className="mm-wallet" title="Ton solde de miloros">
+										<img src="/landing/emoji/coin.webp" alt="" className="mm-wallet__coin" draggable={false} />
+										<span className="mm-wallet__amount">{formatMiloros(locker.miloro_coin)}</span>
+										<span className="mm-wallet__unit">miloros</span>
 									</div>
-								</section>
+								)}
+								<div className="mm-stat" title="Objets dans ton casier">
+									<span className="mm-stat__icon" aria-hidden="true"><Backpack size={20} strokeWidth={2.4} /></span>
+									<span className="mm-stat__value">{items.length}</span>
+									<span className="mm-stat__unit">{items.length > 1 ? "objets" : "objet"}</span>
+								</div>
 							</div>
-						)}
-					</motion.div>
-				</main>
+							<div className="mm-head__actions">
+								<button type="button" className="mm-btn mm-btn--primary" onClick={() => navigate("/boutique")}>
+									<ShoppingBag size={19} aria-hidden="true" /> Boutique
+								</button>
+								<button
+									type="button"
+									className="mm-btn mm-btn--ghost"
+									onClick={unequipAll}
+									disabled={isBusy}
+									title="Retire la tenue complète et la roue. Tes objets restent dans ton casier."
+								>
+									<Undo2 size={18} aria-hidden="true" /> Tout enlever
+								</button>
+							</div>
+						</div>
+					</motion.header>
 
-				{pickerProps && (
-					<LockerPickerModal
-						{...pickerProps}
-						busy={isBusy}
-						onClose={() => setPicker(null)}
-						onShop={() => navigate("/boutique")}
-					/>
-				)}
+					<main className="mm-main">
+						{/* ---------- Loge : Milo et sa tenue ---------- */}
+						<motion.section
+							className={`mm-stage${isBusy ? " is-busy" : ""}`}
+							aria-labelledby="mm-outfit-title"
+							initial={calm ? false : { opacity: 0, y: 16 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.05 }}
+						>
+							<div className="mm-stage__inner">
+								<div className="mm-stage__scene" aria-hidden="true">
+									<div className="mm-stage__orbit"><i /><i /><i /></div>
+									<div className="mm-stage__sun" />
+									<div className="mm-stage__podium" />
+									<div className="mm-stage__shadow" />
+									<img className="mm-stage__float mm-stage__float--1" src="/landing/emoji/sparkles.webp" alt="" />
+								</div>
+
+								<div className="mm-stage__canvas" aria-hidden="true">
+									{/* offsetSize : le canvas prend la taille de mise en page de sa
+									    boîte, sans les transformations des parents. Sinon, mesuré
+									    pendant une animation d'entrée, il restait trop petit (et Milo
+									    décalé de son socle) jusqu'au premier scroll. */}
+									<Canvas camera={{ position: [0, 0, 5], fov: 45 }} resize={{ offsetSize: true }}>
+										<Environment preset="sunset" environmentIntensity={1.2} />
+										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" castShadow />
+										<ambientLight intensity={0.2} />
+										<MiloModel3D hatTrigger={hatTrigger} />
+									</Canvas>
+								</div>
+
+								<header className="mm-stage__head">
+									<h2 id="mm-outfit-title" className="mm-h2">Sa tenue</h2>
+									{locker && (
+										<span className="mm-count" aria-label={`${equippedByType.size} emplacements remplis sur ${outfitSlots.length}`}>
+											{equippedByType.size}/{outfitSlots.length}
+										</span>
+									)}
+								</header>
+
+								<MiloBubble text={bubbleText} className="mm-stage__bubble" />
+
+								{isError && (
+									<div className="mm-stage__error" role="alert">
+										<img src="/landing/emoji/locked.webp" alt="" draggable={false} />
+										<p>Impossible de charger ton casier pour le moment.</p>
+									</div>
+								)}
+
+								{isLoading && (
+									<ul className="mm-slots is-loading" aria-label="Ouverture du casier...">
+										{OUTFIT_SLOTS.filter((t) => !OPTIONAL_SLOTS.includes(t)).map((type) => (
+											<li
+												key={type}
+												className={`mm-slot-wrap is-${SLOT_SIDES[type]}`}
+												style={{ "--y": `${SLOT_Y[type]}%` } as React.CSSProperties}
+											>
+												<span className="mm-slot mm-slot--skeleton" />
+											</li>
+										))}
+									</ul>
+								)}
+
+								{locker && (
+										<ul className="mm-slots">
+											{outfitSlots.map((type, index) => {
+												const item = equippedByType.get(type);
+												const side = SLOT_SIDES[type] ?? "right";
+												return (
+													<li
+														key={type}
+														className={`mm-slot-wrap is-${side}`}
+														style={{ "--y": `${SLOT_Y[type] ?? 50}%` } as React.CSSProperties}
+													>
+														<motion.button
+															type="button"
+															className={`mm-slot ${item ? `is-filled ms-r-${raritySlug(item.rarity)}` : "is-empty"}`}
+															onClick={() => setPicker({ kind: "outfit", type })}
+															disabled={isBusy}
+															title={item ? `${TYPE_LABELS[type]} : ${item.name}` : `${TYPE_LABELS[type]} : rien d'équipé`}
+															initial={calm ? false : { opacity: 0, x: side === "left" ? -26 : 26, scale: 0.9 }}
+															animate={{ opacity: 1, x: 0, scale: 1 }}
+															transition={{ type: "spring", stiffness: 220, damping: 20, delay: 0.45 + index * 0.06 }}
+														>
+															<motion.span
+																key={item?.id ?? "empty"}
+																className="mm-slot__visual"
+																initial={calm ? false : { scale: 0.45, rotate: -18 }}
+																animate={{ scale: 1, rotate: 0 }}
+																transition={{ type: "spring", stiffness: 420, damping: 16 }}
+															>
+																{item ? (
+																	<CosmeticVisual item={item} className="mm-slot__img" />
+																) : (
+																	<>
+																		<span className="mm-slot__ghost" aria-hidden="true">{TYPE_ICONS[type]}</span>
+																		<Plus className="mm-slot__plus" size={18} strokeWidth={3} />
+																	</>
+																)}
+															</motion.span>
+															{item && <span key={`burst-${item.id}`} className="mm-burst" aria-hidden="true" />}
+															<span className="mm-slot__text">
+																<span className="mm-slot__type">{TYPE_LABELS[type]}</span>
+																<span className="mm-slot__name">{item ? item.name : "Ajouter"}</span>
+															</span>
+															{item?.rarity === "legendaire" && (
+																<Sparkles className="mm-slot__legend" size={16} aria-hidden="true" />
+															)}
+														</motion.button>
+													</li>
+												);
+											})}
+										</ul>
+								)}
+							</div>
+						</motion.section>
+
+						{/* ---------- Roue des duels ---------- */}
+						<motion.section
+							className="mm-wheelcard"
+							aria-labelledby="mm-wheel-title"
+							initial={calm ? false : { opacity: 0, y: 22 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.15 }}
+						>
+							<div className="mm-wheelcard__layout">
+							<header className="mm-wheelcard__head">
+								<h2 id="mm-wheel-title" className="mm-h2">Roue des duels</h2>
+								{locker && (
+									<span className={`mm-count${wheelUsed >= wheelSize ? " is-full" : ""}`}>
+										{wheelUsed}/{wheelSize}
+									</span>
+								)}
+							</header>
+							<p className="mm-wheelcard__hint">
+								Stickers et danses envoyés à ton adversaire pendant un duel. Touche une case pour la remplir.
+							</p>
+
+							<div className="mm-wheelcard__body">
+								{locker ? (
+									<DuelWheel
+										slots={wheelSlots}
+										used={wheelUsed}
+										size={wheelSize}
+										disabled={isBusy}
+										onOpenSlot={(slot) => setPicker({ kind: "wheel", slot })}
+									/>
+								) : (
+									<div className={`mm-wheel mm-wheel--placeholder${isError ? " is-error" : ""}`} aria-hidden="true">
+										<div className="mm-wheel__hub">
+											{isError ? (
+												<img src="/landing/emoji/locked.webp" alt="" className="mm-wheel__hub-icon" draggable={false} />
+											) : (
+												<span className="mm-spin-ring" />
+											)}
+										</div>
+									</div>
+								)}
+							</div>
+
+							{locker && (
+								<p className="mm-wheelcard__foot">
+									<img src="/landing/emoji/video_game.webp" alt="" draggable={false} />
+									<span>
+										{ownedWheelItems.length === 0
+											? "Aucun sticker ni danse dans ton casier pour l'instant."
+											: `${ownedWheelItems.length} ${ownedWheelItems.length > 1 ? "stickers et danses" : "sticker ou danse"} dans ton casier.`}
+									</span>
+								</p>
+							)}
+							</div>
+						</motion.section>
+					</main>
+				</div>
+
+				<AnimatePresence>
+					{pickerProps && (
+						<LockerPickerModal
+							key="picker"
+							{...pickerProps}
+							busy={isBusy}
+							onClose={() => setPicker(null)}
+							onShop={() => navigate("/boutique")}
+						/>
+					)}
+				</AnimatePresence>
 			</div>
 		</ScreenLayout>
 	);
