@@ -164,6 +164,32 @@ const clearLocalSession = async () => {
   queryClient.clear();
 };
 
+/**
+ * Connexion explicite au compte : la session de profil encore ouverte sur ce
+ * navigateur (cookie milo_refresh, 14 jours) est révoquée. Sans ça, elle
+ * survivait à l'écran « Qui est-ce ? » et un rechargement pouvait rouvrir ce
+ * profil sans son code PIN. Après une connexion, on n'entre dans un profil
+ * que par POST /profiles/{id}/select.
+ *
+ * GET /sessions repère la session du cookie (`is_current`) parmi celles du
+ * compte. Le cookie d'un autre compte n'y figure pas : il ne sert plus à rien
+ * (drapeau de session baissé) et sera remplacé à la sélection du profil.
+ */
+const revokeLingeringProfileSession = async () => {
+  setSessionHint(false);
+  if (!AUTH_COOKIE_MODE) return;
+  try {
+    const { data } = await AuthAxios.get<{ id: number; is_current: boolean | null }[]>(
+      APIRoutes.GET_Sessions,
+    );
+    const current = data.find((s) => s.is_current === true);
+    if (current) await AuthAxios.delete(APIRoutes.DELETE_Session(current.id));
+  } catch {
+    // Au pire, le drapeau baissé et la priorité de l'écran de choix au
+    // démarrage (bootstrapSession) empêchent déjà de s'en servir
+  }
+};
+
 const NO_ACCOUNT_SESSION = {
   hasAccountSession: false,
   accountToken: '',
@@ -195,6 +221,7 @@ export const useAuthStore = create<AuthStore>()(
           profiles,
         });
         setAccountHint(true);
+        await revokeLingeringProfileSession();
         if (profiles.length === 1 && !profiles[0].has_pin) {
           try {
             await get().selectProfile(profiles[0].id);
@@ -301,11 +328,17 @@ export const useAuthStore = create<AuthStore>()(
         }
         if (accessToken && !isTokenExpired()) return true;
         if (AUTH_COOKIE_MODE) {
+          // Compte connecté sur « Qui est-ce ? » (F5) : l'écran de choix passe
+          // avant toute session de profil, et on ne se rabat JAMAIS sur le
+          // refresh, même si le cookie de compte a expiré. Sinon un refresh
+          // token resté sur le navigateur rouvrirait un profil sans son PIN.
+          if (hasAccountHint()) {
+            await get().restoreAccountSession();
+            return false;
+          }
           // Une session de profil rend la main directement dans l'application
-          if (hasSessionHint() && (await refreshAccessToken())) return true;
-          // Sinon, peut-être un compte connecté sur l'écran de choix (F5)
-          await get().restoreAccountSession();
-          return false;
+          if (!hasSessionHint()) return false;
+          return Boolean(await refreshAccessToken());
         }
         // Mode legacy : token persisté expiré → session terminée
         if (accessToken) await get().logout({ remote: false });
@@ -426,6 +459,7 @@ export const useAuthStore = create<AuthStore>()(
           await clearLocalSession();
           set({ accessToken: token, tokenValidationInterval: null });
           setSessionHint(true);
+          setAccountHint(false);
           reloadAs('/');
           return;
         }
@@ -482,6 +516,8 @@ export const useAuthStore = create<AuthStore>()(
         }
         set({ accessToken: token });
         setSessionHint(true);
+        // Un profil est ouvert : plus d'écran de choix à reprendre au démarrage
+        setAccountHint(false);
         const { useUserStore } = await import('@shared/store/user/user.store');
         await useUserStore.getState().getMe(true);
       },
