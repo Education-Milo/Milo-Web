@@ -7,6 +7,8 @@ import ForgotPasswordScreen from '@features/auth/pages/ForgotPassword.page';
 import VitrinePage from '@features/landing/pages/Vitrine.page';
 import ContactPage from '@features/landing/pages/Contact.page';
 import FAQPage from '@features/landing/pages/FAQ.page';
+import ProfilePickerPage from '@features/account/pages/ProfilePicker.page';
+import { ROUTES } from '@shared/constants/routes';
 
 const PublicNavigator: React.FC = () => {
   return (
@@ -14,6 +16,8 @@ const PublicNavigator: React.FC = () => {
       <Route path="/" element={<VitrinePage />} />
 
       <Route path="/login" element={<LoginScreen />} />
+      {/* « Qui est-ce ? » : jeton de compte en main, profil à choisir */}
+      <Route path={ROUTES.PROFILE_SELECT} element={<ProfilePickerPage />} />
       <Route path="/faq" element={<FAQPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/register" element={<RoleSelectScreen />} />

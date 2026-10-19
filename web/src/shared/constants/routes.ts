@@ -4,6 +4,10 @@ export const ROUTES = {
 	LOGIN: "/login",
 	REGISTER: "/register",
 	FORGOT_PASSWORD: "/forgot-password",
+	/** « Qui est-ce ? » juste après la connexion (jeton de compte) */
+	PROFILE_SELECT: "/profiles",
+	/** Gérer les profils (ajout, PIN, suppression) depuis un profil ouvert */
+	PROFILE_MANAGE: "/profiles/manage",
 
 	ROOT: "/",
 

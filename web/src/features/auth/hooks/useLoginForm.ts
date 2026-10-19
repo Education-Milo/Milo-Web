@@ -5,7 +5,7 @@ import { useUserStore } from "@shared/store/user/user.store";
 import type { LoginFormData, FormErrors } from "@shared/types/auth.types";
 import { ROUTES } from "@shared/constants/routes";
 import type { UserRole } from "@shared/store/user/user.model";
-import type { TwoFactorChallenge } from "@shared/store/auth/auth.model";
+import type { AccountLoginResult, TwoFactorChallenge } from "@shared/store/auth/auth.model";
 
 /** Défi de double authentification en cours, avec son échéance locale */
 export interface PendingTwoFactor {
@@ -81,7 +81,7 @@ export const useLoginForm = () => {
 					});
 					return;
 				}
-				redirectAfterLogin();
+				continueAfterAccountLogin(result);
 			} catch (error: any) {
 				console.error("❌ Erreur de connexion:", error);
 				const errorMessage =
@@ -114,10 +114,19 @@ export const useLoginForm = () => {
 		navigate(getRedirectPath(role), { replace: true });
 	}
 
-	/** Second facteur validé : la session est ouverte */
-	const handleTwoFactorSuccess = () => {
-		setTwoFactor(null);
+	/** Compte ouvert : profil déjà ouvert d'office, ou écran « Qui est-ce ? » */
+	function continueAfterAccountLogin(result: AccountLoginResult) {
+		if (result.status === "select_profile") {
+			navigate(ROUTES.PROFILE_SELECT, { replace: true });
+			return;
+		}
 		redirectAfterLogin();
+	}
+
+	/** Second facteur validé : le compte est ouvert */
+	const handleTwoFactorSuccess = (result: AccountLoginResult) => {
+		setTwoFactor(null);
+		continueAfterAccountLogin(result);
 	};
 
 	/** Défi abandonné ou mort : retour au formulaire, mot de passe à ressaisir */

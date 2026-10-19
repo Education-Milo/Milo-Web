@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Bell, ChevronRight, Flame, LogOut, Menu, X, Zap } from "lucide-react";
+import { Bell, ChevronRight, Flame, LogOut, Menu, Users, X, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
@@ -11,6 +11,8 @@ const navIcon = (name: string) => `/icons/${name}_icon.png`;
 
 interface SidebarProps {
 	onLogout: () => void;
+	/** « Changer de profil » : retour à « Qui est-ce ? » sans mot de passe */
+	onSwitchProfile?: () => void;
 	userProfile: UserProfile | any;
 	streakDays?: number;
 	/** XP total de l'utilisateur, affiché à côté de la streak. */
@@ -25,6 +27,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({
 	onLogout,
+	onSwitchProfile,
 	userProfile,
 	streakDays = 0,
 	xpPoints = 0,
@@ -364,15 +367,30 @@ const Sidebar: React.FC<SidebarProps> = ({
 							</div>
 						</button>
 
-						<button
-							type="button"
-							className="sb-logout-btn"
-							onClick={onLogout}
-							title="Se déconnecter"
-						>
-							<LogOut size={16} />
-							<span>Se déconnecter</span>
-						</button>
+						<div className="sb-footer-actions">
+							{/* Un profil de démonstration n'a pas de compte : pas d'autre profil */}
+							{!userProfile?.is_demo && onSwitchProfile && (
+								<button
+									type="button"
+									className="sb-logout-btn sb-switch-btn"
+									onClick={onSwitchProfile}
+									title="Changer de profil"
+								>
+									<Users size={16} />
+									<span>Profils</span>
+								</button>
+							)}
+
+							<button
+								type="button"
+								className="sb-logout-btn"
+								onClick={onLogout}
+								title="Se déconnecter"
+							>
+								<LogOut size={16} />
+								<span>Se déconnecter</span>
+							</button>
+						</div>
 					</div>
 				</aside>
 			</>

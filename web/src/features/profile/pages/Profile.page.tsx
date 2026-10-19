@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AlertCircle, Check, Lock, LogOut, Mail, Plus, RotateCcw, X } from "lucide-react";
+import { AlertCircle, AtSign, Check, Lock, LogOut, Plus, RotateCcw, X } from "lucide-react";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/profile/styles/ProfilePage.css";
@@ -14,6 +14,9 @@ import type { ProfileTab } from "@features/profile/components/ProfileTabs.compon
 import TwoFactorPanel from "@features/security/components/TwoFactorPanel";
 import TrustedDevicesPanel from "@features/security/components/TrustedDevicesPanel";
 import SessionsPanel from "@features/security/components/SessionsPanel";
+import AccountLoginPanel from "@features/account/components/AccountLoginPanel";
+import AccountProfilesPanel from "@features/account/components/AccountProfilesPanel";
+import DeleteAccountPanel from "@features/account/components/DeleteAccountPanel";
 import { AI_LIMITS } from "@shared/lib/aiRequests";
 import { useStats } from "@features/stats/store/stats.queries";
 import type { StatsPeriodDays } from "@features/stats/store/stats.model";
@@ -36,14 +39,12 @@ const ProfilePage: React.FC = () => {
 	const {
 		profile,
 		tempProfile,
-		passwordData,
-		passwordChecks,
+		user,
 		interests,
 		suggestions,
 		newInterest,
 		setNewInterest,
 		handleInputChange,
-		handlePasswordChange,
 		handleSave,
 		handleReset,
 		handleAdd,
@@ -53,6 +54,8 @@ const ProfilePage: React.FC = () => {
 		formError,
 	} = useProfilePage();
 	const navigate = useNavigate();
+	// Un profil de démonstration n'a pas de compte : ni identifiants ni profils à gérer
+	const isDemo = Boolean(user?.is_demo);
 	const logoutEverywhere = useAuthStore((state) => state.logoutEverywhere);
 	const handleLogoutEverywhere = async () => {
 		await logoutEverywhere();
@@ -118,7 +121,7 @@ const ProfilePage: React.FC = () => {
 
 						{tab === "compte" && (
 							<div className="pf-bento">
-								{/* Rangée 1 : identité + mot de passe */}
+								{/* Rangée 1 : identité du profil + identifiants du compte */}
 								<ProfileCard icon="student" title="Informations personnelles" className="pf-span-2">
 									<div className="pf-fields">
 										<div className="pf-field">
@@ -168,15 +171,15 @@ const ProfilePage: React.FC = () => {
 											</select>
 										</div>
 										<div className="pf-field">
-											<span className="pf-label" id="pf-email-label">
-												Email
+											<span className="pf-label" id="pf-username-label">
+												Pseudo
 												<span className="pf-label-lock">
 													<Lock size={11} aria-hidden="true" /> non modifiable
 												</span>
 											</span>
-											<div className="pf-input pf-input-readonly" aria-labelledby="pf-email-label">
-												<Mail size={16} aria-hidden="true" />
-												<span>{profile.email}</span>
+											<div className="pf-input pf-input-readonly" aria-labelledby="pf-username-label">
+												<AtSign size={16} aria-hidden="true" />
+												<span>{profile.username}</span>
 											</div>
 										</div>
 									</div>
@@ -184,59 +187,17 @@ const ProfilePage: React.FC = () => {
 
 								<ProfileCard
 									icon="locked"
-									title="Mot de passe"
-									subtitle="Laisse vide pour le conserver"
+									title="Connexion"
+									subtitle="Identifiants du compte, communs à tous ses profils"
 									className="pf-span-2"
 								>
-									<div className="pf-fields">
-										<div className="pf-field">
-											<label className="pf-label" htmlFor="pf-new-password">
-												Nouveau mot de passe
-											</label>
-											<input
-												id="pf-new-password"
-												type="password"
-												className="pf-input"
-												autoComplete="new-password"
-												placeholder="8 caractères minimum"
-												value={passwordData.new_password}
-												onChange={(e) => handlePasswordChange("new_password", e.target.value)}
-											/>
-										</div>
-										<div className="pf-field">
-											<label className="pf-label" htmlFor="pf-confirm-password">
-												Confirmation
-											</label>
-											<input
-												id="pf-confirm-password"
-												type="password"
-												className="pf-input"
-												autoComplete="new-password"
-												placeholder="Retape ton mot de passe"
-												value={passwordData.confirm_password}
-												onChange={(e) => handlePasswordChange("confirm_password", e.target.value)}
-											/>
-										</div>
-									</div>
-
-									{passwordChecks.active && (
-										<ul className="pf-rules">
-											<li className={passwordChecks.length ? "is-ok" : ""}>
-												{passwordChecks.length ? <Check size={14} /> : <AlertCircle size={14} />}
-												Au moins 8 caractères
-											</li>
-											<li className={passwordChecks.match ? "is-ok" : ""}>
-												{passwordChecks.match ? <Check size={14} /> : <AlertCircle size={14} />}
-												Les deux champs sont identiques
-											</li>
-										</ul>
-									)}
+									{!isDemo && <AccountLoginPanel email={profile.email} />}
 
 									<button
 										type="button"
 										className="pf-btn pf-btn-danger pf-card-end"
 										onClick={handleLogoutEverywhere}
-										title="Révoque la session sur tous tes appareils"
+										title="Déconnecte tous les profils du compte, sur tous tes appareils"
 									>
 										<LogOut size={16} aria-hidden="true" />
 										Se déconnecter de tous les appareils
@@ -309,6 +270,29 @@ const ProfilePage: React.FC = () => {
 										</div>
 									)}
 								</ProfileCard>
+
+								{/* Rangée 3 : profils du compte + suppression du compte */}
+								{!isDemo && (
+									<>
+										<ProfileCard
+											icon="student"
+											title="Profils du compte"
+											subtitle="Chaque membre de la famille a le sien"
+											className="pf-span-2"
+										>
+											<AccountProfilesPanel />
+										</ProfileCard>
+
+										<ProfileCard
+											icon="fire"
+											title="Supprimer le compte"
+											subtitle="Effacement définitif de toutes les données"
+											className="pf-span-2"
+										>
+											<DeleteAccountPanel />
+										</ProfileCard>
+									</>
+								)}
 							</div>
 						)}
 

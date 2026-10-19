@@ -1,5 +1,7 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "@shared/store/auth/auth.store";
+import { ROUTES } from "@shared/constants/routes";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
 import { useLoginForm } from "@features/auth/hooks/useLoginForm";
@@ -28,8 +30,14 @@ const Login: React.FC = () => {
 		handleTwoFactorRestart,
 	} = useLoginForm();
 	const location = useLocation();
+	const hasAccountSession = useAuthStore((state) => state.hasAccountSession);
 	const successMessage =
 		(location.state as { message?: string } | null)?.message ?? "";
+
+	// Compte déjà connecté (cookie de compte encore valide) : reste à choisir un profil
+	if (hasAccountSession) {
+		return <Navigate to={ROUTES.PROFILE_SELECT} replace />;
+	}
 
 	const handleKeyPress = (event: React.KeyboardEvent) => {
 		if (event.key === "Enter" && !isLoading) {
