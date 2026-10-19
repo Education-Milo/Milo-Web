@@ -6,6 +6,7 @@ import type {
   AccountLoginResponse,
   AccountLoginResult,
   AuthStore,
+  ProfileSummary,
   AuthResponse,
   LoginResponse,
   LogoutOptions,
@@ -42,6 +43,28 @@ const hasSessionHint = () => {
     return localStorage.getItem(SESSION_HINT_KEY) === '1';
   } catch {
     return true;
+  }
+};
+
+/**
+ * Même principe pour la session de compte (cookie httpOnly `milo_account`,
+ * 30 min) : sans ce drapeau, chaque visiteur anonyme déclencherait un
+ * GET /profiles voué au 401 au démarrage.
+ */
+const ACCOUNT_HINT_KEY = 'milo_account_session';
+const setAccountHint = (active: boolean) => {
+  try {
+    if (active && AUTH_COOKIE_MODE) localStorage.setItem(ACCOUNT_HINT_KEY, '1');
+    else localStorage.removeItem(ACCOUNT_HINT_KEY);
+  } catch {
+    // stockage indisponible : pas de reprise de l'écran de choix
+  }
+};
+const hasAccountHint = () => {
+  try {
+    return localStorage.getItem(ACCOUNT_HINT_KEY) === '1';
+  } catch {
+    return false;
   }
 };
 
@@ -141,7 +164,18 @@ const clearLocalSession = async () => {
   queryClient.clear();
 };
 
-const NO_ACCOUNT_SESSION = { accountToken: '', accountTokenExpiresAt: 0, profiles: [] };
+const NO_ACCOUNT_SESSION = {
+  hasAccountSession: false,
+  accountToken: '',
+  accountTokenExpiresAt: 0,
+  profiles: [],
+};
+
+/** État local d'une session de compte fermée (le drapeau de reprise avec). */
+const noAccountSession = () => {
+  setAccountHint(false);
+  return NO_ACCOUNT_SESSION;
+};
 
 export const useAuthStore = create<AuthStore>()(
   persist(
@@ -155,10 +189,12 @@ export const useAuthStore = create<AuthStore>()(
         const profiles = data.profiles ?? [];
         await forgetAccountQueries();
         set({
-          accountToken: data.account_token,
+          // Null en mode cookie : le navigateur porte le cookie milo_account
+          accountToken: data.account_token ?? '',
           accountTokenExpiresAt: Date.now() + data.expires_in * 1000,
           profiles,
         });
+        setAccountHint(true);
         if (profiles.length === 1 && !profiles[0].has_pin) {
           try {
             await get().selectProfile(profiles[0].id);
@@ -167,6 +203,9 @@ export const useAuthStore = create<AuthStore>()(
             // Échec de l'ouverture directe : l'écran de choix prendra le relais
           }
         }
+        // Seulement maintenant : l'écran de connexion renvoie vers le choix
+        // de profil dès qu'une session de compte est ouverte
+        set({ hasAccountSession: true });
         return { status: 'select_profile', profiles };
       };
 
@@ -262,8 +301,11 @@ export const useAuthStore = create<AuthStore>()(
         }
         if (accessToken && !isTokenExpired()) return true;
         if (AUTH_COOKIE_MODE) {
-          if (!hasSessionHint()) return false;
-          return Boolean(await refreshAccessToken());
+          // Une session de profil rend la main directement dans l'application
+          if (hasSessionHint() && (await refreshAccessToken())) return true;
+          // Sinon, peut-être un compte connecté sur l'écran de choix (F5)
+          await get().restoreAccountSession();
+          return false;
         }
         // Mode legacy : token persisté expiré → session terminée
         if (accessToken) await get().logout({ remote: false });
@@ -389,13 +431,38 @@ export const useAuthStore = create<AuthStore>()(
         }
         await get().openSession(response.data);
         // Après l'ouverture : l'écran de choix ne doit jamais se retrouver
-        // sans aucun jeton, il renverrait à la connexion
-        set(NO_ACCOUNT_SESSION);
+        // sans aucun jeton, il renverrait à la connexion. Le cookie de compte
+        // peut subsister côté navigateur : le jeton du profil l'emporte.
+        set(noAccountSession());
       },
 
-      clearAccountSession: () => {
-        set(NO_ACCOUNT_SESSION);
-        void forgetAccountQueries();
+      clearAccountSession: async () => {
+        if (AUTH_COOKIE_MODE) {
+          // Efface milo_account (et un éventuel milo_refresh) ; jamais bloquant
+          await AuthAxios.post(APIRoutes.POST_Logout).catch(() => {});
+        }
+        set(noAccountSession());
+        await forgetAccountQueries();
+      },
+
+      restoreAccountSession: async () => {
+        if (!AUTH_COOKIE_MODE || !hasAccountHint()) return false;
+        try {
+          // Sans intercepteur : un 401 ici veut seulement dire « pas de compte »
+          const response = await AuthAxios.get<ProfileSummary[]>(APIRoutes.GET_Profiles);
+          await forgetAccountQueries();
+          set({
+            hasAccountSession: true,
+            accountToken: '',
+            // Échéance inconnue après un rechargement : le 401 fera foi
+            accountTokenExpiresAt: 0,
+            profiles: response.data,
+          });
+          return true;
+        } catch {
+          set(noAccountSession());
+          return false;
+        }
       },
 
       accountAuthHeaders: (): Record<string, string> => {
@@ -457,7 +524,7 @@ export const useAuthStore = create<AuthStore>()(
         clearDemoSession();
         setSessionHint(false);
         await clearLocalSession();
-        set({ accessToken: '', ...NO_ACCOUNT_SESSION, tokenValidationInterval: null });
+        set({ accessToken: '', ...noAccountSession(), tokenValidationInterval: null });
       },
 
       enterDemo: async (accountId) => {
@@ -509,7 +576,7 @@ export const useAuthStore = create<AuthStore>()(
         await clearLocalSession();
         set({
           accessToken: '',
-          ...NO_ACCOUNT_SESSION,
+          ...noAccountSession(),
           tokenValidationInterval: null,
         });
       },
@@ -526,7 +593,7 @@ export const useAuthStore = create<AuthStore>()(
         await clearLocalSession();
         set({
           accessToken: '',
-          ...NO_ACCOUNT_SESSION,
+          ...noAccountSession(),
           tokenValidationInterval: null,
         });
       },

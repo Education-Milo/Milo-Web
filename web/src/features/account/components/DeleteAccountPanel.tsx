@@ -16,8 +16,9 @@ const DeleteAccountPanel: React.FC = () => {
 
 	const handleDeleted = async () => {
 		setOpen(false);
-		// Le serveur a révoqué toutes les sessions et effacé le cookie
-		await logout({ remote: false });
+		// Le serveur a révoqué toutes les sessions ; POST /logout efface les
+		// cookies restants (le cookie de compte n'est pas retiré par DELETE /account)
+		await logout();
 		navigate(ROUTES.LOGIN, { replace: true, state: { message: "Ton compte et toutes ses données ont été supprimés." } });
 	};
 

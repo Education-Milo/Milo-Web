@@ -43,7 +43,11 @@ export interface ProfileSummary {
  * /sessions* et /logout/all. Les autres routes attendent le jeton d'un profil.
  */
 export interface AccountLoginResponse {
-  account_token: string;
+  /**
+   * Null en mode cookie (`?cookie=true`) : le jeton est alors dans le cookie
+   * httpOnly `milo_account`, que le navigateur joint seul aux routes de compte.
+   */
+  account_token: string | null;
   token_type: string;
   /** Durée de vie du jeton de compte, en secondes. */
   expires_in: number;
@@ -101,11 +105,17 @@ export interface AuthState {
   /** Access token, en mémoire uniquement en mode cookie. */
   accessToken: string;
   /**
-   * Jeton de compte, entre la connexion et le choix du profil. En mémoire
-   * uniquement, jamais persisté : un rechargement ramène à la connexion.
+   * Une session de compte est ouverte (connexion faite, profil à choisir).
+   * En mode cookie, le jeton est dans le cookie httpOnly `milo_account` et
+   * survit au rechargement de la page ; voir restoreAccountSession.
+   */
+  hasAccountSession: boolean;
+  /**
+   * Jeton de compte, hors mode cookie uniquement (vide sinon). En mémoire,
+   * jamais persisté : dans ce mode, un rechargement ramène à la connexion.
    */
   accountToken: string;
-  /** Horodatage (ms) d'expiration du jeton de compte. */
+  /** Horodatage (ms) d'expiration du jeton de compte ; 0 si inconnu (session restaurée). */
   accountTokenExpiresAt: number;
   /** Profils renvoyés par /token, pour l'écran « Qui est-ce ? ». */
   profiles: ProfileSummary[];
@@ -133,12 +143,22 @@ export interface AuthActions {
    * Le PIN n'est exigé que si le profil cible en a un.
    */
   selectProfile: (profileId: number, pin?: string) => Promise<void>;
-  /** Oublie le jeton de compte (retour à la connexion depuis « Qui est-ce ? »). */
-  clearAccountSession: () => void;
+  /**
+   * Ferme la session de compte (retour à la connexion depuis « Qui est-ce ? ») :
+   * en mode cookie, POST /logout efface le cookie `milo_account`.
+   */
+  clearAccountSession: () => Promise<void>;
+  /**
+   * Au démarrage, sans session de profil : GET /profiles dit s'il reste une
+   * session de compte (cookie `milo_account`, 30 min). Jamais /users/me, qui
+   * répond 401 à un jeton de compte par conception.
+   */
+  restoreAccountSession: () => Promise<boolean>;
   /**
    * En-têtes des routes de niveau compte (/profiles, /account) : rien quand
-   * un profil est ouvert (l'intercepteur pose son jeton), le jeton de compte
-   * sinon.
+   * un profil est ouvert (l'intercepteur pose son jeton, qui l'emporte sur le
+   * cookie de compte) ni en mode cookie (le cookie part tout seul) ; le jeton
+   * de compte hors mode cookie.
    */
   accountAuthHeaders: () => Record<string, string>;
   /** POST /token/2fa/email : envoie le code de connexion par email. */

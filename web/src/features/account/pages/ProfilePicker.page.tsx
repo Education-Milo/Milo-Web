@@ -38,7 +38,7 @@ const ProfilePickerPage: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const accessToken = useAuthStore((state) => state.accessToken);
-	const accountToken = useAuthStore((state) => state.accountToken);
+	const hasAccountSession = useAuthStore((state) => state.hasAccountSession);
 	const accountTokenExpiresAt = useAuthStore((state) => state.accountTokenExpiresAt);
 	const loginProfiles = useAuthStore((state) => state.profiles);
 	const selectProfile = useAuthStore((state) => state.selectProfile);
@@ -66,7 +66,7 @@ const ProfilePickerPage: React.FC = () => {
 	const backToLogin = useCallback(
 		async (message?: string) => {
 			if (isSwitching) await logout();
-			else clearAccountSession();
+			else await clearAccountSession();
 			navigate(ROUTES.LOGIN, { replace: true, state: message ? { message } : null });
 		},
 		[isSwitching, logout, clearAccountSession, navigate],
@@ -74,12 +74,13 @@ const ProfilePickerPage: React.FC = () => {
 
 	const sessionExpired = useCallback(() => void backToLogin(SESSION_EXPIRED_MESSAGE), [backToLogin]);
 
-	// Le jeton de compte vit 30 minutes, sans refresh
+	// Le jeton de compte vit 30 minutes, sans refresh. Échéance inconnue
+	// après un rechargement (session reprise par GET /profiles) : le 401 fera foi.
 	useEffect(() => {
-		if (isSwitching || !accountToken) return;
+		if (isSwitching || !hasAccountSession || !accountTokenExpiresAt) return;
 		const timeout = setTimeout(sessionExpired, Math.max(0, accountTokenExpiresAt - Date.now()));
 		return () => clearTimeout(timeout);
-	}, [isSwitching, accountToken, accountTokenExpiresAt, sessionExpired]);
+	}, [isSwitching, hasAccountSession, accountTokenExpiresAt, sessionExpired]);
 
 	useEffect(() => {
 		if (!isSwitching && isAxiosError(profilesQuery.error) && profilesQuery.error.response?.status === 401) {
@@ -87,8 +88,10 @@ const ProfilePickerPage: React.FC = () => {
 		}
 	}, [isSwitching, profilesQuery.error, sessionExpired]);
 
-	// Rechargement de la page : le jeton de compte, gardé en mémoire, est perdu
-	if (!isSwitching && !accountToken) return <Navigate to={ROUTES.LOGIN} replace />;
+	// Pas (ou plus) de session de compte : rien à choisir. En mode cookie, un
+	// rechargement la reprend au démarrage (cookie milo_account) ; hors mode
+	// cookie, le jeton gardé en mémoire est perdu.
+	if (!isSwitching && !hasAccountSession) return <Navigate to={ROUTES.LOGIN} replace />;
 	// Un profil de démonstration n'a pas de compte à gérer
 	if (isSwitching && user?.is_demo) return <Navigate to={ROUTES.ROOT} replace />;
 
