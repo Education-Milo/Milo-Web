@@ -14,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_BASE_URL;
 export const AUTH_COOKIE_MODE =
   String(import.meta.env.VITE_AUTH_COOKIE_MODE ?? 'true') !== 'false';
 
-/** Paramètres à joindre aux appels /token, /register/*, /token/refresh. */
+/** Paramètres à joindre aux appels /token, /register/*, /profiles/{id}/select, /token/refresh. */
 export const authCookieParams = AUTH_COOKIE_MODE ? { cookie: true } : undefined;
 
 const baseConfig: CreateAxiosDefaults = {
@@ -98,6 +98,18 @@ export const APIRoutes = {
   // L'ancienne route /forgotPassword est obsolète : ne plus l'utiliser.
   POST_Password_Forgot: '/password/forgot',
   POST_Password_Reset: '/password/reset',
+
+  // Profils du compte (jeton de compte ou jeton d'un profil du compte)
+  GET_Profiles: '/profiles',
+  POST_Profile: '/profiles',
+  POST_Profile_Select: (profileId: number) => `/profiles/${profileId}/select`,
+  PUT_Profile_Pin: (profileId: number) => `/profiles/${profileId}/pin`,
+  DELETE_Profile: (profileId: number) => `/profiles/${profileId}`,
+  // Réglages du compte : email et mot de passe ne passent plus par PUT /users/{id}
+  GET_Account: '/account',
+  PUT_Account_Email: '/account/email',
+  PUT_Account_Password: '/account/password',
+  DELETE_Account: '/account',
 
   // Double authentification : connexion en deux temps (sans Bearer)
   POST_Login_2FA: '/token/2fa',

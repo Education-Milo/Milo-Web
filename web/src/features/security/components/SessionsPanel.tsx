@@ -8,6 +8,7 @@ import { describeUserAgent } from "@shared/utils/device";
 import type { UserSession } from "@features/security/store/security.model";
 import { useRenameSession, useRevokeSession, useSessions } from "@features/security/store/security.queries";
 import { formatDateTime, getSecurityErrorMessage } from "@features/security/utils/security.format";
+import { useAccountProfiles } from "@features/account/store/account.queries";
 import "@features/security/styles/Security.css";
 
 interface SessionsPanelProps {
@@ -18,12 +19,14 @@ interface SessionsPanelProps {
 const byLastUse = (a: UserSession, b: UserSession) =>
 	new Date(b.last_used_at ?? b.created_at).getTime() - new Date(a.last_used_at ?? a.created_at).getTime();
 
-/** Sessions ouvertes du compte : renommer, déconnecter une session. */
+/** Sessions ouvertes du compte, tous profils confondus : renommer, déconnecter une session. */
 const SessionsPanel: React.FC<SessionsPanelProps> = ({ showLogoutEverywhere = false }) => {
 	const navigate = useNavigate();
 	const isDemo = useUserStore((state) => Boolean(state.user?.is_demo));
 	const logoutEverywhere = useAuthStore((state) => state.logoutEverywhere);
 	const { data = [], isLoading, isError, error } = useSessions(!isDemo);
+	const { data: profiles = [] } = useAccountProfiles(undefined, !isDemo);
+	const profileName = (profileId: number) => profiles.find((p) => p.id === profileId)?.first_name;
 	const renameSession = useRenameSession();
 	const revokeSession = useRevokeSession();
 	const [editingId, setEditingId] = useState<number | null>(null);
@@ -112,6 +115,9 @@ const SessionsPanel: React.FC<SessionsPanelProps> = ({ showLogoutEverywhere = fa
 												<Pencil size={14} />
 											</button>
 										</div>
+									)}
+									{profiles.length > 1 && profileName(session.profile_id) && (
+										<span className="sec-muted">Profil de {profileName(session.profile_id)}</span>
 									)}
 									<span className="sec-muted">
 										Dernière activité {formatDateTime(session.last_used_at ?? session.created_at)}

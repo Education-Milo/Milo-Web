@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { isAxiosError } from "axios";
 import { ArrowLeft, KeyRound, Mail, ShieldCheck, Smartphone } from "lucide-react";
 import { useAuthStore } from "@shared/store/auth/auth.store";
-import type { TwoFactorChallenge, TwoFactorMethod } from "@shared/store/auth/auth.model";
+import type { AccountLoginResult, TwoFactorChallenge, TwoFactorMethod } from "@shared/store/auth/auth.model";
 import CodeInput from "@features/auth/components/CodeInput.component";
 import { AuthErrorMessage } from "@features/auth/components/AuthErrorMessage.component";
 import MainButtonComponent from "@shared/components/MainButton.component";
@@ -50,7 +50,7 @@ interface TwoFactorStepProps {
 	challenge: TwoFactorChallenge;
 	/** Horodatage (ms) d'expiration du défi */
 	expiresAt: number;
-	onSuccess: () => void;
+	onSuccess: (result: AccountLoginResult) => void;
 	/** Défi mort (expiré, épuisé, sessions révoquées) : retour au mot de passe */
 	onRestart: (message?: string) => void;
 }
@@ -123,14 +123,14 @@ const TwoFactorStep: React.FC<TwoFactorStepProps> = ({ challenge, expiresAt, onS
 		setIsSubmitting(true);
 		setError("");
 		try {
-			await completeTwoFactor({
+			const result = await completeTwoFactor({
 				challengeToken: challenge.challenge_token,
 				method,
 				code,
 				trustDevice,
 				deviceName,
 			});
-			onSuccess();
+			onSuccess(result);
 		} catch (err) {
 			const status = isAxiosError(err) ? err.response?.status : undefined;
 			const detail = errorDetail(err);

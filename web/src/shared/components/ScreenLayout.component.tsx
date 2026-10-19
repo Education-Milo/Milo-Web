@@ -42,6 +42,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 					last_name: user?.last_name || "",
 					classe: user?.classe,
 					role: user?.role,
+					is_demo: user?.is_demo,
 				}}
 				streakDays={streakDays ?? user?.streak ?? 0}
 				xpPoints={user?.xp ?? 0}

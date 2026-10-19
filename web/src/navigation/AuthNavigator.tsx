@@ -26,6 +26,7 @@ import FriendsPage from "@features/friends/pages/Friends.page";
 import AdminPage from "@features/admin/pages/Admin.page";
 import OcrPage from "@features/ocr/pages/OcrPage";
 import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
+import ProfilePickerPage from "@features/account/pages/ProfilePicker.page";
 import { ROUTES } from "@shared/constants/routes";
 import { PLAYER_ROLES } from "@shared/constants/roles";
 
@@ -69,6 +70,16 @@ const AuthNavigator: React.FC = () => {
 					element={
 						<ProtectedRoute>
 							<ProfilePage />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Changer de profil, gérer les profils du compte */}
+				<Route
+					path={ROUTES.PROFILE_SWITCH}
+					element={
+						<ProtectedRoute>
+							<ProfilePickerPage />
 						</ProtectedRoute>
 					}
 				/>
@@ -293,6 +304,8 @@ const AuthNavigator: React.FC = () => {
 
 				{/* Redirection des routes publiques */}
 				<Route path="/login" element={<Navigate to="/" replace />} />
+				{/* Profil tout juste choisi : la redirection l'envoie sur l'accueil de son rôle */}
+				<Route path={ROUTES.PROFILE_SELECT} element={<Navigate to="/" replace />} />
 				<Route path="/register" element={<Navigate to="/" replace />} />
 				<Route path="/forgot-password" element={<Navigate to="/" replace />} />
 

@@ -1,4 +1,4 @@
-import type { ClassType } from '@shared/store/user/user.model';
+import type { ClassType, UserRole } from '@shared/store/user/user.model';
 
 export interface LoginCredentials {
   username: string;
@@ -18,12 +18,38 @@ export interface StudentRegisterPayload extends ParentRegisterPayload {
   class_: ClassType;
 }
 
+/** Session d'un profil : réponse de l'inscription et de /profiles/{id}/select. */
 export interface AuthResponse {
   access_token: string;
   token_type: string;
   /** Toujours null en mode cookie : le refresh est dans le cookie httpOnly. */
   refresh_token: string | null;
+}
+
+/** Un profil du compte, tel qu'affiché sur l'écran « Qui est-ce ? ». */
+export interface ProfileSummary {
+  id: number;
+  first_name: string;
+  last_name: string;
+  username: string;
+  role: UserRole;
+  class_: ClassType | null;
+  has_pin: boolean;
+}
+
+/**
+ * Réponse de /token (et /token/2fa) une fois le compte authentifié : un jeton
+ * de compte, sans refresh, qui n'ouvre que /profiles*, /account*, /2fa/*,
+ * /sessions* et /logout/all. Les autres routes attendent le jeton d'un profil.
+ */
+export interface AccountLoginResponse {
+  account_token: string;
+  token_type: string;
+  /** Durée de vie du jeton de compte, en secondes. */
+  expires_in: number;
   two_factor_required?: false;
+  /** Jamais vide : un compte naît avec son premier profil et disparaît avec son dernier. */
+  profiles: ProfileSummary[];
   /** Renvoyé par /token/2fa avec trust_device, hors mode cookie uniquement. */
   device_token?: string;
 }
@@ -41,10 +67,17 @@ export interface TwoFactorChallenge {
   expires_in: number;
 }
 
-export type LoginResponse = AuthResponse | TwoFactorChallenge;
+export type LoginResponse = AccountLoginResponse | TwoFactorChallenge;
+
+/** Issue d'une authentification de compte (mot de passe, puis second facteur). */
+export type AccountLoginResult =
+  /** Un seul profil, sans PIN : il est ouvert directement. */
+  | { status: 'authenticated' }
+  /** Choix du profil attendu (écran « Qui est-ce ? »). */
+  | { status: 'select_profile'; profiles: ProfileSummary[] };
 
 export type LoginResult =
-  | { status: 'authenticated' }
+  | AccountLoginResult
   | { status: 'two_factor'; challenge: TwoFactorChallenge };
 
 export interface TwoFactorLoginPayload {
@@ -67,6 +100,15 @@ export interface AuthState {
   loading: boolean;
   /** Access token, en mémoire uniquement en mode cookie. */
   accessToken: string;
+  /**
+   * Jeton de compte, entre la connexion et le choix du profil. En mémoire
+   * uniquement, jamais persisté : un rechargement ramène à la connexion.
+   */
+  accountToken: string;
+  /** Horodatage (ms) d'expiration du jeton de compte. */
+  accountTokenExpiresAt: number;
+  /** Profils renvoyés par /token, pour l'écran « Qui est-ce ? ». */
+  profiles: ProfileSummary[];
   tokenValidationInterval: NodeJS.Timeout | null;
 }
 
@@ -77,12 +119,28 @@ export interface LogoutOptions {
 
 export interface AuthActions {
   /**
-   * POST /token. Sans second facteur (ou appareil de confiance), la session
-   * est ouverte ; sinon renvoie le défi à compléter via completeTwoFactor.
+   * POST /token. Sans second facteur (ou appareil de confiance), le compte
+   * est ouvert et il reste à choisir un profil ; sinon renvoie le défi à
+   * compléter via completeTwoFactor.
    */
   login: (email: string, password: string) => Promise<LoginResult>;
-  /** POST /token/2fa : termine une connexion en deux étapes. */
-  completeTwoFactor: (payload: TwoFactorLoginPayload) => Promise<void>;
+  /** POST /token/2fa : termine l'authentification du compte. */
+  completeTwoFactor: (payload: TwoFactorLoginPayload) => Promise<AccountLoginResult>;
+  /**
+   * POST /profiles/{id}/select. Avec le jeton de compte (après la connexion),
+   * ouvre la session du profil. Avec le jeton du profil courant, change de
+   * profil sans mot de passe : rechargement complet sur le nouveau profil.
+   * Le PIN n'est exigé que si le profil cible en a un.
+   */
+  selectProfile: (profileId: number, pin?: string) => Promise<void>;
+  /** Oublie le jeton de compte (retour à la connexion depuis « Qui est-ce ? »). */
+  clearAccountSession: () => void;
+  /**
+   * En-têtes des routes de niveau compte (/profiles, /account) : rien quand
+   * un profil est ouvert (l'intercepteur pose son jeton), le jeton de compte
+   * sinon.
+   */
+  accountAuthHeaders: () => Record<string, string>;
   /** POST /token/2fa/email : envoie le code de connexion par email. */
   sendTwoFactorEmail: (challengeToken: string) => Promise<void>;
   /** Interne : mémorise le jeton d'accès reçu et charge /users/me. */

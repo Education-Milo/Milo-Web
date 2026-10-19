@@ -57,9 +57,13 @@ Dans `useLoginForm.ts`:
 
 Dans `auth.store.ts`:
 
-- requete `POST_Login` (form-urlencoded),
-- stockage du token `accessToken`,
+- requete `POST_Login` (form-urlencoded), puis `POST_Login_2FA` si un second facteur est actif,
+- reponse: un **jeton de compte** (`accountToken`, 30 min, en memoire, sans refresh) et la liste des profils du compte,
+- un seul profil sans PIN: il est ouvert d'office; sinon redirection vers l'ecran « Qui est-ce ? » (`/profiles`, `features/account`),
+- `selectProfile(id, pin?)` (`POST /profiles/{id}/select`) donne le jeton d'acces du profil (`accessToken`),
 - appel `useUserStore.getState().getMe(true)` pour hydrater le profil utilisateur.
+
+Depuis un profil ouvert, `/profiles/switch` change de profil avec le jeton du profil courant (pas de mot de passe, PIN du profil cible exige) puis recharge la page.
 
 ### 3) Resolution du role
 

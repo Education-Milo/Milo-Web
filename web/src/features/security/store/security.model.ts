@@ -49,6 +49,8 @@ export interface TrustedDevice {
 export interface UserSession extends TrustedDevice {
 	/** Renseigné en mode cookie uniquement ; sinon null */
 	is_current: boolean | null;
+	/** Les sessions de tous les profils du compte sont listées */
+	profile_id: number;
 }
 
 export type SecondFactor = "totp" | "email";

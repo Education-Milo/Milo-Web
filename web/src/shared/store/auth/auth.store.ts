@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import qs from 'qs';
 import { isAxiosError } from 'axios';
 import type {
+  AccountLoginResponse,
+  AccountLoginResult,
   AuthStore,
   AuthResponse,
   LoginResponse,
@@ -122,6 +124,16 @@ const reloadAs = (path: string) => {
   window.location.assign(path);
 };
 
+/**
+ * Données de niveau compte en cache (liste des profils, réglages) : à oublier
+ * à chaque changement de compte, sinon l'écran « Qui est-ce ? » d'un compte
+ * pourrait afficher les profils du précédent sur un navigateur partagé.
+ */
+const forgetAccountQueries = async () => {
+  const { queryClient } = await import('@shared/lib/queryClient');
+  queryClient.removeQueries({ queryKey: ['account'] });
+};
+
 const clearLocalSession = async () => {
   const { useUserStore } = await import('@shared/store/user/user.store');
   useUserStore.getState().clearUserData();
@@ -129,11 +141,39 @@ const clearLocalSession = async () => {
   queryClient.clear();
 };
 
+const NO_ACCOUNT_SESSION = { accountToken: '', accountTokenExpiresAt: 0, profiles: [] };
+
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set, get) => {
+      /**
+       * Compte authentifié (mot de passe, puis second facteur s'il y en a un) :
+       * on garde le jeton de compte le temps de choisir un profil. Un compte
+       * à un seul profil sans PIN n'a rien à choisir : il est ouvert d'office.
+       */
+      const enterAccount = async (data: AccountLoginResponse): Promise<AccountLoginResult> => {
+        const profiles = data.profiles ?? [];
+        await forgetAccountQueries();
+        set({
+          accountToken: data.account_token,
+          accountTokenExpiresAt: Date.now() + data.expires_in * 1000,
+          profiles,
+        });
+        if (profiles.length === 1 && !profiles[0].has_pin) {
+          try {
+            await get().selectProfile(profiles[0].id);
+            return { status: 'authenticated' };
+          } catch {
+            // Échec de l'ouverture directe : l'écran de choix prendra le relais
+          }
+        }
+        return { status: 'select_profile', profiles };
+      };
+
+      return {
       loading: false,
       accessToken: '',
+      ...NO_ACCOUNT_SESSION,
       tokenValidationInterval: null as NodeJS.Timeout | null,
 
       isTokenExpired: (marginSeconds = 60) => {
@@ -303,12 +343,11 @@ export const useAuthStore = create<AuthStore>()(
         if (response.data.two_factor_required) {
           return { status: 'two_factor', challenge: response.data };
         }
-        await get().openSession(response.data);
-        return { status: 'authenticated' };
+        return enterAccount(response.data);
       },
 
       completeTwoFactor: async ({ challengeToken, method, code, trustDevice, deviceName }) => {
-        const response = await APIAxios.post<AuthResponse>(
+        const response = await APIAxios.post<AccountLoginResponse>(
           APIRoutes.POST_Login_2FA,
           {
             challenge_token: challengeToken,
@@ -320,7 +359,48 @@ export const useAuthStore = create<AuthStore>()(
           { params: authCookieParams },
         );
         saveDeviceToken(response.data.device_token);
+        return enterAccount(response.data);
+      },
+
+      selectProfile: async (profileId, pin) => {
+        // Un profil est déjà ouvert : on change de profil avec son jeton
+        const switching = Boolean(get().accessToken);
+        const response = await APIAxios.post<AuthResponse>(
+          APIRoutes.POST_Profile_Select(profileId),
+          pin ? { pin } : null,
+          { params: authCookieParams, headers: get().accountAuthHeaders() },
+        );
+        const token = extractAccessToken(response.data);
+        if (!token) {
+          throw new Error('No access token received from server');
+        }
+        if (switching) {
+          // En mode cookie, le serveur a révoqué la session quittée et posé le
+          // cookie du nouveau profil. Hors mode cookie, le refresh token de
+          // l'ancienne session n'a jamais été conservé : rien à révoquer ici.
+          // Rechargement complet : rien de l'ancien profil ne subsiste
+          // (stores, cache de requêtes, WebSockets).
+          get().stopTokenValidation();
+          await clearLocalSession();
+          set({ accessToken: token, tokenValidationInterval: null });
+          setSessionHint(true);
+          reloadAs('/');
+          return;
+        }
         await get().openSession(response.data);
+        // Après l'ouverture : l'écran de choix ne doit jamais se retrouver
+        // sans aucun jeton, il renverrait à la connexion
+        set(NO_ACCOUNT_SESSION);
+      },
+
+      clearAccountSession: () => {
+        set(NO_ACCOUNT_SESSION);
+        void forgetAccountQueries();
+      },
+
+      accountAuthHeaders: (): Record<string, string> => {
+        const { accessToken, accountToken } = get();
+        return !accessToken && accountToken ? { Authorization: `Bearer ${accountToken}` } : {};
       },
 
       sendTwoFactorEmail: async (challengeToken) => {
@@ -377,7 +457,7 @@ export const useAuthStore = create<AuthStore>()(
         clearDemoSession();
         setSessionHint(false);
         await clearLocalSession();
-        set({ accessToken: '', tokenValidationInterval: null });
+        set({ accessToken: '', ...NO_ACCOUNT_SESSION, tokenValidationInterval: null });
       },
 
       enterDemo: async (accountId) => {
@@ -429,30 +509,35 @@ export const useAuthStore = create<AuthStore>()(
         await clearLocalSession();
         set({
           accessToken: '',
+          ...NO_ACCOUNT_SESSION,
           tokenValidationInterval: null,
         });
       },
 
       logoutEverywhere: async () => {
         clearDemoSession();
-        const { accessToken } = get();
+        // Tous les profils du compte, sur tous les appareils
+        const token = get().accessToken || get().accountToken;
         get().stopTokenValidation();
         await AuthAxios.post(APIRoutes.POST_LogoutAll, null, {
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         }).catch(() => {});
         setSessionHint(false);
         await clearLocalSession();
         set({
           accessToken: '',
+          ...NO_ACCOUNT_SESSION,
           tokenValidationInterval: null,
         });
       },
-    }),
+      };
+    },
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       // Mode cookie : rien n'est persisté, l'access token ne vit qu'en mémoire
       // et la session est restaurée au démarrage via le cookie de refresh.
+      // Le jeton de compte n'est jamais persisté, dans aucun mode.
       partialize: (state) => (AUTH_COOKIE_MODE ? {} : { accessToken: state.accessToken }),
     }
   )
