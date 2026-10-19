@@ -74,9 +74,9 @@ const AuthNavigator: React.FC = () => {
 					}
 				/>
 
-				{/* Changer de profil, gérer les profils du compte */}
+				{/* Gérer les profils du compte (changer de profil passe par « Qui est-ce ? ») */}
 				<Route
-					path={ROUTES.PROFILE_SWITCH}
+					path={ROUTES.PROFILE_MANAGE}
 					element={
 						<ProtectedRoute>
 							<ProfilePickerPage />

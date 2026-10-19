@@ -11,6 +11,8 @@ const navIcon = (name: string) => `/icons/${name}_icon.png`;
 
 interface SidebarProps {
 	onLogout: () => void;
+	/** « Changer de profil » : retour à « Qui est-ce ? » sans mot de passe */
+	onSwitchProfile?: () => void;
 	userProfile: UserProfile | any;
 	streakDays?: number;
 	/** XP total de l'utilisateur, affiché à côté de la streak. */
@@ -25,6 +27,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({
 	onLogout,
+	onSwitchProfile,
 	userProfile,
 	streakDays = 0,
 	xpPoints = 0,
@@ -366,11 +369,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 						<div className="sb-footer-actions">
 							{/* Un profil de démonstration n'a pas de compte : pas d'autre profil */}
-							{!userProfile?.is_demo && (
+							{!userProfile?.is_demo && onSwitchProfile && (
 								<button
 									type="button"
 									className="sb-logout-btn sb-switch-btn"
-									onClick={() => navigate(ROUTES.PROFILE_SWITCH)}
+									onClick={onSwitchProfile}
 									title="Changer de profil"
 								>
 									<Users size={16} />

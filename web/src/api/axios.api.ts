@@ -94,6 +94,8 @@ export const APIRoutes = {
   POST_Refresh: '/token/refresh',
   POST_Logout: '/logout',
   POST_LogoutAll: '/logout/all',
+  // Quitte le profil, garde la session de compte : retour à « Qui est-ce ? »
+  POST_Logout_Profile: '/logout/profile',
   // Réinitialisation par code à 6 chiffres (sans authentification).
   // L'ancienne route /forgotPassword est obsolète : ne plus l'utiliser.
   POST_Password_Forgot: '/password/forgot',

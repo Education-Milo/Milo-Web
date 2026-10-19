@@ -137,12 +137,19 @@ export interface AuthActions {
   /** POST /token/2fa : termine l'authentification du compte. */
   completeTwoFactor: (payload: TwoFactorLoginPayload) => Promise<AccountLoginResult>;
   /**
-   * POST /profiles/{id}/select. Avec le jeton de compte (après la connexion),
-   * ouvre la session du profil. Avec le jeton du profil courant, change de
-   * profil sans mot de passe : rechargement complet sur le nouveau profil.
+   * POST /profiles/{id}/select, depuis la session de compte uniquement (jamais
+   * avec le jeton d'un profil, qui dispenserait du PIN de ce même profil).
    * Le PIN n'est exigé que si le profil cible en a un.
    */
   selectProfile: (profileId: number, pin?: string) => Promise<void>;
+  /**
+   * « Changer de profil » : POST /logout/profile révoque la session du profil
+   * et réémet la session de compte, sans mot de passe. Le jeton d'accès est
+   * jeté. En mode cookie, la page se recharge sur « Qui est-ce ? »
+   * (`reloading`) ; sinon l'appelant y navigue (`select_profile`).
+   * `logged_out` : la session du profil était déjà morte, retour à la connexion.
+   */
+  leaveProfile: () => Promise<'reloading' | 'select_profile' | 'logged_out'>;
   /**
    * Ferme la session de compte (retour à la connexion depuis « Qui est-ce ? ») :
    * en mode cookie, POST /logout efface le cookie `milo_account`.

@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { motion } from "framer-motion";
-import { AlertTriangle, ArrowLeft, Check, KeyRound, Loader, Lock, LogOut, Plus, Settings2, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, KeyRound, Loader, Lock, LogOut, Plus, Settings2, Trash2, Users } from "lucide-react";
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import PinPromptDialog from "@features/account/components/PinPromptDialog";
 import AddProfileDialog from "@features/account/components/AddProfileDialog";
 import ProfilePinDialog from "@features/account/components/ProfilePinDialog";
 import DeleteProfileDialog from "@features/account/components/DeleteProfileDialog";
 import { useAccountProfiles } from "@features/account/store/account.queries";
+import { useLeaveProfile } from "@features/account/hooks/useLeaveProfile";
 import { MAX_PROFILES_PER_ACCOUNT, type DeleteProfileResponse } from "@features/account/store/account.model";
 import { profileInitials, profileRoleLabel, profileTone } from "@features/account/utils/profile.format";
 import { getSecurityErrorMessage } from "@features/security/utils/security.format";
@@ -26,13 +27,16 @@ const SESSION_EXPIRED_MESSAGE = "Ta session a expiré. Reconnecte-toi pour chois
 /**
  * « Qui est-ce ? » : choix du profil, sur le modèle de Netflix.
  *
- * Deux usages, selon le jeton en main :
- * - juste après la connexion (route publique), avec le jeton de compte ;
- * - depuis un profil ouvert (« Changer de profil »), avec le jeton du profil :
- *   pas de mot de passe à retaper, mais le PIN du profil cible reste exigé.
+ * Deux usages, selon la session en cours :
+ * - session de compte (route publique /profiles) : choisir un profil, PIN
+ *   compris. On y arrive par la connexion ou par « Changer de profil »
+ *   (POST /logout/profile), jamais avec le jeton d'un profil ;
+ * - profil ouvert (/profiles/manage) : gestion seule, sans ouverture de
+ *   profil. Ouvrir un profil avec le jeton d'un autre dispenserait le profil
+ *   courant de son PIN ; on passe donc par « Changer de profil ».
  *
- * Le mode « Gérer les profils » ajoute un profil, pose ou retire un PIN,
- * supprime un profil : chaque opération redemande le mot de passe du compte.
+ * La gestion ajoute un profil, pose ou retire un PIN, supprime un profil :
+ * chaque opération redemande le mot de passe du compte.
  */
 const ProfilePickerPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -46,15 +50,17 @@ const ProfilePickerPage: React.FC = () => {
 	const logout = useAuthStore((state) => state.logout);
 	const user = useUserStore((state) => state.user);
 
-	const isSwitching = Boolean(accessToken);
-	const currentProfileId = isSwitching && user ? Number(user.id) : null;
+	const isManagePage = Boolean(accessToken);
+	const currentProfileId = isManagePage && user ? Number(user.id) : null;
+	const { leave, isLeaving } = useLeaveProfile();
 
-	const profilesQuery = useAccountProfiles(isSwitching ? undefined : loginProfiles);
+	const profilesQuery = useAccountProfiles(isManagePage ? undefined : loginProfiles);
 	const profiles = profilesQuery.data ?? [];
 
-	const [managing, setManaging] = useState(
+	const [manageToggle, setManageToggle] = useState(
 		Boolean((location.state as { manage?: boolean } | null)?.manage),
 	);
+	const managing = isManagePage || manageToggle;
 	const [openingId, setOpeningId] = useState<number | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [pinPromptFor, setPinPromptFor] = useState<ProfileSummary | null>(null);
@@ -65,11 +71,11 @@ const ProfilePickerPage: React.FC = () => {
 	/** Fin de la session de compte (ou de profil) : retour à la connexion. */
 	const backToLogin = useCallback(
 		async (message?: string) => {
-			if (isSwitching) await logout();
+			if (isManagePage) await logout();
 			else await clearAccountSession();
 			navigate(ROUTES.LOGIN, { replace: true, state: message ? { message } : null });
 		},
-		[isSwitching, logout, clearAccountSession, navigate],
+		[isManagePage, logout, clearAccountSession, navigate],
 	);
 
 	const sessionExpired = useCallback(() => void backToLogin(SESSION_EXPIRED_MESSAGE), [backToLogin]);
@@ -77,23 +83,23 @@ const ProfilePickerPage: React.FC = () => {
 	// Le jeton de compte vit 30 minutes, sans refresh. Échéance inconnue
 	// après un rechargement (session reprise par GET /profiles) : le 401 fera foi.
 	useEffect(() => {
-		if (isSwitching || !hasAccountSession || !accountTokenExpiresAt) return;
+		if (isManagePage || !hasAccountSession || !accountTokenExpiresAt) return;
 		const timeout = setTimeout(sessionExpired, Math.max(0, accountTokenExpiresAt - Date.now()));
 		return () => clearTimeout(timeout);
-	}, [isSwitching, hasAccountSession, accountTokenExpiresAt, sessionExpired]);
+	}, [isManagePage, hasAccountSession, accountTokenExpiresAt, sessionExpired]);
 
 	useEffect(() => {
-		if (!isSwitching && isAxiosError(profilesQuery.error) && profilesQuery.error.response?.status === 401) {
+		if (!isManagePage && isAxiosError(profilesQuery.error) && profilesQuery.error.response?.status === 401) {
 			sessionExpired();
 		}
-	}, [isSwitching, profilesQuery.error, sessionExpired]);
+	}, [isManagePage, profilesQuery.error, sessionExpired]);
 
 	// Pas (ou plus) de session de compte : rien à choisir. En mode cookie, un
 	// rechargement la reprend au démarrage (cookie milo_account) ; hors mode
 	// cookie, le jeton gardé en mémoire est perdu.
-	if (!isSwitching && !hasAccountSession) return <Navigate to={ROUTES.LOGIN} replace />;
+	if (!isManagePage && !hasAccountSession) return <Navigate to={ROUTES.LOGIN} replace />;
 	// Un profil de démonstration n'a pas de compte à gérer
-	if (isSwitching && user?.is_demo) return <Navigate to={ROUTES.ROOT} replace />;
+	if (isManagePage && user?.is_demo) return <Navigate to={ROUTES.ROOT} replace />;
 
 	const profileGone = () => {
 		setPinPromptFor(null);
@@ -103,10 +109,6 @@ const ProfilePickerPage: React.FC = () => {
 
 	const openProfile = async (profile: ProfileSummary) => {
 		if (managing || openingId !== null) return;
-		if (profile.id === currentProfileId) {
-			navigate(ROUTES.ROOT);
-			return;
-		}
 		if (profile.has_pin) {
 			setPinPromptFor(profile);
 			return;
@@ -114,8 +116,7 @@ const ProfilePickerPage: React.FC = () => {
 		setError(null);
 		setOpeningId(profile.id);
 		try {
-			// Changement de profil : la page se recharge sur le nouveau profil.
-			// Après la connexion : la session s'ouvre et l'accueil du rôle prend le relais.
+			// La session s'ouvre et l'accueil du rôle prend le relais
 			await selectProfile(profile.id);
 		} catch (err) {
 			const status = isAxiosError(err) ? err.response?.status : undefined;
@@ -146,7 +147,7 @@ const ProfilePickerPage: React.FC = () => {
 		<div className="auth-page-root">
 			<div className="auth-mesh"></div>
 
-			{isSwitching ? (
+			{isManagePage ? (
 				<AuthHeader onBack={() => navigate(ROUTES.ROOT)} backLabel="Retour" />
 			) : (
 				<AuthHeader />
@@ -163,9 +164,7 @@ const ProfilePickerPage: React.FC = () => {
 					<p className="pp-subtitle">
 						{managing
 							? "Ajoute un profil, verrouille-le par un code PIN ou supprime-le."
-							: isSwitching
-								? "Choisis le profil à ouvrir."
-								: "Choisis ton profil pour continuer."}
+							: "Choisis ton profil pour continuer."}
 					</p>
 				</motion.div>
 
@@ -209,7 +208,7 @@ const ProfilePickerPage: React.FC = () => {
 									<span className="pp-role">{profileRoleLabel(profile)}</span>
 								</button>
 
-								{isCurrent && !managing && <span className="pp-current">Profil actuel</span>}
+								{isCurrent && <span className="pp-current">Profil actuel</span>}
 
 								{managing && (
 									<div className="pp-tile-actions">
@@ -250,20 +249,31 @@ const ProfilePickerPage: React.FC = () => {
 				</ul>
 
 				<div className="pp-footer">
-					<button type="button" className="pp-btn" onClick={() => setManaging((m) => !m)} disabled={openingId !== null}>
-						{managing ? (
-							<>
-								<Check size={16} /> Terminé
-							</>
-						) : (
-							<>
-								<Settings2 size={16} /> Gérer les profils
-							</>
-						)}
-					</button>
-					{isSwitching ? (
-						<button type="button" className="pp-btn pp-btn--ghost" onClick={() => navigate(ROUTES.ROOT)}>
-							<ArrowLeft size={16} /> Revenir à mon profil
+					{isManagePage ? (
+						<button type="button" className="pp-btn" onClick={() => navigate(ROUTES.ROOT)} disabled={isLeaving}>
+							<Check size={16} /> Terminé
+						</button>
+					) : (
+						<button
+							type="button"
+							className="pp-btn"
+							onClick={() => setManageToggle((m) => !m)}
+							disabled={openingId !== null}
+						>
+							{managing ? (
+								<>
+									<Check size={16} /> Terminé
+								</>
+							) : (
+								<>
+									<Settings2 size={16} /> Gérer les profils
+								</>
+							)}
+						</button>
+					)}
+					{isManagePage ? (
+						<button type="button" className="pp-btn pp-btn--ghost" onClick={() => void leave()} disabled={isLeaving}>
+							{isLeaving ? <Loader size={16} className="sec-spin" /> : <Users size={16} />} Changer de profil
 						</button>
 					) : (
 						<button type="button" className="pp-btn pp-btn--ghost" onClick={() => void backToLogin()}>

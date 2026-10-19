@@ -51,7 +51,7 @@ const AccountProfilesPanel: React.FC = () => {
 				<button
 					type="button"
 					className="sec-btn sec-btn--ghost"
-					onClick={() => navigate(ROUTES.PROFILE_SWITCH, { state: { manage: true } })}
+					onClick={() => navigate(ROUTES.PROFILE_MANAGE)}
 				>
 					<Settings2 size={16} /> Gérer les profils
 				</button>

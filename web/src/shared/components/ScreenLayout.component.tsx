@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@shared/constants/routes";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { useLeaveProfile } from "@features/account/hooks/useLeaveProfile";
 
 interface PageLayoutProps {
 	children: React.ReactNode;
@@ -23,6 +24,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 	const navigate = useNavigate();
 	const { data: dailyMissions } = useDailyMissions();
 	const { equippedMeshNames } = useEquippedMeshNames();
+	const { leave: handleSwitchProfile } = useLeaveProfile();
 	const missionsRemaining = dailyMissions
 		? Math.max(dailyMissions.total - dailyMissions.completed, 0)
 		: 0;
@@ -36,6 +38,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 		<>
 			<Sidebar
 				onLogout={handleLogout}
+				onSwitchProfile={() => void handleSwitchProfile()}
 				userProfile={{
 					email: user?.email || "",
 					first_name: user?.first_name || "",

@@ -19,6 +19,7 @@ import {
   saveDemoSession,
 } from '@shared/store/auth/demoSession';
 import type { DemoTokenResponse } from '@features/admin/store/admin.model';
+import { ROUTES } from '@shared/constants/routes';
 
 /** Un seul refresh en vol : les appels concurrents partagent la même promesse. */
 let refreshInFlight: Promise<string | null> | null = null;
@@ -164,32 +165,6 @@ const clearLocalSession = async () => {
   queryClient.clear();
 };
 
-/**
- * Connexion explicite au compte : la session de profil encore ouverte sur ce
- * navigateur (cookie milo_refresh, 14 jours) est révoquée. Sans ça, elle
- * survivait à l'écran « Qui est-ce ? » et un rechargement pouvait rouvrir ce
- * profil sans son code PIN. Après une connexion, on n'entre dans un profil
- * que par POST /profiles/{id}/select.
- *
- * GET /sessions repère la session du cookie (`is_current`) parmi celles du
- * compte. Le cookie d'un autre compte n'y figure pas : il ne sert plus à rien
- * (drapeau de session baissé) et sera remplacé à la sélection du profil.
- */
-const revokeLingeringProfileSession = async () => {
-  setSessionHint(false);
-  if (!AUTH_COOKIE_MODE) return;
-  try {
-    const { data } = await AuthAxios.get<{ id: number; is_current: boolean | null }[]>(
-      APIRoutes.GET_Sessions,
-    );
-    const current = data.find((s) => s.is_current === true);
-    if (current) await AuthAxios.delete(APIRoutes.DELETE_Session(current.id));
-  } catch {
-    // Au pire, le drapeau baissé et la priorité de l'écran de choix au
-    // démarrage (bootstrapSession) empêchent déjà de s'en servir
-  }
-};
-
 const NO_ACCOUNT_SESSION = {
   hasAccountSession: false,
   accountToken: '',
@@ -221,7 +196,9 @@ export const useAuthStore = create<AuthStore>()(
           profiles,
         });
         setAccountHint(true);
-        await revokeLingeringProfileSession();
+        // Le serveur a révoqué la session de profil que portait le cookie
+        // milo_refresh (connexion aboutie) : le drapeau local n'a plus d'objet
+        setSessionHint(false);
         if (profiles.length === 1 && !profiles[0].has_pin) {
           try {
             await get().selectProfile(profiles[0].id);
@@ -438,36 +415,73 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       selectProfile: async (profileId, pin) => {
-        // Un profil est déjà ouvert : on change de profil avec son jeton
-        const switching = Boolean(get().accessToken);
-        const response = await APIAxios.post<AuthResponse>(
+        // Toujours depuis la session de compte, jamais avec le jeton d'un
+        // profil : le serveur ne redemande pas le PIN à un appelant déjà dans
+        // le profil visé. D'où AuthAxios, sans l'intercepteur qui poserait le
+        // jeton d'accès. Pour changer de profil : leaveProfile d'abord.
+        const { accountToken } = get();
+        const response = await AuthAxios.post<AuthResponse>(
           APIRoutes.POST_Profile_Select(profileId),
           pin ? { pin } : null,
-          { params: authCookieParams, headers: get().accountAuthHeaders() },
+          {
+            params: authCookieParams,
+            // Mode cookie : milo_account part tout seul
+            headers: accountToken ? { Authorization: `Bearer ${accountToken}` } : undefined,
+          },
         );
         const token = extractAccessToken(response.data);
         if (!token) {
           throw new Error('No access token received from server');
-        }
-        if (switching) {
-          // En mode cookie, le serveur a révoqué la session quittée et posé le
-          // cookie du nouveau profil. Hors mode cookie, le refresh token de
-          // l'ancienne session n'a jamais été conservé : rien à révoquer ici.
-          // Rechargement complet : rien de l'ancien profil ne subsiste
-          // (stores, cache de requêtes, WebSockets).
-          get().stopTokenValidation();
-          await clearLocalSession();
-          set({ accessToken: token, tokenValidationInterval: null });
-          setSessionHint(true);
-          setAccountHint(false);
-          reloadAs('/');
-          return;
         }
         await get().openSession(response.data);
         // Après l'ouverture : l'écran de choix ne doit jamais se retrouver
         // sans aucun jeton, il renverrait à la connexion. Le cookie de compte
         // peut subsister côté navigateur : le jeton du profil l'emporte.
         set(noAccountSession());
+      },
+
+      leaveProfile: async () => {
+        const token = await get().ensureFreshAccessToken();
+        if (!token) {
+          // Session du profil déjà morte : rien à quitter, retour à la connexion
+          await get().logout();
+          return 'logged_out';
+        }
+        // Révoque la session du profil (cookie milo_refresh) et réémet la
+        // session de compte : pas de mot de passe à retaper
+        const response = await AuthAxios.post<AccountLoginResponse>(
+          APIRoutes.POST_Logout_Profile,
+          null,
+          { params: authCookieParams, headers: { Authorization: `Bearer ${token}` } },
+        );
+        // Le jeton du profil quitté doit disparaître : présenté à nouveau, il
+        // rouvrirait ce profil sans PIN (le serveur voit un appelant déjà dedans)
+        clearDemoSession();
+        get().stopTokenValidation();
+        setSessionHint(false);
+        setAccountHint(true);
+        await clearLocalSession();
+        await forgetAccountQueries();
+        if (AUTH_COOKIE_MODE) {
+          // Le jeton ne vit qu'en mémoire : le rechargement complet le jette,
+          // avec tout ce qui restait du profil (stores, WebSockets). Le
+          // démarrage reprend la session de compte (cookie milo_account).
+          // Pas de remise à zéro avant : l'application basculerait un instant
+          // sur le site public.
+          reloadAs(ROUTES.PROFILE_SELECT);
+          return 'reloading';
+        }
+        // Hors mode cookie : jeton persisté, effacé ici ; le jeton de compte ne
+        // vit qu'en mémoire, donc pas de rechargement
+        set({
+          accessToken: '',
+          tokenValidationInterval: null,
+          hasAccountSession: true,
+          accountToken: response.data.account_token ?? '',
+          accountTokenExpiresAt: Date.now() + response.data.expires_in * 1000,
+          profiles: response.data.profiles ?? [],
+        });
+        return 'select_profile';
       },
 
       clearAccountSession: async () => {
