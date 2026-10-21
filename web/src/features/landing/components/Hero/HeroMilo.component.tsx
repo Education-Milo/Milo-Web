@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
 	MILO_MODEL_PATH,
+	alternateIdlesOnLoop,
 	applyEquippedAccessories,
 	findAction,
 	fitMiloToHeight,
@@ -96,6 +97,17 @@ const HeroMilo: React.FC<HeroMiloProps> = ({ reducedMotion, onReady }) => {
 		if (current.current && current.current !== action) current.current.crossFadeTo(action, 0.35, false);
 		current.current = action;
 	};
+
+	// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() =>
+			alternateIdlesOnLoop(mixer, actions, () => current.current, (next) => {
+				next.reset().play();
+				current.current?.crossFadeTo(next, 0.5, false);
+				current.current = next;
+			}),
+		[mixer, actions],
+	);
 
 	// "Hello" à l'arrivée, puis "Idle" en boucle après chaque animation
 	useEffect(() => {

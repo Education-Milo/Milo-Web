@@ -13,6 +13,7 @@ import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshN
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	MILO_MODEL_PATH,
+	alternateIdlesOnLoop,
 	applyEquippedAccessories,
 	updateAngelCircleGlow,
 	cameraDistanceFor,
@@ -179,6 +180,12 @@ function MiloModel({
 			mixer.removeEventListener("finished", onFinished);
 		};
 	}, [mixer, fadeTo, idleAction]);
+
+	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() => alternateIdlesOnLoop(mixer, actions, () => currentRef.current, (next) => fadeTo(next, false)),
+		[mixer, actions, fadeTo],
+	);
 
 	/// Cadrage : indépendant de la pose, calculé une fois le modèle chargé
 	useEffect(() => {

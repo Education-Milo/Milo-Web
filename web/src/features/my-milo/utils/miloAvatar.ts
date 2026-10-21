@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	applyMetalReflections,
 	isBodyPart,
 } from "@features/my-milo/utils/miloModel";
 
@@ -82,6 +83,8 @@ function buildRig(): Promise<Rig> {
 				});
 
 				applyAngelCircleGlow(model);
+				/// Couronne et autres métaux : sans reflets, ils sortent presque noirs
+				applyMetalReflections(model);
 
 				const scene = new THREE.Scene();
 				const holder = new THREE.Group();

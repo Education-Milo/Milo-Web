@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
+	alternateIdlesOnLoop,
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
 	prepareMiloScene,
@@ -82,8 +83,10 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	/// Copie dédiée à la salle de classe : la scène du .glb est partagée avec
 	/// les autres écrans, on ne doit pas y laisser la pose posée ici.
 	const { scene, animations } = useMiloInstance(modelPath);
-	const { actions } = useAnimations(animations, group);
-	const prevAnimation = useRef<string | null>(null);
+	const { actions, mixer } = useAnimations(animations, group);
+	/// Action réellement jouée : ce n'est plus forcément `activeAnimation`
+	/// quand Milo alterne entre ses attentes (Idle, Idle2…)
+	const currentAction = useRef<THREE.AnimationAction | null>(null);
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
 	/// Dès la phase de rendu : masque les accessoires non équipés et désactive
@@ -102,13 +105,10 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 		});
 	}, [scene]);
 
-	useEffect(() => {
-		if (!actions || !activeAnimation) return;
+	/// Lance une animation en boucle, en fondu depuis celle qui joue
+	const loopTo = useCallback((nextAction: THREE.AnimationAction) => {
 		const CROSSFADE_DURATION = 0.5;
-		const nextAction = actions[activeAnimation];
-		if (!nextAction) return;
-		const prevName = prevAnimation.current;
-		const prevAction = prevName ? actions[prevName] : null;
+		const prevAction = currentAction.current;
 		nextAction.reset();
 		nextAction.setLoop(THREE.LoopRepeat, Infinity);
 		nextAction.play();
@@ -117,8 +117,20 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 		} else {
 			nextAction.fadeIn(CROSSFADE_DURATION);
 		}
-		prevAnimation.current = activeAnimation;
-	}, [actions, activeAnimation]);
+		currentAction.current = nextAction;
+	}, []);
+
+	useEffect(() => {
+		if (!actions || !activeAnimation) return;
+		const nextAction = actions[activeAnimation];
+		if (nextAction) loopTo(nextAction);
+	}, [actions, activeAnimation, loopTo]);
+
+	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() => alternateIdlesOnLoop(mixer, actions, () => currentAction.current, loopTo),
+		[mixer, actions, loopTo],
+	);
 
 	useEffect(() => {
 		if (!scene) return;

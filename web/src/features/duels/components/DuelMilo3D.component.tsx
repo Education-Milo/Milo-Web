@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	MILO_MODEL_PATH,
+	alternateIdlesOnLoop,
 	applyEquippedAccessories,
 	cameraDistanceFor,
 	findAction,
@@ -211,6 +212,12 @@ function MiloModel({
 			mixer.removeEventListener("finished", onFinished);
 		};
 	}, [mixer, fadeTo, idleAction, setBusy]);
+
+	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() => alternateIdlesOnLoop(mixer, actions, () => currentRef.current, (next) => fadeTo(next, false)),
+		[mixer, actions, fadeTo],
+	);
 
 	useEffect(() => {
 		if (!scene) return;

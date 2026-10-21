@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
-/// EquipGlasses, EquipTop, Explaining, HatLook, Hello, Idle, Success,
-/// Thinking, Wrong.
+/// EquipGlasses, EquipTop, Explaining, HatLook, Hello, Idle, Idle2, Idle3,
+/// Success, Thinking, Wrong.
 export const MILO_MODEL_PATH = "/MiloV15.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
@@ -43,6 +43,7 @@ export const KNOWN_ACCESSORY_MESH_NAMES = [
 /// ne joue jamais, la case de la boutique resterait vide.
 /// EquipTop et EquipGlasses n'y figurent pas exprès : ce sont les réactions
 /// de « Mon Milo » quand on équipe un haut ou des lunettes, pas des danses.
+/// Idle2 et Idle3 non plus : ce sont des attentes (cf. IDLE_CLIPS).
 export const KNOWN_ANIMATION_CLIPS = [
 	"67",
 	"Arrival",
@@ -175,6 +176,65 @@ export function prepareMiloScene(scene: THREE.Object3D) {
 	});
 	updateTorsoVisibility(scene);
 	applyAngelCircleGlow(scene);
+	applyMetalReflections(scene);
+}
+
+/* ==========================================================================
+   REFLETS — accessoires métalliques (couronne en or…)
+   ========================================================================== */
+
+/// À partir de cette « metalness », un matériau se comporte comme un métal
+const METAL_THRESHOLD = 0.5;
+/// Marqueur des matériaux déjà traités (partagés entre tous les clones)
+const METAL_FLAG = "miloMetalReflections";
+
+let studioEnvMap: THREE.Texture | null = null;
+
+/// Petit studio peint une fois : ciel clair, horizon crème, sol chaud et deux
+/// boîtes à lumière qui font briller les arêtes. Quelques ko, aucun fichier
+/// HDR à charger ; le renderer le convertit lui-même en carte de reflets.
+function getStudioEnvMap() {
+	if (studioEnvMap) return studioEnvMap;
+	const canvas = document.createElement("canvas");
+	canvas.width = 256;
+	canvas.height = 128;
+	const ctx = canvas.getContext("2d");
+	if (ctx) {
+		const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+		gradient.addColorStop(0, "#ffffff");
+		gradient.addColorStop(0.42, "#fff4e4");
+		gradient.addColorStop(0.55, "#e8c9a2");
+		gradient.addColorStop(1, "#6b4a32");
+		ctx.fillStyle = gradient;
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.fillStyle = "#ffffff";
+		ctx.fillRect(36, 20, 44, 26);
+		ctx.fillRect(168, 28, 32, 20);
+	}
+	studioEnvMap = new THREE.CanvasTexture(canvas);
+	studioEnvMap.mapping = THREE.EquirectangularReflectionMapping;
+	studioEnvMap.colorSpace = THREE.SRGBColorSpace;
+	return studioEnvMap;
+}
+
+/// Un métal n'a pas de couleur propre : il ne montre que ce qu'il reflète.
+/// Sans carte d'environnement (accueil, duels, QCM, avatar…), la couronne en
+/// or ne reflète rien et paraît presque noire. Les matériaux métalliques
+/// reçoivent donc leurs propres reflets ; le reste de Milo n'est pas touché.
+export function applyMetalReflections(scene: THREE.Object3D) {
+	scene.traverse((child) => {
+		const mesh = child as THREE.Mesh;
+		if (!mesh.isMesh) return;
+		const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+		for (const material of materials) {
+			const standard = material as THREE.MeshStandardMaterial;
+			if (!standard?.isMeshStandardMaterial || standard.userData[METAL_FLAG]) continue;
+			if (standard.metalness < METAL_THRESHOLD || standard.envMap) continue;
+			standard.envMap = getStudioEnvMap();
+			standard.userData[METAL_FLAG] = true;
+			standard.needsUpdate = true;
+		}
+	});
 }
 
 /// N'affiche que les accessoires équipés dans "Mon Milo". Un haut équipé
@@ -286,6 +346,56 @@ export function findFirstAction(
 		if (action) return action;
 	}
 	return null;
+}
+
+/* ==========================================================================
+   ATTENTES — Milo alterne entre plusieurs idles
+   ========================================================================== */
+
+/// Les attentes de Milo, de même durée (10 s) et de même rythme. Elles
+/// commencent et finissent sur la même pose : on peut passer de l'une à
+/// l'autre à chaque fin de boucle sans à-coup. "Idle" reste la première
+/// jouée, et la seule si un ancien .glb n'a pas les autres.
+export const IDLE_CLIPS = ["Idle", "Idle2", "Idle3"];
+
+/// Vrai si l'action joue l'une des attentes
+export function isIdleAction(action: THREE.AnimationAction | null | undefined) {
+	const name = action?.getClip().name.toLowerCase();
+	return Boolean(name) && IDLE_CLIPS.some((clip) => clip.toLowerCase() === name);
+}
+
+/// Une autre attente que `current`, au hasard parmi celles du modèle ; null
+/// s'il n'y en a pas d'autre (l'attente en cours continue alors de boucler)
+export function nextIdleAction(
+	actions: Record<string, THREE.AnimationAction | null>,
+	current: THREE.AnimationAction | null,
+) {
+	const others = IDLE_CLIPS.map((clip) => findAction(actions, clip)).filter(
+		(action): action is THREE.AnimationAction => Boolean(action) && action !== current,
+	);
+	return others.length ? others[Math.floor(Math.random() * others.length)] : null;
+}
+
+/// Branche l'alternance des attentes sur un mixer : quand l'attente en cours
+/// (`getCurrent`) termine une boucle, `play` reçoit l'attente suivante, à
+/// lancer en boucle avec un fondu. Une réaction ou une danse en cours n'est
+/// jamais interrompue : seule une attente qui boucle déclenche le relais.
+/// Renvoie la fonction de désabonnement (à rendre depuis un useEffect).
+export function alternateIdlesOnLoop(
+	mixer: THREE.AnimationMixer,
+	actions: Record<string, THREE.AnimationAction | null>,
+	getCurrent: () => THREE.AnimationAction | null,
+	play: (next: THREE.AnimationAction) => void,
+) {
+	const onLoop = (event: { action: THREE.AnimationAction }) => {
+		if (event.action !== getCurrent() || !isIdleAction(event.action)) return;
+		const next = nextIdleAction(actions, event.action);
+		if (next) play(next);
+	};
+	mixer.addEventListener("loop", onLoop);
+	return () => {
+		mixer.removeEventListener("loop", onLoop);
+	};
 }
 
 /* ==========================================================================

@@ -27,6 +27,7 @@ import {
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
+	alternateIdlesOnLoop,
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
 	findAction,
@@ -178,6 +179,12 @@ const MiloModel3D = ({ reaction }: MiloModel3DProps) => {
 			mixer.removeEventListener("finished", onFinished);
 		};
 	}, [mixer, fadeTo, idleAction]);
+
+	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() => alternateIdlesOnLoop(mixer, actions, () => currentRef.current, (next) => fadeTo(next, false)),
+		[mixer, actions, fadeTo],
+	);
 
 	/// Réaction à l'objet qu'on vient d'équiper (jamais au chargement : la
 	/// réaction n'existe qu'après un choix dans le casier)

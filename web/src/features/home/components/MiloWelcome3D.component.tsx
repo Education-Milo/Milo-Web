@@ -1,6 +1,7 @@
 import React, {
 	Suspense,
 	useCallback,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
@@ -12,6 +13,7 @@ import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshN
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	MILO_MODEL_PATH,
+	alternateIdlesOnLoop,
 	applyEquippedAccessories,
 	cameraDistanceFor,
 	findAction,
@@ -78,9 +80,10 @@ function MiloHello() {
 		[actions],
 	);
 
-	/// Enchaîne vers l'attente en boucle, en fondu depuis l'animation en cours
-	const playIdle = useCallback(() => {
-		const idle = idleAction();
+	/// Enchaîne vers l'attente en boucle (ou vers `next`, une autre attente),
+	/// en fondu depuis l'animation en cours
+	const playIdle = useCallback((next?: THREE.AnimationAction | null) => {
+		const idle = next ?? idleAction();
 		if (!idle) return;
 		const prev = currentRef.current;
 		if (prev === idle && idle.isRunning() && idle.loop === THREE.LoopRepeat) {
@@ -133,6 +136,12 @@ function MiloHello() {
 			currentRef.current = null;
 		};
 	}, [actions, mixer, scene, idleAction, playIdle]);
+
+	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
+	useEffect(
+		() => alternateIdlesOnLoop(mixer, actions, () => currentRef.current, playIdle),
+		[mixer, actions, playIdle],
+	);
 
 	useFrame((state) => {
 		/// Garde-fou : plus aucune animation active veut dire Milo figé sur sa
