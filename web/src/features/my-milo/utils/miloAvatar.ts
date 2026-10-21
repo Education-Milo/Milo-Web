@@ -14,7 +14,7 @@ import {
 /// donc UN seul rendu hors écran, partagé, dont le résultat est mis en cache
 /// par combinaison d'accessoires : quelques images pour toute l'application.
 
-const MODEL_PATH = "/MiloV13.glb";
+const MODEL_PATH = "/MiloV14.glb";
 /// Taille de rendu : l'avatar est affiché bien plus petit, on garde de la marge
 /// pour les écrans à forte densité
 const RENDER_SIZE = 256;

@@ -104,13 +104,29 @@ const Pencil: React.FC = () => (
 	</group>
 );
 
+/// Couverture : bloc arrondi. La tranche des pages (côté +x) en sort très
+/// légèrement. Pages et couverture ne doivent jamais partager un plan : deux
+/// faces confondues se disputent chaque pixel (z-fighting) et la tranche
+/// se couvre de rayures dès que le livre tourne.
+const BOOK = { width: 0.62, height: 0.1, depth: 0.44, radius: 0.03 };
+/// Saillie de la tranche hors de la couverture
+const PAGES_PROUD = 0.004;
+/// Les pages restent dans la partie plate de la tranche (hors arrondis), sinon
+/// leurs coins percent la couverture
+const PAGES = {
+	width: 0.56,
+	height: BOOK.height - 2 * BOOK.radius + 0.024,
+	depth: BOOK.depth - 2 * BOOK.radius - 0.004,
+};
+const PAGES_X = BOOK.width / 2 + PAGES_PROUD - PAGES.width / 2;
+
 const Book: React.FC<{ cover: string; y: number; rotation: number }> = ({ cover, y, rotation }) => (
 	<group position={[0, y, 0]} rotation={[0, rotation, 0]}>
-		<RoundedBox args={[0.62, 0.1, 0.44]} radius={0.03} smoothness={3}>
+		<RoundedBox args={[BOOK.width, BOOK.height, BOOK.depth]} radius={BOOK.radius} smoothness={3}>
 			<Toy color={cover} />
 		</RoundedBox>
-		<mesh position={[0.03, 0, 0]}>
-			<boxGeometry args={[0.56, 0.075, 0.41]} />
+		<mesh position={[PAGES_X, 0, 0]}>
+			<boxGeometry args={[PAGES.width, PAGES.height, PAGES.depth]} />
 			<Toy color={C.creme} clearcoat={0} roughness={0.8} />
 		</mesh>
 	</group>

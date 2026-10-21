@@ -641,7 +641,7 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 						<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
 					</NightBakeBoundary>
 				)}
-				<MiloModel modelPath="/MiloV13.glb" activeAnimation={activeAnimation} />
+				<MiloModel modelPath="/MiloV14.glb" activeAnimation={activeAnimation} />
 				<Board visible={boardVisible}>{board}</Board>
 				<DeskItem config={SHEET} isHeld={isEditing} onPick={onSheetClick} label="feuille">
 					{sheet}

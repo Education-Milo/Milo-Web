@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// Explaining, HatLook, Hello, Idle, Thinking, Wrong.
-export const MILO_MODEL_PATH = "/MiloV13.glb";
+export const MILO_MODEL_PATH = "/MiloV14.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
 /// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
