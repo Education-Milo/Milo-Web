@@ -96,13 +96,24 @@ const WHEEL_CHEERS = [
 	(name: string) => `Hâte d'envoyer ${name} en duel !`,
 ];
 
+/// Animation jouée une fois quand on équipe un objet de ce type. Les autres
+/// types (et le retrait d'un objet) ne déclenchent rien.
+const EQUIP_REACTIONS: Partial<Record<CosmeticType, string>> = {
+	cosmetic_hat: "HatLook",
+	cosmetic_shirt: "EquipTop",
+	cosmetic_glasses: "EquipGlasses",
+};
+
+/// Clip à jouer ; le compteur permet de rejouer le même clip deux fois de suite
+type EquipReaction = { clip: string; nonce: number };
+
 type PickerTarget = { kind: "outfit"; type: CosmeticType } | { kind: "wheel"; slot: number };
 
 interface MiloModel3DProps {
-	hatTrigger: number;
+	reaction: EquipReaction | null;
 }
 
-const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
+const MiloModel3D = ({ reaction }: MiloModel3DProps) => {
 	/// Copie dédiée : la rotation et la position posées ici resteraient sinon
 	/// sur la scène du .glb, partagée avec tous les autres écrans
 	const { scene, animations } = useMiloInstance();
@@ -156,8 +167,8 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 		else fadeTo(idleAction(), false);
 	}, [actions, fadeTo, idleAction]);
 
-	/// Un clip joué une fois (arrivée, HatLook) revient à l'attente, sauf s'il
-	/// a déjà été remplacé par un autre
+	/// Un clip joué une fois (arrivée, réaction à un équipement) revient à
+	/// l'attente, sauf s'il a déjà été remplacé par un autre
 	useEffect(() => {
 		const onFinished = (e: { action: THREE.AnimationAction }) => {
 			if (e.action === currentRef.current) fadeTo(idleAction(), false);
@@ -168,10 +179,12 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 		};
 	}, [mixer, fadeTo, idleAction]);
 
+	/// Réaction à l'objet qu'on vient d'équiper (jamais au chargement : la
+	/// réaction n'existe qu'après un choix dans le casier)
 	useEffect(() => {
-		if (hatTrigger === 0) return;
-		fadeTo(findAction(actions, "HatLook"), true);
-	}, [hatTrigger, actions, fadeTo]);
+		if (!reaction) return;
+		fadeTo(findAction(actions, reaction.clip), true);
+	}, [reaction, actions, fadeTo]);
 
 	useFrame((state, delta) => {
 		if (groupRef.current) {
@@ -190,7 +203,7 @@ const MiloModel3D = ({ hatTrigger }: MiloModel3DProps) => {
 const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
 	const userId = useUserStore((state) => state.user?.id);
-	const [hatTrigger, setHatTrigger] = useState(0);
+	const [reaction, setReaction] = useState<EquipReaction | null>(null);
 	const [picker, setPicker] = useState<PickerTarget | null>(null);
 	// Force le recalcul de la roue quand les emplacements mémorisés changent
 	const [slotVersion, setSlotVersion] = useState(0);
@@ -247,7 +260,8 @@ const MyMiloPage: React.FC = () => {
 	// ── Tenue ────────────────────────────────────────────────────────────────
 	const equipOutfit = (item: Cosmetic) => {
 		if (isBusy) return;
-		if (item.type === "cosmetic_hat") setHatTrigger((prev) => prev + 1);
+		const clip = EQUIP_REACTIONS[item.type];
+		if (clip) setReaction((prev) => ({ clip, nonce: (prev?.nonce ?? 0) + 1 }));
 		equipMutation.mutate(
 			{ cosmeticId: item.id, equipped: true },
 			{ onSuccess: () => setPicker(null), onError: notifyError },
@@ -465,7 +479,7 @@ const MyMiloPage: React.FC = () => {
 										<Environment preset="sunset" environmentIntensity={1.2} />
 										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" castShadow />
 										<ambientLight intensity={0.2} />
-										<MiloModel3D hatTrigger={hatTrigger} />
+										<MiloModel3D reaction={reaction} />
 									</Canvas>
 								</div>
 
