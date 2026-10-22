@@ -1,210 +1,501 @@
 /* Comptes et profils : écran « Qui est-ce ? », gestion des profils et
    formulaires des réglages du compte (dialogues de @features/security). */
 
-/* ---------- Écran « Qui est-ce ? » ---------- */
-.pp-main {
-	justify-content: center;
-	padding-top: 12px;
+/* ---------- Écran « Qui est-ce ? » ----------
+   Charte landing (brand/charte-graphique-landing.html) : fond crème à trame
+   de points, soleil feu derrière les profils, titre Luckiest Guy en encre
+   avec un mot orange en relief braise, cartes blanches à tranche sable,
+   boutons en relief. Classes préfixées `pp-`. */
+.pp-root {
+	--pp-creme: #f6ebdf;
+	--pp-sable: #f1d2b2;
+	--pp-sable-2: #e6bf98;
+	--pp-mandarine: #f4922a;
+	--pp-orange: #f36b16;
+	--pp-brique: #ef4f1a;
+	--pp-vermillon: #ed3c1d;
+	--pp-surface: #fffbf6;
+	--pp-line: #ebd3bc;
+	--pp-feu: linear-gradient(135deg, var(--pp-mandarine) 0%, var(--pp-orange) 38%, var(--pp-brique) 70%, var(--pp-vermillon) 100%);
+	--pp-dots: radial-gradient(rgba(185, 51, 15, 0.13) 1.4px, transparent 1.6px);
+	--pp-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	background: var(--pp-creme);
+	color: var(--milo-encre);
+	isolation: isolate;
 }
 
+/* Trame de points du hero de la landing */
+.pp-root::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image: var(--pp-dots);
+	background-size: 28px 28px;
+	-webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+	mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
+	pointer-events: none;
+}
+
+.pp-main {
+	justify-content: center;
+	gap: clamp(24px, 4vw, 40px);
+	padding: 12px clamp(16px, 4vw, 40px) 64px;
+	/* Le soleil se dimensionne sur la largeur utile (cqw) */
+	container-type: inline-size;
+}
+
+/* ---------- En-tête ---------- */
 .pp-intro {
+	display: grid;
+	justify-items: center;
+	gap: 0.8rem;
 	text-align: center;
-	margin-bottom: 2.25rem;
+}
+
+.pp-eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.55em 1em 0.5em;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--pp-line);
+	font-weight: 600;
+	font-size: 0.82rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1;
+	color: var(--milo-braise);
+}
+.pp-eyebrow i {
+	width: 0.55em;
+	height: 0.55em;
+	border-radius: 50%;
+	background: var(--milo-vert);
+	box-shadow: 0 0 0 4px rgba(43, 69, 32, 0.14);
 }
 
 .pp-title {
+	margin: 0;
 	font-family: var(--f-display);
-	font-size: clamp(2rem, 5vw, 2.8rem);
-	font-weight: 800;
+	font-weight: 400;
+	font-size: clamp(2.6rem, 6vw, 4.2rem);
+	line-height: 1.04;
+	letter-spacing: 0.01em;
 	color: var(--milo-encre);
-	letter-spacing: -0.5px;
-	margin: 0 0 0.5rem;
+	text-wrap: balance;
+}
+.pp-hl {
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
 }
 
 .pp-subtitle {
 	margin: 0;
+	max-width: 32em;
+	font-size: clamp(1.02rem, 1.5vw, 1.15rem);
 	color: var(--text-2);
-	font-size: 1rem;
-	font-weight: 600;
+	text-wrap: balance;
+}
+
+.pp-error {
+	max-width: 460px;
+	margin: 0 auto;
+}
+
+/* ---------- Scène : les profils posés sur un soleil feu ---------- */
+.pp-stage {
+	--pp-sun-w: min(820px, 100cqw);
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+	max-width: 1040px;
+	/* La scène est au moins aussi haute que le soleil : il ne remonte jamais
+	   derrière le titre, les profils se posent sur son sommet */
+	min-height: calc(var(--pp-sun-w) / 2);
+	padding: 6px 0 clamp(40px, 6vw, 64px);
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+
+.pp-sun {
+	position: absolute;
+	z-index: -1;
+	left: 50%;
+	bottom: 0;
+	width: var(--pp-sun-w);
+	aspect-ratio: 2 / 1;
+	translate: -50% 0;
+	border-radius: 999px 999px 0 0;
+	background: var(--pp-feu);
+	box-shadow: inset 0 -20px 40px rgba(150, 30, 10, 0.22);
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+	mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+.pp-sun::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.7px);
+	background-size: 24px 24px;
+}
+.pp-sun::after {
+	content: "";
+	position: absolute;
+	inset: 9% 9% -9%;
+	border-radius: 999px 999px 0 0;
+	border: 2px dashed rgba(246, 235, 223, 0.5);
+	border-bottom: 0;
 }
 
 .pp-grid {
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	display: flex;
-	flex-wrap: wrap;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 184px));
 	justify-content: center;
-	gap: 22px;
-	max-width: 860px;
+	gap: clamp(16px, 2.4vw, 24px);
+	width: 100%;
 }
 
-.pp-item {
+/* ---------- Carte de profil ---------- */
+.pp-card {
+	position: relative;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	gap: 10px;
-	width: 148px;
+	min-width: 0;
+	background: #fff;
+	border: 2px solid var(--pp-line);
+	border-radius: 32px;
+	box-shadow: 0 8px 0 var(--pp-sable), 0 30px 40px -28px rgba(120, 50, 10, 0.55);
+	transition: transform 0.25s var(--pp-spring), box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
+
+.pp-card:has(.pp-tile:not(:disabled):hover) {
+	transform: translateY(-4px);
+	border-color: var(--pp-sable);
+	box-shadow: 0 12px 0 var(--pp-sable), 0 36px 44px -28px rgba(120, 50, 10, 0.6);
+}
+.pp-card:has(.pp-tile:not(:disabled):active) {
+	transform: translateY(6px);
+	box-shadow: 0 2px 0 var(--pp-sable);
+}
+.pp-card:has(.pp-tile:focus-visible) {
+	outline: 3px solid var(--milo-vert);
+	outline-offset: 4px;
+}
+
+/* Un profil s'ouvre : les autres s'effacent */
+.pp-grid:has(.is-opening) .pp-card:not(.is-opening) { opacity: 0.5; }
+.pp-card.is-opening { transform: translateY(6px); box-shadow: 0 2px 0 var(--pp-sable); }
 
 .pp-tile {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 10px;
+	gap: 8px;
 	width: 100%;
-	padding: 0;
-	border: none;
+	padding: 24px 14px 20px;
+	border: 0;
+	border-radius: inherit;
 	background: none;
-	font-family: inherit;
-	cursor: pointer;
+	font-family: var(--f-text);
 	color: inherit;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
 }
-
 .pp-tile:disabled { cursor: default; }
+.pp-tile:focus-visible { outline: none; }
 
 .pp-avatar {
 	position: relative;
 	display: grid;
 	place-items: center;
-	width: 132px;
-	height: 132px;
+	width: 104px;
+	height: 104px;
+	margin-bottom: 6px;
 	border-radius: 34px;
+	isolation: isolate;
 	font-family: var(--f-display);
-	font-size: 2.6rem;
-	font-weight: 800;
+	font-weight: 400;
+	font-size: 2.5rem;
+	line-height: 1;
+	padding-top: 0.08em;
 	color: #fff;
-	box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
-	border: 4px solid transparent;
-	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+	text-shadow: 0 0.06em 0 rgba(120, 30, 0, 0.45);
+	box-shadow: inset 0 -10px 20px rgba(150, 30, 10, 0.25);
+	transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-
-.pp-tile:not(:disabled):hover .pp-avatar,
-.pp-tile:focus-visible .pp-avatar {
-	transform: translateY(-4px) scale(1.03);
-	border-color: var(--milo-encre);
-	box-shadow: 0 24px 50px rgba(0, 0, 0, 0.16);
+/* Trame de points dans l'avatar, comme les aplats feu de la landing */
+.pp-avatar::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	border-radius: inherit;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.7px);
+	background-size: 16px 16px;
 }
+.pp-tile:not(:disabled):hover .pp-avatar { transform: rotate(-6deg) scale(1.06); }
 
-.pp-tile:focus-visible { outline: none; }
+/* Teintes : nuances de la charte uniquement (aussi utilisées par .acc-mini-avatar) */
+.pp-avatar--feu { background: var(--pp-feu, linear-gradient(135deg, #f4922a, #f36b16 38%, #ef4f1a 70%, #ed3c1d)); color: #fff; }
+.pp-avatar--mandarine { background: linear-gradient(145deg, #f8ad4e, #f4922a 55%, #f36b16); color: #fff; }
+.pp-avatar--braise { background: linear-gradient(145deg, #ef4f1a, #c73a0c); color: #fff; }
+.pp-avatar--sable { background: linear-gradient(145deg, #f7e2cb, #f1d2b2); color: var(--milo-braise); text-shadow: none; }
+.pp-avatar--encre { background: linear-gradient(145deg, #4a2e20, #2a1810); color: #f6ebdf; text-shadow: 0 0.06em 0 #c73a0c; }
+.pp-avatar--sable::before { background-image: radial-gradient(rgba(185, 51, 15, 0.13) 1.4px, transparent 1.6px); }
 
-.pp-avatar--orange { background: linear-gradient(145deg, #ff7a45, var(--milo-orange)); }
-.pp-avatar--teal { background: linear-gradient(145deg, #3cc7b4, #138a7a); }
-.pp-avatar--violet { background: linear-gradient(145deg, #9b7bff, #6340d8); }
-.pp-avatar--sky { background: linear-gradient(145deg, #5bb8ff, #2479d1); }
-.pp-avatar--rose { background: linear-gradient(145deg, #ff7eb0, #d63f7c); }
+.pp-avatar .sec-spin { color: currentColor; }
 
+/* Cadenas 3D : profil protégé par un code PIN */
 .pp-lock {
 	position: absolute;
-	right: -6px;
-	bottom: -6px;
+	right: -10px;
+	bottom: -10px;
 	display: grid;
 	place-items: center;
-	width: 34px;
-	height: 34px;
+	width: 40px;
+	height: 40px;
 	border-radius: 50%;
-	background: var(--surface);
-	color: var(--milo-encre);
-	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
+	background: #fff;
+	border: 2px solid var(--pp-line);
+	box-shadow: 0 4px 0 var(--pp-sable);
+}
+.pp-lock img {
+	width: 24px;
+	height: 24px;
+	filter: drop-shadow(0 3px 3px rgba(120, 50, 10, 0.25));
 }
 
 .pp-name {
-	font-size: 1.05rem;
-	font-weight: 800;
-	color: var(--milo-encre);
 	max-width: 100%;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: 1.45rem;
+	line-height: 1.1;
+	letter-spacing: 0.01em;
+	color: var(--milo-encre);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 
 .pp-role {
-	margin-top: -6px;
-	font-size: 0.8rem;
-	font-weight: 700;
-	color: var(--text-3);
-}
-
-.pp-current {
-	padding: 3px 10px;
+	max-width: 100%;
+	padding: 0.3rem 0.7rem 0.25rem;
 	border-radius: 999px;
-	background: rgba(255, 84, 29, 0.12);
-	color: var(--accent-text);
-	font-size: 0.72rem;
-	font-weight: 800;
+	background: var(--pp-creme);
+	font-size: 0.78rem;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--milo-braise);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-/* Mode gestion : actions sous chaque vignette */
+/* Profil ouvert en ce moment (page de gestion) */
+.pp-current {
+	position: absolute;
+	top: -14px;
+	left: 50%;
+	z-index: 2;
+	translate: -50% 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.35rem 0.8rem 0.3rem;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--pp-line);
+	box-shadow: 0 4px 0 var(--pp-sable);
+	font-size: 0.74rem;
+	font-weight: 700;
+	line-height: 1;
+	color: var(--milo-braise);
+	white-space: nowrap;
+}
+.pp-current i {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--milo-vert);
+	animation: pp-pulse 1.8s infinite;
+}
+
+/* Carte « Ajouter » */
+.pp-card--add {
+	background: var(--pp-surface);
+	border: 2px dashed var(--pp-sable-2);
+	box-shadow: none;
+}
+.pp-card--add:has(.pp-tile:not(:disabled):hover) {
+	border-color: var(--milo-orange);
+	background: #fff;
+	box-shadow: 0 8px 0 var(--pp-sable);
+}
+.pp-avatar--add {
+	background: var(--pp-creme);
+	color: var(--milo-braise);
+	box-shadow: none;
+	text-shadow: none;
+}
+.pp-avatar--add::before { background-image: var(--pp-dots); }
+.pp-tile:not(:disabled):hover .pp-avatar--add { background: var(--milo-orange); color: #fff; transform: rotate(90deg) scale(1.04); }
+.pp-card--add .pp-name { color: var(--text-2); }
+.pp-card--add .pp-role { background: transparent; color: var(--text-2); font-weight: 500; }
+
+/* Squelettes de chargement */
+.pp-card--skeleton {
+	height: 232px;
+	border: 0;
+	box-shadow: none;
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, #fff 50%, rgba(255, 255, 255, 0.6) 100%);
+	background-size: 200% 100%;
+	animation: pp-shimmer 1.3s ease-in-out infinite;
+}
+
+/* ---------- Mode gestion ---------- */
+.pp-grid.is-managing .pp-card:not(.pp-card--add) .pp-tile { padding-bottom: 12px; }
+
 .pp-tile-actions {
 	display: flex;
-	gap: 6px;
+	gap: 8px;
+	padding: 12px 12px 14px;
+	border-top: 2px dashed var(--pp-line);
 }
 
 .pp-action {
 	display: inline-flex;
 	align-items: center;
-	gap: 5px;
-	padding: 6px 10px;
-	border-radius: 12px;
-	border: 1.5px solid var(--line);
-	background: var(--surface);
-	color: var(--text-2);
-	font-family: inherit;
-	font-size: 0.76rem;
-	font-weight: 800;
+	justify-content: center;
+	gap: 6px;
+	height: 38px;
+	padding: 0 0.8rem;
+	border: 0;
+	border-radius: 999px;
+	background: #fff;
+	color: var(--milo-encre);
+	font-family: var(--f-text);
+	font-size: 0.84rem;
+	font-weight: 700;
+	white-space: nowrap;
 	cursor: pointer;
-	transition: border-color 0.2s ease, color 0.2s ease;
+	box-shadow: inset 0 0 0 2px var(--pp-sable), 0 4px 0 var(--pp-sable);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
 }
+.pp-action:first-child { flex: 1; min-width: 0; }
+.pp-action:hover { transform: translateY(-2px); color: var(--milo-braise); box-shadow: inset 0 0 0 2px var(--pp-sable), 0 6px 0 var(--pp-sable); }
+.pp-action:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--pp-sable), 0 1px 0 var(--pp-sable); }
+.pp-action--danger { width: 38px; padding: 0; flex: none; color: var(--ko); }
+.pp-action--danger:hover { color: var(--ko); box-shadow: inset 0 0 0 2px #f3b6c0, 0 6px 0 #f3b6c0; }
 
-.pp-action:hover { border-color: var(--milo-encre); color: var(--milo-encre); }
-.pp-action--danger:hover { border-color: var(--ko); color: var(--ko); }
-
-.pp-avatar--add {
-	background: rgba(255, 255, 255, 0.55);
-	border: 3px dashed rgba(26, 26, 26, 0.18);
-	color: var(--text-3);
-	box-shadow: none;
-}
-
+/* ---------- Pied de page ---------- */
 .pp-footer {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	justify-content: center;
-	gap: 12px;
-	margin-top: 2.75rem;
+	gap: 14px 18px;
 }
 
 .pp-btn {
+	--edge: var(--milo-braise);
 	display: inline-flex;
 	align-items: center;
-	gap: 8px;
-	padding: 12px 22px;
-	border-radius: 16px;
-	border: 2px solid var(--milo-encre);
-	background: transparent;
-	color: var(--milo-encre);
-	font-family: inherit;
-	font-size: 0.92rem;
-	font-weight: 800;
+	justify-content: center;
+	gap: 0.55em;
+	height: 48px;
+	padding: 0 1.3rem;
+	border: 0;
+	border-radius: 999px;
+	font-family: var(--f-text);
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1;
+	white-space: nowrap;
 	cursor: pointer;
-	transition: background 0.2s ease, color 0.2s ease;
+	box-shadow: 0 4px 0 var(--edge);
+	transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+.pp-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--edge); }
+.pp-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
+.pp-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pp-btn--primary {
+	background: var(--milo-orange);
+	color: #fff;
+	box-shadow: 0 4px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, 0.7);
+}
+.pp-btn--primary:hover:not(:disabled) { box-shadow: 0 6px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, 0.75); }
+
+.pp-btn--ghost {
+	--edge: var(--pp-sable);
+	background: #fff;
+	color: var(--milo-encre);
+	box-shadow: inset 0 0 0 2px var(--pp-sable), 0 4px 0 var(--edge);
+}
+.pp-btn--ghost:hover:not(:disabled) { color: var(--milo-braise); box-shadow: inset 0 0 0 2px var(--pp-sable), 0 6px 0 var(--edge); }
+.pp-btn--ghost:active:not(:disabled) { box-shadow: inset 0 0 0 2px var(--pp-sable), 0 1px 0 var(--edge); }
+
+/* Action secondaire : un simple lien braise */
+.pp-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45em;
+	padding: 0.6rem 0.4rem;
+	border: 0;
+	background: none;
+	font-family: var(--f-text);
+	font-size: 0.95rem;
+	font-weight: 700;
+	color: var(--milo-braise);
+	cursor: pointer;
+}
+.pp-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+@keyframes pp-pulse {
+	0% { box-shadow: 0 0 0 0 rgba(43, 69, 32, 0.45); }
+	70% { box-shadow: 0 0 0 8px rgba(43, 69, 32, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(43, 69, 32, 0); }
+}
+@keyframes pp-shimmer {
+	from { background-position: 100% 0; }
+	to { background-position: -100% 0; }
 }
 
-.pp-btn:hover { background: var(--milo-encre); color: var(--milo-creme); }
-
-.pp-btn--ghost { border-color: transparent; color: var(--text-2); }
-.pp-btn--ghost:hover { background: rgba(0, 0, 0, 0.05); color: var(--milo-encre); }
-
-.pp-error {
-	max-width: 460px;
-	margin: 0 auto 1.5rem;
+/* ---------- Mobile : deux profils par ligne ---------- */
+@media (max-width: 560px) {
+	.pp-main { padding-top: 4px; }
+	.pp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
+	.pp-card { border-radius: 28px; }
+	.pp-tile { padding: 20px 10px 16px; gap: 6px; }
+	.pp-avatar { width: 88px; height: 88px; border-radius: 28px; font-size: 2.1rem; }
+	.pp-lock { width: 34px; height: 34px; right: -8px; bottom: -8px; }
+	.pp-lock img { width: 20px; height: 20px; }
+	.pp-name { font-size: 1.25rem; }
+	.pp-tile-actions { padding: 10px 10px 12px; gap: 6px; }
+	.pp-action { height: 36px; padding: 0 0.6rem; font-size: 0.78rem; }
+	.pp-action--danger { width: 36px; padding: 0; }
+	.pp-stage { --pp-sun-w: 120cqw; }
+	.pp-footer { flex-direction: column; align-items: stretch; width: 100%; max-width: 360px; }
 }
 
-@media (max-width: 640px) {
-	.pp-grid { gap: 16px; }
-	.pp-item { width: 128px; }
-	.pp-avatar { width: 112px; height: 112px; border-radius: 28px; font-size: 2.2rem; }
+@media (prefers-reduced-motion: reduce) {
+	.pp-root *,
+	.pp-root *::before,
+	.pp-root *::after {
+		animation: none !important;
+		transition: none !important;
+	}
 }
 
 /* ---------- Formulaires ---------- */
@@ -319,6 +610,5 @@
 	border-radius: 12px;
 	font-size: 0.85rem;
 	font-weight: 800;
-	color: #fff;
 	flex-shrink: 0;
 }

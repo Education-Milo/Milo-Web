@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { motion } from "framer-motion";
-import { AlertTriangle, Check, KeyRound, Loader, Lock, LogOut, Plus, Settings2, Trash2, Users } from "lucide-react";
+import { AlertTriangle, Check, KeyRound, Loader, LogOut, Plus, Settings2, Trash2, Users } from "lucide-react";
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import PinPromptDialog from "@features/account/components/PinPromptDialog";
 import AddProfileDialog from "@features/account/components/AddProfileDialog";
@@ -144,9 +144,7 @@ const ProfilePickerPage: React.FC = () => {
 	const canAdd = profiles.length > 0 && profiles.length < MAX_PROFILES_PER_ACCOUNT;
 
 	return (
-		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
-
+		<div className="auth-page-root pp-root">
 			{isManagePage ? (
 				<AuthHeader onBack={() => navigate(ROUTES.ROOT)} backLabel="Retour" />
 			) : (
@@ -160,125 +158,163 @@ const ProfilePickerPage: React.FC = () => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ type: "spring", stiffness: 120, damping: 16 }}
 				>
-					<h1 className="pp-title">{managing ? "Gérer les profils" : "Qui est-ce ?"}</h1>
+					<span className="pp-eyebrow">
+						<i aria-hidden="true" />
+						{managing ? "Mode gestion" : "Compte famille"}
+					</span>
+					<h1 className="pp-title">
+						{managing ? (
+							<>
+								Gérer les <span className="pp-hl">profils</span>
+							</>
+						) : (
+							<>
+								Qui <span className="pp-hl">est-ce</span> ?
+							</>
+						)}
+					</h1>
 					<p className="pp-subtitle">
 						{managing
 							? "Ajoute un profil, verrouille-le par un code PIN ou supprime-le."
-							: "Choisis ton profil pour continuer."}
+							: "Choisis ton profil pour reprendre ton aventure."}
 					</p>
 				</motion.div>
 
 				{error && (
-					<p className="sec-alert sec-alert--error pp-error">
+					<p className="sec-alert sec-alert--error pp-error" role="alert">
 						<AlertTriangle size={16} />
 						<span>{error}</span>
 					</p>
 				)}
 
-				{profilesQuery.isLoading && <p className="sec-muted">Chargement des profils...</p>}
+				<div className="pp-stage">
+					<div className="pp-sun" aria-hidden="true" />
 
-				<ul className="pp-grid">
-					{profiles.map((profile, index) => {
-						const isCurrent = profile.id === currentProfileId;
-						const isOpening = openingId === profile.id;
-						return (
-							<motion.li
-								key={profile.id}
-								className="pp-item"
-								initial={{ opacity: 0, y: 16 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.05 * index, type: "spring", stiffness: 140, damping: 16 }}
-							>
-								<button
-									type="button"
-									className="pp-tile"
-									onClick={() => void openProfile(profile)}
-									disabled={managing || (openingId !== null && !isOpening)}
-									aria-label={`Ouvrir le profil de ${profile.first_name}${profile.has_pin ? " (code PIN)" : ""}`}
-								>
-									<span className={`pp-avatar pp-avatar--${profileTone(profile.id)}`}>
-										{isOpening ? <Loader size={34} className="sec-spin" /> : profileInitials(profile)}
-										{profile.has_pin && (
-											<span className="pp-lock" aria-hidden="true">
-												<Lock size={16} />
+					{profilesQuery.isLoading ? (
+						<ul className="pp-grid" aria-label="Chargement des profils...">
+							{[0, 1, 2].map((i) => (
+								<li key={i} className="pp-card pp-card--skeleton" />
+							))}
+						</ul>
+					) : (
+						<ul className={`pp-grid${managing ? " is-managing" : ""}`}>
+							{profiles.map((profile, index) => {
+								const isCurrent = profile.id === currentProfileId;
+								const isOpening = openingId === profile.id;
+								return (
+									<motion.li
+										key={profile.id}
+										className={`pp-card${isOpening ? " is-opening" : ""}${isCurrent ? " is-current" : ""}`}
+										initial={{ opacity: 0, y: 18, scale: 0.96 }}
+										animate={{ opacity: 1, y: 0, scale: 1 }}
+										transition={{ delay: 0.06 * index, type: "spring", stiffness: 220, damping: 18 }}
+									>
+										{isCurrent && (
+											<span className="pp-current">
+												<i aria-hidden="true" />
+												Profil actuel
 											</span>
 										)}
-									</span>
-									<span className="pp-name">{profile.first_name}</span>
-									<span className="pp-role">{profileRoleLabel(profile)}</span>
-								</button>
 
-								{isCurrent && <span className="pp-current">Profil actuel</span>}
-
-								{managing && (
-									<div className="pp-tile-actions">
-										<button type="button" className="pp-action" onClick={() => setPinEditFor(profile)}>
-											<KeyRound size={13} /> PIN
-										</button>
 										<button
 											type="button"
-											className="pp-action pp-action--danger"
-											onClick={() => setDeleteFor(profile)}
-											aria-label={`Supprimer le profil de ${profile.first_name}`}
+											className="pp-tile"
+											onClick={() => void openProfile(profile)}
+											disabled={managing || (openingId !== null && !isOpening)}
+											aria-label={`Ouvrir le profil de ${profile.first_name}${profile.has_pin ? " (code PIN)" : ""}`}
 										>
-											<Trash2 size={13} /> Supprimer
+											<span className={`pp-avatar pp-avatar--${profileTone(profile.id)}`}>
+												{isOpening ? <Loader size={34} className="sec-spin" /> : profileInitials(profile)}
+												{profile.has_pin && (
+													<span className="pp-lock" title="Protégé par un code PIN">
+														<img src="/landing/emoji/locked.webp" alt="" draggable={false} />
+													</span>
+												)}
+											</span>
+											<span className="pp-name">{profile.first_name}</span>
+											<span className="pp-role">{profileRoleLabel(profile)}</span>
 										</button>
-									</div>
-								)}
-							</motion.li>
-						);
-					})}
 
-					{canAdd && (
-						<li className="pp-item">
-							<button
-								type="button"
-								className="pp-tile"
-								onClick={() => setAdding(true)}
-								disabled={openingId !== null}
-								aria-label="Ajouter un profil"
-							>
-								<span className="pp-avatar pp-avatar--add">
-									<Plus size={40} />
-								</span>
-								<span className="pp-name">Ajouter</span>
-								<span className="pp-role">Nouveau profil</span>
-							</button>
-						</li>
+										{managing && (
+											<div className="pp-tile-actions">
+												<button type="button" className="pp-action" onClick={() => setPinEditFor(profile)}>
+													<KeyRound size={14} /> {profile.has_pin ? "Code PIN" : "Ajouter un PIN"}
+												</button>
+												<button
+													type="button"
+													className="pp-action pp-action--danger"
+													onClick={() => setDeleteFor(profile)}
+													aria-label={`Supprimer le profil de ${profile.first_name}`}
+													title="Supprimer"
+												>
+													<Trash2 size={14} />
+												</button>
+											</div>
+										)}
+									</motion.li>
+								);
+							})}
+
+							{canAdd && (
+								<motion.li
+									className="pp-card pp-card--add"
+									initial={{ opacity: 0, y: 18, scale: 0.96 }}
+									animate={{ opacity: 1, y: 0, scale: 1 }}
+									transition={{ delay: 0.06 * profiles.length, type: "spring", stiffness: 220, damping: 18 }}
+								>
+									<button
+										type="button"
+										className="pp-tile"
+										onClick={() => setAdding(true)}
+										disabled={openingId !== null}
+										aria-label="Ajouter un profil"
+									>
+										<span className="pp-avatar pp-avatar--add">
+											<Plus size={36} strokeWidth={3} />
+										</span>
+										<span className="pp-name">Ajouter</span>
+										<span className="pp-role">
+											{profiles.length}/{MAX_PROFILES_PER_ACCOUNT} profils
+										</span>
+									</button>
+								</motion.li>
+							)}
+						</ul>
 					)}
-				</ul>
+				</div>
 
 				<div className="pp-footer">
 					{isManagePage ? (
-						<button type="button" className="pp-btn" onClick={() => navigate(ROUTES.ROOT)} disabled={isLeaving}>
-							<Check size={16} /> Terminé
-						</button>
+						<>
+							<button type="button" className="pp-btn pp-btn--primary" onClick={() => navigate(ROUTES.ROOT)} disabled={isLeaving}>
+								<Check size={18} strokeWidth={2.6} /> Terminé
+							</button>
+							<button type="button" className="pp-btn pp-btn--ghost" onClick={() => void leave()} disabled={isLeaving}>
+								{isLeaving ? <Loader size={18} className="sec-spin" /> : <Users size={18} />} Changer de profil
+							</button>
+						</>
 					) : (
-						<button
-							type="button"
-							className="pp-btn"
-							onClick={() => setManageToggle((m) => !m)}
-							disabled={openingId !== null}
-						>
-							{managing ? (
-								<>
-									<Check size={16} /> Terminé
-								</>
-							) : (
-								<>
-									<Settings2 size={16} /> Gérer les profils
-								</>
-							)}
-						</button>
-					)}
-					{isManagePage ? (
-						<button type="button" className="pp-btn pp-btn--ghost" onClick={() => void leave()} disabled={isLeaving}>
-							{isLeaving ? <Loader size={16} className="sec-spin" /> : <Users size={16} />} Changer de profil
-						</button>
-					) : (
-						<button type="button" className="pp-btn pp-btn--ghost" onClick={() => void backToLogin()}>
-							<LogOut size={16} /> Se déconnecter
-						</button>
+						<>
+							<button
+								type="button"
+								className={`pp-btn ${managing ? "pp-btn--primary" : "pp-btn--ghost"}`}
+								onClick={() => setManageToggle((m) => !m)}
+								disabled={openingId !== null}
+							>
+								{managing ? (
+									<>
+										<Check size={18} strokeWidth={2.6} /> Terminé
+									</>
+								) : (
+									<>
+										<Settings2 size={18} /> Gérer les profils
+									</>
+								)}
+							</button>
+							<button type="button" className="pp-link" onClick={() => void backToLogin()}>
+								<LogOut size={16} /> Se déconnecter
+							</button>
+						</>
 					)}
 				</div>
 			</main>

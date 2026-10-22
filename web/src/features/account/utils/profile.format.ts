@@ -25,8 +25,9 @@ export const profileRoleLabel = (profile: Pick<ProfileSummary, "role" | "class_"
 export const profileInitials = (profile: Pick<ProfileSummary, "first_name" | "last_name">) =>
 	`${profile.first_name?.[0] ?? ""}${profile.last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
-/** Teinte stable par profil, pour distinguer les vignettes d'un coup d'œil. */
-const TONES = ["orange", "teal", "violet", "sky", "rose"] as const;
+/** Teinte stable par profil, pour distinguer les vignettes d'un coup d'œil.
+ *  Uniquement des nuances de la charte landing (pas de vert : accent ponctuel). */
+const TONES = ["feu", "mandarine", "braise", "sable", "encre"] as const;
 export const profileTone = (profileId: number) => TONES[Math.abs(profileId) % TONES.length];
 
 export const utf8Length = (value: string) => new TextEncoder().encode(value).length;
