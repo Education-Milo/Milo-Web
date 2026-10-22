@@ -3,6 +3,10 @@ import * as THREE from "three";
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// EquipGlasses, EquipTop, Explaining, HatLook, Hello, Idle, Idle2, Idle3,
 /// Success, Thinking, Wrong.
+///
+/// Fichier compressé (meshopt + WebP, 11,7 Mo → 2,4 Mo) : après chaque export
+/// depuis Blender, le repasser dans tools/optimize-milo-glb. Un GLTFLoader
+/// créé à la main doit recevoir le décodeur meshopt (cf. miloAvatar.ts).
 export const MILO_MODEL_PATH = "/MiloV15.glb";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
