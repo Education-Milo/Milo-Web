@@ -28,6 +28,8 @@ interface QuizLoaderProps {
 	messages: string[];
 	/// Remplace la mascotte au centre du soleil
 	art?: React.ReactNode;
+	/// Avancée réelle (0 → 100) : la barre se remplit au lieu de défiler
+	progress?: number;
 	/// Sous la barre de progression (bouton Annuler…)
 	children?: React.ReactNode;
 	className?: string;
@@ -42,6 +44,7 @@ const QuizLoader: React.FC<QuizLoaderProps> = ({
 	highlight,
 	messages,
 	art,
+	progress,
 	children,
 	className = "",
 }) => {
@@ -156,7 +159,14 @@ const QuizLoader: React.FC<QuizLoaderProps> = ({
 					</div>
 
 					<div className="qz-loader-bar" aria-hidden="true">
-						<span className="qz-loader-bar-fill" />
+						{progress === undefined ? (
+							<span className="qz-loader-bar-fill" />
+						) : (
+							<span
+								className="qz-loader-bar-fill qz-loader-bar-fill--value"
+								style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
+							/>
+						)}
 					</div>
 
 					{children && <div className="qz-loader-extra">{children}</div>}

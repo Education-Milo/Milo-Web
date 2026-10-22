@@ -36,9 +36,11 @@ import ClassSheet from "@features/milo-scene/components/ClassSheet.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import { useSpeech } from "@features/milo-scene/hooks/useSpeech";
 import { useDayNight, type DayNightMode } from "@features/milo-scene/hooks/useDayNight";
+import { useDownloadProgress } from "@features/milo-scene/hooks/useDownloadProgress";
 import { useMemoStore, type MemoItem } from "@features/milo-scene/store/memo.store";
 import { useMiloFreeChatStore, type MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 import { flattenSentences, parseBoardText, plainText } from "@features/milo-scene/utils/lessonText";
+import { CLASSROOM_DOWNLOADS } from "@features/milo-scene/utils/classroomAssets";
 import { useCourseStore } from "@features/courses/store/course.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import { getSubjectVisuals } from "@shared/constants/courses";
@@ -93,12 +95,17 @@ const useMediaQuery = (query: string) => {
 
 /// Écran d'attente de la charte : soleil feu, Milo, objets 3D en orbite
 const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
-	const { progress } = useProgress();
+	/// L'essentiel : les octets des deux .glb. Le reste (textures de nuit,
+	/// environnement, décodage) se lit dans le décompte de fichiers de drei.
+	const downloaded = useDownloadProgress(CLASSROOM_DOWNLOADS);
+	const { progress: filesDone } = useProgress();
+	const progress = downloaded * 92 + (filesDone / 100) * 8;
 	/// La progression peut repartir en arrière quand un nouveau fichier démarre :
-	/// on n'affiche que la valeur la plus haute atteinte
+	/// on n'affiche que la valeur la plus haute atteinte. 100 % : la scène est
+	/// vraiment affichée, pas seulement téléchargée.
 	const [shown, setShown] = useState(0);
 	useEffect(() => setShown((current) => Math.max(current, progress)), [progress]);
-	const value = done ? 100 : Math.round(shown);
+	const value = done ? 100 : Math.min(Math.round(shown), 99);
 
 	return (
 		<div className={`cls-loading${done ? " is-done" : ""}`}>
@@ -107,6 +114,7 @@ const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
 				title="On entre en classe !"
 				highlight="classe"
 				messages={LOADING_LINES}
+				progress={value}
 			>
 				<span className="cls-loading-pct" aria-live="polite">
 					{value < 100 ? `Chargement de la salle · ${value} %` : "C'est prêt !"}

@@ -8,9 +8,11 @@ import {
 	alternateIdlesOnLoop,
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	MILO_MODEL_PATH,
 	prepareMiloScene,
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
+import { CLASSROOM_MODEL } from "@features/milo-scene/utils/classroomAssets";
 
 /// Décor 3D de la salle : la classe, Milo, le tableau et la feuille. Le texte
 /// du tableau et de la feuille est du HTML projeté sur leur surface 3D (drei
@@ -612,8 +614,6 @@ interface ClassroomScene3DProps {
 	nightTarget: number;
 }
 
-const CLASSROOM_MODEL = "/classroom2.glb";
-
 const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	activeAnimation,
 	introRunning,
@@ -631,15 +631,11 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	notes,
 	nightTarget,
 }) => {
-	/// Arrivée de nuit : le chargement attend les textures de nuit, la salle
-	/// apparaît directement dans la bonne ambiance. Arrivée de jour : elles ne
-	/// sont téléchargées que si la nuit tombe (ou si on la force), puis fondu.
-	const [nightAtStart] = useState(() => nightTarget > 0);
-	const [nightWanted, setNightWanted] = useState(nightAtStart);
-	useEffect(() => {
-		if (nightTarget > 0) setNightWanted(true);
-	}, [nightTarget]);
-	const [mix] = useState<NightMix>(() => ({ value: nightAtStart ? nightTarget : 0, ready: false }));
+	/// Les textures de nuit sont chargées avec la salle, de jour comme de nuit :
+	/// leur envoi au GPU (4096², mipmaps) et la compilation du shader se font
+	/// derrière l'écran de chargement. Chargées à la volée, elles figeaient le
+	/// site ~2 s au premier passage en nuit.
+	const [mix] = useState<NightMix>(() => ({ value: nightTarget, ready: false }));
 
 	return (
 		<Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 2, 12], fov: CAMERA_FOV }} className="cls-canvas">
@@ -648,12 +644,10 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 				<ClassroomLighting mix={mix} />
 				<Environment preset="park" />
 				<Classroom modelPath={CLASSROOM_MODEL} />
-				{nightAtStart && (
-					<NightBakeBoundary>
-						<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
-					</NightBakeBoundary>
-				)}
-				<MiloModel modelPath="/MiloV15.glb" activeAnimation={activeAnimation} />
+				<NightBakeBoundary>
+					<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
+				</NightBakeBoundary>
+				<MiloModel modelPath={MILO_MODEL_PATH} activeAnimation={activeAnimation} />
 				<Board visible={boardVisible}>{board}</Board>
 				<DeskItem config={SHEET} isHeld={isEditing} onPick={onSheetClick} label="feuille">
 					{sheet}
@@ -668,13 +662,6 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 				)}
 				<SceneReadySignal onReady={onReady} />
 			</Suspense>
-			{!nightAtStart && nightWanted && (
-				<NightBakeBoundary>
-					<Suspense fallback={null}>
-						<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
-					</Suspense>
-				</NightBakeBoundary>
-			)}
 		</Canvas>
 	);
 };

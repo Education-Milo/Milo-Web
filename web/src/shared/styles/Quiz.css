@@ -1227,6 +1227,15 @@
 	animation: qz-bar-slide 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
+/* Avancée réelle : la largeur suit le chargement, les hachures défilent */
+.qz-loader-bar-fill--value {
+	min-width: 18px;
+	/* 17.654px : période horizontale des hachures (16px à 115°), pas de raccord visible */
+	background-size: 17.654px 100%, auto;
+	transition: width 0.35s ease-out;
+	animation: qz-bar-stripes 0.9s linear infinite;
+}
+
 .qz-loader-extra {
 	display: flex;
 	flex-wrap: wrap;
@@ -1357,6 +1366,10 @@
 	100% { left: 102%; }
 }
 
+@keyframes qz-bar-stripes {
+	to { background-position: 17.654px 0, 0 0; }
+}
+
 @keyframes qz-dots-drift {
 	to { background-position: 28px 28px; }
 }
@@ -1425,4 +1438,5 @@
 		animation: none !important;
 	}
 	.qz-loader-bar-fill { left: 0; width: 100%; animation: none !important; }
+	.qz-loader-bar-fill--value { transition: none; }
 }
