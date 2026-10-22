@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Environment, useAnimations } from "@react-three/drei";
-import { Backpack, Plus, ShoppingBag, Sparkles, Swords, Undo2 } from "lucide-react";
+import { Plus, ShoppingBag, Undo2 } from "lucide-react";
 import "@features/milo-shop/styles/MiloShop.css";
 import "@features/my-milo/styles/MyMilo.css";
 import { useNavigate } from "react-router-dom";
@@ -365,7 +365,7 @@ const MyMiloPage: React.FC = () => {
 		return {
 			title: `Emplacement ${picker.slot + 1} de la roue`,
 			subtitle: "Un sticker ou une danse à utiliser pendant les duels",
-			icon: <Swords size={24} />,
+			icon: <img src="/landing/emoji/crossed_swords.webp" alt="" draggable={false} />,
 			items: ownedWheelItems,
 			currentId: current?.id ?? null,
 			usedElsewhereIds: usedElsewhere,
@@ -423,7 +423,13 @@ const MyMiloPage: React.FC = () => {
 						transition={{ duration: 0.45, ease: "easeOut" }}
 					>
 						<div className="mm-head__copy">
-							<h1 className="mm-title">Mon Milo</h1>
+							<span className="mm-eyebrow">
+								<i aria-hidden="true" />
+								Ton casier
+							</span>
+							<h1 className="mm-title">
+								Mon <span className="mm-hl">Milo</span>
+							</h1>
 							<p className="mm-lead">Touche une case autour de Milo pour changer sa tenue, puis prépare ta roue de duel.</p>
 						</div>
 
@@ -437,7 +443,7 @@ const MyMiloPage: React.FC = () => {
 									</div>
 								)}
 								<div className="mm-stat" title="Objets dans ton casier">
-									<span className="mm-stat__icon" aria-hidden="true"><Backpack size={20} strokeWidth={2.4} /></span>
+									<img src="/landing/emoji/t_shirt.webp" alt="" className="mm-stat__icon" draggable={false} />
 									<span className="mm-stat__value">{items.length}</span>
 									<span className="mm-stat__unit">{items.length > 1 ? "objets" : "objet"}</span>
 								</div>
@@ -484,7 +490,7 @@ const MyMiloPage: React.FC = () => {
 									    décalé de son socle) jusqu'au premier scroll. */}
 									<Canvas camera={{ position: [0, 0, 5], fov: 45 }} resize={{ offsetSize: true }}>
 										<Environment preset="sunset" environmentIntensity={1.2} />
-										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#ffffff" castShadow />
+										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#fff1e0" castShadow />
 										<ambientLight intensity={0.2} />
 										<MiloModel3D reaction={reaction} />
 									</Canvas>
@@ -565,7 +571,7 @@ const MyMiloPage: React.FC = () => {
 																<span className="mm-slot__name">{item ? item.name : "Ajouter"}</span>
 															</span>
 															{item?.rarity === "legendaire" && (
-																<Sparkles className="mm-slot__legend" size={16} aria-hidden="true" />
+																<img src="/landing/emoji/sparkles.webp" alt="" className="mm-slot__legend" draggable={false} />
 															)}
 														</motion.button>
 													</li>

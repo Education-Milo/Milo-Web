@@ -1,8 +1,9 @@
 /* ==========================================================================
    MON MILO — la loge
-   Même langage que la boutique (MiloShop.css) et la landing : fond crème,
-   soleil « feu », titres Luckiest Guy, éléments cliquables en relief
-   (tranche pleine, sans flou). Milo pose au centre sur son socle, les cases
+   Charte landing (brand/charte-graphique-landing.html) : fond crème, soleil
+   « feu », titres Luckiest Guy en encre avec un mot en orange et relief
+   braise, éléments cliquables en relief (tranche pleine, sans flou), icônes
+   3D, vert tableau en accent de quelques pixels, aucun jaune. Milo pose au centre sur son socle, les cases
    de sa tenue l'entourent (tête à gauche, corps à droite) et la roue des
    duels est dessinée comme une vraie roue.
    Classes préfixées `mm-` : le CSS du projet est global.
@@ -66,30 +67,32 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5em;
-	height: 52px;
-	padding: 0 1.4rem;
+	gap: 0.55em;
+	height: 48px;
+	padding: 0 1.3rem;
 	border: 0;
 	border-radius: 999px;
-	font: 700 1.02rem/1 var(--f-text);
+	font: 700 1rem/1 var(--f-text);
 	white-space: nowrap;
 	cursor: pointer;
-	box-shadow: 0 6px 0 var(--edge);
+	box-shadow: 0 4px 0 var(--edge);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
-.mm-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 0 var(--edge); }
+.mm-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--edge); }
 .mm-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
 .mm-btn:disabled { cursor: not-allowed; opacity: 0.55; }
 
 .mm-btn--primary { background: var(--milo-orange); color: #fff; }
+.mm-btn--primary:not(:disabled) { box-shadow: 0 4px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, 0.7); }
+.mm-btn--primary:hover:not(:disabled) { box-shadow: 0 6px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, 0.75); }
 
 .mm-btn--ghost {
 	--edge: var(--mm-sable);
 	background: #fff;
 	color: var(--milo-encre);
-	box-shadow: inset 0 0 0 2px var(--mm-sable), 0 6px 0 var(--edge);
+	box-shadow: inset 0 0 0 2px var(--mm-sable), 0 4px 0 var(--edge);
 }
-.mm-btn--ghost:hover:not(:disabled) { color: var(--milo-braise); box-shadow: inset 0 0 0 2px var(--mm-sable), 0 8px 0 var(--edge); }
+.mm-btn--ghost:hover:not(:disabled) { color: var(--milo-braise); box-shadow: inset 0 0 0 2px var(--mm-sable), 0 6px 0 var(--edge); }
 .mm-btn--ghost:active:not(:disabled) { box-shadow: inset 0 0 0 2px var(--mm-sable), 0 1px 0 var(--edge); }
 
 .mm-btn--xs {
@@ -128,19 +131,44 @@
 
 .mm-head__copy { display: grid; gap: 0.7rem; justify-items: start; }
 
-/* Titre « sticker » : le traitement du logo (lettres crème, contour orange, tranche) */
+/* Étiquette au-dessus du titre (charte : « eyebrow », point vert tableau) */
+.mm-eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.55em 1em 0.5em;
+	border-radius: 999px;
+	background: #fff;
+	border: 2px solid var(--mm-line);
+	font-weight: 600;
+	font-size: 0.82rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	line-height: 1;
+	color: var(--milo-braise);
+}
+.mm-eyebrow i {
+	width: 0.55em;
+	height: 0.55em;
+	border-radius: 50%;
+	background: var(--milo-vert);
+	box-shadow: 0 0 0 4px rgba(43, 69, 32, 0.14);
+}
+
+/* Titre de page : Luckiest Guy en encre, un seul mot en orange avec le
+   relief braise. Pas de texte détouré ni de dégradé (charte landing). */
 h1.mm-title {
 	font-family: var(--f-display);
 	font-weight: 400;
-	font-size: clamp(2.9rem, 5.4vw, 4.6rem);
-	line-height: 1;
-	letter-spacing: 0.02em;
-	color: var(--milo-lettre);
-	-webkit-text-stroke: 0.15em var(--milo-orange);
-	paint-order: stroke fill;
-	text-shadow: 0 0.08em 0 var(--milo-relief), 0 0.15em 0 rgba(120, 30, 0, 0.22);
-	padding: 0.05em 0.08em 0.12em;
-	margin-left: -0.08em;
+	font-size: clamp(2.8rem, 5.4vw, 4.4rem);
+	line-height: 1.04;
+	letter-spacing: 0.01em;
+	color: var(--milo-encre);
+	text-wrap: balance;
+}
+.mm-hl {
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
 }
 
 .mm-lead {
@@ -165,7 +193,7 @@ h1.mm-title {
 	gap: 12px;
 }
 
-/* Tirelire : la pièce (Pompon) est la couleur de la récompense */
+/* Tirelire et casier : puces blanches de la charte (tranche sable) */
 .mm-wallet {
 	display: inline-flex;
 	align-items: center;
@@ -173,16 +201,17 @@ h1.mm-title {
 	height: 52px;
 	padding: 0 1.2rem 0 0.45rem;
 	border-radius: 999px;
-	background: var(--pompon-bg, #feecc8);
-	border: 2px solid #f7d58a;
-	box-shadow: 0 6px 0 var(--milo-pompon-relief, #c98a00);
+	background: #fff;
+	border: 2px solid var(--mm-line);
+	box-shadow: 0 5px 0 var(--mm-sable), 0 18px 30px -16px rgba(120, 50, 10, 0.45);
 }
-.mm-wallet__coin { width: 38px; height: 38px; filter: drop-shadow(0 4px 4px rgba(120, 70, 0, 0.25)); }
+.mm-wallet__coin { width: 38px; height: 38px; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.25)); }
 .mm-wallet__amount {
 	font-family: var(--f-display);
 	font-size: 1.5rem;
 	line-height: 1;
 	padding-top: 0.12em;
+	color: var(--milo-braise);
 	font-variant-numeric: tabular-nums;
 }
 .mm-wallet__unit { font-weight: 600; font-size: 0.92rem; color: var(--text-2); }
@@ -197,17 +226,9 @@ h1.mm-title {
 	border-radius: 999px;
 	background: #fff;
 	border: 2px solid var(--mm-line);
-	box-shadow: 0 6px 0 var(--mm-sable);
+	box-shadow: 0 5px 0 var(--mm-sable), 0 18px 30px -16px rgba(120, 50, 10, 0.45);
 }
-.mm-stat__icon {
-	display: grid;
-	place-items: center;
-	width: 38px;
-	height: 38px;
-	border-radius: 50%;
-	background: var(--mm-creme);
-	color: var(--milo-braise);
-}
+.mm-stat__icon { width: 38px; height: 38px; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.25)); }
 .mm-stat__value {
 	font-family: var(--f-display);
 	font-size: 1.5rem;
@@ -245,7 +266,8 @@ h1.mm-title {
 	height: 32px;
 	padding: 0.1em 0.8em 0;
 	border-radius: 999px;
-	background: var(--mm-creme);
+	gap: 0.45em;
+	background: #fff;
 	border: 2px solid var(--mm-line);
 	font-family: var(--f-display);
 	font-size: 1.05rem;
@@ -253,7 +275,15 @@ h1.mm-title {
 	color: var(--milo-braise);
 	font-variant-numeric: tabular-nums;
 }
-.mm-count.is-full { background: var(--pompon-bg, #feecc8); border-color: #f7d58a; }
+.mm-count.is-full::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	margin-top: -0.12em;
+	border-radius: 50%;
+	background: var(--milo-vert);
+	box-shadow: 0 0 0 3px rgba(43, 69, 32, 0.14);
+}
 
 /* ==========================================================================
    LA LOGE
@@ -297,6 +327,11 @@ h1.mm-title {
 	right: 0;
 	top: var(--canvas-top);
 	height: calc(var(--theatre) - var(--canvas-top));
+	/* Milo se tient à droite du centre du canvas (axe du torse à 7 % de la
+	   hauteur, cf. --milo-axis) : en colonne, on décale canvas et décor
+	   ensemble de cette valeur pour que Milo et son soleil soient centrés
+	   dans la carte. En grand format, les cases l'entourent : pas de décalage. */
+	translate: calc((var(--theatre) - var(--canvas-top)) * -0.07) 0;
 }
 
 /* Le décor est un conteneur de taille : ses éléments se calent sur la
@@ -360,7 +395,7 @@ h1.mm-title {
 	top: 50%;
 }
 .mm-stage__orbit i:nth-child(2) { left: 85.4%; top: 14.6%; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: var(--milo-vert); box-shadow: none; }
-.mm-stage__orbit i:nth-child(3) { left: 75%; top: 93.3%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--milo-pompon); box-shadow: none; }
+.mm-stage__orbit i:nth-child(3) { left: 75%; top: 93.3%; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; background: var(--mm-vermillon); box-shadow: none; }
 
 /* Plateau sous les pattes de Milo */
 .mm-stage__podium {
@@ -584,7 +619,7 @@ h1.mm-title {
 	border-radius: 50%;
 	background: var(--milo-orange);
 	color: #fff;
-	box-shadow: 0 3px 0 var(--milo-relief);
+	box-shadow: 0 3px 0 var(--milo-braise);
 	transition: transform 0.25s var(--mm-spring);
 }
 .mm-slot:hover:not(:disabled) .mm-slot__plus { transform: rotate(90deg) scale(1.1); }
@@ -604,11 +639,13 @@ h1.mm-title {
 
 .mm-slot__legend {
 	position: absolute;
-	top: -8px;
-	right: -6px;
-	color: var(--milo-pompon);
-	filter: drop-shadow(0 2px 0 var(--milo-pompon-relief));
+	top: -12px;
+	right: -10px;
+	width: 26px;
+	height: 26px;
+	filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.25));
 	animation: mm-twinkle 1.6s ease-in-out infinite;
+	pointer-events: none;
 }
 
 .mm-stage.is-busy .mm-slot { opacity: 0.72; }
@@ -659,7 +696,7 @@ h1.mm-title {
 	.mm-stage__inner::before { height: 100%; }
 	/* Milo occupe 84 % de la hauteur : il laisse respirer les cases */
 	.mm-stage__scene,
-	.mm-stage__canvas { top: 10%; height: 84%; }
+	.mm-stage__canvas { top: 10%; height: 84%; translate: none; }
 
 	.mm-stage__bubble {
 		top: 4%;
@@ -687,7 +724,7 @@ h1.mm-title {
 	/* À gauche, l'image est du côté de Milo : la case est inversée */
 	.mm-slot-wrap.is-left .mm-slot { flex-direction: row-reverse; padding: 8px 8px 8px 12px; text-align: right; }
 	.mm-slot { gap: 10px; }
-	.mm-slot-wrap.is-left .mm-slot__legend { right: auto; left: -6px; }
+	.mm-slot-wrap.is-left .mm-slot__legend { right: auto; left: -10px; }
 
 	.mm-slot--skeleton { height: 66px; }
 	.mm-stage .mm-stage__float { display: block; }
@@ -797,7 +834,7 @@ h1.mm-title {
 	aspect-ratio: 1;
 	border-radius: 50%;
 	translate: -50% -50%;
-	background: var(--milo-lettre);
+	background: var(--mm-creme);
 	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 /* Les ampoules s'allument en chenillard au survol de la roue */
@@ -832,7 +869,7 @@ h1.mm-title {
 }
 .mm-wheel__wedge.is-alt { background: var(--mm-surface); }
 .mm-wheel__wedge.is-filled { background: radial-gradient(circle at 50% 50%, var(--r-bg) 20%, var(--r-bg-2) 100%); }
-.mm-wheel__wedge.is-focus { background-color: var(--milo-lettre); }
+.mm-wheel__wedge.is-focus { background-color: var(--mm-creme); }
 .mm-wheel__wedge.is-filled.is-focus { filter: saturate(1.35) brightness(1.04); }
 
 /* Pastilles des emplacements */
@@ -863,7 +900,7 @@ h1.mm-title {
 	background: radial-gradient(circle at 50% 40%, #fff 0%, var(--r-bg, #fff) 70%);
 	border: 3px solid var(--r-line, var(--mm-line));
 	box-shadow: 0 5px 0 var(--r-edge, var(--mm-sable)), 0 14px 20px -12px var(--r-glow, rgba(120, 50, 10, 0.4));
-	color: var(--text-3);
+	color: var(--text-2);
 }
 .mm-wslot.is-empty .mm-wslot__disc {
 	background: rgba(255, 255, 255, 0.75);
@@ -949,7 +986,7 @@ h1.mm-title {
 	color: var(--milo-encre);
 	font-variant-numeric: tabular-nums;
 }
-.mm-wheel__hub-count small { font-size: 0.65em; color: var(--text-3); }
+.mm-wheel__hub-count small { font-size: 0.65em; color: var(--text-2); }
 .mm-wheel__hub-slot { font-size: 0.7rem; font-weight: 600; color: var(--milo-braise); }
 .mm-wheel__hub-name {
 	max-width: 100%;
@@ -1033,6 +1070,7 @@ h1.mm-title {
 	gap: 14px;
 }
 
+.mm-sheet__icon img { width: 70%; height: 70%; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.22)); }
 .mm-sheet__icon {
 	display: grid;
 	place-items: center;
@@ -1200,11 +1238,11 @@ h1.mm-title {
 	padding: 0.35rem 0.6rem 0.3rem;
 	border-radius: 999px;
 	background: var(--milo-vert);
-	color: var(--milo-craie);
+	color: var(--mm-creme);
 	font-size: 0.72rem;
 	font-weight: 700;
 	line-height: 1;
-	box-shadow: 0 3px 0 var(--milo-vert-edge);
+	box-shadow: 0 3px 0 #1d3115;
 }
 .mm-pick__badge--soft { background: #fff; color: var(--text-2); box-shadow: 0 0 0 2px var(--mm-line); }
 
@@ -1276,18 +1314,64 @@ h1.mm-title {
 }
 
 @container mm (max-width: 560px) {
-	.mm-head__side { display: grid; justify-items: stretch; }
-	.mm-head__actions .mm-btn { flex: 1; }
+	.mm-head { gap: 16px; }
+	.mm-head__copy { gap: 0.55rem; }
+	.mm-lead { font-size: 1rem; }
+	/* La règle à 1020 px pose justify-content: flex-start, qui resserre la
+	   piste de la grille sur son contenu : on la remet en pleine largeur */
+	.mm-head__side { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: stretch; gap: 12px; }
+	.mm-head__actions { flex-wrap: nowrap; }
+	.mm-head__actions .mm-btn { flex: 1; padding: 0 1rem; }
 }
 
+/* Téléphone : en-tête resserré, cases de la tenue en tuiles sur trois
+   colonnes pour garder Milo à portée de vue pendant qu'on l'habille */
 @container mm (max-width: 520px) {
 	.mm-stage { border-radius: 32px; }
-	.mm-stage__inner { --theatre: 440px; }
+	.mm-stage__inner { --theatre: 430px; padding-inline: 12px; }
 	.mm-wheelcard { border-radius: 32px; }
-	.mm-wallet, .mm-stat { height: 46px; }
-	.mm-wallet__coin, .mm-stat__icon { width: 34px; height: 34px; }
-	.mm-wallet__amount, .mm-stat__value { font-size: 1.3rem; }
-	.mm-slots { grid-template-columns: minmax(0, 1fr); }
+
+	/* Les deux compteurs tiennent sur une ligne */
+	.mm-head__stats { flex-wrap: nowrap; gap: 10px; }
+	.mm-wallet, .mm-stat {
+		flex: 1 1 auto;
+		justify-content: center;
+		min-width: 0;
+		height: 46px;
+		gap: 0.4rem;
+		padding: 0 0.85rem 0 0.4rem;
+	}
+	.mm-wallet__coin, .mm-stat__icon { width: 30px; height: 30px; flex: none; }
+	.mm-wallet__amount, .mm-stat__value { font-size: 1.15rem; }
+	.mm-wallet__unit, .mm-stat__unit { font-size: 0.82rem; }
+
+	.mm-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; }
+	.mm-slot {
+		flex-direction: column;
+		justify-content: flex-start;
+		gap: 6px;
+		min-height: 0;
+		height: 100%;
+		padding: 10px 4px 9px;
+		border-radius: 20px;
+		text-align: center;
+	}
+	.mm-slot__visual { width: 52px; height: 52px; border-radius: 16px; }
+	.mm-slot__plus { width: 22px; height: 22px; right: -7px; bottom: -5px; }
+	.mm-slot__text { justify-items: center; width: 100%; line-height: 1.15; }
+	.mm-slot__type { max-width: 100%; font-size: 0.68rem; }
+	/* Le nom peut tenir sur deux lignes : « Casque Gamer », « Nœud Papillon » */
+	.mm-slot__name {
+		max-width: 100%;
+		font-size: clamp(0.74rem, 4cqw, 0.8rem);
+		line-height: 1.15;
+		text-wrap: balance;
+		overflow-wrap: normal; /* jamais « Moustach / e » : le mot entier passe à la ligne */
+	}
+	.mm-slot__legend { top: -10px; right: -8px; width: 24px; height: 24px; }
+	.mm-slot--skeleton { height: 108px; }
+
+	.mm-wheelcard__hint { font-size: 0.92rem; }
 }
 
 /* ==========================================================================
@@ -1318,8 +1402,8 @@ h1.mm-title {
 }
 
 @keyframes mm-bulb {
-	0% { background: #fff6d6; box-shadow: 0 0 8px 2px rgba(255, 220, 140, 0.9); }
-	50% { background: var(--milo-lettre); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18); }
+	0% { background: #fff; box-shadow: 0 0 8px 2px rgba(255, 233, 217, 0.9); }
+	50% { background: var(--mm-creme); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18); }
 }
 
 @media (prefers-reduced-motion: reduce) {
