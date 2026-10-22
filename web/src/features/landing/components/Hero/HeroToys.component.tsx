@@ -4,6 +4,7 @@ import { RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { heroState } from "@features/landing/lib/heroState";
+import HeroContactShadow from "@features/landing/components/Hero/HeroContactShadow.component";
 
 /// Jouets 3D procéduraux qui flottent autour de Milo (palette de la charte).
 /// Ils suivent la souris, tournent plus vite au survol, puis s'écartent et
@@ -213,6 +214,17 @@ export const Pedestal: React.FC = () => (
 			<torusGeometry args={[0.82, 0.022, 12, 96]} />
 			<Toy color={C.sable} />
 		</mesh>
+		{/* Ombre douce sous les pieds de Milo, 1,5 mm au-dessus du plateau. Seul
+		    ce qui frôle le socle (`far`) la projette : les pieds et le bas des
+		    jambes. Elle s'arrête avant le liseré, qui ne s'y imprime pas. */}
+		<HeroContactShadow
+			position={[0, 0.1015, 0]}
+			size={1.6}
+			far={0.5}
+			blur={2.5}
+			opacity={0.6}
+			color={C.ink}
+		/>
 	</group>
 );
 

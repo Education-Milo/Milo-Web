@@ -13,6 +13,7 @@ import {
 } from "@features/my-milo/utils/miloModel";
 import { ConvexGeometry } from "three/examples/jsm/geometries/ConvexGeometry.js";
 import { heroState } from "@features/landing/lib/heroState";
+import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 
 /// Hauteur du corps de Milo en unités monde
 export const MILO_FIT_HEIGHT = 2.1;
@@ -78,6 +79,9 @@ const HeroMilo: React.FC<HeroMiloProps> = ({ reducedMotion, onReady }) => {
 	}, [source]);
 
 	const { actions, mixer } = useAnimations(animations, group);
+	// La tête et les yeux suivent le curseur. Appelé après useAnimations : le
+	// regard s'ajoute à la pose que le mixer vient d'appliquer.
+	useMiloGaze(scene, !reducedMotion);
 	const current = useRef<THREE.AnimationAction | null>(null);
 	const drag = useRef<{ x: number; startX: number } | null>(null);
 	const spin = useRef(0);
@@ -176,7 +180,9 @@ const HeroMilo: React.FC<HeroMiloProps> = ({ reducedMotion, onReady }) => {
 	});
 
 	return (
-		<group ref={pivot} position={[0, -0.05, 0]}>
+		// Pieds posés sur le plateau du socle (y = -1,08 dans LaunchRig), 2 mm
+		// au-dessus : ils s'y enfonçaient, et l'ombre de contact naît des semelles
+		<group ref={pivot} position={[0, -0.027, 0]}>
 			{/* Aucun gestionnaire de souris sur Milo lui-même : React Three Fiber
 			    testerait alors chaque mouvement de souris contre ses ~50 000
 			    triangles animés (os recalculés sommet par sommet), soit plusieurs
