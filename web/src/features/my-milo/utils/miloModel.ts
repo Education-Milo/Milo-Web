@@ -352,9 +352,9 @@ export function findFirstAction(
    ATTENTES — Milo alterne entre plusieurs idles
    ========================================================================== */
 
-/// Les attentes de Milo, de même durée (10 s) et de même rythme. Elles
-/// commencent et finissent sur la même pose : on peut passer de l'une à
-/// l'autre à chaque fin de boucle sans à-coup. "Idle" reste la première
+/// Les attentes de Milo (Idle : 10 s ; Idle2 et Idle3 : 8 s, un peu plus
+/// vives). Elles commencent et finissent sur la même pose : on peut passer de
+/// l'une à l'autre à chaque fin de boucle sans à-coup. "Idle" reste la première
 /// jouée, et la seule si un ancien .glb n'a pas les autres.
 export const IDLE_CLIPS = ["Idle", "Idle2", "Idle3"];
 
