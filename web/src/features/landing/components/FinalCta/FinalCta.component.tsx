@@ -55,7 +55,7 @@ const FinalCta: React.FC = () => {
 						{CONFETTI.map((name, i) => (
 							<Emoji3D key={name} name={name} className={`lp-cta__confetti lp-cta__confetti--${i + 1}`} />
 						))}
-						<img className="lp-cta__milo" src="/landing/milo-reading.webp" alt="Milo plongé dans son livre" loading="lazy" />
+						<img className="lp-cta__milo" src="/landing/milo/milo-adopt.webp" alt="Milo t'ouvre grand les bras" loading="lazy" />
 					</div>
 				</div>
 			</div>

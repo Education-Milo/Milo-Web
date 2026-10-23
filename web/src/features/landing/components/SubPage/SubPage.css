@@ -89,6 +89,18 @@
 	margin-bottom: -0.3rem;
 }
 
+/* Milo mis en scène pour la page (rendu 3D), à la place de la grande icône.
+   Le rendu s'arrête aux cuisses : le bas est fondu pour ne pas finir net. */
+.lp-page-hero__milo {
+	width: clamp(150px, 17vw, 220px);
+	height: auto;
+	margin-bottom: -0.7rem;
+	/* Pas de drop-shadow : combiné au masque, il dessine un rectangle autour */
+	-webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 97%);
+	mask-image: linear-gradient(to bottom, #000 70%, transparent 97%);
+	user-select: none;
+}
+
 .lp-page-hero__eyebrow {
 	display: inline-block;
 	padding: 0.4rem 1rem;

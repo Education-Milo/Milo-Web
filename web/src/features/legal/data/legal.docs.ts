@@ -10,6 +10,8 @@ export interface LegalDoc {
 	shortTitle: string;
 	description: string;
 	icon: Emoji3DName;
+	/// Milo mis en scène pour ce document, en tête de page (public/landing/milo)
+	milo: string;
 	updatedAt: string;
 	version: string;
 }
@@ -24,6 +26,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "Mentions légales",
 		description: "Qui édite et héberge Milo.",
 		icon: "card_index_dividers",
+		milo: "/landing/milo/milo-mentions.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},
@@ -34,6 +37,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "CGU",
 		description: "Les règles du jeu pour utiliser Milo.",
 		icon: "books",
+		milo: "/landing/milo/milo-cgu.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},
@@ -44,6 +48,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "CGV",
 		description: "Abonnements, essai gratuit et résiliation.",
 		icon: "money_bag",
+		milo: "/landing/milo/milo-cgv.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},
@@ -54,6 +59,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "Confidentialité",
 		description: "Les données que nous utilisons, et pourquoi.",
 		icon: "locked",
+		milo: "/landing/milo/milo-confidentialite.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},
@@ -64,6 +70,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "Cookies",
 		description: "Ce que Milo garde dans ton navigateur.",
 		icon: "coin",
+		milo: "/landing/milo/milo-cookies.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},
@@ -74,6 +81,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		shortTitle: "Charte IA",
 		description: "Comment le tuteur Milo utilise l'intelligence artificielle.",
 		icon: "brain",
+		milo: "/landing/milo/milo-charte.webp",
 		updatedAt: "8 octobre 2026",
 		version: "1.0",
 	},

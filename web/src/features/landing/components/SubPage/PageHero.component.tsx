@@ -7,6 +7,9 @@ import { revealTitle } from "@features/landing/lib/animations";
 interface PageHeroProps {
 	/// Grande icône 3D au-dessus du titre
 	icon: Emoji3DName;
+	/// Rendu de Milo mis en scène pour la page (public/landing/milo) : remplace
+	/// la grande icône quand il est fourni
+	milo?: string;
 	/// Deux icônes qui flottent de part et d'autre
 	floats: [Emoji3DName, Emoji3DName];
 	/// Petite étiquette au-dessus du titre
@@ -19,7 +22,7 @@ interface PageHeroProps {
 
 /// En-tête des pages secondaires : le décor du hero de la Vitrine (pois,
 /// halos, icônes 3D flottantes) autour d'un titre révélé lettre par lettre.
-const PageHero: React.FC<PageHeroProps> = ({ icon, floats, eyebrow, title, lead, children }) => {
+const PageHero: React.FC<PageHeroProps> = ({ icon, milo, floats, eyebrow, title, lead, children }) => {
 	const root = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -28,6 +31,7 @@ const PageHero: React.FC<PageHeroProps> = ({ icon, floats, eyebrow, title, lead,
 			const q = gsap.utils.selector(root);
 			revealTitle(q(".lp-page-hero__title")[0]);
 			gsap.from(q(".lp-page-hero__icon"), { scale: 0, rotate: -45, duration: 0.9, ease: "back.out(2.2)" });
+			gsap.from(q(".lp-page-hero__milo"), { y: 40, scale: 0.7, opacity: 0, duration: 0.9, ease: "back.out(1.8)" });
 			gsap.from(q("[data-hero-up]"), { y: 30, opacity: 0, duration: 0.7, stagger: 0.1, delay: 0.25, ease: "power3.out" });
 			q(".lp-page-hero__float").forEach((el, i) => {
 				gsap.from(el, { scale: 0, duration: 0.8, delay: 0.4 + i * 0.15, ease: "back.out(2)" });
@@ -48,7 +52,11 @@ const PageHero: React.FC<PageHeroProps> = ({ icon, floats, eyebrow, title, lead,
 			</div>
 
 			<div className="lp-wrap lp-page-hero__inner">
-				<Emoji3D name={icon} className="lp-page-hero__icon" loading="eager" />
+				{milo ? (
+					<img className="lp-page-hero__milo" src={milo} alt="" width={720} height={840} draggable={false} decoding="async" />
+				) : (
+					<Emoji3D name={icon} className="lp-page-hero__icon" loading="eager" />
+				)}
 				<span className="lp-page-hero__eyebrow" data-hero-up>
 					{eyebrow}
 				</span>

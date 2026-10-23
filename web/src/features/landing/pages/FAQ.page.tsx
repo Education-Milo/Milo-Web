@@ -112,6 +112,7 @@ const FAQPage: React.FC = () => {
 	const hero = (
 		<PageHero
 			icon="speech_balloon"
+			milo="/landing/milo/milo-faq.webp"
 			floats={["light_bulb", "sparkles"]}
 			eyebrow="Aide & support"
 			title={
@@ -221,7 +222,7 @@ const FAQPage: React.FC = () => {
 							Nous contacter <ArrowRight size={22} />
 						</Link>
 					</div>
-					<img className="lp-help-cta__milo" src="/landing/milo-reading.webp" alt="" loading="lazy" />
+					<img className="lp-help-cta__milo" src="/landing/milo/milo-support.webp" alt="" loading="lazy" />
 				</section>
 			</div>
 		</SubPage>

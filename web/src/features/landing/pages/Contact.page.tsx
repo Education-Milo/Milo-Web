@@ -103,6 +103,7 @@ const ContactPage: React.FC = () => {
 	const hero = (
 		<PageHero
 			icon="fox"
+			milo="/landing/milo/milo-contact.webp"
 			floats={["speech_balloon", "star"]}
 			eyebrow="On discute ?"
 			title={
@@ -225,7 +226,7 @@ const ContactPage: React.FC = () => {
 								{CONTACT_EMAIL}
 							</a>
 						</div>
-						<img className="lp-contact-mail__milo" src="/landing/milo-reading.webp" alt="" loading="lazy" />
+						<img className="lp-contact-mail__milo" src="/landing/milo/milo-mail.webp" alt="" loading="lazy" />
 					</div>
 				</aside>
 			</div>

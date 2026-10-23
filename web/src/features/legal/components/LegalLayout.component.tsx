@@ -86,7 +86,7 @@ const LegalLayout: React.FC<LegalLayoutProps> = ({ slug, floats, title, lead, su
 	);
 
 	const hero = (
-		<PageHero icon={doc.icon} floats={floats} eyebrow="Informations légales" title={title} lead={lead}>
+		<PageHero icon={doc.icon} milo={doc.milo} floats={floats} eyebrow="Informations légales" title={title} lead={lead}>
 			<p className="lg-meta">
 				<span>
 					<CalendarDays size={16} aria-hidden="true" />
