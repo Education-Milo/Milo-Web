@@ -39,6 +39,8 @@ import { formatMiloros } from "@features/milo-shop/utils/format";
 import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
 import DuelWheel from "@features/my-milo/components/DuelWheel.component";
 import MiloBubble from "@features/my-milo/components/MiloBubble.component";
+import { PoofSmoke } from "@features/my-milo/components/MiloPoof.component";
+import { POOF_TIMING, pirouetteAt } from "@features/my-milo/utils/miloPoof";
 import {
 	WHEEL_SLOT_COUNT,
 	arrangeWheel,
@@ -108,18 +110,26 @@ const EQUIP_REACTIONS: Partial<Record<CosmeticType, string>> = {
 /// Clip à jouer ; le compteur permet de rejouer le même clip deux fois de suite
 type EquipReaction = { clip: string; nonce: number };
 
+/// Taille de Milo dans le .glb (unités), pour doser le saut et la fumée
+const MILO_HEIGHT = 7.7;
+
 type PickerTarget = { kind: "outfit"; type: CosmeticType } | { kind: "wheel"; slot: number };
 
 interface MiloModel3DProps {
 	reaction: EquipReaction | null;
+	/// « Tout enlever » : chaque nouvelle valeur relance pirouette et fumée
+	poof: number;
+	/// Retrait en cours côté serveur : les accessoires restent cachés
+	stripping: boolean;
 }
 
-const MiloModel3D = ({ reaction }: MiloModel3DProps) => {
+const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
 	/// Copie dédiée : la rotation et la position posées ici resteraient sinon
 	/// sur la scène du .glb, partagée avec tous les autres écrans
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
+	const spinRef = useRef<THREE.Group>(null);
 
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
@@ -129,8 +139,25 @@ const MiloModel3D = ({ reaction }: MiloModel3DProps) => {
 		if (scene) prepareMiloScene(scene);
 	}, [scene]);
 
+	/// Pirouette : instant de départ (horloge du canvas), accessoires cachés
+	/// sous la fumée, et dernières valeurs lues depuis la boucle de rendu
+	const poofStart = useRef<number | null>(null);
+	const poofPending = useRef(false);
+	const bare = useRef(false);
+	const equippedRef = useRef(equippedMeshNames);
+	const strippingRef = useRef(stripping);
+	equippedRef.current = equippedMeshNames;
+	strippingRef.current = stripping;
+
+	useEffect(() => {
+		if (poof > 0) poofPending.current = true;
+	}, [poof]);
+
 	useEffect(() => {
 		if (!scene) return;
+		/// Pendant la pirouette, c'est elle qui décide : les accessoires ne
+		/// disparaissent que sous la fumée, même si le serveur répond avant
+		if (poofPending.current || poofStart.current !== null) return;
 		applyEquippedAccessories(scene, equippedMeshNames);
 		applyAngelCircleGlow(scene);
 		scene.visible = true;
@@ -198,11 +225,46 @@ const MiloModel3D = ({ reaction }: MiloModel3DProps) => {
 			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
 		}
 		updateAngelCircleGlow(scene, state.clock.elapsedTime);
+
+		const now = state.clock.elapsedTime;
+		if (poofPending.current) {
+			poofPending.current = false;
+			poofStart.current = now;
+		}
+		const spin = spinRef.current;
+		if (poofStart.current === null || !spin) return;
+
+		const t = now - poofStart.current;
+		const pose = pirouetteAt(Math.min(t, POOF_TIMING.duration));
+		spin.rotation.y = pose.rotationY;
+		spin.position.y = pose.lift * MILO_HEIGHT;
+		spin.scale.set(pose.scaleXZ, pose.scaleY, pose.scaleXZ);
+
+		/// Sous le nuage : plus aucun accessoire
+		if (!bare.current && t >= POOF_TIMING.hideAt) {
+			bare.current = true;
+			applyEquippedAccessories(scene, []);
+		}
+		/// Fumée dissipée et serveur d'accord : retour à l'état réel (vide, ou
+		/// la tenue d'avant si le retrait a échoué)
+		if (t >= POOF_TIMING.smokeStart + POOF_TIMING.smokeLife + 0.15 && !strippingRef.current) {
+			poofStart.current = null;
+			bare.current = false;
+			spin.rotation.y = 0;
+			spin.position.y = 0;
+			spin.scale.set(1, 1, 1);
+			applyEquippedAccessories(scene, equippedRef.current);
+		}
 	});
 
 	return (
 		<group ref={groupRef} position={[-20, -4, -7]}>
-			<primitive object={scene} position={[0, 0, -1]} scale={1} rotation={[0, -0.05, 0]} />
+			<group ref={spinRef} position={[0, 0, -1]}>
+				<primitive object={scene} scale={1} rotation={[0, -0.05, 0]} />
+			</group>
+			<group position={[0, 0, -1]}>
+				<PoofSmoke start={poofStart} height={MILO_HEIGHT} />
+			</group>
 		</group>
 	);
 };
@@ -211,6 +273,9 @@ const MyMiloPage: React.FC = () => {
 	const navigate = useNavigate();
 	const userId = useUserStore((state) => state.user?.id);
 	const [reaction, setReaction] = useState<EquipReaction | null>(null);
+	/// « Tout enlever » : déclencheur de la pirouette, et retrait en cours
+	const [poof, setPoof] = useState(0);
+	const [stripping, setStripping] = useState(false);
 	const [picker, setPicker] = useState<PickerTarget | null>(null);
 	// Force le recalcul de la roue quand les emplacements mémorisés changent
 	const [slotVersion, setSlotVersion] = useState(0);
@@ -329,7 +394,13 @@ const MyMiloPage: React.FC = () => {
 
 	const unequipAll = () => {
 		if (isBusy) return;
+		/// Pirouette et pouf de fumée, seulement si Milo porte quelque chose
+		if (equippedByType.size > 0 && !calm) {
+			setPoof((n) => n + 1);
+			setStripping(true);
+		}
 		unequipMutation.mutate(undefined, {
+			onSettled: () => setStripping(false),
 			onSuccess: (data) => {
 				showToast(
 					data.unequipped === 0
@@ -492,7 +563,7 @@ const MyMiloPage: React.FC = () => {
 										<Environment preset="sunset" environmentIntensity={1.2} />
 										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#fff1e0" castShadow />
 										<ambientLight intensity={0.2} />
-										<MiloModel3D reaction={reaction} />
+										<MiloModel3D reaction={reaction} poof={poof} stripping={stripping} />
 									</Canvas>
 								</div>
 
