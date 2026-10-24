@@ -46,14 +46,6 @@
 		opacity: 0.6;
 	}
 }
-@keyframes hp-shimmer {
-	0% {
-		transform: translateX(-120%) skewX(-20deg);
-	}
-	100% {
-		transform: translateX(320%) skewX(-20deg);
-	}
-}
 @keyframes hp-badge-pulse {
 	0%,
 	100% {
@@ -325,94 +317,6 @@
 	background: transparent;
 	/* le rendu WebGL déborde légèrement pour laisser respirer le modèle */
 	overflow: visible;
-}
-/* ============================================================ BANNIÈRE MILO AI — image ENTIÈRE, remplit la hauteur restante ============================================================ */
-.hp-milo-banner {
-	position: relative;
-	display: block;
-	width: 100%;
-	padding: 0;
-	border: 3px solid #fff;
-	border-radius: 32px;
-	background: linear-gradient(135deg, var(--milo-creme) 0%, var(--accent-light) 100%);
-	font-family: var(--hp-font);
-	cursor: pointer;
-	overflow: hidden;
-	animation:
-		hp-fadeUp 0.55s var(--hp-spring) both,
-		hp-glow-breathe 3.5s ease-in-out infinite;
-	animation-delay: 0.1s, 1s;
-	opacity: 0;
-	transition:
-		transform 0.5s var(--hp-spring),
-		border-color 0.4s ease;
-	flex: 1;
-	min-height: 380px;
-}
-.hp-milo-banner:hover {
-	transform: translateY(-4px) scale(1.005);
-	border-color: var(--hp-accent-light);
-}
-.hp-milo-banner:active {
-	transform: translateY(-1px) scale(0.998);
-}
-.hp-milo-banner-img {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-	z-index: 1;
-	transition: transform 0.8s var(--hp-spring);
-}
-.hp-milo-banner:hover .hp-milo-banner-img {
-	transform: scale(1.04);
-}
-.hp-milo-banner-shine {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 35%;
-	height: 100%;
-	background: linear-gradient(
-		90deg,
-		transparent 0%,
-		rgba(255, 255, 255, 0.55) 50%,
-		transparent 100%
-	);
-	transform: translateX(-150%) skewX(-25deg);
-	pointer-events: none;
-	z-index: 2;
-	animation: hp-glint-sweep 5s ease-in-out infinite;
-	animation-delay: 2s;
-}
-.hp-milo-banner-shine-2 {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 18%;
-	height: 100%;
-	background: linear-gradient(
-		90deg,
-		transparent 0%,
-		rgba(255, 255, 255, 0.85) 50%,
-		transparent 100%
-	);
-	transform: translateX(-150%) skewX(-25deg);
-	pointer-events: none;
-	z-index: 3;
-	animation: hp-glint-sweep 5s ease-in-out infinite;
-	animation-delay: 2.15s;
-	filter: blur(1px);
-}
-.hp-milo-banner:hover .hp-milo-banner-shine {
-	animation: hp-shimmer 0.9s ease;
-	animation-delay: 0s;
-}
-.hp-milo-banner:hover .hp-milo-banner-shine-2 {
-	animation: hp-shimmer 0.9s ease;
-	animation-delay: 0.1s;
 }
 /* ============================================================ CARTE GÉNÉRIQUE (actualités, missions) ============================================================ */
 .hp-card {
@@ -881,10 +785,6 @@
 		height: 215px;
 		margin-bottom: -26px;
 	}
-	.hp-milo-banner {
-		min-height: 420px;
-		flex: 0 0 auto;
-	}
 	.hp-missions {
 		flex: 0 0 auto;
 	}
@@ -928,10 +828,6 @@
 		height: 200px;
 		margin-bottom: -24px;
 	}
-	.hp-milo-banner {
-		border-radius: 28px;
-		min-height: 340px;
-	}
 	.hp-card {
 		padding: 22px;
 		border-radius: 26px;
@@ -967,11 +863,6 @@
 		width: 100%;
 		justify-content: center;
 		padding: 12px 16px;
-	}
-	.hp-milo-banner {
-		border-radius: 24px;
-		border-width: 2px;
-		min-height: 260px;
 	}
 	.hp-card {
 		padding: 18px;

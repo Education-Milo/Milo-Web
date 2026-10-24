@@ -12,11 +12,13 @@ import {
 } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
+import MiloSchoolCard from "@features/home/components/miloSchool/MiloSchoolCard.component";
 import { useHomePage } from "@features/home/hooks/useHomePage";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
 import { formatMissionReward } from "@features/missions/utils/missionIcons";
 import { useBulletinStore } from "@features/ocr/store/bulletin.store";
 import { ROUTES } from "@shared/constants/routes";
+import { useUserStore } from "@shared/store/user/user.store";
 import "@features/home/styles/Home.css";
 
 const ANNOUNCEMENTS = [
@@ -52,12 +54,15 @@ const ANNOUNCEMENTS = [
 
 const HomePage: React.FC = () => {
 	const navigate = useNavigate();
-	const { welcomeMessage, handleMiloClick } = useHomePage();
+	const { welcomeMessage } = useHomePage();
+	const user = useUserStore((state) => state.user);
+	const firstName = user?.first_name?.trim() || "champion";
 	const { data: dailyMissions } = useDailyMissions();
 	const reportCard = useBulletinStore((state) => state.reportCard);
 	const missions = dailyMissions?.missions ?? [];
 	const completedMissionsCount = dailyMissions?.completed ?? 0;
 	const totalMissionsCount = dailyMissions?.total ?? 0;
+	const pendingMissionsCount = missions.filter((mission) => !mission.is_bonus && !mission.is_completed).length;
 
 	const gradedSubjects =
 		reportCard?.filter((subject) => typeof subject.grade === "number") ?? [];
@@ -136,20 +141,12 @@ const HomePage: React.FC = () => {
 								<MiloWelcome3D />
 							</div>
 						</section>
-						<button
-							type="button"
-							className="hp-milo-banner"
-							onClick={handleMiloClick}
-							aria-label="Discuter avec Milo"
-						>
-							<img
-								src="/discuter_milo.jpg"
-								alt="Discute avec Milo"
-								className="hp-milo-banner-img"
-							/>
-							<div className="hp-milo-banner-shine" aria-hidden="true" />
-							<div className="hp-milo-banner-shine-2" aria-hidden="true" />
-						</button>
+						<MiloSchoolCard
+							firstName={firstName}
+							streak={user?.streak}
+							weakSubject={difficultSubjects[0]?.subject}
+							pendingMissions={pendingMissionsCount}
+						/>
 					</div>
 
 					{/* =============== COLONNE SECONDAIRE =============== */}

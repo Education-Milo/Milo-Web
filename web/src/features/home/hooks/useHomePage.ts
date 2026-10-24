@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@shared/store/user/user.store";
-import { ROUTES } from "@shared/constants/routes";
 
 export const useHomePage = () => {
 	const { user, getMe } = useUserStore();
-	const navigate = useNavigate();
 
 	const [welcomeMessage, setWelcomeMessage] = useState(
 		"Bon retour, champion ! 🎉",
@@ -30,12 +27,7 @@ export const useHomePage = () => {
 		}
 	}, [user, getMe]);
 
-	const handleMiloClick = () => {
-		navigate(ROUTES.MILO);
-	};
-
 	return {
 		welcomeMessage,
-		handleMiloClick,
 	};
 };
