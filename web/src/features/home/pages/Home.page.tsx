@@ -1,18 +1,10 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-	BookOpenText,
-	Bell,
-	Calendar,
-	CheckCircle2,
-	Clock,
-	Sparkles,
-	Target,
-	TrendingDown,
-} from "lucide-react";
+import { BookOpenText, Calendar, CheckCircle2, Clock, Mail, Target, TrendingDown } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import MiloWelcome3D from "@features/home/components/MiloWelcome3D.component";
 import MiloSchoolCard from "@features/home/components/miloSchool/MiloSchoolCard.component";
+import HomeSheet from "@features/home/components/HomeSheet.component";
+import { useSeenNews } from "@features/home/hooks/useSeenNews";
 import { useHomePage } from "@features/home/hooks/useHomePage";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
 import { formatMissionReward } from "@features/missions/utils/missionIcons";
@@ -52,6 +44,8 @@ const ANNOUNCEMENTS = [
 	},
 ];
 
+const ANNOUNCEMENT_IDS = ANNOUNCEMENTS.map((announcement) => announcement.id);
+
 const HomePage: React.FC = () => {
 	const navigate = useNavigate();
 	const { welcomeMessage } = useHomePage();
@@ -63,6 +57,14 @@ const HomePage: React.FC = () => {
 	const completedMissionsCount = dailyMissions?.completed ?? 0;
 	const totalMissionsCount = dailyMissions?.total ?? 0;
 	const pendingMissionsCount = missions.filter((mission) => !mission.is_bonus && !mission.is_completed).length;
+	const { unread: unreadNews, markAllSeen } = useSeenNews(ANNOUNCEMENT_IDS);
+	const [panel, setPanel] = useState<"missions" | "news" | null>(null);
+	const openMissions = useCallback(() => setPanel("missions"), []);
+	const openNews = useCallback(() => {
+		setPanel("news");
+		markAllSeen();
+	}, [markAllSeen]);
+	const closePanel = useCallback(() => setPanel(null), []);
 
 	const gradedSubjects =
 		reportCard?.filter((subject) => typeof subject.grade === "number") ?? [];
@@ -108,196 +110,121 @@ const HomePage: React.FC = () => {
 
 	return (
 		<ScreenLayout>
-			<div className="hp-page">
-				<div className="hp-grid">
-					{/* =============== COLONNE PRINCIPALE =============== */}
-					<div className="hp-main-col">
-						{/* --- Welcome Section --- */}
-						<section className="hp-welcome">
-							<div className="hp-welcome-halo" aria-hidden="true" />
-							<div className="hp-welcome-content">
-								<div className="hp-welcome-chip">
-									<Sparkles size={14} />
-									<span>Bienvenue</span>
-								</div>
-								<h1 className="hp-welcome-title">{welcomeMessage}</h1>
-								<p className="hp-welcome-sub">
-									Prêt à conquérir de nouveaux défis aujourd'hui ?
-								</p>
+			{/* L'accueil, en grand : Milo devant sa salle de classe. La pancarte
+			    ouvre les missions du jour, la boîte aux lettres les actualités. */}
+			<div className="hp-world">
+				<MiloSchoolCard
+					welcome={welcomeMessage}
+					firstName={firstName}
+					streak={user?.streak}
+					weakSubject={difficultSubjects[0]?.subject}
+					pendingMissions={pendingMissionsCount}
+					unreadNews={unreadNews}
+					missions={{ done: completedMissionsCount, total: totalMissionsCount, pending: pendingMissionsCount }}
+					onOpenMissions={openMissions}
+					onOpenNews={openNews}
+				/>
+			</div>
 
-								<div className="hp-welcome-actions">
-									<button type="button" className="hp-action-btn primary">
-										<BookOpenText size={16} />
-										<span>Continuer le cours</span>
-									</button>
-									<button type="button" className="hp-action-btn secondary">
-										<Target size={16} />
-										<span>Nouvelle mission</span>
-									</button>
-								</div>
-							</div>
-
-							<div className="hp-welcome-illustration" aria-hidden="true">
-								<MiloWelcome3D />
-							</div>
-						</section>
-						<MiloSchoolCard
-							firstName={firstName}
-							streak={user?.streak}
-							weakSubject={difficultSubjects[0]?.subject}
-							pendingMissions={pendingMissionsCount}
-						/>
+			{/* --- Missions du jour (et matières à revoir du bulletin) --- */}
+			<HomeSheet
+				open={panel === "missions"}
+				onClose={closePanel}
+				title="Missions du jour"
+				icon={<Target size={18} />}
+				aside={
+					<div className="hp-progress-pill">
+						<span className="hp-progress-value">{completedMissionsCount}</span>
+						<span className="hp-progress-sep">/</span>
+						<span className="hp-progress-total">{totalMissionsCount}</span>
 					</div>
-
-					{/* =============== COLONNE SECONDAIRE =============== */}
-					<div className="hp-side-col">
-						{/* --- Résultats du bulletin --- */}
-						{reportCard && reportCard.length > 0 && (
-							<section className="hp-card hp-bulletin">
-								<header className="hp-card-header">
-									<div className="hp-card-title-wrap">
-										<div className="hp-card-icon">
-											<BookOpenText size={18} />
-										</div>
-										<h2 className="hp-card-title">Ton bulletin</h2>
-									</div>
-								</header>
-
-								<div className="hp-bulletin-content">
-									{difficultSubjects.length > 0 && (
-										<div className="hp-bulletin-alert">
-											<div className="hp-bulletin-alert-header">
-												<TrendingDown size={18} />
-												<span>
-													{hasBelowClassAverageSubjects
-														? "Matières à revoir"
-														: "Matières à renforcer"}
-												</span>
-											</div>
-											<div className="hp-bulletin-subjects">
-												{difficultSubjects.map((subject, i) => (
-													<button
-														key={i}
-														type="button"
-														className="hp-bulletin-subject-btn"
-														onClick={() => handleSelectSubject(subject.subject)}
-													>
-														<span className="hp-bulletin-subject-name">
-															{subject.subject}
-														</span>
-														{typeof subject.grade === "number" && (
-															<span className="hp-bulletin-grade">
-																{subject.grade.toFixed(1)}
-															</span>
-														)}
-													</button>
-												))}
-											</div>
-										</div>
-									)}
-
-									{reportCard.length > difficultSubjects.length && (
-										<div className="hp-bulletin-summary">
-											<span className="hp-bulletin-summary-text">
-												{reportCard.length} matières au total
-											</span>
-										</div>
-									)}
+				}
+			>
+				<div className="hp-missions-list">
+					{missions.map((mission, i) => {
+						const isDone = mission.is_completed;
+						return (
+							<button
+								type="button"
+								key={mission.id}
+								className={`hp-mission ${isDone ? "done" : "pending"}`}
+								onClick={handleMissionClick}
+								style={{ animationDelay: `${0.05 + i * 0.07}s` }}
+							>
+								<div className="hp-mission-icon-wrap">
+									{isDone ? <CheckCircle2 size={20} /> : <Clock size={20} />}
 								</div>
-							</section>
-						)}
-						<section className="hp-card hp-announcements">
-							<header className="hp-card-header">
-								<div className="hp-card-title-wrap">
-									<div className="hp-card-icon">
-										<Bell size={18} />
+								<div className="hp-mission-body">
+									<div className="hp-mission-top">
+										<h3 className="hp-mission-title">{mission.title}</h3>
+										<span className="hp-mission-points">
+											{isDone ? "Terminé" : formatMissionReward(mission)}
+										</span>
 									</div>
-									<h2 className="hp-card-title">Actualités</h2>
+									<p className="hp-mission-desc">
+										{isDone
+											? "Mission accomplie avec brio !"
+											: `${Math.min(mission.progress, mission.target)}/${mission.target} réalisé`}
+									</p>
+									<span className="hp-mission-category">{mission.is_bonus ? "Bonus" : "Mission"}</span>
 								</div>
-								<span className="hp-badge-new">Nouveau</span>
-							</header>
+							</button>
+						);
+					})}
+					{missions.length === 0 && <p className="hp-sheet-empty">Pas de mission pour l'instant. Reviens plus tard !</p>}
+				</div>
 
-							<div className="hp-announcements-scroll">
-								{ANNOUNCEMENTS.map((a, i) => (
-									<article
-										key={a.id}
-										className="hp-announcement"
-										style={{ animationDelay: `${0.4 + i * 0.08}s` }}
+				{reportCard && reportCard.length > 0 && difficultSubjects.length > 0 && (
+					<section className="hp-bulletin hp-sheet-section" aria-label="Ton bulletin">
+						<div className="hp-bulletin-alert">
+							<div className="hp-bulletin-alert-header">
+								<TrendingDown size={18} />
+								<span>{hasBelowClassAverageSubjects ? "Matières à revoir" : "Matières à renforcer"}</span>
+							</div>
+							<div className="hp-bulletin-subjects">
+								{difficultSubjects.map((subject, i) => (
+									<button
+										key={i}
+										type="button"
+										className="hp-bulletin-subject-btn"
+										onClick={() => handleSelectSubject(subject.subject)}
 									>
-										<div className="hp-announcement-emoji">{a.emoji}</div>
-										<div className="hp-announcement-body">
-											<div className="hp-announcement-date">
-												<Calendar size={11} />
-												<span>{a.date}</span>
-											</div>
-											<h4 className="hp-announcement-title">{a.title}</h4>
-											<p className="hp-announcement-text">{a.text}</p>
-										</div>
-									</article>
+										<span className="hp-bulletin-subject-name">{subject.subject}</span>
+										{typeof subject.grade === "number" && (
+											<span className="hp-bulletin-grade">{subject.grade.toFixed(1)}</span>
+										)}
+									</button>
 								))}
 							</div>
-						</section>
-
-						{/* --- Missions du jour --- */}
-						<section className="hp-card hp-missions">
-							<header className="hp-card-header">
-								<div className="hp-card-title-wrap">
-									<div className="hp-card-icon">
-										<Target size={18} />
-									</div>
-									<h2 className="hp-card-title">Missions du jour</h2>
-								</div>
-								<div className="hp-progress-pill">
-									<span className="hp-progress-value">
-										{completedMissionsCount}
-									</span>
-									<span className="hp-progress-sep">/</span>
-									<span className="hp-progress-total">{totalMissionsCount}</span>
-								</div>
-							</header>
-
-							<div className="hp-missions-list">
-								{missions.map((mission, i) => {
-									const isDone = mission.is_completed;
-									return (
-										<button
-											type="button"
-											key={mission.id}
-											className={`hp-mission ${isDone ? "done" : "pending"}`}
-											onClick={handleMissionClick}
-											style={{ animationDelay: `${0.5 + i * 0.1}s` }}
-										>
-											<div className="hp-mission-icon-wrap">
-												{isDone ? (
-													<CheckCircle2 size={20} />
-												) : (
-													<Clock size={20} />
-												)}
-											</div>
-											<div className="hp-mission-body">
-												<div className="hp-mission-top">
-													<h3 className="hp-mission-title">{mission.title}</h3>
-													<span className="hp-mission-points">
-														{isDone ? "Terminé" : formatMissionReward(mission)}
-													</span>
-												</div>
-												<p className="hp-mission-desc">
-													{isDone
-														? "Mission accomplie avec brio !"
-														: `${Math.min(mission.progress, mission.target)}/${mission.target} réalisé`}
-												</p>
-												<span className="hp-mission-category">
-													{mission.is_bonus ? "Bonus" : "Mission"}
-												</span>
-											</div>
-										</button>
-									);
-								})}
+						</div>
+						{reportCard.length > difficultSubjects.length && (
+							<div className="hp-bulletin-summary">
+								<BookOpenText size={14} />
+								<span className="hp-bulletin-summary-text">{reportCard.length} matières au total</span>
 							</div>
-						</section>
-					</div>
+						)}
+					</section>
+				)}
+			</HomeSheet>
+
+			{/* --- Actualités (la boîte aux lettres) --- */}
+			<HomeSheet open={panel === "news"} onClose={closePanel} title="Actualités" icon={<Mail size={18} />}>
+				<div className="hp-announcements-list">
+					{ANNOUNCEMENTS.map((a, i) => (
+						<article key={a.id} className="hp-announcement" style={{ animationDelay: `${0.05 + i * 0.07}s` }}>
+							<div className="hp-announcement-emoji">{a.emoji}</div>
+							<div className="hp-announcement-body">
+								<div className="hp-announcement-date">
+									<Calendar size={11} />
+									<span>{a.date}</span>
+								</div>
+								<h4 className="hp-announcement-title">{a.title}</h4>
+								<p className="hp-announcement-text">{a.text}</p>
+							</div>
+						</article>
+					))}
 				</div>
-			</div>
+			</HomeSheet>
 		</ScreenLayout>
 	);
 };

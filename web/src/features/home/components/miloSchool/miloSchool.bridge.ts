@@ -4,6 +4,17 @@
 
 export type MiloSchoolPhase = "idle" | "inviting" | "entering";
 
+/** Résumé des missions du jour, affiché sur la pancarte */
+export interface MissionsSummary {
+	done: number;
+	total: number;
+	/** Missions du jour pas encore terminées (hors bonus) */
+	pending: number;
+}
+
+/** Ce qu'on peut survoler ou toucher dans la scène */
+export type MiloSchoolPart = "door" | "milo" | "missions" | "mail";
+
 export interface MiloSchoolBridge {
 	/** Porte ouverte (cible ; la scène amortit le mouvement) */
 	doorOpen: boolean;
@@ -13,12 +24,16 @@ export interface MiloSchoolBridge {
 	reactions: string[];
 	/** Bulle : la scène y écrit la position de la tête de Milo (variables CSS) */
 	bubble: HTMLElement | null;
-	/** Hauteur (px) réservée en bas de carte au bouton : la scène se cadre au-dessus */
+	/** Scène : la scène y écrit la position de la porte à l'écran (zoom d'entrée) */
+	stage: HTMLElement | null;
+	/** Hauteur (px) réservée en bas d'écran au bouton : la scène se cadre au-dessus */
 	bottomPx: number;
-	/** Survol de la porte ou de Milo dans la scène */
-	onHover: ((part: "door" | "milo" | null) => void) | null;
-	onDoorClick: (() => void) | null;
-	onMiloClick: (() => void) | null;
+	/** Écran large : la pancarte des missions et la boîte aux lettres sont dans le cadre */
+	wide: boolean;
+	/** Élément survolé dans la scène (la scène l'écrit aussi pour ses animations) */
+	hovered: MiloSchoolPart | null;
+	onHover: ((part: MiloSchoolPart | null) => void) | null;
+	onPick: ((part: MiloSchoolPart) => void) | null;
 }
 
 export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
@@ -26,11 +41,17 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	phase: "idle",
 	reactions: [],
 	bubble: null,
+	stage: null,
 	bottomPx: 0,
+	wide: true,
+	hovered: null,
 	onHover: null,
-	onDoorClick: null,
-	onMiloClick: null,
+	onPick: null,
 });
+
+/// La scène 3D de l'accueil survit à la navigation (voir MiloSchoolCanvas) :
+/// une fois Milo et l'école affichés, un retour sur l'accueil est immédiat
+export const schoolScene = { ready: false };
 
 /// Entrée en classe : Milo fait ENTRY_HOPS petits sauts de HOP_SECONDS chacun
 export const HOP_SECONDS = 0.34;
@@ -40,3 +61,22 @@ export const ENTRY_MS = HOP_SECONDS * ENTRY_HOPS * 1000;
 /// Pas de temps d'une image, borné : jamais négatif ni énorme (onglet revenu au
 /// premier plan, horloge capricieuse), sinon amortis et ressorts s'emballent
 export const frameStep = (delta: number) => (Number.isFinite(delta) && delta > 0 ? Math.min(delta, 0.1) : 0);
+
+/** Survol / clic d'un objet de la scène, relayé à l'interface */
+export function partHandlers(bridge: MiloSchoolBridge, part: MiloSchoolPart) {
+	return {
+		onPointerOver: (event: { stopPropagation: () => void }) => {
+			event.stopPropagation();
+			bridge.hovered = part;
+			bridge.onHover?.(part);
+		},
+		onPointerOut: () => {
+			if (bridge.hovered === part) bridge.hovered = null;
+			bridge.onHover?.(null);
+		},
+		onClick: (event: { stopPropagation: () => void }) => {
+			event.stopPropagation();
+			bridge.onPick?.(part);
+		},
+	};
+}

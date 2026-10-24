@@ -10,6 +10,8 @@ export interface MiloSchoolContext {
 	weakSubject?: string;
 	/** Missions du jour pas encore terminées (hors bonus) */
 	pendingMissions?: number;
+	/** Actualités pas encore lues (boîte aux lettres) */
+	unreadNews?: number;
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n > 1 ? "s" : ""}`;
@@ -25,12 +27,13 @@ export function greetingLine({ firstName }: MiloSchoolContext, date = new Date()
 
 /** Phrases qui tournent dans la bulle quand l'élève ne fait rien */
 export function idleLines(context: MiloSchoolContext, date = new Date()): string[] {
-	const { weakSubject, pendingMissions = 0, streak = 0 } = context;
+	const { weakSubject, pendingMissions = 0, streak = 0, unreadNews = 0 } = context;
 	const lines = [greetingLine(context, date)];
 	if (weakSubject) lines.push(`On s'entraîne un peu en ${weakSubject} ? Je t'explique à ma façon 😉`);
 	if (pendingMissions > 0) {
-		lines.push(`Encore ${plural(pendingMissions, "mission")} aujourd'hui… je t'aide ? 🎯`);
+		lines.push(`Encore ${plural(pendingMissions, "mission")} aujourd'hui, on s'y met ? 🎯`);
 	}
+	if (unreadNews > 0) lines.push("Psst… il y a du courrier dans la boîte aux lettres ✉️");
 	if (streak > 1) lines.push(`${streak} jours d'affilée, bravo ! On garde la série ? 🔥`);
 	lines.push("Une question sur un cours ? Il n'y a pas de question bête ! 😄", "Je t'attends devant la classe ✏️");
 	return lines;
@@ -38,6 +41,18 @@ export function idleLines(context: MiloSchoolContext, date = new Date()): string
 
 /** Au survol du bouton : la porte s'ouvre et Milo invite l'élève à entrer */
 export const INVITE_LINES = ["Allons en classe ! 🎒", "Allons discuter ! 💬"];
+
+/** Au survol de la pancarte des missions */
+export function missionsHint({ pendingMissions = 0 }: MiloSchoolContext) {
+	return pendingMissions > 0
+		? `${plural(pendingMissions, "mission")} t'attend${pendingMissions > 1 ? "ent" : ""} ! Clique pour voir 🎯`
+		: "Toutes tes missions sont faites, bravo ! 🏆";
+}
+
+/** Au survol de la boîte aux lettres */
+export function mailHint({ unreadNews = 0 }: MiloSchoolContext) {
+	return unreadNews > 0 ? "Du courrier pour toi ! Ouvre la boîte ✉️" : "Rien de neuf… mais tu peux relire le courrier 📬";
+}
 
 /** Au clic : Milo file en classe */
 export const ENTER_LINE = "C'est parti ! 🚀";
