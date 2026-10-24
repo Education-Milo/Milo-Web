@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useAnimations } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
@@ -15,18 +15,27 @@ import {
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
 import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
+import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import MiloSchoolYard, { SCHOOL } from "@features/home/components/miloSchool/MiloSchoolYard.component";
+import MiloSchoolCanvas from "@features/home/components/miloSchool/MiloSchoolCanvas.component";
 import {
 	ENTRY_HOPS,
 	HOP_SECONDS,
 	frameStep,
+	partHandlers,
+	schoolScene,
 	type MiloSchoolBridge,
 	type MiloSchoolPhase,
+	type MissionsSummary,
 } from "@features/home/components/miloSchool/miloSchool.bridge";
 
 /// Scène 3D de la carte « Discute avec Milo » : Milo attend devant la porte
 /// de sa salle de classe. Au survol du bouton, la porte s'ouvre et il montre
 /// le chemin ; au clic, il rentre en classe en sautillant.
+
+/// Le modèle de Milo est téléchargé dès le chargement de l'appli (souvent déjà
+/// en cache) : l'accueil s'affiche directement, sans écran d'attente
+useGLTF.preload(MILO_MODEL_PATH);
 
 const FIT_HEIGHT = 1.85;
 /// Milo, sur la pelouse, à gauche de la porte
@@ -35,18 +44,21 @@ const MILO_SPOT = new THREE.Vector3(-0.78, 0, 1.45);
 /// toit aux pieds de Milo (plus près de la caméra, ils tombent sous le sol de la façade)
 const FRAME_TOP = 4.1;
 const FRAME_BOTTOM = -0.52;
-/// Largeur minimale visible : Milo, la porte et une fenêtre (carte large),
-/// ou Milo et la porte (carte étroite)
-const MIN_FRAME_WIDTH_WIDE = 6.6;
+/// Écran large : de la bulle de Milo (à gauche) à la boîte aux lettres
+/// (à droite), toujours dans le cadre
+const WIDE_FRAME = { left: -3.0, right: 5.9 };
+/// Écran étroit : Milo et la porte ; la pancarte et la boîte aux lettres
+/// passent alors en boutons dans l'interface
+const NARROW_CENTER_X = 0.2;
 const MIN_FRAME_WIDTH_NARROW = 4.3;
-/// Centre horizontal du cadre : entre Milo et la porte
-const VIEW_X = 0.2;
+/// Écran presque carré (tablette) : un peu plus large, la pancarte entière
+const SQUARE_CENTER_X = 0.9;
+const MIN_FRAME_WIDTH_SQUARE = 7.2;
 const CAMERA_DISTANCE = 8.5;
 /// La caméra est un peu plus haute que le centre du cadre : on voit le toit
 const CAMERA_LIFT = 0.55;
-/// Carte étroite : le surplus de hauteur va au ciel plutôt qu'à la pelouse
+/// Le surplus de hauteur va au ciel plutôt qu'à la pelouse
 const SPARE_ABOVE = 0.7;
-const PARALLAX = { x: 0.35, y: 0.12 };
 const CROSSFADE = 0.3;
 /// Bulle : à gauche de la tête (carte large) ou au-dessus (carte étroite)
 const BUBBLE_SIDE_OFFSET = new THREE.Vector3(-0.32, 0.38, 0);
@@ -58,49 +70,58 @@ const GROUND_CLEARANCE = 0.012;
 
 /* ============================================================== CAMÉRA */
 
-const CameraRig: React.FC<{ bridge: MiloSchoolBridge; parallax: boolean }> = ({ bridge, parallax }) => {
+/** Caméra fixe : la scène se cadre selon la taille de l'écran, au-dessus du bouton */
+const CameraRig: React.FC<{ bridge: MiloSchoolBridge }> = ({ bridge }) => {
 	const { camera, size } = useThree();
-	const pointer = useRef({ x: 0, y: 0 });
-	const smoothed = useRef({ x: 0, y: 0 });
+	const door = useMemo(() => new THREE.Vector3(), []);
+	const doorKey = useRef("");
+	const doorStage = useRef<HTMLElement | null>(null);
 
-	useEffect(() => {
-		if (!parallax) return;
-		const onMove = (event: PointerEvent) => {
-			pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
-			pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
-		};
-		window.addEventListener("pointermove", onMove, { passive: true });
-		return () => window.removeEventListener("pointermove", onMove);
-	}, [parallax]);
-
-	useFrame((_, delta) => {
+	useFrame(() => {
 		const cam = camera as THREE.PerspectiveCamera;
 		const height = Math.max(size.height, 1);
 		const reserved = THREE.MathUtils.clamp(bridge.bottomPx, 0, height * 0.4);
 		const visibleShare = (height - reserved) / height;
 		const aspect = size.width / height;
-		const minWidth = aspect < 1 ? MIN_FRAME_WIDTH_NARROW : MIN_FRAME_WIDTH_WIDE;
+		const centerX = bridge.wide
+			? (WIDE_FRAME.left + WIDE_FRAME.right) / 2
+			: aspect < 1
+				? NARROW_CENTER_X
+				: SQUARE_CENTER_X;
+		const minWidth = bridge.wide
+			? WIDE_FRAME.right - WIDE_FRAME.left
+			: aspect < 1
+				? MIN_FRAME_WIDTH_NARROW
+				: MIN_FRAME_WIDTH_SQUARE;
 		const content = FRAME_TOP - FRAME_BOTTOM;
 		/// Hauteur totale du cadre (à z = 0) pour que le contenu tienne au-dessus
-		/// du bouton, et assez large pour l'essentiel de la façade
+		/// du bouton, et assez large pour ce qui doit rester visible
 		const frameH = Math.max(content / visibleShare, minWidth / aspect);
 		const spare = frameH * visibleShare - content;
 		const centerY = FRAME_TOP + spare * SPARE_ABOVE - frameH / 2;
 		const fov = THREE.MathUtils.radToDeg(2 * Math.atan(frameH / 2 / CAMERA_DISTANCE));
 
-		const k = 1 - Math.exp(-3 * frameStep(delta));
-		smoothed.current.x += (pointer.current.x - smoothed.current.x) * k;
-		smoothed.current.y += (pointer.current.y - smoothed.current.y) * k;
-		const px = smoothed.current.x * PARALLAX.x;
-		const py = -smoothed.current.y * PARALLAX.y;
-
 		if (Math.abs(cam.fov - fov) > 0.01) {
 			cam.fov = fov;
 			cam.updateProjectionMatrix();
 		}
-		cam.position.set(VIEW_X + px, centerY + CAMERA_LIFT + py, CAMERA_DISTANCE);
-		/// Viser le centre du cadre en tenant compte de la hauteur de la caméra
-		cam.lookAt(VIEW_X + px * 0.3, centerY + py * 0.3, 0);
+		cam.position.set(centerX, centerY + CAMERA_LIFT, CAMERA_DISTANCE);
+		cam.lookAt(centerX, centerY, 0);
+
+		/// Position de la porte à l'écran : le zoom d'entrée en classe part d'elle
+		const stage = bridge.stage;
+		if (stage) {
+			cam.updateMatrixWorld();
+			door.set(SCHOOL.door.x, SCHOOL.door.height * 0.5, 0).project(cam);
+			const key = `${door.x.toFixed(3)},${door.y.toFixed(3)}`;
+			/// (nouvelle page d'accueil = nouvel élément : on réécrit)
+			if (key !== doorKey.current || stage !== doorStage.current) {
+				doorKey.current = key;
+				doorStage.current = stage;
+				stage.style.setProperty("--door-x", `${((door.x + 1) / 2) * 100}%`);
+				stage.style.setProperty("--door-y", `${((1 - door.y) / 2) * 100}%`);
+			}
+		}
 	});
 	return null;
 };
@@ -112,6 +133,7 @@ const lerpColor = (day: string, night: string, t: number) => new THREE.Color(day
 const Lights: React.FC<{ night: number }> = ({ night }) => {
 	const hemiSky = useMemo(() => lerpColor("#E2F2FF", "#6F7DCC", night), [night]);
 	const sunColor = useMemo(() => lerpColor("#FFF1D6", "#9FB3FF", night), [night]);
+	const miloTarget = useMemo(() => new THREE.Object3D(), []);
 	return (
 		<>
 			<ambientLight intensity={0.7 - night * 0.45} color="#FFF4E6" />
@@ -132,6 +154,18 @@ const Lights: React.FC<{ night: number }> = ({ night }) => {
 				shadow-camera-far={30}
 			/>
 			<directionalLight position={[6, 3, 6]} intensity={0.45 - night * 0.25} color="#FFD7B5" />
+			{/* La nuit, une douce lumière de face sur Milo, comme un projecteur de théâtre */}
+			<primitive object={miloTarget} position={[MILO_SPOT.x, 1.0, MILO_SPOT.z]} />
+			<spotLight
+				position={[MILO_SPOT.x + 1.1, 3.8, MILO_SPOT.z + 3.2]}
+				target={miloTarget}
+				angle={0.38}
+				penumbra={0.95}
+				intensity={night * 22}
+				distance={10}
+				decay={1.6}
+				color="#FFE4C4"
+			/>
 		</>
 	);
 };
@@ -176,6 +210,8 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 	}, [scene, equippedMeshNames]);
 
 	useMiloGaze(scene, gaze);
+	/// Contour blanc au survol (Milo est cliquable)
+	useHoverOutline(body, () => bridge.hovered === "milo" && state.current.phase === "idle", [scene]);
 
 	const state = useRef({
 		current: null as THREE.AnimationAction | null,
@@ -273,7 +309,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 
 	const head = useMemo(() => scene.getObjectByName("DEF-head") ?? null, [scene]);
 	const anchor = useMemo(
-		() => ({ head: new THREE.Vector3(), v: new THREE.Vector3(), key: "" }),
+		() => ({ head: new THREE.Vector3(), v: new THREE.Vector3(), key: "", element: null as HTMLElement | null }),
 		[],
 	);
 	const tmp = useMemo(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3() }), []);
@@ -283,10 +319,23 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		return [Math.round(((anchor.v.x + 1) / 2) * size.width), Math.round(((1 - anchor.v.y) / 2) * size.height)];
 	};
 
+	const lastBridge = useRef(bridge);
 	useFrame((frame, delta) => {
 		const s = state.current;
 		const group = root.current;
 		if (!group) return;
+
+		/// Retour sur l'accueil : la scène a survécu, mais la page est neuve.
+		/// Milo reprend sa place devant la porte, comme au premier jour.
+		if (lastBridge.current !== bridge) {
+			lastBridge.current = bridge;
+			s.phase = bridge.phase;
+			s.reaction = null;
+			s.yaw = 0;
+			group.visible = true;
+			group.scale.setScalar(1);
+			playLoop(restLoop());
+		}
 
 		/// Changement de phase demandé par l'interface
 		if (bridge.phase !== s.phase) {
@@ -351,8 +400,9 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			const [ax, ay] = project(BUBBLE_SIDE_OFFSET);
 			const [hx, hy] = project(BUBBLE_ABOVE_OFFSET);
 			const key = `${ax},${ay},${hx},${hy}`;
-			if (key !== anchor.key) {
+			if (key !== anchor.key || bubble !== anchor.element) {
 				anchor.key = key;
+				anchor.element = bubble;
 				bubble.style.setProperty("--ax", `${ax}px`);
 				bubble.style.setProperty("--ay", `${ay}px`);
 				bubble.style.setProperty("--hx", `${hx}px`);
@@ -368,18 +418,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			</group>
 			{/* Zone de clic : une capsule invisible autour de Milo, au lieu de
 			    tester les ~50 000 triangles animés du modèle */}
-			<mesh
-				visible={false}
-				onClick={(event: ThreeEvent<MouseEvent>) => {
-					event.stopPropagation();
-					bridge.onMiloClick?.();
-				}}
-				onPointerOver={(event: ThreeEvent<PointerEvent>) => {
-					event.stopPropagation();
-					bridge.onHover?.("milo");
-				}}
-				onPointerOut={() => bridge.onHover?.(null)}
-			>
+			<mesh visible={false} {...partHandlers(bridge, "milo")}>
 				<capsuleGeometry args={[0.48, 0.8, 6, 12]} />
 			</mesh>
 		</group>
@@ -422,27 +461,59 @@ export interface MiloSchoolScene3DProps {
 	gaze: boolean;
 	/** 0 = jour, 1 = nuit */
 	night: number;
+	missions: MissionsSummary;
+	unreadNews: number;
 	onReady?: () => void;
 }
 
-const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({ bridge, active, reducedMotion, gaze, night, onReady }) => (
-	<Canvas
-		className="ms-canvas"
-		shadows
-		dpr={[1, 1.75]}
-		frameloop={reducedMotion ? "demand" : active ? "always" : "never"}
-		camera={{ position: [VIEW_X, 2.4, CAMERA_DISTANCE], fov: 30, near: 0.1, far: 80 }}
-		gl={{ antialias: true, powerPreference: "high-performance" }}
-		onCreated={({ gl }) => gl.setClearColor("#BFE4FA")}
-	>
-		<CameraRig bridge={bridge} parallax={!reducedMotion} />
-		<Lights night={night} />
-		{/* Un seul Suspense : le rideau ne se lève que quand l'école ET Milo sont prêts */}
-		<Suspense fallback={null}>
-			<MiloSchoolYard bridge={bridge} night={night} animate={!reducedMotion} reducedMotion={reducedMotion} />
-			<SchoolMilo bridge={bridge} gaze={gaze && !reducedMotion} reducedMotion={reducedMotion} onReady={onReady} />
-		</Suspense>
-	</Canvas>
-);
+/// Réglages du moteur, lus à sa création (objets constants : la scène survit
+/// aux visites, voir MiloSchoolCanvas)
+const ENGINE = {
+	shadows: true,
+	/// Toute la page : on plafonne la densité de pixels pour rester fluide
+	dpr: [1, 1.5] as [number, number],
+	camera: { position: [NARROW_CENTER_X, 2.4, CAMERA_DISTANCE] as [number, number, number], fov: 30, near: 0.1, far: 80 },
+	gl: { antialias: true, powerPreference: "high-performance" as const },
+};
+const onEngineCreated = ({ gl }: { gl: THREE.WebGLRenderer }) => gl.setClearColor("#BFE4FA");
+
+
+const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
+	bridge,
+	active,
+	reducedMotion,
+	gaze,
+	night,
+	missions,
+	unreadNews,
+	onReady,
+}) => {
+	const handleReady = useCallback(() => {
+		schoolScene.ready = true;
+		onReady?.();
+	}, [onReady]);
+	return (
+		<MiloSchoolCanvas
+			frameloop={reducedMotion ? "demand" : active ? "always" : "never"}
+			config={ENGINE}
+			onCreated={onEngineCreated}
+		>
+			<CameraRig bridge={bridge} />
+			<Lights night={night} />
+			{/* Un seul Suspense : l'école et Milo apparaissent ensemble */}
+			<Suspense fallback={null}>
+				<MiloSchoolYard
+					bridge={bridge}
+					night={night}
+					animate={!reducedMotion}
+					reducedMotion={reducedMotion}
+					missions={missions}
+					unreadNews={unreadNews}
+				/>
+				<SchoolMilo bridge={bridge} gaze={gaze && !reducedMotion} reducedMotion={reducedMotion} onReady={handleReady} />
+			</Suspense>
+		</MiloSchoolCanvas>
+	);
+};
 
 export default MiloSchoolScene3D;

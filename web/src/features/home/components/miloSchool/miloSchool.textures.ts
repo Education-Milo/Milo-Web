@@ -294,3 +294,175 @@ export function signTexture(text: string) {
 	}
 	return texture;
 }
+
+/** Redessine une texture dès que la police d'affichage est chargée */
+function redrawWhenFontReady(texture: THREE.CanvasTexture, draw: (ctx: CanvasRenderingContext2D) => void) {
+	if (typeof document === "undefined" || !document.fonts) return;
+	void document.fonts.load(`40px ${SIGN_FONT}`).then(() => {
+		const ctx = (texture.image as HTMLCanvasElement).getContext("2d");
+		if (!ctx) return;
+		draw(ctx);
+		texture.needsUpdate = true;
+	});
+}
+
+export interface MissionsBoardState {
+	done: number;
+	total: number;
+}
+
+/**
+ * Panneau de bois « Missions » : titre, compteur fait / total, étoiles.
+ * `update` le redessine quand les missions avancent.
+ */
+export function missionsBoardTexture(initial: MissionsBoardState) {
+	let state = initial;
+	const draw = (ctx: CanvasRenderingContext2D) => {
+		const { width, height } = ctx.canvas;
+		const allDone = state.total > 0 && state.done >= state.total;
+		/// Planches de bois
+		ctx.fillStyle = "#D98E4F";
+		ctx.fillRect(0, 0, width, height);
+		const rand = seeded(53);
+		for (let row = 0; row < 3; row++) {
+			const y = (row * height) / 3;
+			ctx.fillStyle = row % 2 ? "#D38548" : "#DE9656";
+			ctx.fillRect(0, y + 2, width, height / 3 - 4);
+			for (let i = 0; i < 9; i++) {
+				ctx.strokeStyle = rand() > 0.5 ? "rgba(120, 55, 20, 0.18)" : "rgba(255, 220, 170, 0.18)";
+				ctx.lineWidth = 1 + rand() * 2;
+				ctx.beginPath();
+				const ly = y + 8 + rand() * (height / 3 - 16);
+				ctx.moveTo(0, ly);
+				ctx.quadraticCurveTo(width / 2, ly + (rand() - 0.5) * 10, width, ly + (rand() - 0.5) * 6);
+				ctx.stroke();
+			}
+			ctx.fillStyle = "rgba(90, 40, 12, 0.35)";
+			ctx.fillRect(0, y, width, 3);
+		}
+		/// Clous
+		ctx.fillStyle = "#6B3A1A";
+		for (const [x, y] of [
+			[22, 22],
+			[width - 22, 22],
+			[22, height - 22],
+			[width - 22, height - 22],
+		]) {
+			ctx.beginPath();
+			ctx.arc(x, y, 6, 0, Math.PI * 2);
+			ctx.fill();
+		}
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		/// Titre gravé
+		ctx.font = `62px ${SIGN_FONT}`;
+		ctx.fillStyle = "rgba(90, 35, 8, 0.55)";
+		ctx.fillText("MISSIONS", width / 2 + 2, 76 + 3);
+		ctx.fillStyle = "#FFF7EC";
+		ctx.fillText("MISSIONS", width / 2, 76);
+		/// Compteur dans une pastille
+		const label = allDone ? "Bravo !" : `${state.done} / ${state.total}`;
+		ctx.fillStyle = allDone ? "#4FA34A" : "#FF541D";
+		ctx.beginPath();
+		ctx.roundRect(width / 2 - 150, 128, 300, 104, 52);
+		ctx.fill();
+		ctx.fillStyle = "rgba(0, 0, 0, 0.18)";
+		ctx.fillRect(width / 2 - 120, 222, 240, 6);
+		ctx.font = `72px ${SIGN_FONT}`;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillText(label, width / 2, 184);
+		ctx.font = `30px ${SIGN_FONT}`;
+		ctx.fillStyle = "#5E2E12";
+		ctx.fillText("du jour", width / 2, 272);
+	};
+	const texture = canvasTexture(512, 320, draw);
+	redrawWhenFontReady(texture, draw);
+	return {
+		texture,
+		update(next: MissionsBoardState) {
+			if (next.done === state.done && next.total === state.total) return;
+			state = next;
+			const ctx = (texture.image as HTMLCanvasElement).getContext("2d");
+			if (!ctx) return;
+			draw(ctx);
+			texture.needsUpdate = true;
+		},
+	};
+}
+
+/** Pastille ronde avec un chiffre (missions restantes) */
+export function countBadgeTexture() {
+	let value = "";
+	const draw = (ctx: CanvasRenderingContext2D) => {
+		ctx.clearRect(0, 0, 128, 128);
+		ctx.fillStyle = "#D9400F";
+		ctx.beginPath();
+		ctx.arc(64, 68, 54, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.fillStyle = "#FF541D";
+		ctx.beginPath();
+		ctx.arc(64, 62, 54, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.strokeStyle = "#FFFFFF";
+		ctx.lineWidth = 7;
+		ctx.stroke();
+		ctx.fillStyle = "#FFFFFF";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.font = `64px ${SIGN_FONT}`;
+		ctx.fillText(value, 64, 68);
+	};
+	const texture = canvasTexture(128, 128, draw);
+	redrawWhenFontReady(texture, draw);
+	return {
+		texture,
+		update(next: string) {
+			if (next === value) return;
+			value = next;
+			const ctx = (texture.image as HTMLCanvasElement).getContext("2d");
+			if (!ctx) return;
+			draw(ctx);
+			texture.needsUpdate = true;
+		},
+	};
+}
+
+/** Enveloppe (face avant) : papier crème, rabat, timbre orange */
+export function letterTexture() {
+	return canvasTexture(256, 160, (ctx) => {
+		ctx.fillStyle = "#FFFDF6";
+		ctx.fillRect(0, 0, 256, 160);
+		ctx.strokeStyle = "rgba(200, 160, 120, 0.7)";
+		ctx.lineWidth = 4;
+		ctx.beginPath();
+		ctx.moveTo(4, 6);
+		ctx.lineTo(128, 92);
+		ctx.lineTo(252, 6);
+		ctx.stroke();
+		ctx.fillStyle = "#FF541D";
+		ctx.fillRect(196, 18, 42, 48);
+		ctx.strokeStyle = "#FFFFFF";
+		ctx.setLineDash([4, 4]);
+		ctx.lineWidth = 3;
+		ctx.strokeRect(199, 21, 36, 42);
+	});
+}
+
+/** Flanc de la boîte aux lettres : enveloppe blanche peinte sur l'orange */
+export function mailboxSideTexture() {
+	return canvasTexture(256, 128, (ctx) => {
+		ctx.fillStyle = "#E8492A";
+		ctx.fillRect(0, 0, 256, 128);
+		ctx.fillStyle = "#FFF7EC";
+		ctx.beginPath();
+		ctx.roundRect(88, 34, 80, 54, 6);
+		ctx.fill();
+		ctx.strokeStyle = "#E8492A";
+		ctx.lineWidth = 5;
+		ctx.beginPath();
+		ctx.moveTo(92, 40);
+		ctx.lineTo(128, 66);
+		ctx.lineTo(164, 40);
+		ctx.stroke();
+	});
+}

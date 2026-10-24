@@ -1,115 +1,80 @@
 /* ============================================================
-   CARTE « DISCUTE AVEC MILO » — Milo devant sa salle de classe
-   La scène 3D remplit la carte ; la bulle et le gros bouton
-   flottent par-dessus. Couleurs et polices : tokens de brand.css.
+   ACCUEIL — Milo devant sa salle de classe, en plein écran
+   La scène 3D remplit la page ; le titre, la bulle, les raccourcis
+   et le gros bouton flottent par-dessus. Tokens de brand.css.
+   Préfixe « ecl- » (école) : « ms- » est déjà pris par la boutique,
+   dont les styles s'appliqueraient sinon à l'accueil.
    ============================================================ */
 
-.ms-card {
-	--ms-gap: 16px;
+.ecl-card {
+	--ecl-gap: 22px;
 	position: relative;
 	isolation: isolate;
 	container-type: inline-size;
-	flex: 1;
-	min-height: 440px;
-	border: 3px solid #fff;
-	border-radius: 32px;
+	width: 100%;
+	height: 100%;
+	min-height: 460px;
 	overflow: hidden;
 	background: linear-gradient(180deg, #bfe4fa 0%, #e4f4ff 55%, #8dbb52 56%, #7aa847 100%);
-	box-shadow:
-		0 22px 48px -20px rgba(40, 70, 20, 0.45),
-		0 0 0 1px rgba(255, 84, 29, 0.06);
 	font-family: var(--f-text);
 	color: var(--milo-encre);
-	animation: ms-rise 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
-}
-
-@keyframes ms-rise {
-	from {
-		opacity: 0;
-		transform: translateY(18px) scale(0.985);
-	}
-	to {
-		opacity: 1;
-		transform: none;
-	}
 }
 
 /* ------------------------------------------------ scène */
 
-.ms-stage {
+.ecl-stage {
 	position: absolute;
 	inset: 0;
 	z-index: 0;
-	/* Le zoom d'entrée part de la porte de la classe */
-	transform-origin: 58% 52%;
+	/* Le zoom d'entrée part de la porte de la classe (position écrite par la scène) */
+	transform-origin: var(--door-x, 50%) var(--door-y, 50%);
 	transition: transform 1.7s cubic-bezier(0.55, 0, 0.35, 1);
 }
-.ms-card.is-entering .ms-stage {
+.ecl-card.is-entering .ecl-stage {
 	transform: scale(1.14);
 }
-.ms-canvas {
+.ecl-canvas-host {
+	position: absolute;
+	inset: 0;
+}
+.ecl-canvas {
 	position: absolute !important;
 	inset: 0;
 	width: 100% !important;
 	height: 100% !important;
 	display: block;
 }
-.ms-card.is-pointing .ms-canvas {
+.ecl-card.is-pointing .ecl-canvas {
 	cursor: pointer;
 }
 
-/* Rideau le temps que l'école et Milo arrivent */
-.ms-curtain {
-	position: absolute;
-	inset: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 10px;
-	padding-bottom: 90px;
-	background:
-		radial-gradient(60% 50% at 50% 40%, rgba(255, 255, 255, 0.7), transparent 70%),
-		linear-gradient(180deg, #bfe4fa 0%, #e4f4ff 55%, #a9d071 56%, #8dbb52 100%);
-	color: var(--text-2);
-	font-weight: 600;
-	font-size: 15px;
-	transition:
-		opacity 0.7s ease 0.15s,
-		visibility 0s linear 0.85s;
-	pointer-events: none;
-}
-.ms-card.is-loaded .ms-curtain {
+/* Pas d'écran d'attente : le ciel et l'herbe du fond de carte font patienter
+   (les fichiers sont préchargés, c'est l'affaire d'un instant) puis la scène
+   apparaît en fondu */
+.ecl-canvas {
 	opacity: 0;
-	visibility: hidden;
+	transition: opacity 0.45s ease;
 }
-.ms-curtain-fox {
-	width: 64px;
-	height: 64px;
-	animation: ms-hop 1.1s ease-in-out infinite;
+.ecl-card.is-loaded .ecl-canvas {
+	opacity: 1;
 }
-@keyframes ms-hop {
-	0%,
-	100% {
-		transform: translateY(0) rotate(-4deg);
-	}
-	50% {
-		transform: translateY(-12px) rotate(4deg);
-	}
+/* La nuit, le fond d'attente est un ciel de nuit (pas d'éclair de jour) */
+.ecl-card.is-night {
+	background: linear-gradient(180deg, #0b1238 0%, #2b3577 55%, #3a5526 56%, #2c4420 100%);
 }
 
 /* Lumière chaude de la classe qui envahit l'écran, juste avant d'y entrer */
-.ms-flash {
+.ecl-flash {
 	position: absolute;
 	inset: 0;
 	background: radial-gradient(70% 80% at 58% 50%, #fff6e0 0%, #ffd9a0 45%, rgba(255, 190, 120, 0.85) 100%);
 	opacity: 0;
 	pointer-events: none;
 }
-.ms-card.is-entering .ms-flash {
-	animation: ms-flash 1.8s ease-in forwards;
+.ecl-card.is-entering .ecl-flash {
+	animation: ecl-flash 1.8s ease-in forwards;
 }
-@keyframes ms-flash {
+@keyframes ecl-flash {
 	0%,
 	62% {
 		opacity: 0;
@@ -119,20 +84,138 @@
 	}
 }
 
+/* ------------------------------------------------ titre d'accueil */
+
+.ecl-hello {
+	position: absolute;
+	z-index: 3;
+	top: var(--ecl-gap);
+	left: var(--ecl-gap);
+	max-width: min(520px, 60cqw);
+	padding: 14px 20px 15px;
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.78);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 2px solid rgba(255, 255, 255, 0.95);
+	box-shadow: 0 12px 28px -16px rgba(40, 70, 20, 0.45);
+	pointer-events: none;
+	animation: ecl-drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+.ecl-hello-title {
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(22px, 2.2vw, 30px);
+	line-height: 1.1;
+	letter-spacing: 0.4px;
+	color: var(--milo-encre);
+}
+.ecl-hello-sub {
+	margin: 5px 0 0;
+	font-size: 15px;
+	font-weight: 500;
+	color: var(--text-2);
+}
+@keyframes ecl-drop {
+	from {
+		opacity: 0;
+		transform: translateY(-12px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ------------------------------------------------ raccourcis missions / courrier */
+
+/* Écran large : la pancarte et la boîte aux lettres sont dans la scène, les
+   boutons restent atteignables au clavier (visibles quand ils ont le focus).
+   Écran étroit : elles sortent du cadre, les boutons prennent le relais. */
+.ecl-quick {
+	position: absolute;
+	z-index: 3;
+	top: var(--ecl-gap);
+	right: var(--ecl-gap);
+	display: flex;
+	gap: 8px;
+}
+.ecl-quick-btn {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	height: 42px;
+	padding: 0 16px 0 13px;
+	border-radius: 999px;
+	border: 2px solid rgba(255, 255, 255, 0.95);
+	background: rgba(255, 255, 255, 0.85);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	box-shadow: 0 10px 22px -12px rgba(40, 70, 20, 0.45);
+	font-family: var(--f-text);
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--milo-encre);
+	cursor: pointer;
+	transition:
+		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		background 0.2s ease;
+}
+.ecl-quick-btn svg {
+	color: var(--milo-orange);
+}
+.ecl-quick-btn:hover {
+	transform: translateY(-2px);
+	background: #fff;
+}
+.ecl-quick-btn:focus-visible {
+	outline: 3px solid var(--milo-orange);
+	outline-offset: 2px;
+}
+.ecl-quick-count {
+	position: absolute;
+	top: -7px;
+	right: -6px;
+	min-width: 22px;
+	height: 22px;
+	padding: 0 6px;
+	border-radius: 999px;
+	background: var(--milo-orange);
+	border: 2px solid #fff;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 18px;
+	text-align: center;
+}
+.ecl-card.is-wide .ecl-quick-btn:not(:focus-visible) {
+	/* Masqué à l'œil seulement : toujours dans l'ordre de tabulation */
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* ------------------------------------------------ bulle */
 
 /* La scène écrit --ax / --ay (à gauche de la tête de Milo) et --hx / --hy
    (au-dessus de ses oreilles), en pixels. Carte large : le coin bas-droit de
    la bulle suit --ax / --ay, la pointe vise Milo. La bulle reste dans la carte. */
-.ms-bubble {
-	--ms-bubble-w: min(236px, 38cqw);
+.ecl-bubble {
+	--ecl-bubble-w: min(236px, 38cqw);
 	position: absolute;
 	z-index: 3;
 	box-sizing: border-box;
-	right: clamp(var(--ms-gap), calc(100cqw - var(--ax, 40cqw)), calc(100cqw - var(--ms-bubble-w) - var(--ms-gap)));
+	right: clamp(var(--ecl-gap), calc(100cqw - var(--ax, 40cqw)), calc(100cqw - var(--ecl-bubble-w) - var(--ecl-gap)));
 	top: max(var(--ay, 38%), 120px);
 	width: max-content;
-	max-width: var(--ms-bubble-w);
+	max-width: var(--ecl-bubble-w);
 	padding: 10px 14px;
 	border-radius: 20px 20px 7px 20px;
 	background: #fff;
@@ -152,12 +235,12 @@
 		color 0.25s ease,
 		border-color 0.25s ease;
 }
-.ms-card.is-loaded .ms-bubble {
+.ecl-card.is-loaded .ecl-bubble {
 	opacity: 1;
 	transform: translateY(-100%);
 }
 /* « Allons en classe ! » : la bulle passe à l'orange et grossit un peu */
-.ms-bubble.is-loud {
+.ecl-bubble.is-loud {
 	background: var(--milo-orange);
 	border-color: var(--milo-relief);
 	color: #fff;
@@ -167,10 +250,10 @@
 	letter-spacing: 0.4px;
 	transition-delay: 0s;
 }
-.ms-card.is-loaded .ms-bubble.is-loud {
-	animation: ms-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+.ecl-card.is-loaded .ecl-bubble.is-loud {
+	animation: ecl-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-@keyframes ms-pop {
+@keyframes ecl-pop {
 	0% {
 		transform: translateY(-100%) scale(0.86);
 	}
@@ -178,7 +261,7 @@
 		transform: translateY(-100%) scale(1);
 	}
 }
-.ms-bubble::after {
+.ecl-bubble::after {
 	content: "";
 	position: absolute;
 	right: 13px;
@@ -192,22 +275,22 @@
 	border-bottom-right-radius: 6px;
 	transform: skewX(28deg) rotate(45deg);
 }
-.ms-bubble-rest {
+.ecl-bubble-rest {
 	visibility: hidden;
 }
 /* Milo est rentré : la bulle s'efface avec lui */
-.ms-card.is-entering .ms-bubble {
+.ecl-card.is-entering .ecl-bubble {
 	opacity: 0;
 	transition: opacity 0.3s ease 0.9s;
 }
 
 /* ------------------------------------------------ gros bouton */
 
-.ms-cta {
+.ecl-cta {
 	position: absolute;
 	z-index: 3;
 	left: 50%;
-	bottom: calc(var(--ms-gap) + 4px);
+	bottom: calc(var(--ecl-gap) + 4px);
 	display: inline-flex;
 	align-items: center;
 	gap: 12px;
@@ -232,7 +315,7 @@
 		box-shadow 0.18s ease,
 		background 0.2s ease;
 }
-.ms-cta::after {
+.ecl-cta::after {
 	/* Reflet qui balaie le bouton au survol */
 	content: "";
 	position: absolute;
@@ -242,61 +325,61 @@
 	transform: translateX(-160%) skewX(-22deg);
 	pointer-events: none;
 }
-.ms-cta:hover:not(:disabled)::after,
-.ms-cta:focus-visible::after {
-	animation: ms-shine 0.8s ease;
+.ecl-cta:hover:not(:disabled)::after,
+.ecl-cta:focus-visible::after {
+	animation: ecl-shine 0.8s ease;
 }
-@keyframes ms-shine {
+@keyframes ecl-shine {
 	to {
 		transform: translateX(320%) skewX(-22deg);
 	}
 }
-.ms-cta:hover:not(:disabled),
-.ms-cta:focus-visible {
+.ecl-cta:hover:not(:disabled),
+.ecl-cta:focus-visible {
 	background: #ff6430;
 	transform: translate(-50%, -7px);
 	box-shadow:
 		0 9px 0 var(--milo-relief),
 		0 24px 34px -12px rgba(120, 40, 5, 0.6);
 }
-.ms-cta:active:not(:disabled) {
+.ecl-cta:active:not(:disabled) {
 	transform: translate(-50%, 1px);
 	box-shadow:
 		0 1px 0 var(--milo-relief),
 		0 10px 20px -10px rgba(120, 40, 5, 0.5);
 }
-.ms-cta:focus-visible {
+.ecl-cta:focus-visible {
 	outline: 3px solid #fff;
 	outline-offset: 3px;
 }
-.ms-cta:disabled {
+.ecl-cta:disabled {
 	cursor: default;
 }
-.ms-cta-icon,
-.ms-cta-go {
+.ecl-cta-icon,
+.ecl-cta-go {
 	display: grid;
 	place-items: center;
 	flex-shrink: 0;
 	border-radius: 14px;
 }
-.ms-cta-icon {
+.ecl-cta-icon {
 	width: 40px;
 	height: 40px;
 	background: rgba(255, 255, 255, 0.2);
 }
-.ms-cta-label {
+.ecl-cta-label {
 	text-shadow: 0 2px 0 rgba(160, 45, 8, 0.45);
 	padding-top: 3px;
 }
-.ms-cta-go {
+.ecl-cta-go {
 	width: 40px;
 	height: 40px;
 	background: #fff;
 	color: var(--milo-orange);
 	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.ms-cta:hover:not(:disabled) .ms-cta-go,
-.ms-cta:focus-visible .ms-cta-go {
+.ecl-cta:hover:not(:disabled) .ecl-cta-go,
+.ecl-cta:focus-visible .ecl-cta-go {
 	transform: translateX(4px);
 }
 
@@ -305,23 +388,23 @@
 /* La carte est elle-même le conteneur interrogé : les règles visent ses
    enfants (une requête de conteneur ne restyle pas le conteneur). */
 @container (max-width: 560px) {
-	.ms-bubble,
-	.ms-cta {
-		--ms-gap: 12px;
+	.ecl-bubble,
+	.ecl-cta {
+		--ecl-gap: 12px;
 	}
 	/* Plus de place à côté de Milo : la bulle passe au-dessus de ses oreilles,
 	   centrée sur lui, la pointe vers le bas */
-	.ms-bubble {
-		--ms-bubble-w: min(220px, calc(100cqw - 2 * var(--ms-gap)));
-		--ms-bubble-x: clamp(
-			var(--ms-gap),
-			calc(var(--hx, 50cqw) - var(--ms-bubble-w) / 2),
-			calc(100cqw - var(--ms-bubble-w) - var(--ms-gap))
+	.ecl-bubble {
+		--ecl-bubble-w: min(220px, calc(100cqw - 2 * var(--ecl-gap)));
+		--ecl-bubble-x: clamp(
+			var(--ecl-gap),
+			calc(var(--hx, 50cqw) - var(--ecl-bubble-w) / 2),
+			calc(100cqw - var(--ecl-bubble-w) - var(--ecl-gap))
 		);
 		right: auto;
-		left: var(--ms-bubble-x);
-		top: max(var(--hy, 36%), 112px);
-		width: var(--ms-bubble-w);
+		left: var(--ecl-bubble-x);
+		top: max(var(--hy, 36%), 196px);
+		width: var(--ecl-bubble-w);
 		max-width: none;
 		border-radius: 18px;
 		font-size: 13px;
@@ -329,23 +412,23 @@
 		transform-origin: 50% 100%;
 		text-align: center;
 	}
-	.ms-bubble.is-loud {
+	.ecl-bubble.is-loud {
 		font-size: 16px;
 	}
-	.ms-bubble::after {
+	.ecl-bubble::after {
 		right: auto;
-		left: clamp(16px, calc(var(--hx, 50cqw) - var(--ms-bubble-x) - 8px), calc(var(--ms-bubble-w) - 32px));
+		left: clamp(16px, calc(var(--hx, 50cqw) - var(--ecl-bubble-x) - 8px), calc(var(--ecl-bubble-w) - 32px));
 		transform: rotate(45deg);
 		border-bottom-right-radius: 4px;
 	}
-	.ms-cta {
+	.ecl-cta {
 		height: 58px;
 		font-size: 21px;
 		gap: 10px;
 		border-radius: 20px;
 	}
-	.ms-cta-icon,
-	.ms-cta-go {
+	.ecl-cta-icon,
+	.ecl-cta-go {
 		width: 36px;
 		height: 36px;
 		border-radius: 12px;
@@ -353,45 +436,51 @@
 }
 
 @container (max-width: 360px) {
-	.ms-cta {
+	.ecl-cta {
 		font-size: 19px;
 		padding: 0 10px;
 	}
-	.ms-cta-icon {
+	.ecl-cta-icon {
 		display: none;
 	}
 }
 
-@media (max-width: 1200px) {
-	.ms-card {
-		flex: 0 0 auto;
-		height: 480px;
+@container (max-width: 560px) {
+	.ecl-hello,
+	.ecl-quick {
+		--ecl-gap: 14px;
 	}
-}
-@media (max-width: 860px) {
-	.ms-card {
-		height: 450px;
-		min-height: 0;
-		border-radius: 28px;
+	.ecl-hello {
+		max-width: calc(100cqw - 2 * var(--ecl-gap));
+		padding: 10px 14px 11px;
+		border-radius: 18px;
 	}
-}
-@media (max-width: 560px) {
-	.ms-card {
-		height: 470px;
-		border-radius: 24px;
-		border-width: 2px;
+	.ecl-hello-title {
+		font-size: 21px;
+	}
+	.ecl-hello-sub {
+		display: none;
+	}
+	/* Raccourcis sous le titre, la bulle de Milo reste dégagée au-dessus de lui */
+	.ecl-quick {
+		top: calc(var(--ecl-gap) + 58px);
+		left: var(--ecl-gap);
+		right: auto;
+	}
+	.ecl-quick-btn {
+		height: 38px;
+		font-size: 14px;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.ms-card,
-	.ms-curtain-fox,
-	.ms-cta::after,
-	.ms-card.is-loaded .ms-bubble.is-loud {
+	.ecl-hello,
+	.ecl-cta::after,
+	.ecl-card.is-loaded .ecl-bubble.is-loud {
 		animation: none;
 	}
-	.ms-stage,
-	.ms-bubble {
+	.ecl-stage,
+	.ecl-bubble {
 		transition: none;
 	}
 }

@@ -1,13 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useFrame, useLoader, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 import { RoundedBox, Sparkles } from "@react-three/drei";
 import * as THREE from "three";
-import { frameStep, type MiloSchoolBridge } from "@features/home/components/miloSchool/miloSchool.bridge";
+import {
+	frameStep,
+	partHandlers,
+	type MiloSchoolBridge,
+	type MissionsSummary,
+} from "@features/home/components/miloSchool/miloSchool.bridge";
+import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import {
 	cloudsTexture,
+	countBadgeTexture,
 	glowTexture,
 	grassTexture,
+	letterTexture,
 	lightSpillTexture,
+	mailboxSideTexture,
+	missionsBoardTexture,
 	moonTexture,
 	plasterTexture,
 	roofTexture,
@@ -39,6 +49,11 @@ export const SCHOOL = {
 	window: { width: 1.2, height: 1.2, sill: 0.95 },
 	sign: { y: 2.73, width: 1.9, height: 0.44 },
 	roof: { eaveY: 3.17, eaveZ: 0.5, ridgeY: 4.3, ridgeZ: -1.9, overhang: 0.35 },
+	/// Pancarte des missions et boîte aux lettres, sur la pelouse à droite
+	board: { x: 2.55, z: 2.15, yaw: -0.18 },
+	mailbox: { x: 4.1, z: 1.5, yaw: 0.75 },
+	/// Réverbère de jardin entre les deux : la nuit, il les éclaire
+	gardenLamp: { x: 3.42, z: 2.05 },
 } as const;
 
 const DOOR_OPEN_ANGLE = 1.6;
@@ -49,6 +64,9 @@ const ASSETS = {
 	insideNight: "/classroom/exterieur/interieur_nuit.webp",
 	trees: "/classroom/exterieur/arbres.webp",
 } as const;
+
+/// Téléchargées dès le chargement de l'appli : l'accueil s'affiche sans attente
+useLoader.preload(THREE.TextureLoader, Object.values(ASSETS));
 
 const C = {
 	trim: "#FFF7EC",
@@ -129,7 +147,7 @@ const Sky: React.FC<{ night: number; animate: boolean }> = ({ night, animate }) 
 				/>
 			</mesh>
 			{/* Soleil le jour, croissant de lune la nuit, au-dessus du toit, à gauche */}
-			<sprite position={[-3.4, 7.2, -11.5]} scale={[3.2, 3.2, 1]} renderOrder={-5}>
+			<sprite position={[3.6, 7.4, -11.5]} scale={[3.2, 3.2, 1]} renderOrder={-5}>
 				<spriteMaterial
 					map={t.glow}
 					color={night > 0.5 ? "#C9D4FF" : "#FFF0B0"}
@@ -139,11 +157,11 @@ const Sky: React.FC<{ night: number; animate: boolean }> = ({ night, animate }) 
 					toneMapped={false}
 				/>
 			</sprite>
-			<mesh position={[-3.4, 7.2, -11.4]} renderOrder={-4}>
+			<mesh position={[3.6, 7.4, -11.4]} renderOrder={-4}>
 				<circleGeometry args={[0.55, 32]} />
 				<meshBasicMaterial color="#FFE27A" transparent opacity={1 - weights.night} depthWrite={false} toneMapped={false} />
 			</mesh>
-			<sprite position={[-3.4, 7.2, -11.35]} scale={[1.5, 1.5, 1]} renderOrder={-3}>
+			<sprite position={[3.6, 7.4, -11.35]} scale={[1.5, 1.5, 1]} renderOrder={-3}>
 				<spriteMaterial map={t.moon} transparent opacity={weights.night} depthWrite={false} toneMapped={false} />
 			</sprite>
 			<mesh position={[0.75, 7.6, -11.2]} renderOrder={-2}>
@@ -295,7 +313,7 @@ const Garden: React.FC = () => {
 			bush(1.78, 0.34, 0.4, 7, 4),
 			bush(4.2, 0.4, 0.6, 11, 5),
 			bush(-4.2, 1.5, 0.85, 19, 7),
-			bush(5.5, 1.3, 0.8, 23, 7),
+			bush(5.6, 0.9, 0.75, 23, 7),
 		];
 		return {
 			leaves: parts.flatMap((p) => p.leaves),
@@ -538,9 +556,11 @@ const Roof: React.FC = () => {
 				<boxGeometry args={[width + 0.04, 0.1, 0.12]} />
 				<meshStandardMaterial color={C.trim} roughness={0.7} />
 			</mesh>
-			{/* Pignons sous le toit, à chaque bout */}
+			{/* Pignons sous le toit, à chaque bout. Même orientation des deux côtés :
+			    le triangle est dessiné dans le plan (z, y) ; tourné dans l'autre sens,
+			    il basculerait vers l'avant, devant la façade. */}
 			{[left - 0.001, right + 0.001].map((x, i) => (
-				<mesh key={i} geometry={gable} position={[x, 0, 0]} rotation-y={i ? Math.PI / 2 : -Math.PI / 2}>
+				<mesh key={i} geometry={gable} position={[x, 0, 0]} rotation-y={-Math.PI / 2}>
 					<meshStandardMaterial color={C.gable} side={THREE.DoubleSide} roughness={0.95} />
 				</mesh>
 			))}
@@ -706,18 +726,30 @@ const Sign: React.FC = () => {
 };
 
 /** Lanterne à gauche de la porte : discrète le jour, chaleureuse la nuit */
-const Lantern: React.FC<{ night: number; animate: boolean }> = ({ night, animate }) => {
+interface LanternProps {
+	x: number;
+	y?: number;
+	night: number;
+	animate: boolean;
+	/** Intensité de nuit de la lumière projetée */
+	strength?: number;
+	/** Recul de la lumière devant le mur (pour éclairer ce qui est devant) */
+	reach?: number;
+	phase?: number;
+}
+
+/** Lanterne murale : discrète le jour, chaleureuse la nuit */
+const Lantern: React.FC<LanternProps> = ({ x, y = 1.95, night, animate, strength = 3.2, reach = 0.35, phase = 0 }) => {
 	const t = useOwnedTextures(() => ({ glow: glowTexture() }));
 	const light = useRef<THREE.PointLight>(null);
-	/// À droite de la porte : Milo se tient à gauche, la lanterne reste visible
-	const x = SCHOOL.door.x + SCHOOL.door.width / 2 + 0.42;
 	useFrame(({ clock }) => {
 		if (!light.current) return;
-		const flicker = animate ? 1 + Math.sin(clock.elapsedTime * 13) * 0.03 + Math.sin(clock.elapsedTime * 7.3) * 0.03 : 1;
-		light.current.intensity = night * 3.2 * flicker;
+		const time = clock.elapsedTime + phase;
+		const flicker = animate ? 1 + Math.sin(time * 13) * 0.03 + Math.sin(time * 7.3) * 0.03 : 1;
+		light.current.intensity = night * strength * flicker;
 	});
 	return (
-		<group position={[x, 1.95, 0.08]}>
+		<group position={[x, y, 0.08]}>
 			<mesh position={[0, 0.26, -0.02]}>
 				<boxGeometry args={[0.05, 0.05, 0.16]} />
 				<meshStandardMaterial color={C.metal} roughness={0.5} metalness={0.3} />
@@ -751,7 +783,14 @@ const Lantern: React.FC<{ night: number; animate: boolean }> = ({ night, animate
 					blending={THREE.AdditiveBlending}
 				/>
 			</sprite>
-			<pointLight ref={light} position={[0, 0.1, 0.35]} color="#FFB866" intensity={night * 3.2} distance={4.5} decay={2} />
+			<pointLight
+				ref={light}
+				position={[0, 0.05, reach]}
+				color="#FFB866"
+				intensity={night * strength}
+				distance={4.5}
+				decay={2}
+			/>
 		</group>
 	);
 };
@@ -769,6 +808,27 @@ const Door: React.FC<{ bridge: MiloSchoolBridge; night: number; reducedMotion: b
 	const spillMat = useRef<THREE.MeshBasicMaterial>(null);
 	const inside = useRef<THREE.PointLight>(null);
 	const spring = useRef({ value: 0, velocity: 0 });
+	const outlined = useRef<THREE.Group>(null);
+	useHoverOutline(outlined, () => bridge.hovered === "door" || bridge.phase === "inviting");
+
+	/// Encadrement d'un seul tenant (un U extrudé) : un contour net, sans
+	/// raccords visibles entre montants et linteau
+	const frame = useMemo(() => {
+		const { width: fw, height: fh } = SCHOOL.door;
+		const t = 0.13;
+		const shape = new THREE.Shape();
+		shape.moveTo(-fw / 2 - t, 0);
+		shape.lineTo(-fw / 2 - t, fh + t);
+		shape.lineTo(fw / 2 + t, fh + t);
+		shape.lineTo(fw / 2 + t, 0);
+		shape.lineTo(fw / 2, 0);
+		shape.lineTo(fw / 2, fh);
+		shape.lineTo(-fw / 2, fh);
+		shape.lineTo(-fw / 2, 0);
+		shape.closePath();
+		return new THREE.ExtrudeGeometry(shape, { depth: SCHOOL.wallDepth + 0.08, bevelEnabled: false });
+	}, []);
+	useEffect(() => () => frame.dispose(), [frame]);
 
 	/// Face extérieure : la poignée passe à gauche (la porte s'ouvre à droite)
 	const faces = useMemo(() => {
@@ -802,9 +862,16 @@ const Door: React.FC<{ bridge: MiloSchoolBridge; night: number; reducedMotion: b
 		[faces],
 	);
 
+	const lastBridge = useRef(bridge);
 	useFrame((_, delta) => {
 		const s = spring.current;
 		const target = bridge.doorOpen ? 1 : 0;
+		/// Retour sur l'accueil (nouvelle page, scène conservée) : porte remise en place
+		if (lastBridge.current !== bridge) {
+			lastBridge.current = bridge;
+			s.value = target;
+			s.velocity = 0;
+		}
 		if (reducedMotion) {
 			s.value = target;
 			s.velocity = 0;
@@ -855,24 +922,20 @@ const Door: React.FC<{ bridge: MiloSchoolBridge; night: number; reducedMotion: b
 				<pointLight ref={inside} position={[0, 1.7, -0.4]} color="#FFD08A" intensity={0} distance={5} decay={2} />
 			</group>
 
-			{/* Battant, articulé côté droit, qui s'ouvre vers l'intérieur */}
-			<group ref={hinge} position={[x + w / 2, 0, -0.07]}>
-				<mesh position={[-w / 2, h / 2, 0]} material={faces.materials} castShadow>
-					<boxGeometry args={[w - 0.01, h - 0.01, 0.06]} />
+			<group ref={outlined}>
+				{/* Battant, articulé côté droit, qui s'ouvre vers l'intérieur */}
+				<group ref={hinge} position={[x + w / 2, 0, -0.07]}>
+					<mesh position={[-w / 2, h / 2, 0]} material={faces.materials} castShadow>
+						<boxGeometry args={[w - 0.01, h - 0.01, 0.06]} />
+					</mesh>
+				</group>
+				{/* Encadrement */}
+				<mesh geometry={frame} position={[x, 0, -d - 0.01]} castShadow>
+					<meshStandardMaterial color={C.trim} roughness={0.7} />
 				</mesh>
 			</group>
 
-			{/* Encadrement, marche, et l'herbe qui s'éclaire quand la porte s'ouvre */}
-			{[
-				box(x - w / 2 - 0.13, x - w / 2, 0, h + 0.13, -d - 0.01, 0.07),
-				box(x + w / 2, x + w / 2 + 0.13, 0, h + 0.13, -d - 0.01, 0.07),
-				box(x - w / 2, x + w / 2, h, h + 0.13, -d - 0.01, 0.07),
-			].map((piece, k) => (
-				<mesh key={k} position={piece.position} castShadow>
-					<boxGeometry args={piece.args} />
-					<meshStandardMaterial color={C.trim} roughness={0.7} />
-				</mesh>
-			))}
+			{/* Marche, et l'herbe qui s'éclaire quand la porte s'ouvre */}
 			<RoundedBox args={[w + 0.6, 0.12, 0.55]} radius={0.04} position={[x, 0.05, 0.22]} receiveShadow castShadow>
 				<meshStandardMaterial color="#CDBFA8" roughness={0.95} />
 			</RoundedBox>
@@ -890,20 +953,281 @@ const Door: React.FC<{ bridge: MiloSchoolBridge; night: number; reducedMotion: b
 			</mesh>
 
 			{/* Zone de survol / clic : le passage de la porte */}
-			<mesh
-				position={[x, h / 2, 0.2]}
-				visible={false}
-				onPointerOver={(event: ThreeEvent<PointerEvent>) => {
-					event.stopPropagation();
-					bridge.onHover?.("door");
-				}}
-				onPointerOut={() => bridge.onHover?.(null)}
-				onClick={(event: ThreeEvent<MouseEvent>) => {
-					event.stopPropagation();
-					bridge.onDoorClick?.();
-				}}
-			>
+			<mesh position={[x, h / 2, 0.2]} visible={false} {...partHandlers(bridge, "door")}>
 				<boxGeometry args={[w + 0.2, h + 0.1, 0.4]} />
+			</mesh>
+		</group>
+	);
+};
+
+
+/* ============================================================== PANCARTE ET COURRIER */
+
+/** Rapproche une valeur de sa cible, indépendamment du nombre d'images par seconde */
+const approach = (value: number, target: number, speed: number, dt: number) =>
+	value + (target - value) * (1 - Math.exp(-speed * dt));
+
+/** Pastille ronde qui flotte au-dessus d'un objet (missions restantes, courrier) */
+const FloatingBadge: React.FC<{ value: string; position: [number, number, number]; animate: boolean; phase?: number }> = ({
+	value,
+	position,
+	animate,
+	phase = 0,
+}) => {
+	const [badge] = useState(() => countBadgeTexture());
+	useEffect(() => () => badge.texture.dispose(), [badge]);
+	useEffect(() => badge.update(value), [badge, value]);
+	const sprite = useRef<THREE.Sprite>(null);
+	useFrame(({ clock }) => {
+		if (!sprite.current) return;
+		const time = clock.elapsedTime + phase;
+		sprite.current.position.y = position[1] + (animate ? Math.sin(time * 2.4) * 0.05 : 0);
+		const pulse = animate ? 1 + Math.max(0, Math.sin(time * 2.4)) * 0.06 : 1;
+		sprite.current.scale.set(0.34 * pulse, 0.34 * pulse, 1);
+	});
+	if (!value) return null;
+	return (
+		<sprite ref={sprite} position={position} scale={[0.34, 0.34, 1]} renderOrder={5}>
+			<spriteMaterial map={badge.texture} transparent depthTest={false} toneMapped={false} />
+		</sprite>
+	);
+};
+
+/** Petit réverbère de jardin : la nuit, il éclaire la pancarte et la boîte aux lettres */
+const GardenLamp: React.FC<{ night: number; animate: boolean }> = ({ night, animate }) => {
+	const t = useOwnedTextures(() => ({ glow: glowTexture() }));
+	const light = useRef<THREE.PointLight>(null);
+	useFrame(({ clock }) => {
+		if (!light.current) return;
+		const flicker = animate ? 1 + Math.sin(clock.elapsedTime * 11 + 1) * 0.025 : 1;
+		light.current.intensity = night * 4.5 * flicker;
+	});
+	const { x, z } = SCHOOL.gardenLamp;
+	return (
+		<group position={[x, 0, z]}>
+			<mesh position={[0, 0.06, 0]} castShadow>
+				<cylinderGeometry args={[0.1, 0.13, 0.12, 12]} />
+				<meshStandardMaterial color={C.metal} roughness={0.5} metalness={0.3} />
+			</mesh>
+			<mesh position={[0, 0.8, 0]} castShadow>
+				<cylinderGeometry args={[0.03, 0.04, 1.5, 10]} />
+				<meshStandardMaterial color={C.metal} roughness={0.5} metalness={0.3} />
+			</mesh>
+			<mesh position={[0, 1.66, 0]}>
+				<sphereGeometry args={[0.13, 20, 14]} />
+				<meshStandardMaterial
+					color="#FFF2D0"
+					emissive="#FFC064"
+					emissiveIntensity={0.2 + night * 2.4}
+					roughness={0.3}
+				/>
+			</mesh>
+			<mesh position={[0, 1.81, 0]}>
+				<coneGeometry args={[0.17, 0.12, 12]} />
+				<meshStandardMaterial color={C.metal} roughness={0.5} metalness={0.3} />
+			</mesh>
+			<sprite position={[0, 1.66, 0.05]} scale={[1.2, 1.2, 1]}>
+				<spriteMaterial
+					map={t.glow}
+					color="#FFB54A"
+					transparent
+					opacity={0.05 + night * 0.6}
+					depthWrite={false}
+					blending={THREE.AdditiveBlending}
+				/>
+			</sprite>
+			<pointLight ref={light} position={[0, 1.55, 0.25]} color="#FFC27A" intensity={night * 4.5} distance={4} decay={2} />
+		</group>
+	);
+};
+
+/** Pancarte en bois des missions du jour ; au clic, la liste s'affiche */
+const MissionsBoard: React.FC<{ bridge: MiloSchoolBridge; missions: MissionsSummary; night: number; animate: boolean }> = ({
+	bridge,
+	missions,
+	night,
+	animate,
+}) => {
+	const [board] = useState(() => missionsBoardTexture({ done: missions.done, total: missions.total }));
+	useEffect(() => () => board.texture.dispose(), [board]);
+	useEffect(() => board.update({ done: missions.done, total: missions.total }), [board, missions.done, missions.total]);
+
+	const sign = useRef<THREE.Group>(null);
+	const face = useRef<THREE.MeshStandardMaterial>(null);
+	const hover = useRef(0);
+	const outlined = useRef<THREE.Group>(null);
+	useHoverOutline(outlined, () => bridge.hovered === "missions");
+	useFrame(({ clock }, delta) => {
+		const dt = frameStep(delta);
+		hover.current = approach(hover.current, bridge.hovered === "missions" ? 1 : 0, 10, dt);
+		const h = hover.current;
+		if (sign.current) {
+			const time = clock.elapsedTime;
+			/// Se balance doucement au vent, et se penche vers l'élève au survol
+			sign.current.rotation.z = animate ? Math.sin(time * 1.3) * 0.012 + Math.sin(time * 9) * 0.02 * h : 0;
+			/// Le haut du panneau vient vers l'élève (les poteaux restent derrière)
+			sign.current.rotation.x = 0.1 * h;
+			sign.current.scale.setScalar(1 + 0.06 * h);
+		}
+		if (face.current) face.current.emissiveIntensity = 0.1 + night * 0.45 + h * 0.3;
+	});
+
+	const { x, z, yaw } = SCHOOL.board;
+	return (
+		<group ref={outlined} position={[x, 0, z]} rotation-y={yaw}>
+			{/* Poteaux collés au dos du panneau : il penche vers l'élève, ils ne le traversent jamais */}
+			{[-0.42, 0.42].map((px) => (
+				<mesh key={px} position={[px, 0.47, -0.085]} castShadow>
+					<boxGeometry args={[0.09, 0.94, 0.09]} />
+					<meshStandardMaterial color={C.woodDark} roughness={0.85} />
+				</mesh>
+			))}
+			<group ref={sign} position={[0, 1.02, 0]}>
+				<RoundedBox args={[1.08, 0.7, 0.07]} radius={0.03} castShadow>
+					<meshStandardMaterial color={C.wood} roughness={0.8} />
+				</RoundedBox>
+				<mesh position={[0, 0, 0.037]}>
+					<planeGeometry args={[1.0, 0.625]} />
+					<meshStandardMaterial
+						ref={face}
+						map={board.texture}
+						emissive="#FFFFFF"
+						emissiveMap={board.texture}
+						emissiveIntensity={0.1}
+						roughness={0.85}
+					/>
+				</mesh>
+				{/* Petit toit de tuiles au-dessus du panneau */}
+				{[-1, 1].map((side) => (
+					<mesh key={side} position={[side * 0.27, 0.45, 0]} rotation-z={-side * 0.42} castShadow>
+						<boxGeometry args={[0.64, 0.05, 0.2]} />
+						<meshStandardMaterial color="#D45A26" roughness={0.75} />
+					</mesh>
+				))}
+			</group>
+			<FloatingBadge
+				value={missions.pending > 0 ? String(missions.pending) : ""}
+				position={[0.5, 1.55, 0.1]}
+				animate={animate}
+			/>
+			<mesh position={[0, 0.85, 0.05]} visible={false} {...partHandlers(bridge, "missions")}>
+				<boxGeometry args={[1.25, 1.75, 0.45]} />
+			</mesh>
+		</group>
+	);
+};
+
+/** Boîte aux lettres : drapeau levé et pastille quand il y a des nouvelles */
+const Mailbox: React.FC<{ bridge: MiloSchoolBridge; unread: number; night: number; animate: boolean }> = ({
+	bridge,
+	unread,
+	night,
+	animate,
+}) => {
+	const t = useOwnedTextures(() => ({ side: mailboxSideTexture(), letter: letterTexture() }));
+	const door = useRef<THREE.Group>(null);
+	const letter = useRef<THREE.Group>(null);
+	const flag = useRef<THREE.Group>(null);
+	const body = useRef<THREE.Group>(null);
+	const anim = useRef({ hover: 0, flag: unread > 0 ? 1 : 0 });
+	const outlined = useRef<THREE.Group>(null);
+	useHoverOutline(outlined, () => bridge.hovered === "mail");
+
+	/// Façade de la porte : rectangle surmonté d'un demi-cercle
+	const doorShape = useMemo(() => {
+		const shape = new THREE.Shape();
+		shape.moveTo(-0.18, 0);
+		shape.lineTo(0.18, 0);
+		shape.lineTo(0.18, 0.24);
+		shape.absarc(0, 0.24, 0.18, 0, Math.PI, false);
+		shape.lineTo(-0.18, 0);
+		return new THREE.ShapeGeometry(shape, 24);
+	}, []);
+	useEffect(() => () => doorShape.dispose(), [doorShape]);
+
+	useFrame(({ clock }, delta) => {
+		const dt = frameStep(delta);
+		const a = anim.current;
+		a.hover = approach(a.hover, bridge.hovered === "mail" ? 1 : 0, 9, dt);
+		a.flag = approach(a.flag, unread > 0 ? 1 : 0, 6, dt);
+		if (door.current) door.current.rotation.x = a.hover * 1.25;
+		if (letter.current) {
+			letter.current.position.set(0, 0.08 + a.hover * 0.16, 0.08 + a.hover * 0.2);
+			letter.current.rotation.x = -0.35 * a.hover;
+			letter.current.visible = a.hover > 0.02;
+		}
+		/// Drapeau couché (rien de neuf) ou levé (du courrier)
+		if (flag.current) flag.current.rotation.x = -Math.PI / 2 + a.flag * (Math.PI / 2);
+		/// Petit sautillement de la boîte quand une lettre attend
+		if (body.current) {
+			const time = clock.elapsedTime;
+			body.current.rotation.z = animate && unread > 0 ? Math.max(0, Math.sin(time * 3)) ** 8 * 0.06 : 0;
+		}
+	});
+
+	const red = "#E8492A";
+	const { x, z, yaw } = SCHOOL.mailbox;
+	return (
+		<group ref={outlined} position={[x, 0, z]} rotation-y={yaw}>
+			<mesh position={[0, 0.5, -0.05]} castShadow>
+				<boxGeometry args={[0.11, 1.0, 0.11]} />
+				<meshStandardMaterial color={C.woodDark} roughness={0.85} />
+			</mesh>
+			<mesh position={[0, 0.98, -0.05]} castShadow>
+				<boxGeometry args={[0.3, 0.05, 0.34]} />
+				<meshStandardMaterial color={C.woodDark} roughness={0.85} />
+			</mesh>
+			<group ref={body} position={[0, 1.13, 0]}>
+				<mesh castShadow>
+					<boxGeometry args={[0.36, 0.24, 0.5]} />
+					<meshStandardMaterial color={red} roughness={0.45} metalness={0.1} />
+				</mesh>
+				<mesh position={[0, 0.12, 0]} rotation-x={-Math.PI / 2} castShadow>
+					<cylinderGeometry args={[0.18, 0.18, 0.5, 24, 1, false, -Math.PI / 2, Math.PI]} />
+					<meshStandardMaterial color={red} roughness={0.45} metalness={0.1} />
+				</mesh>
+				{/* Enveloppe peinte sur le flanc visible */}
+				<mesh position={[-0.181, 0.0, 0]} rotation-y={-Math.PI / 2}>
+					<planeGeometry args={[0.46, 0.23]} />
+					<meshStandardMaterial map={t.side} roughness={0.5} />
+				</mesh>
+				{/* Lettre qui sort quand on survole la boîte */}
+				<group ref={letter} visible={false}>
+					<mesh rotation-x={-Math.PI / 2 + 0.25}>
+						<planeGeometry args={[0.28, 0.18]} />
+						<meshStandardMaterial map={t.letter} side={THREE.DoubleSide} roughness={0.9} />
+					</mesh>
+				</group>
+				{/* Porte, articulée en bas */}
+				<group ref={door} position={[0, -0.12, 0.252]}>
+					<mesh geometry={doorShape}>
+						<meshStandardMaterial color="#D43C20" roughness={0.5} side={THREE.DoubleSide} />
+					</mesh>
+					<mesh position={[0, 0.3, 0.02]}>
+						<sphereGeometry args={[0.025, 10, 8]} />
+						<meshStandardMaterial color="#FFD34D" roughness={0.3} metalness={0.4} />
+					</mesh>
+				</group>
+				{/* Drapeau jaune, sur le flanc */}
+				<group ref={flag} position={[-0.2, -0.04, -0.12]}>
+					<mesh position={[0, 0.16, 0]}>
+						<boxGeometry args={[0.02, 0.32, 0.02]} />
+						<meshStandardMaterial color="#5E2E12" roughness={0.6} />
+					</mesh>
+					<mesh position={[0, 0.27, 0.06]}>
+						<boxGeometry args={[0.015, 0.1, 0.12]} />
+						<meshStandardMaterial
+							color="#FFD34D"
+							emissive="#FFB800"
+							emissiveIntensity={0.15 + night * 0.4}
+							roughness={0.5}
+						/>
+					</mesh>
+				</group>
+			</group>
+			<FloatingBadge value={unread > 0 ? String(unread) : ""} position={[0.05, 1.68, 0.05]} animate={animate} phase={1.3} />
+			<mesh position={[0, 0.8, 0]} visible={false} {...partHandlers(bridge, "mail")}>
+				<boxGeometry args={[0.75, 1.65, 0.85]} />
 			</mesh>
 		</group>
 	);
@@ -917,9 +1241,23 @@ export interface MiloSchoolYardProps {
 	night: number;
 	animate: boolean;
 	reducedMotion: boolean;
+	missions: MissionsSummary;
+	/** Actualités pas encore lues */
+	unreadNews: number;
 }
 
-const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({ bridge, night, animate, reducedMotion }) => (
+/// Lanterne à gauche de la porte, juste à côté de Milo : la nuit, c'est elle
+/// qui l'éclaire (sa lumière part un peu en avant du mur, vers lui)
+const MILO_LAMP_X = SCHOOL.door.x - SCHOOL.door.width / 2 - 0.42;
+
+const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
+	bridge,
+	night,
+	animate,
+	reducedMotion,
+	missions,
+	unreadNews,
+}) => (
 	<group>
 		<Sky night={night} animate={animate} />
 		<TreeLine night={night} />
@@ -931,8 +1269,12 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({ bridge, night, animate,
 		<Roof />
 		<Windows night={night} />
 		<Sign />
-		<Lantern night={night} animate={animate} />
+		<Lantern x={SCHOOL.door.x + SCHOOL.door.width / 2 + 0.42} night={night} animate={animate} />
+		<Lantern x={MILO_LAMP_X} y={2.02} night={night} animate={animate} strength={6.5} reach={0.9} phase={2.1} />
 		<Door bridge={bridge} night={night} reducedMotion={reducedMotion} />
+		<MissionsBoard bridge={bridge} missions={missions} night={night} animate={animate} />
+		<Mailbox bridge={bridge} unread={unreadNews} night={night} animate={animate} />
+		<GardenLamp night={night} animate={animate} />
 		<Critters night={night} animate={animate} />
 	</group>
 );
