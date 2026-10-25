@@ -466,3 +466,26 @@ export function mailboxSideTexture() {
 		ctx.stroke();
 	});
 }
+
+/** Courant de la rivière : traînées claires et reflets, à faire défiler (répété en V) */
+export function riverFlowTexture() {
+	const texture = canvasTexture(128, 256, (ctx) => {
+		ctx.fillStyle = "#DCEFF8";
+		ctx.fillRect(0, 0, 128, 256);
+		const rand = seeded(61);
+		for (let i = 0; i < 46; i++) {
+			const x = 8 + rand() * 112;
+			const y = rand() * 256;
+			const len = 14 + rand() * 34;
+			ctx.strokeStyle = `rgba(255, 255, 255, ${0.55 + rand() * 0.45})`;
+			ctx.lineWidth = 1.5 + rand() * 2.5;
+			ctx.lineCap = "round";
+			ctx.beginPath();
+			ctx.moveTo(x, y);
+			ctx.quadraticCurveTo(x + (rand() - 0.5) * 8, y + len / 2, x + (rand() - 0.5) * 6, y + len);
+			ctx.stroke();
+		}
+	});
+	texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+	return texture;
+}

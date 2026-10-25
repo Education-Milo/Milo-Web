@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useReducedMotion } from "framer-motion";
-import { ArrowRight, Mail, MessageCircle, Target } from "lucide-react";
+import { Mail, MessageCircle, Target } from "lucide-react";
 import { ROUTES } from "@shared/constants/routes";
 import { nightMixAt } from "@features/milo-scene/hooks/useDayNight";
 import {
 	ENTRY_MS,
 	createMiloSchoolBridge,
+	inClassroom,
 	schoolScene,
 	type MiloSchoolPart,
 	type MissionsSummary,
 } from "@features/home/components/miloSchool/miloSchool.bridge";
 import {
+	BACK_LINE,
 	ENTER_LINE,
 	INVITE_LINES,
 	POKE_CLIPS,
@@ -42,8 +44,13 @@ const NAVIGATE_AFTER_MS = ENTRY_MS + 420;
 /// En dessous de ce rapport largeur / hauteur, la pancarte et la boîte aux
 /// lettres sortent du cadre : elles deviennent des boutons
 const WIDE_ASPECT = 1.2;
+/// Marge gardée sous les pieds de Milo, en bas d'écran
+const BOTTOM_MARGIN_PX = 28;
+/// Milo ressort de la classe : la scène prévient quand il est arrivé ; au cas
+/// où elle ne tournerait pas (onglet en arrière-plan…), on n'attend pas plus
+const EXIT_FALLBACK_MS = ENTRY_MS * 3;
 
-type Mode = "idle" | "invite" | "poke" | "enter";
+type Mode = "idle" | "invite" | "poke" | "enter" | "exit";
 type DoorSource = "button" | "door";
 
 const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
@@ -83,10 +90,18 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 	const { firstName, streak, weakSubject, pendingMissions, unreadNews = 0 } = context;
 	const navigate = useNavigate();
 	const reducedMotion = Boolean(useReducedMotion());
-	const [bridge] = useState(createMiloSchoolBridge);
+	/// L'élève revient de la classe : Milo y est encore, il va en ressortir
+	const [comingBack] = useState(() => inClassroom.get() && !reducedMotion);
+	const [bridge] = useState(() => {
+		const created = createMiloSchoolBridge();
+		if (comingBack) {
+			created.phase = "exiting";
+			created.doorOpen = true;
+		}
+		return created;
+	});
 
 	const cardRef = useRef<HTMLElement>(null);
-	const ctaRef = useRef<HTMLButtonElement>(null);
 
 	/// Retour sur l'accueil : la scène 3D est restée prête, elle s'affiche aussitôt
 	const [loaded, setLoaded] = useState(() => schoolScene.ready);
@@ -94,8 +109,8 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 	const [wide, setWide] = useState(true);
 	const [night, setNight] = useState(() => nightMixAt(new Date()));
 
-	const [mode, setMode] = useState<Mode>("idle");
-	const [line, setLine] = useState(() => greetingLine(context));
+	const [mode, setMode] = useState<Mode>(comingBack ? "exit" : "idle");
+	const [line, setLine] = useState(() => (comingBack ? BACK_LINE : greetingLine(context)));
 	/// Élément de la scène sous la souris (le dernier signalé fait foi)
 	const [hovered, setHovered] = useState<MiloSchoolPart | null>(null);
 	const doorSources = useRef(new Set<DoorSource>());
@@ -118,19 +133,16 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 
 	useEffect(() => {
 		const card = cardRef.current;
-		const cta = ctaRef.current;
-		if (!card || !cta) return;
-		/// Bas d'écran occupé par le bouton : la scène se cadre au-dessus.
-		/// Écran large ou étroit : la scène recadre, l'interface suit.
+		if (!card) return;
+		/// Écran large ou étroit : la scène recadre, l'interface suit
 		const measure = () => {
-			bridge.bottomPx = Math.max(0, card.clientHeight - cta.offsetTop + 6);
+			bridge.bottomPx = BOTTOM_MARGIN_PX;
 			const isWide = card.clientWidth / Math.max(card.clientHeight, 1) >= WIDE_ASPECT;
 			bridge.wide = isWide;
 			setWide(isWide);
 		};
 		const resize = new ResizeObserver(measure);
 		resize.observe(card);
-		resize.observe(cta);
 		measure();
 		/// Rendu en pause quand la page n'est pas à l'écran (onglet, défilement)
 		const onScreen = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.02 });
@@ -154,10 +166,29 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 		[],
 	);
 
-	/// Milo salue l'élève qui revient
+	/// Milo salue l'élève qui revient (s'il sort de la classe, il saluera dehors)
 	useEffect(() => {
-		if (schoolScene.ready && !reducedMotion) bridge.reactions.push("Hello");
-	}, [bridge, reducedMotion]);
+		if (schoolScene.ready && !reducedMotion && !comingBack) bridge.reactions.push("Hello");
+	}, [bridge, reducedMotion, comingBack]);
+
+	/// Retour de la classe : une fois la scène affichée, Milo ressort en
+	/// sautillant ; la scène referme la porte et le ramène à sa place
+	useEffect(() => inClassroom.set(false), []);
+	useEffect(() => {
+		if (mode !== "exit" || !loaded) return;
+		const done = () => {
+			bridge.onExitDone = null;
+			setMode((current) => (current === "exit" ? "idle" : current));
+			setLine(greetingLine(talk));
+		};
+		bridge.onExitDone = done;
+		const id = window.setTimeout(done, EXIT_FALLBACK_MS);
+		return () => {
+			window.clearTimeout(id);
+			bridge.onExitDone = null;
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois, à la sortie de Milo
+	}, [mode, loaded]);
 
 	const setBubble = useCallback(
 		(el: HTMLDivElement | null) => {
@@ -194,7 +225,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 
 	const openDoor = useCallback(() => {
 		window.clearTimeout(closeTimer.current);
-		if (bridge.phase === "entering") return;
+		if (bridge.phase === "entering" || bridge.phase === "exiting") return;
 		if (bridge.phase !== "inviting") {
 			bridge.phase = "inviting";
 			bridge.doorOpen = true;
@@ -226,7 +257,9 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 
 	/** Milo file en classe, la porte se referme derrière lui, et on le rejoint */
 	const enterClassroom = useCallback(() => {
-		if (bridge.phase === "entering") return;
+		if (bridge.phase === "entering" || bridge.phase === "exiting") return;
+		/// Au retour sur l'accueil, Milo ressortira de la classe
+		inClassroom.set(true);
 		if (reducedMotion || !loaded) {
 			navigate(ROUTES.MILO);
 			return;
@@ -271,6 +304,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 	const handleReady = useCallback(() => setLoaded(true), []);
 
 	const entering = mode === "enter";
+	const exiting = mode === "exit";
 	const missionsLabel =
 		missions.total > 0 ? `Missions du jour, ${missions.done} sur ${missions.total} terminées` : "Missions du jour";
 
@@ -295,7 +329,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 					bridge={bridge}
 					active={visible}
 					reducedMotion={reducedMotion}
-					gaze={!entering}
+					gaze={!entering && !exiting}
 					night={night}
 					missions={missions}
 					unreadNews={unreadNews}
@@ -311,7 +345,20 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 
 			{/* Raccourcis : visibles sur écran étroit (la pancarte et la boîte
 			    aux lettres sont hors cadre), et toujours atteignables au clavier */}
-			<nav className="ecl-quick" aria-label="Missions et actualités">
+			<nav className="ecl-quick" aria-label="Discussion, missions et actualités">
+				<button
+					type="button"
+					className="ecl-quick-btn is-main"
+					onClick={enterClassroom}
+					onPointerEnter={() => hoverDoor("button", true)}
+					onPointerLeave={() => hoverDoor("button", false)}
+					onFocus={() => hoverDoor("button", true)}
+					onBlur={() => hoverDoor("button", false)}
+					aria-label={`Discuter avec Milo, ${firstName}`}
+				>
+					<MessageCircle size={18} strokeWidth={2.6} aria-hidden="true" />
+					<span>Discuter</span>
+				</button>
 				<button type="button" className="ecl-quick-btn" onClick={onOpenMissions} aria-label={missionsLabel}>
 					<Target size={18} strokeWidth={2.6} aria-hidden="true" />
 					<span>Missions</span>
@@ -338,26 +385,6 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 				<span className="ecl-bubble-rest">{bubbleText.slice(shown.length)}</span>
 			</div>
 
-			<button
-				ref={ctaRef}
-				type="button"
-				className="ecl-cta"
-				aria-label={`Discuter avec Milo, ${firstName}`}
-				onPointerEnter={() => hoverDoor("button", true)}
-				onPointerLeave={() => hoverDoor("button", false)}
-				onFocus={() => hoverDoor("button", true)}
-				onBlur={() => hoverDoor("button", false)}
-				onClick={enterClassroom}
-				disabled={entering}
-			>
-				<span className="ecl-cta-icon" aria-hidden="true">
-					<MessageCircle size={22} strokeWidth={2.6} />
-				</span>
-				<span className="ecl-cta-label">Discuter avec Milo</span>
-				<span className="ecl-cta-go" aria-hidden="true">
-					<ArrowRight size={20} strokeWidth={2.8} />
-				</span>
-			</button>
 		</section>
 	);
 };

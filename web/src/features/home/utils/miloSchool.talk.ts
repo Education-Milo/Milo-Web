@@ -28,14 +28,15 @@ export function greetingLine({ firstName }: MiloSchoolContext, date = new Date()
 /** Phrases qui tournent dans la bulle quand l'élève ne fait rien */
 export function idleLines(context: MiloSchoolContext, date = new Date()): string[] {
 	const { weakSubject, pendingMissions = 0, streak = 0, unreadNews = 0 } = context;
-	const lines = [greetingLine(context, date)];
+	/// Juste après le bonjour : comment venir discuter (la porte est le seul accès)
+	const lines = [greetingLine(context, date), "Clique sur la porte et viens discuter avec moi en classe ! 🚪"];
 	if (weakSubject) lines.push(`On s'entraîne un peu en ${weakSubject} ? Je t'explique à ma façon 😉`);
 	if (pendingMissions > 0) {
 		lines.push(`Encore ${plural(pendingMissions, "mission")} aujourd'hui, on s'y met ? 🎯`);
 	}
 	if (unreadNews > 0) lines.push("Psst… il y a du courrier dans la boîte aux lettres ✉️");
 	if (streak > 1) lines.push(`${streak} jours d'affilée, bravo ! On garde la série ? 🔥`);
-	lines.push("Une question sur un cours ? Il n'y a pas de question bête ! 😄", "Je t'attends devant la classe ✏️");
+	lines.push("Une question sur un cours ? Il n'y a pas de question bête ! 😄");
 	return lines;
 }
 
@@ -53,6 +54,9 @@ export function missionsHint({ pendingMissions = 0 }: MiloSchoolContext) {
 export function mailHint({ unreadNews = 0 }: MiloSchoolContext) {
 	return unreadNews > 0 ? "Du courrier pour toi ! Ouvre la boîte ✉️" : "Rien de neuf… mais tu peux relire le courrier 📬";
 }
+
+/** Retour de l'élève : Milo ressort de la classe */
+export const BACK_LINE = "Me revoilà ! 👋";
 
 /** Au clic : Milo file en classe */
 export const ENTER_LINE = "C'est parti ! 🚀";

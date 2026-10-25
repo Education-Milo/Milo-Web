@@ -20,6 +20,7 @@ import {
 	missionsBoardTexture,
 	moonTexture,
 	plasterTexture,
+	riverFlowTexture,
 	roofTexture,
 	signTexture,
 	skyTexture,
@@ -309,10 +310,9 @@ function bush(cx: number, cz: number, size: number, seed: number, flowers = 6): 
 const Garden: React.FC = () => {
 	const { leaves, petals } = useMemo(() => {
 		const parts = [
-			bush(-2.75, 0.32, 0.55, 3, 5),
+			bush(-2.3, 0.34, 0.48, 3, 5),
 			bush(1.78, 0.34, 0.4, 7, 4),
 			bush(4.2, 0.4, 0.6, 11, 5),
-			bush(-4.2, 1.5, 0.85, 19, 7),
 			bush(5.6, 0.9, 0.75, 23, 7),
 		];
 		return {
@@ -465,6 +465,158 @@ const Critters: React.FC<{ night: number; animate: boolean }> = ({ night, animat
 					color="#FFE58A"
 				/>
 			)}
+		</group>
+	);
+};
+
+/* ============================================================== RIVIÈRE */
+
+/// Une petite rivière qui sort de la lisière d'arbres, longe la gauche de
+/// l'école et file vers le bord gauche de l'écran (points en x, z)
+const RIVER_POINTS: [number, number][] = [
+	[-4.0, -9.5],
+	[-4.55, -5],
+	[-4.15, -1.8],
+	[-3.35, 0.5],
+	[-2.6, 2.4],
+	[-2.75, 4.5],
+	[-3.9, 7],
+	[-5.4, 10],
+];
+const RIVER_WIDTH = 0.82;
+
+/** Ruban plat le long d'une courbe : chaque côté décalé de `width / 2` */
+function ribbon(curve: THREE.CatmullRomCurve3, width: (t: number) => number, y: number, segments: number) {
+	const positions: number[] = [];
+	const uvs: number[] = [];
+	const indices: number[] = [];
+	const point = new THREE.Vector3();
+	const tangent = new THREE.Vector3();
+	const side = new THREE.Vector3();
+	const length = curve.getLength();
+	for (let i = 0; i <= segments; i++) {
+		const t = i / segments;
+		curve.getPointAt(t, point);
+		curve.getTangentAt(t, tangent);
+		side.set(-tangent.z, 0, tangent.x).normalize();
+		const half = width(t) / 2;
+		for (const sign of [-1, 1]) {
+			positions.push(point.x + side.x * half * sign, y, point.z + side.z * half * sign);
+			uvs.push(sign < 0 ? 0 : 1, (t * length) / 2.2);
+		}
+		if (i < segments) {
+			const a = i * 2;
+			/// Faces tournées vers le ciel
+			indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+		}
+	}
+	const geometry = new THREE.BufferGeometry();
+	geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+	geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+	geometry.setIndex(indices);
+	geometry.computeVertexNormals();
+	return geometry;
+}
+
+const River: React.FC<{ night: number; animate: boolean }> = ({ night, animate }) => {
+	const t = useOwnedTextures(() => ({ flow: riverFlowTexture() }));
+	const parts = useMemo(() => {
+		const curve = new THREE.CatmullRomCurve3(RIVER_POINTS.map(([x, z]) => new THREE.Vector3(x, 0, z)));
+		/// Largeur qui respire un peu le long du cours
+		const width = (u: number) => RIVER_WIDTH * (0.9 + Math.sin(u * 19) * 0.08 + Math.sin(u * 7 + 1) * 0.06);
+		const water = ribbon(curve, width, 0.014, 160);
+		const bank = ribbon(curve, (u) => width(u) + 0.3, 0.007, 160);
+
+		/// Galets le long des deux rives, quelques roseaux
+		const r = rand(71);
+		const pebbles: Blob[] = [];
+		const reeds: { position: [number, number, number]; height: number; lean: number }[] = [];
+		const point = new THREE.Vector3();
+		const tangent = new THREE.Vector3();
+		const steps = 70;
+		for (let i = 0; i <= steps; i++) {
+			const u = i / steps;
+			curve.getPointAt(u, point);
+			curve.getTangentAt(u, tangent);
+			const sideX = -tangent.z;
+			const sideZ = tangent.x;
+			for (const sign of [-1, 1]) {
+				if (r() < 0.35) continue;
+				const offset = (width(u) / 2 + 0.06 + r() * 0.1) * sign;
+				pebbles.push({
+					position: [point.x + sideX * offset, 0.03, point.z + sideZ * offset],
+					scale: 0.05 + r() * 0.07,
+					color: ["#B9B2A5", "#CFC6B5", "#9E978A", "#D9CFBE"][Math.floor(r() * 4)],
+				});
+			}
+			if (i % 9 === 4) {
+				const sign = r() > 0.5 ? 1 : -1;
+				const offset = (width(u) / 2 + 0.12) * sign;
+				for (let k = 0; k < 4; k++) {
+					reeds.push({
+						position: [point.x + sideX * offset + (r() - 0.5) * 0.14, 0, point.z + sideZ * offset + (r() - 0.5) * 0.14],
+						height: 0.32 + r() * 0.28,
+						lean: (r() - 0.5) * 0.3,
+					});
+				}
+			}
+		}
+		return { water, bank, pebbles, reeds };
+	}, []);
+	useEffect(
+		() => () => {
+			parts.water.dispose();
+			parts.bank.dispose();
+		},
+		[parts],
+	);
+
+	const reedsRef = useRef<THREE.InstancedMesh>(null);
+	useEffect(() => {
+		const mesh = reedsRef.current;
+		if (!mesh) return;
+		const matrix = new THREE.Matrix4();
+		const rotation = new THREE.Quaternion();
+		const scale = new THREE.Vector3();
+		const position = new THREE.Vector3();
+		parts.reeds.forEach((reed, i) => {
+			rotation.setFromEuler(new THREE.Euler(reed.lean, 0, reed.lean * 0.6));
+			scale.set(1, reed.height, 1);
+			position.set(reed.position[0], reed.height / 2, reed.position[2]);
+			matrix.compose(position, rotation, scale);
+			mesh.setMatrixAt(i, matrix);
+		});
+		mesh.instanceMatrix.needsUpdate = true;
+		mesh.computeBoundingSphere();
+	}, [parts]);
+
+	useFrame((_, delta) => {
+		if (!animate) return;
+		/// Le courant descend vers l'avant de la scène
+		t.flow.offset.y = (t.flow.offset.y - frameStep(delta) * 0.32) % 1;
+	});
+
+	const waterColor = useMemo(() => new THREE.Color("#5DB7E6").lerp(new THREE.Color("#2C5C93"), night * 0.75), [night]);
+	return (
+		<group>
+			<mesh geometry={parts.bank} receiveShadow>
+				<meshStandardMaterial color="#B69A6B" roughness={1} />
+			</mesh>
+			<mesh geometry={parts.water} receiveShadow>
+				<meshStandardMaterial
+					color={waterColor}
+					map={t.flow}
+					roughness={0.18}
+					metalness={0.05}
+					emissive="#1E4F7A"
+					emissiveIntensity={0.12 + night * 0.25}
+				/>
+			</mesh>
+			<Blobs blobs={parts.pebbles} detail={1} roughness={0.85} />
+			<instancedMesh ref={reedsRef} args={[undefined, undefined, parts.reeds.length]} castShadow>
+				<coneGeometry args={[0.018, 1, 5]} />
+				<meshStandardMaterial color="#5E9A3C" roughness={0.8} />
+			</instancedMesh>
 		</group>
 	);
 };
@@ -1263,6 +1415,7 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 		<TreeLine night={night} />
 		<Lawn />
 		<Path />
+		<River night={night} animate={animate} />
 		<Trees animate={animate} />
 		<Garden />
 		<Walls />

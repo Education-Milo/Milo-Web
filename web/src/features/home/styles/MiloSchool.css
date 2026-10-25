@@ -166,6 +166,19 @@
 .ecl-quick-btn svg {
 	color: var(--milo-orange);
 }
+/* « Discuter » : le bouton principal (la porte, sur écran étroit) */
+.ecl-quick-btn.is-main {
+	background: var(--milo-orange);
+	border-color: var(--milo-orange);
+	color: #fff;
+	box-shadow: 0 4px 0 var(--milo-relief), 0 10px 22px -12px rgba(120, 40, 5, 0.6);
+}
+.ecl-quick-btn.is-main svg {
+	color: #fff;
+}
+.ecl-quick-btn.is-main:hover {
+	background: #ff6430;
+}
 .ecl-quick-btn:hover {
 	transform: translateY(-2px);
 	background: #fff;
@@ -284,112 +297,12 @@
 	transition: opacity 0.3s ease 0.9s;
 }
 
-/* ------------------------------------------------ gros bouton */
-
-.ecl-cta {
-	position: absolute;
-	z-index: 3;
-	left: 50%;
-	bottom: calc(var(--ecl-gap) + 4px);
-	display: inline-flex;
-	align-items: center;
-	gap: 12px;
-	height: 64px;
-	padding: 0 12px 0 14px;
-	border: none;
-	border-radius: 22px;
-	background: var(--milo-orange);
-	color: #fff;
-	font-family: var(--f-display);
-	font-size: 24px;
-	letter-spacing: 0.6px;
-	white-space: nowrap;
-	cursor: pointer;
-	overflow: hidden;
-	transform: translate(-50%, -4px);
-	box-shadow:
-		0 6px 0 var(--milo-relief),
-		0 18px 30px -10px rgba(120, 40, 5, 0.55);
-	transition:
-		transform 0.18s ease,
-		box-shadow 0.18s ease,
-		background 0.2s ease;
-}
-.ecl-cta::after {
-	/* Reflet qui balaie le bouton au survol */
-	content: "";
-	position: absolute;
-	inset: 0 auto 0 0;
-	width: 40%;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-	transform: translateX(-160%) skewX(-22deg);
-	pointer-events: none;
-}
-.ecl-cta:hover:not(:disabled)::after,
-.ecl-cta:focus-visible::after {
-	animation: ecl-shine 0.8s ease;
-}
-@keyframes ecl-shine {
-	to {
-		transform: translateX(320%) skewX(-22deg);
-	}
-}
-.ecl-cta:hover:not(:disabled),
-.ecl-cta:focus-visible {
-	background: #ff6430;
-	transform: translate(-50%, -7px);
-	box-shadow:
-		0 9px 0 var(--milo-relief),
-		0 24px 34px -12px rgba(120, 40, 5, 0.6);
-}
-.ecl-cta:active:not(:disabled) {
-	transform: translate(-50%, 1px);
-	box-shadow:
-		0 1px 0 var(--milo-relief),
-		0 10px 20px -10px rgba(120, 40, 5, 0.5);
-}
-.ecl-cta:focus-visible {
-	outline: 3px solid #fff;
-	outline-offset: 3px;
-}
-.ecl-cta:disabled {
-	cursor: default;
-}
-.ecl-cta-icon,
-.ecl-cta-go {
-	display: grid;
-	place-items: center;
-	flex-shrink: 0;
-	border-radius: 14px;
-}
-.ecl-cta-icon {
-	width: 40px;
-	height: 40px;
-	background: rgba(255, 255, 255, 0.2);
-}
-.ecl-cta-label {
-	text-shadow: 0 2px 0 rgba(160, 45, 8, 0.45);
-	padding-top: 3px;
-}
-.ecl-cta-go {
-	width: 40px;
-	height: 40px;
-	background: #fff;
-	color: var(--milo-orange);
-	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ecl-cta:hover:not(:disabled) .ecl-cta-go,
-.ecl-cta:focus-visible .ecl-cta-go {
-	transform: translateX(4px);
-}
-
 /* ------------------------------------------------ carte étroite */
 
 /* La carte est elle-même le conteneur interrogé : les règles visent ses
    enfants (une requête de conteneur ne restyle pas le conteneur). */
 @container (max-width: 560px) {
-	.ecl-bubble,
-	.ecl-cta {
+	.ecl-bubble {
 		--ecl-gap: 12px;
 	}
 	/* Plus de place à côté de Milo : la bulle passe au-dessus de ses oreilles,
@@ -421,28 +334,6 @@
 		transform: rotate(45deg);
 		border-bottom-right-radius: 4px;
 	}
-	.ecl-cta {
-		height: 58px;
-		font-size: 21px;
-		gap: 10px;
-		border-radius: 20px;
-	}
-	.ecl-cta-icon,
-	.ecl-cta-go {
-		width: 36px;
-		height: 36px;
-		border-radius: 12px;
-	}
-}
-
-@container (max-width: 360px) {
-	.ecl-cta {
-		font-size: 19px;
-		padding: 0 10px;
-	}
-	.ecl-cta-icon {
-		display: none;
-	}
 }
 
 @container (max-width: 560px) {
@@ -467,15 +358,19 @@
 		left: var(--ecl-gap);
 		right: auto;
 	}
+	.ecl-quick {
+		flex-wrap: wrap;
+		max-width: calc(100cqw - 2 * var(--ecl-gap));
+	}
 	.ecl-quick-btn {
 		height: 38px;
+		padding: 0 13px 0 11px;
 		font-size: 14px;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.ecl-hello,
-	.ecl-cta::after,
 	.ecl-card.is-loaded .ecl-bubble.is-loud {
 		animation: none;
 	}

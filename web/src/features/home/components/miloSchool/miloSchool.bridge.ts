@@ -2,7 +2,7 @@
 /// chaque image dans useFrame. L'interface y écrit ses intentions sans
 /// provoquer de rendu React de la scène, la scène y publie ses ancres.
 
-export type MiloSchoolPhase = "idle" | "inviting" | "entering";
+export type MiloSchoolPhase = "idle" | "inviting" | "entering" | "exiting";
 
 /** Résumé des missions du jour, affiché sur la pancarte */
 export interface MissionsSummary {
@@ -18,7 +18,8 @@ export type MiloSchoolPart = "door" | "milo" | "missions" | "mail";
 export interface MiloSchoolBridge {
 	/** Porte ouverte (cible ; la scène amortit le mouvement) */
 	doorOpen: boolean;
-	/** idle : Milo attend ; inviting : il montre la porte ; entering : il rentre en classe */
+	/** idle : Milo attend ; inviting : il montre la porte ; entering : il rentre
+	 *  en classe ; exiting : il en ressort (retour de l'élève sur l'accueil) */
 	phase: MiloSchoolPhase;
 	/** Animations ponctuelles à jouer (clic sur Milo…), par nom de clip */
 	reactions: string[];
@@ -26,7 +27,7 @@ export interface MiloSchoolBridge {
 	bubble: HTMLElement | null;
 	/** Scène : la scène y écrit la position de la porte à l'écran (zoom d'entrée) */
 	stage: HTMLElement | null;
-	/** Hauteur (px) réservée en bas d'écran au bouton : la scène se cadre au-dessus */
+	/** Marge (px) gardée en bas d'écran : la scène se cadre au-dessus */
 	bottomPx: number;
 	/** Écran large : la pancarte des missions et la boîte aux lettres sont dans le cadre */
 	wide: boolean;
@@ -34,6 +35,8 @@ export interface MiloSchoolBridge {
 	hovered: MiloSchoolPart | null;
 	onHover: ((part: MiloSchoolPart | null) => void) | null;
 	onPick: ((part: MiloSchoolPart) => void) | null;
+	/** Milo est ressorti de la classe et a repris sa place */
+	onExitDone: (() => void) | null;
 }
 
 export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
@@ -47,16 +50,40 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	hovered: null,
 	onHover: null,
 	onPick: null,
+	onExitDone: null,
 });
 
 /// La scène 3D de l'accueil survit à la navigation (voir MiloSchoolCanvas) :
 /// une fois Milo et l'école affichés, un retour sur l'accueil est immédiat
 export const schoolScene = { ready: false };
 
-/// Entrée en classe : Milo fait ENTRY_HOPS petits sauts de HOP_SECONDS chacun
+/// Entrée en classe (et sortie) : Milo fait ENTRY_HOPS petits sauts de
+/// HOP_SECONDS chacun
 export const HOP_SECONDS = 0.34;
 export const ENTRY_HOPS = 4;
 export const ENTRY_MS = HOP_SECONDS * ENTRY_HOPS * 1000;
+
+/// Milo est-il resté en classe ? Noté à l'entrée, pour le faire ressortir quand
+/// l'élève revient sur l'accueil, même après un rechargement de la page. Le
+/// stockage peut être indisponible (navigation privée…) : on s'en passe alors.
+const IN_CLASSROOM_KEY = "milo.home.inClassroom";
+export const inClassroom = {
+	get(): boolean {
+		try {
+			return window.sessionStorage.getItem(IN_CLASSROOM_KEY) === "1";
+		} catch {
+			return false;
+		}
+	},
+	set(value: boolean) {
+		try {
+			if (value) window.sessionStorage.setItem(IN_CLASSROOM_KEY, "1");
+			else window.sessionStorage.removeItem(IN_CLASSROOM_KEY);
+		} catch {
+			/// Sans stockage, Milo réapparaît simplement devant la porte
+		}
+	},
+};
 
 /// Pas de temps d'une image, borné : jamais négatif ni énorme (onglet revenu au
 /// premier plan, horloge capricieuse), sinon amortis et ressorts s'emballent

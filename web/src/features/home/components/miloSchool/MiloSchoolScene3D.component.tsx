@@ -46,7 +46,8 @@ const FRAME_TOP = 4.1;
 const FRAME_BOTTOM = -0.52;
 /// Écran large : de la bulle de Milo (à gauche) à la boîte aux lettres
 /// (à droite), toujours dans le cadre
-const WIDE_FRAME = { left: -3.0, right: 5.9 };
+/// (marge à gauche : un peu d'air et la rivière entre le menu et la maison)
+const WIDE_FRAME = { left: -4.1, right: 5.5 };
 /// Écran étroit : Milo et la porte ; la pancarte et la boîte aux lettres
 /// passent alors en boutons dans l'interface
 const NARROW_CENTER_X = 0.2;
@@ -57,8 +58,10 @@ const MIN_FRAME_WIDTH_SQUARE = 7.2;
 const CAMERA_DISTANCE = 8.5;
 /// La caméra est un peu plus haute que le centre du cadre : on voit le toit
 const CAMERA_LIFT = 0.55;
-/// Le surplus de hauteur va au ciel plutôt qu'à la pelouse
-const SPARE_ABOVE = 0.7;
+/// Le surplus de hauteur va surtout au ciel ; sur écran large, moins de ciel
+/// et un peu plus de pelouse : la maison est plus grande et la vue plus basse
+const SPARE_ABOVE_NARROW = 0.7;
+const SPARE_ABOVE_WIDE = 0.4;
 const CROSSFADE = 0.3;
 /// Bulle : à gauche de la tête (carte large) ou au-dessus (carte étroite)
 const BUBBLE_SIDE_OFFSET = new THREE.Vector3(-0.32, 0.38, 0);
@@ -98,7 +101,8 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge }> = ({ bridge }) => {
 		/// du bouton, et assez large pour ce qui doit rester visible
 		const frameH = Math.max(content / visibleShare, minWidth / aspect);
 		const spare = frameH * visibleShare - content;
-		const centerY = FRAME_TOP + spare * SPARE_ABOVE - frameH / 2;
+		const spareAbove = bridge.wide ? SPARE_ABOVE_WIDE : SPARE_ABOVE_NARROW;
+		const centerY = FRAME_TOP + spare * spareAbove - frameH / 2;
 		const fov = THREE.MathUtils.radToDeg(2 * Math.atan(frameH / 2 / CAMERA_DISTANCE));
 
 		if (Math.abs(cam.fov - fov) > 0.01) {
@@ -182,6 +186,10 @@ const ENTRY_POINTS = [
 	new THREE.Vector3(SCHOOL.door.x, 0, -1.25),
 ];
 const HOP_HEIGHT = 0.26;
+/// Retour de l'élève : le même trajet, à l'envers, de la classe à sa place
+const EXIT_POINTS = [...ENTRY_POINTS].reverse();
+/// Pendant la sortie, la porte se referme une fois Milo passé devant le seuil
+const EXIT_DOOR_CLOSES_AT = 2.25;
 
 interface SchoolMiloProps {
 	bridge: MiloSchoolBridge;
@@ -329,7 +337,8 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		/// Milo reprend sa place devant la porte, comme au premier jour.
 		if (lastBridge.current !== bridge) {
 			lastBridge.current = bridge;
-			s.phase = bridge.phase;
+			/// Repart de « idle » : si la page demande une sortie de classe, elle démarre ci-dessous
+			s.phase = "idle";
 			s.reaction = null;
 			s.yaw = 0;
 			group.visible = true;
@@ -344,7 +353,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			if (s.phase === "inviting") {
 				const success = findAction(actions, "Success");
 				if (success && !reducedMotion) playOnce(success, 1.15);
-			} else if (s.phase === "entering") {
+			} else if (s.phase === "entering" || s.phase === "exiting") {
 				s.entryTime = 0;
 				const cheer = findAction(actions, "Success");
 				if (cheer && !reducedMotion) playOnce(cheer, 1.3);
@@ -353,24 +362,27 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			}
 		}
 
+		const hopping = s.phase === "entering" || s.phase === "exiting";
 		/// Réaction ponctuelle (clic sur Milo)
-		if (bridge.reactions.length && s.phase !== "entering") {
+		if (bridge.reactions.length && !hopping) {
 			const action = findAction(actions, bridge.reactions.shift() ?? "");
 			if (action) playOnce(action);
 		}
 		/// Garde-fou : plus rien ne joue, Milo serait figé
-		if (!s.reaction && s.phase !== "entering" && s.current && !s.current.isRunning()) playLoop(restLoop());
+		if (!s.reaction && !hopping && s.current && !s.current.isRunning()) playLoop(restLoop());
 
 		const dt = frameStep(delta);
-		if (s.phase === "entering") {
+		if (hopping) {
 			/// Petits sauts d'un point à l'autre du trajet, tourné dans le sens de la marche
+			const exiting = s.phase === "exiting";
+			const points = exiting ? EXIT_POINTS : ENTRY_POINTS;
 			s.entryTime += reducedMotion ? 10 : dt;
 			const hops = ENTRY_HOPS;
 			const progress = Math.min(s.entryTime / HOP_SECONDS, hops);
 			const index = THREE.MathUtils.clamp(Math.floor(progress), 0, hops - 1);
 			const local = progress - index;
-			const from = ENTRY_POINTS[index];
-			const to = ENTRY_POINTS[index + 1];
+			const from = points[index];
+			const to = points[index + 1];
 			tmp.a.lerpVectors(from, to, local);
 			const lift = Math.sin(local * Math.PI) * HOP_HEIGHT * (progress >= hops ? 0 : 1);
 			group.position.set(tmp.a.x, tmp.a.y + lift + FIT_HEIGHT / 2, tmp.a.z);
@@ -380,8 +392,22 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			/// Écrasé à l'atterrissage, étiré en l'air
 			const squash = 1 - Math.sin(local * Math.PI * 2) * 0.06;
 			group.scale.set(2 - squash, squash, 2 - squash);
-			/// Une fois dans la classe, il disparaît (la porte se referme derrière lui)
-			group.visible = progress < hops - 0.05;
+			if (exiting) {
+				group.visible = true;
+				if (progress >= EXIT_DOOR_CLOSES_AT) bridge.doorOpen = false;
+				/// Arrivé à sa place : il se retourne vers l'élève et le salue
+				if (progress >= hops) {
+					s.phase = "idle";
+					bridge.phase = "idle";
+					bridge.doorOpen = false;
+					bridge.reactions.push("Hello");
+					bridge.onExitDone?.();
+					group.scale.setScalar(1);
+				}
+			} else {
+				/// Une fois dans la classe, il disparaît (la porte se referme derrière lui)
+				group.visible = progress < hops - 0.05;
+			}
 		} else {
 			group.visible = true;
 			group.scale.setScalar(1);
