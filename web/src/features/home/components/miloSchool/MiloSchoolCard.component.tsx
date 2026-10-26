@@ -9,6 +9,7 @@ import {
 	createMiloSchoolBridge,
 	inClassroom,
 	schoolScene,
+	type MiloSchoolFocus,
 	type MiloSchoolPart,
 	type MissionsSummary,
 } from "@features/home/components/miloSchool/miloSchool.bridge";
@@ -84,9 +85,21 @@ export interface MiloSchoolCardProps extends MiloSchoolContext {
 	missions: MissionsSummary;
 	onOpenMissions: () => void;
 	onOpenNews: () => void;
+	/** Gros plan en cours : la caméra s'approche de la pancarte ou de la boîte aux lettres */
+	focus?: MiloSchoolFocus | null;
+	/** Ce qui s'affiche par-dessus la scène pendant un gros plan (missions, lettre) */
+	children?: React.ReactNode;
 }
 
-const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOpenMissions, onOpenNews, ...context }) => {
+const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
+	welcome,
+	missions,
+	onOpenMissions,
+	onOpenNews,
+	focus = null,
+	children,
+	...context
+}) => {
 	const { firstName, streak, weakSubject, pendingMissions, unreadNews = 0 } = context;
 	const navigate = useNavigate();
 	const reducedMotion = Boolean(useReducedMotion());
@@ -190,6 +203,19 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- une seule fois, à la sortie de Milo
 	}, [mode, loaded]);
 
+	/// Gros plan demandé par la page : la caméra suit
+	useEffect(() => {
+		bridge.focus = focus;
+	}, [bridge, focus]);
+
+	const setRoot = useCallback(
+		(el: HTMLElement | null) => {
+			cardRef.current = el;
+			bridge.root = el;
+		},
+		[bridge],
+	);
+
 	const setBubble = useCallback(
 		(el: HTMLDivElement | null) => {
 			bridge.bubble = el;
@@ -290,6 +316,8 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 			hoverDoor("door", part === "door");
 		};
 		bridge.onPick = (part: MiloSchoolPart) => {
+			/// Pendant un gros plan, la scène attend qu'on recule
+			if (bridge.focus) return;
 			if (part === "door") enterClassroom();
 			else if (part === "milo") poke();
 			else if (part === "missions") onOpenMissions();
@@ -310,9 +338,10 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 
 	return (
 		<section
-			ref={cardRef}
+			ref={setRoot}
 			className={[
 				"ecl-card",
+				focus && "is-focused",
 				loaded && "is-loaded",
 				wide ? "is-wide" : "is-narrow",
 				night > 0.5 && "is-night",
@@ -385,6 +414,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({ welcome, missions, onOp
 				<span className="ecl-bubble-rest">{bubbleText.slice(shown.length)}</span>
 			</div>
 
+			{children}
 		</section>
 	);
 };

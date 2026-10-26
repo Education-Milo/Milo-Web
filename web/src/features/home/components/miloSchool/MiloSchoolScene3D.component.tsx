@@ -25,6 +25,7 @@ import {
 	partHandlers,
 	schoolScene,
 	type MiloSchoolBridge,
+	type MiloSchoolFocus,
 	type MiloSchoolPhase,
 	type MissionsSummary,
 } from "@features/home/components/miloSchool/miloSchool.bridge";
@@ -73,14 +74,67 @@ const GROUND_CLEARANCE = 0.012;
 
 /* ============================================================== CAMÉRA */
 
-/** Caméra fixe : la scène se cadre selon la taille de l'écran, au-dessus du bouton */
-const CameraRig: React.FC<{ bridge: MiloSchoolBridge }> = ({ bridge }) => {
+/// Gros plan sur la pancarte ou la boîte aux lettres : durée du trajet (s)
+const FOCUS_SECONDS = 0.9;
+const FOCUS_FOV = 30;
+const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const MAIL_DIR = new THREE.Vector3();
+
+/**
+ * Pose de la caméra devant ce qu'on regarde de près : face à la pancarte
+ * (assez près pour la lire), ou un peu devant la boîte aux lettres.
+ */
+function focusPose(focus: MiloSchoolFocus, aspect: number, basePos: THREE.Vector3, pos: THREE.Vector3, target: THREE.Vector3) {
+	const halfTan = Math.tan(THREE.MathUtils.degToRad(FOCUS_FOV / 2));
+	if (focus === "missions") {
+		const { x, z, yaw } = SCHOOL.board;
+		target.set(x, 1.08, z);
+		/// La pancarte occupe une bonne part de la largeur, sans déborder en hauteur
+		const fill = aspect < 1 ? 0.9 : 0.6;
+		const distance = Math.max(1.1 / fill / 2 / (halfTan * aspect), 1.0 / 0.82 / 2 / halfTan);
+		pos.set(x + Math.sin(yaw) * distance, 1.18, z + Math.cos(yaw) * distance);
+		return;
+	}
+	const { x, z, yaw } = SCHOOL.mailbox;
+	/// La boîte aux lettres un peu à droite : l'enveloppe s'envole vers le centre.
+	/// On la regarde à mi-chemin entre la vue d'ensemble et sa face avant, la
+	/// pancarte et le lampadaire restent ainsi hors du cadre
+	target.set(x - 0.45, 1.05, z);
+	MAIL_DIR.set(basePos.x - x, 0, basePos.z - z).normalize();
+	MAIL_DIR.x += Math.sin(yaw);
+	MAIL_DIR.z += Math.cos(yaw);
+	MAIL_DIR.normalize();
+	pos.copy(target).addScaledVector(MAIL_DIR, 2.9);
+	pos.y = 1.45;
+}
+
+/** Caméra : cadrage selon la taille de l'écran, et gros plans à la demande */
+const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> = ({ bridge, reducedMotion }) => {
 	const { camera, size } = useThree();
 	const door = useMemo(() => new THREE.Vector3(), []);
 	const doorKey = useRef("");
 	const doorStage = useRef<HTMLElement | null>(null);
+	const pose = useMemo(
+		() => ({
+			basePos: new THREE.Vector3(),
+			baseTarget: new THREE.Vector3(),
+			focusPos: new THREE.Vector3(),
+			focusTarget: new THREE.Vector3(),
+			target: new THREE.Vector3(),
+			anchor: new THREE.Vector3(),
+			t: 0,
+			last: null as MiloSchoolFocus | null,
+			mailKey: "",
+			mailRoot: null as HTMLElement | null,
+			zoomed: false,
+		}),
+		[],
+	);
+	/// Caméra fantôme placée sur la pose de gros plan : sert à savoir où sera
+	/// la boîte aux lettres à l'écran une fois la caméra arrivée
+	const probe = useMemo(() => new THREE.PerspectiveCamera(FOCUS_FOV, 1, 0.1, 80), []);
 
-	useFrame(() => {
+	useFrame((_, delta) => {
 		const cam = camera as THREE.PerspectiveCamera;
 		const height = Math.max(size.height, 1);
 		const reserved = THREE.MathUtils.clamp(bridge.bottomPx, 0, height * 0.4);
@@ -98,19 +152,62 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge }> = ({ bridge }) => {
 				: MIN_FRAME_WIDTH_SQUARE;
 		const content = FRAME_TOP - FRAME_BOTTOM;
 		/// Hauteur totale du cadre (à z = 0) pour que le contenu tienne au-dessus
-		/// du bouton, et assez large pour ce qui doit rester visible
+		/// de la marge du bas, et assez large pour ce qui doit rester visible
 		const frameH = Math.max(content / visibleShare, minWidth / aspect);
 		const spare = frameH * visibleShare - content;
 		const spareAbove = bridge.wide ? SPARE_ABOVE_WIDE : SPARE_ABOVE_NARROW;
 		const centerY = FRAME_TOP + spare * spareAbove - frameH / 2;
-		const fov = THREE.MathUtils.radToDeg(2 * Math.atan(frameH / 2 / CAMERA_DISTANCE));
+		const baseFov = THREE.MathUtils.radToDeg(2 * Math.atan(frameH / 2 / CAMERA_DISTANCE));
+		pose.basePos.set(centerX, centerY + CAMERA_LIFT, CAMERA_DISTANCE);
+		pose.baseTarget.set(centerX, centerY, 0);
 
+		/// Gros plan : la caméra glisse vers la pancarte ou la boîte aux lettres
+		if (bridge.focus) pose.last = bridge.focus;
+		const step = reducedMotion ? 1 : frameStep(delta) / FOCUS_SECONDS;
+		pose.t = THREE.MathUtils.clamp(pose.t + (bridge.focus ? step : -step), 0, 1);
+		bridge.zoom = pose.t;
+		let fov = baseFov;
+		if (pose.last) focusPose(pose.last, aspect, pose.basePos, pose.focusPos, pose.focusTarget);
+		if (pose.t > 0 && pose.last) {
+			const e = easeInOut(pose.t);
+			cam.position.lerpVectors(pose.basePos, pose.focusPos, e);
+			pose.target.lerpVectors(pose.baseTarget, pose.focusTarget, e);
+			fov = THREE.MathUtils.lerp(baseFov, FOCUS_FOV, e);
+		} else {
+			cam.position.copy(pose.basePos);
+			pose.target.copy(pose.baseTarget);
+		}
 		if (Math.abs(cam.fov - fov) > 0.01) {
 			cam.fov = fov;
 			cam.updateProjectionMatrix();
 		}
-		cam.position.set(centerX, centerY + CAMERA_LIFT, CAMERA_DISTANCE);
-		cam.lookAt(centerX, centerY, 0);
+		cam.lookAt(pose.target);
+
+		/// Où sera la boîte aux lettres à l'écran, une fois en gros plan
+		const root = bridge.root;
+		if (root) {
+			focusPose("mail", aspect, pose.basePos, probe.position, pose.anchor);
+			probe.aspect = aspect;
+			probe.updateProjectionMatrix();
+			probe.lookAt(pose.anchor);
+			probe.updateMatrixWorld();
+			pose.anchor.set(SCHOOL.mailbox.x, 1.13, SCHOOL.mailbox.z).project(probe);
+			const mx = Math.round(((pose.anchor.x + 1) / 2) * size.width);
+			const my = Math.round(((1 - pose.anchor.y) / 2) * size.height);
+			const key = `${mx},${my}`;
+			/// Tant que la caméra n'est pas revenue, le titre et la bulle restent
+			/// cachés (data-zoomed, lu par la feuille de style)
+			const zoomed = pose.t > 0.02;
+			if (key !== pose.mailKey || root !== pose.mailRoot || zoomed !== pose.zoomed) {
+				pose.mailKey = key;
+				pose.mailRoot = root;
+				pose.zoomed = zoomed;
+				root.style.setProperty("--mail-x", `${mx}px`);
+				root.style.setProperty("--mail-y", `${my}px`);
+				if (zoomed) root.dataset.zoomed = "";
+				else delete root.dataset.zoomed;
+			}
+		}
 
 		/// Position de la porte à l'écran : le zoom d'entrée en classe part d'elle
 		const stage = bridge.stage;
@@ -524,7 +621,7 @@ const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
 			config={ENGINE}
 			onCreated={onEngineCreated}
 		>
-			<CameraRig bridge={bridge} />
+			<CameraRig bridge={bridge} reducedMotion={reducedMotion} />
 			<Lights night={night} />
 			{/* Un seul Suspense : l'école et Milo apparaissent ensemble */}
 			<Suspense fallback={null}>

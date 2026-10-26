@@ -297,6 +297,32 @@
 	transition: opacity 0.3s ease 0.9s;
 }
 
+/* ------------------------------------------------ gros plan (pancarte, courrier) */
+
+/* La caméra s'approche : le titre, les raccourcis et la bulle s'écartent, et
+   reviennent (le titre retombe) quand on recule */
+.ecl-quick {
+	animation: ecl-drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+.ecl-card.is-focused .ecl-hello,
+.ecl-card.is-focused .ecl-quick,
+.ecl-card[data-zoomed] .ecl-hello,
+.ecl-card[data-zoomed] .ecl-quick {
+	animation: ecl-lift 0.3s ease forwards;
+	pointer-events: none;
+}
+.ecl-card.is-focused .ecl-bubble,
+.ecl-card.is-loaded[data-zoomed] .ecl-bubble {
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+@keyframes ecl-lift {
+	to {
+		opacity: 0;
+		transform: translateY(-14px);
+	}
+}
+
 /* ------------------------------------------------ carte étroite */
 
 /* La carte est elle-même le conteneur interrogé : les règles visent ses

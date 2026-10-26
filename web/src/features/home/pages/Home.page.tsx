@@ -1,19 +1,18 @@
 import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpenText, Calendar, CheckCircle2, Clock, Mail, Target, TrendingDown } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import MiloSchoolCard from "@features/home/components/miloSchool/MiloSchoolCard.component";
-import HomeSheet from "@features/home/components/HomeSheet.component";
+import MissionsBoardOverlay from "@features/home/components/MissionsBoardOverlay.component";
+import NewsLetterOverlay, { type NewsItem } from "@features/home/components/NewsLetterOverlay.component";
 import { useSeenNews } from "@features/home/hooks/useSeenNews";
 import { useHomePage } from "@features/home/hooks/useHomePage";
 import { useDailyMissions } from "@features/missions/store/missions.queries";
-import { formatMissionReward } from "@features/missions/utils/missionIcons";
 import { useBulletinStore } from "@features/ocr/store/bulletin.store";
 import { ROUTES } from "@shared/constants/routes";
 import { useUserStore } from "@shared/store/user/user.store";
 import "@features/home/styles/Home.css";
 
-const ANNOUNCEMENTS = [
+const ANNOUNCEMENTS: NewsItem[] = [
 	{
 		id: 1,
 		date: "Aujourd'hui",
@@ -123,108 +122,24 @@ const HomePage: React.FC = () => {
 					missions={{ done: completedMissionsCount, total: totalMissionsCount, pending: pendingMissionsCount }}
 					onOpenMissions={openMissions}
 					onOpenNews={openNews}
-				/>
+					focus={panel === "missions" ? "missions" : panel === "news" ? "mail" : null}
+				>
+					{/* La caméra s'approche de la pancarte : on y lit les missions */}
+					<MissionsBoardOverlay
+						open={panel === "missions"}
+						onClose={closePanel}
+						missions={missions}
+						done={completedMissionsCount}
+						total={totalMissionsCount}
+						weakSubjects={reportCard && reportCard.length > 0 ? difficultSubjects : []}
+						weakTitle={hasBelowClassAverageSubjects ? "Matières à revoir" : "Matières à renforcer"}
+						onMission={handleMissionClick}
+						onSubject={handleSelectSubject}
+					/>
+					{/* Une enveloppe s'envole de la boîte aux lettres, une lettre en sort */}
+					<NewsLetterOverlay open={panel === "news"} onClose={closePanel} news={ANNOUNCEMENTS} firstName={firstName} />
+				</MiloSchoolCard>
 			</div>
-
-			{/* --- Missions du jour (et matières à revoir du bulletin) --- */}
-			<HomeSheet
-				open={panel === "missions"}
-				onClose={closePanel}
-				title="Missions du jour"
-				icon={<Target size={18} />}
-				aside={
-					<div className="hp-progress-pill">
-						<span className="hp-progress-value">{completedMissionsCount}</span>
-						<span className="hp-progress-sep">/</span>
-						<span className="hp-progress-total">{totalMissionsCount}</span>
-					</div>
-				}
-			>
-				<div className="hp-missions-list">
-					{missions.map((mission, i) => {
-						const isDone = mission.is_completed;
-						return (
-							<button
-								type="button"
-								key={mission.id}
-								className={`hp-mission ${isDone ? "done" : "pending"}`}
-								onClick={handleMissionClick}
-								style={{ animationDelay: `${0.05 + i * 0.07}s` }}
-							>
-								<div className="hp-mission-icon-wrap">
-									{isDone ? <CheckCircle2 size={20} /> : <Clock size={20} />}
-								</div>
-								<div className="hp-mission-body">
-									<div className="hp-mission-top">
-										<h3 className="hp-mission-title">{mission.title}</h3>
-										<span className="hp-mission-points">
-											{isDone ? "Terminé" : formatMissionReward(mission)}
-										</span>
-									</div>
-									<p className="hp-mission-desc">
-										{isDone
-											? "Mission accomplie avec brio !"
-											: `${Math.min(mission.progress, mission.target)}/${mission.target} réalisé`}
-									</p>
-									<span className="hp-mission-category">{mission.is_bonus ? "Bonus" : "Mission"}</span>
-								</div>
-							</button>
-						);
-					})}
-					{missions.length === 0 && <p className="hp-sheet-empty">Pas de mission pour l'instant. Reviens plus tard !</p>}
-				</div>
-
-				{reportCard && reportCard.length > 0 && difficultSubjects.length > 0 && (
-					<section className="hp-bulletin hp-sheet-section" aria-label="Ton bulletin">
-						<div className="hp-bulletin-alert">
-							<div className="hp-bulletin-alert-header">
-								<TrendingDown size={18} />
-								<span>{hasBelowClassAverageSubjects ? "Matières à revoir" : "Matières à renforcer"}</span>
-							</div>
-							<div className="hp-bulletin-subjects">
-								{difficultSubjects.map((subject, i) => (
-									<button
-										key={i}
-										type="button"
-										className="hp-bulletin-subject-btn"
-										onClick={() => handleSelectSubject(subject.subject)}
-									>
-										<span className="hp-bulletin-subject-name">{subject.subject}</span>
-										{typeof subject.grade === "number" && (
-											<span className="hp-bulletin-grade">{subject.grade.toFixed(1)}</span>
-										)}
-									</button>
-								))}
-							</div>
-						</div>
-						{reportCard.length > difficultSubjects.length && (
-							<div className="hp-bulletin-summary">
-								<BookOpenText size={14} />
-								<span className="hp-bulletin-summary-text">{reportCard.length} matières au total</span>
-							</div>
-						)}
-					</section>
-				)}
-			</HomeSheet>
-
-			{/* --- Actualités (la boîte aux lettres) --- */}
-			<HomeSheet open={panel === "news"} onClose={closePanel} title="Actualités" icon={<Mail size={18} />}>
-				<div className="hp-announcements-list">
-					{ANNOUNCEMENTS.map((a, i) => (
-						<article key={a.id} className="hp-announcement" style={{ animationDelay: `${0.05 + i * 0.07}s` }}>
-							<div className="hp-announcement-emoji">{a.emoji}</div>
-							<div className="hp-announcement-body">
-								<div className="hp-announcement-date">
-									<Calendar size={11} />
-									<span>{a.date}</span>
-								</div>
-								<h4 className="hp-announcement-title">{a.title}</h4>
-								<p className="hp-announcement-text">{a.text}</p>
-							</div>
-						</article>
-					))}
-				</div>
-			</HomeSheet>
 		</ScreenLayout>
 	);
 };

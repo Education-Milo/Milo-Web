@@ -1120,18 +1120,21 @@ const approach = (value: number, target: number, speed: number, dt: number) =>
 	value + (target - value) * (1 - Math.exp(-speed * dt));
 
 /** Pastille ronde qui flotte au-dessus d'un objet (missions restantes, courrier) */
-const FloatingBadge: React.FC<{ value: string; position: [number, number, number]; animate: boolean; phase?: number }> = ({
-	value,
-	position,
-	animate,
-	phase = 0,
-}) => {
+const FloatingBadge: React.FC<{
+	value: string;
+	position: [number, number, number];
+	animate: boolean;
+	phase?: number;
+	/** Masquée pendant le gros plan (elle passerait devant tout) */
+	hidden?: () => boolean;
+}> = ({ value, position, animate, phase = 0, hidden }) => {
 	const [badge] = useState(() => countBadgeTexture());
 	useEffect(() => () => badge.texture.dispose(), [badge]);
 	useEffect(() => badge.update(value), [badge, value]);
 	const sprite = useRef<THREE.Sprite>(null);
 	useFrame(({ clock }) => {
 		if (!sprite.current) return;
+		sprite.current.visible = !hidden?.();
 		const time = clock.elapsedTime + phase;
 		sprite.current.position.y = position[1] + (animate ? Math.sin(time * 2.4) * 0.05 : 0);
 		const pulse = animate ? 1 + Math.max(0, Math.sin(time * 2.4)) * 0.06 : 1;
@@ -1261,6 +1264,7 @@ const MissionsBoard: React.FC<{ bridge: MiloSchoolBridge; missions: MissionsSumm
 				value={missions.pending > 0 ? String(missions.pending) : ""}
 				position={[0.5, 1.55, 0.1]}
 				animate={animate}
+				hidden={() => bridge.zoom > 0.02}
 			/>
 			<mesh position={[0, 0.85, 0.05]} visible={false} {...partHandlers(bridge, "missions")}>
 				<boxGeometry args={[1.25, 1.75, 0.45]} />
@@ -1300,7 +1304,8 @@ const Mailbox: React.FC<{ bridge: MiloSchoolBridge; unread: number; night: numbe
 	useFrame(({ clock }, delta) => {
 		const dt = frameStep(delta);
 		const a = anim.current;
-		a.hover = approach(a.hover, bridge.hovered === "mail" ? 1 : 0, 9, dt);
+		/// Porte ouverte et lettre qui pointe : au survol, et pendant le gros plan
+		a.hover = approach(a.hover, bridge.hovered === "mail" || bridge.focus === "mail" ? 1 : 0, 9, dt);
 		a.flag = approach(a.flag, unread > 0 ? 1 : 0, 6, dt);
 		if (door.current) door.current.rotation.x = a.hover * 1.25;
 		if (letter.current) {
@@ -1377,7 +1382,13 @@ const Mailbox: React.FC<{ bridge: MiloSchoolBridge; unread: number; night: numbe
 					</mesh>
 				</group>
 			</group>
-			<FloatingBadge value={unread > 0 ? String(unread) : ""} position={[0.05, 1.68, 0.05]} animate={animate} phase={1.3} />
+			<FloatingBadge
+				value={unread > 0 ? String(unread) : ""}
+				position={[0.05, 1.68, 0.05]}
+				animate={animate}
+				phase={1.3}
+				hidden={() => bridge.zoom > 0.02}
+			/>
 			<mesh position={[0, 0.8, 0]} visible={false} {...partHandlers(bridge, "mail")}>
 				<boxGeometry args={[0.75, 1.65, 0.85]} />
 			</mesh>

@@ -15,6 +15,9 @@ export interface MissionsSummary {
 /** Ce qu'on peut survoler ou toucher dans la scène */
 export type MiloSchoolPart = "door" | "milo" | "missions" | "mail";
 
+/** Ce que la caméra va voir de près : la pancarte, ou la boîte aux lettres */
+export type MiloSchoolFocus = "missions" | "mail";
+
 export interface MiloSchoolBridge {
 	/** Porte ouverte (cible ; la scène amortit le mouvement) */
 	doorOpen: boolean;
@@ -27,6 +30,13 @@ export interface MiloSchoolBridge {
 	bubble: HTMLElement | null;
 	/** Scène : la scène y écrit la position de la porte à l'écran (zoom d'entrée) */
 	stage: HTMLElement | null;
+	/** Carte : la scène y écrit la position de la boîte aux lettres à
+	 *  l'écran (--mail-x / --mail-y, px), d'où s'envole l'enveloppe */
+	root: HTMLElement | null;
+	/** La caméra s'approche de la pancarte ou de la boîte aux lettres */
+	focus: MiloSchoolFocus | null;
+	/** Avancement du gros plan (0 : vue d'ensemble, 1 : caméra arrivée), écrit par la scène */
+	zoom: number;
 	/** Marge (px) gardée en bas d'écran : la scène se cadre au-dessus */
 	bottomPx: number;
 	/** Écran large : la pancarte des missions et la boîte aux lettres sont dans le cadre */
@@ -45,6 +55,9 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	reactions: [],
 	bubble: null,
 	stage: null,
+	root: null,
+	focus: null,
+	zoom: 0,
 	bottomPx: 0,
 	wide: true,
 	hovered: null,

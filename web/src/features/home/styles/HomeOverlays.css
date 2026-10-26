@@ -1,0 +1,880 @@
+/* ============================================================
+   ACCUEIL — gros plans : la pancarte des missions, et la lettre
+   des actualités qui sort de son enveloppe.
+   Préfixes « pancarte- » et « courrier- » (uniques dans l'appli).
+   ============================================================ */
+
+/* ============================================================ PANCARTE */
+
+.pancarte-layer {
+	position: absolute;
+	inset: 0;
+	z-index: 6;
+	display: grid;
+	place-items: center;
+	padding: 28px 18px;
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+.pancarte-backdrop {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(ellipse at 50% 52%, rgba(24, 12, 4, 0) 35%, rgba(24, 12, 4, 0.55) 100%);
+	animation: overlay-fade 0.5s ease 0.25s both;
+}
+
+/* Le panneau arrive quand la caméra est devant la vraie pancarte */
+.pancarte-board {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	/* À peu près la taille de la vraie pancarte, vue de près */
+	width: clamp(560px, 58cqw, 860px);
+	max-width: 100%;
+	max-height: 100%;
+	transform-origin: 50% 60%;
+	animation: pancarte-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.55s both;
+}
+.pancarte-roof {
+	flex-shrink: 0;
+	width: 92%;
+	height: 38px;
+	margin-bottom: -6px;
+	background: repeating-linear-gradient(90deg, #d45a26 0 20px, #c44e1f 20px 23px);
+	clip-path: polygon(4% 100%, 50% 0, 96% 100%);
+	filter: drop-shadow(0 4px 0 rgba(90, 35, 8, 0.35));
+}
+.pancarte-frame {
+	position: relative;
+	width: 100%;
+	min-height: 0;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	padding: 24px 28px 26px;
+	border: 11px solid #8b4a1e;
+	border-radius: 22px;
+	/* Planches de bois horizontales, veinage léger */
+	background:
+		repeating-linear-gradient(180deg, transparent 0 62px, rgba(90, 40, 12, 0.35) 62px 65px),
+		repeating-linear-gradient(176deg, rgba(255, 220, 170, 0.12) 0 2px, transparent 2px 19px),
+		repeating-linear-gradient(183deg, rgba(120, 55, 20, 0.12) 0 1px, transparent 1px 27px),
+		linear-gradient(180deg, #e09b5c 0%, #d58a4b 100%);
+	box-shadow:
+		inset 0 0 0 2px rgba(255, 220, 170, 0.28),
+		inset 0 -10px 24px rgba(90, 40, 12, 0.25),
+		0 34px 70px -24px rgba(0, 0, 0, 0.7);
+}
+.pancarte-nail {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, #c9a27e, #6b3a1a 70%);
+	box-shadow: 0 1px 0 rgba(255, 220, 170, 0.4);
+}
+.pancarte-nail.is-tl {
+	top: 10px;
+	left: 10px;
+}
+.pancarte-nail.is-tr {
+	top: 10px;
+	right: 10px;
+}
+.pancarte-nail.is-bl {
+	bottom: 10px;
+	left: 10px;
+}
+.pancarte-nail.is-br {
+	bottom: 10px;
+	right: 10px;
+}
+.pancarte-posts {
+	flex-shrink: 0;
+	width: 74%;
+	height: 34px;
+	background: linear-gradient(
+		90deg,
+		transparent 0 7%,
+		#6b3818 7% 13%,
+		transparent 13% 87%,
+		#6b3818 87% 93%,
+		transparent 93%
+	);
+}
+
+.pancarte-head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+.pancarte-title {
+	flex: 1;
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(26px, 3.6vw, 36px);
+	line-height: 1;
+	letter-spacing: 0.6px;
+	color: #fff7ec;
+	/* Lettres gravées dans le bois */
+	text-shadow:
+		0 3px 0 rgba(90, 35, 8, 0.55),
+		0 -1px 0 rgba(255, 230, 200, 0.4);
+}
+.pancarte-count {
+	padding: 7px 16px 5px;
+	border-radius: 999px;
+	background: var(--milo-orange);
+	box-shadow: 0 4px 0 var(--milo-relief);
+	color: #fff;
+	font-family: var(--f-display);
+	font-size: 22px;
+	white-space: nowrap;
+}
+.pancarte-count.is-done {
+	background: #4fa34a;
+	box-shadow: 0 4px 0 #3b7f38;
+}
+.pancarte-close {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 3px solid #8b4a1e;
+	border-radius: 50%;
+	background: #fff7ec;
+	color: #5e2e12;
+	box-shadow: 0 3px 0 #5e2e12;
+	cursor: pointer;
+	transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pancarte-close:hover {
+	transform: rotate(90deg) scale(1.05);
+}
+.pancarte-close:focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: 2px;
+}
+
+/* Les fiches de mission, épinglées */
+.pancarte-notes {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 20px 18px;
+	margin: 0;
+	padding: 6px 0 0;
+	list-style: none;
+}
+.pancarte-note-wrap {
+	transform: rotate(var(--tilt));
+	animation: pancarte-note-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.85s + var(--i) * 0.09s) both;
+}
+.pancarte-note {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	width: 100%;
+	min-height: 100%;
+	padding: 20px 14px 14px;
+	border: 0;
+	border-radius: 6px;
+	background: #fffdf6;
+	box-shadow:
+		0 12px 20px -12px rgba(60, 25, 5, 0.75),
+		0 1px 0 rgba(0, 0, 0, 0.08);
+	color: inherit;
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+		box-shadow 0.3s ease;
+}
+.pancarte-note:hover {
+	transform: translateY(-4px) rotate(calc(var(--tilt) * -1)) scale(1.02);
+	box-shadow:
+		0 18px 26px -14px rgba(60, 25, 5, 0.8),
+		0 1px 0 rgba(0, 0, 0, 0.08);
+}
+.pancarte-note:focus-visible {
+	outline: 3px solid var(--milo-orange);
+	outline-offset: 3px;
+}
+.pancarte-note.is-bonus {
+	background: #fff6d1;
+}
+.pancarte-note.is-empty {
+	justify-content: center;
+	margin: 0;
+	font-weight: 600;
+	cursor: default;
+}
+.pancarte-pin {
+	position: absolute;
+	top: -7px;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	margin-left: -8px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 35%, #ff9b80, #e8492a 55%, #a82c14);
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.35);
+}
+.pancarte-note.is-bonus .pancarte-pin {
+	background: radial-gradient(circle at 35% 35%, #fff0a8, #f2c230 55%, #b98a00);
+}
+.pancarte-note-icon {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	background: #fff0e5;
+	color: var(--milo-orange);
+}
+.pancarte-note.is-done .pancarte-note-icon {
+	background: #e7f6e4;
+	color: #3e9a45;
+}
+.pancarte-note.is-bonus .pancarte-note-icon {
+	background: #fff0b8;
+	color: #c99400;
+}
+.pancarte-note-body {
+	flex: 1;
+	min-width: 0;
+}
+.pancarte-note-title {
+	display: block;
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1.25;
+}
+.pancarte-bar {
+	display: block;
+	height: 8px;
+	margin: 9px 0 7px;
+	border-radius: 999px;
+	background: #f1e2ce;
+	overflow: hidden;
+}
+.pancarte-bar i {
+	display: block;
+	height: 100%;
+	border-radius: inherit;
+	background: linear-gradient(90deg, #ff8a4c, var(--milo-orange));
+	transform-origin: left;
+	animation: pancarte-bar 0.8s cubic-bezier(0.22, 1, 0.36, 1) calc(1.15s + var(--i) * 0.09s) both;
+}
+.pancarte-note.is-done .pancarte-bar i {
+	background: linear-gradient(90deg, #7ccf6f, #3e9a45);
+}
+.pancarte-note-meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 4px 10px;
+	font-size: 12.5px;
+	font-weight: 500;
+	color: var(--text-2);
+}
+.pancarte-note-meta b {
+	color: var(--milo-braise);
+	font-weight: 700;
+	white-space: nowrap;
+}
+.pancarte-stamp {
+	position: absolute;
+	right: -10px;
+	top: -12px;
+	padding: 1px 9px 0;
+	background: #f4fbf1;
+	border: 3px solid #3e9a45;
+	border-radius: 8px;
+	color: #3e9a45;
+	font-family: var(--f-display);
+	font-size: 17px;
+	opacity: 0.85;
+	transform: rotate(12deg);
+	animation: pancarte-stamp 0.4s cubic-bezier(0.2, 1.6, 0.4, 1) calc(1.35s + var(--i) * 0.09s) both;
+	pointer-events: none;
+}
+
+/* Post-it des matières à revoir */
+.pancarte-postit {
+	position: relative;
+	max-width: 440px;
+	margin: 26px auto 0;
+	padding: 18px 16px 14px;
+	background: #ffe873;
+	box-shadow: 0 14px 20px -14px rgba(60, 40, 0, 0.7);
+	transform: rotate(1.2deg);
+	animation: pancarte-postit-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both;
+}
+.pancarte-postit-tape {
+	position: absolute;
+	top: -11px;
+	left: 50%;
+	width: 92px;
+	height: 22px;
+	margin-left: -46px;
+	background: rgba(255, 255, 255, 0.55);
+	transform: rotate(-3deg);
+}
+.pancarte-postit-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 10px;
+	font-size: 15px;
+	font-weight: 700;
+	color: #6b4b00;
+}
+.pancarte-postit-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.pancarte-subject {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 12px;
+	border: 2px solid rgba(107, 75, 0, 0.25);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.7);
+	color: var(--milo-encre);
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pancarte-subject:hover {
+	transform: translateY(-2px);
+}
+.pancarte-subject b {
+	color: var(--milo-braise);
+}
+
+/* Fermeture : le panneau recule, la caméra repart */
+.pancarte-layer.is-closing .pancarte-board {
+	animation: pancarte-out 0.3s ease-in both;
+}
+.pancarte-layer.is-closing .pancarte-backdrop {
+	animation: overlay-fade-out 0.3s ease both;
+}
+
+@keyframes pancarte-in {
+	from {
+		opacity: 0;
+		transform: scale(0.55) translateY(12%);
+	}
+	55% {
+		opacity: 1;
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes pancarte-out {
+	to {
+		opacity: 0;
+		transform: scale(0.7) translateY(10%);
+	}
+}
+@keyframes pancarte-note-in {
+	from {
+		opacity: 0;
+		transform: rotate(calc(var(--tilt) - 12deg)) translateY(-22px) scale(0.85);
+	}
+	to {
+		opacity: 1;
+		transform: rotate(var(--tilt));
+	}
+}
+@keyframes pancarte-postit-in {
+	from {
+		opacity: 0;
+		transform: rotate(-8deg) translateY(16px) scale(0.85);
+	}
+	to {
+		opacity: 1;
+		transform: rotate(1.2deg);
+	}
+}
+@keyframes pancarte-bar {
+	from {
+		transform: scaleX(0);
+	}
+}
+@keyframes pancarte-stamp {
+	from {
+		opacity: 0;
+		transform: rotate(12deg) scale(2.4);
+	}
+	to {
+		opacity: 0.85;
+		transform: rotate(12deg) scale(1);
+	}
+}
+
+/* ============================================================ COURRIER */
+
+.courrier-layer {
+	position: absolute;
+	inset: 0;
+	z-index: 6;
+	overflow: hidden;
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+.courrier-backdrop {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(ellipse at 50% 50%, rgba(28, 18, 44, 0.2) 25%, rgba(28, 18, 44, 0.62) 100%);
+	backdrop-filter: blur(2px);
+	-webkit-backdrop-filter: blur(2px);
+	animation: overlay-fade 0.5s ease 0.2s both;
+}
+
+/* L'enveloppe : part de la boîte aux lettres (--from-x / --from-y), arrive
+   au centre, s'ouvre, laisse sortir la lettre puis s'en va par le bas */
+.courrier-flight {
+	--env-w: min(360px, 76vw);
+	position: absolute;
+	left: 50%;
+	top: 48%;
+	width: var(--env-w);
+	height: calc(var(--env-w) * 0.64);
+	translate: -50% -50%;
+	cursor: pointer;
+	animation:
+		courrier-fly 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.12) 0.3s both,
+		courrier-drop 0.5s cubic-bezier(0.6, 0, 0.8, 0.4) 1.9s forwards;
+}
+.courrier-envelope {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.courrier-env-back {
+	position: absolute;
+	inset: 0;
+	border-radius: 10px;
+	background: linear-gradient(180deg, #f3dcb6, #ecd0a3);
+	box-shadow: 0 34px 60px -24px rgba(0, 0, 0, 0.7);
+}
+/* La lettre, dans l'enveloppe : elle remonte quand le rabat est ouvert */
+.courrier-peek {
+	position: absolute;
+	z-index: 1;
+	left: 7%;
+	right: 7%;
+	top: 8%;
+	height: 84%;
+	padding: 14% 9% 0;
+	border-radius: 6px;
+	background: #fffdf6;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	animation: courrier-pull 0.6s cubic-bezier(0.3, 0.8, 0.3, 1) 1.3s both;
+}
+.courrier-peek span {
+	display: block;
+	height: 7px;
+	margin-bottom: 9px;
+	border-radius: 4px;
+	background: #e8dccb;
+}
+.courrier-peek span:first-child {
+	width: 55%;
+	background: #ffb38a;
+}
+.courrier-peek span:nth-child(3) {
+	width: 72%;
+}
+/* Poche de devant (le V de l'enveloppe) : la lettre glisse derrière */
+.courrier-env-pocket {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	border-radius: 10px;
+	background: linear-gradient(180deg, #f1d6aa, #e8c592);
+	clip-path: polygon(0 26%, 50% 60%, 100% 26%, 100% 100%, 0 100%);
+}
+.courrier-env-pocket::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(32deg, transparent 49.4%, rgba(150, 100, 50, 0.25) 50%, transparent 50.6%),
+		linear-gradient(-32deg, transparent 49.4%, rgba(150, 100, 50, 0.25) 50%, transparent 50.6%);
+}
+/* Rabat : pivote vers le haut, puis passe derrière la lettre */
+.courrier-env-flap {
+	position: absolute;
+	z-index: 3;
+	left: 0;
+	right: 0;
+	top: 0;
+	height: 60%;
+	transform-origin: top;
+	animation: courrier-flap 0.45s ease-in-out 0.95s both;
+}
+.courrier-env-flap::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, #e8c08a, #dfb176);
+	clip-path: polygon(0 0, 100% 0, 50% 100%);
+	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+}
+.courrier-seal {
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	width: 50px;
+	height: 50px;
+	padding: 7px;
+	translate: -50% 40%;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #ff7a5c, #d63a1f 60%, #a8270f);
+	box-shadow:
+		0 3px 6px rgba(0, 0, 0, 0.3),
+		inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+	animation: courrier-seal 0.25s ease-in 0.9s both;
+}
+
+/* La lettre en grand */
+.courrier-sheet {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	display: flex;
+	flex-direction: column;
+	width: min(580px, calc(100% - 32px));
+	max-height: calc(100% - 40px);
+	translate: -50% -50%;
+	padding: 26px 26px 18px 62px;
+	border-radius: 6px;
+	/* Papier ligné, marge rouge */
+	background-color: #fffdf6;
+	background-image:
+		linear-gradient(90deg, transparent 46px, rgba(230, 80, 80, 0.4) 46px 48px, transparent 48px),
+		repeating-linear-gradient(180deg, transparent 0 31px, rgba(90, 140, 220, 0.22) 31px 32px);
+	background-attachment: local;
+	box-shadow:
+		0 40px 80px -30px rgba(0, 0, 0, 0.75),
+		0 2px 0 rgba(0, 0, 0, 0.05);
+	animation: courrier-sheet-in 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.1) 1.75s both;
+}
+.courrier-head {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 14px;
+}
+.courrier-to {
+	margin: 0 0 4px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	color: var(--text-3);
+}
+.courrier-title {
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(26px, 3.4vw, 34px);
+	line-height: 1.05;
+	color: var(--milo-orange);
+	text-shadow: 0 3px 0 var(--milo-relief);
+}
+.courrier-stamp {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 64px;
+	height: 76px;
+	background: #fff;
+	/* Bords dentelés du timbre */
+	-webkit-mask: radial-gradient(circle at 5px 5px, transparent 3px, #000 3.5px) -5px -5px / 10px 10px;
+	mask: radial-gradient(circle at 5px 5px, transparent 3px, #000 3.5px) -5px -5px / 10px 10px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	transform: rotate(5deg);
+}
+.courrier-stamp img {
+	width: 44px;
+	height: 44px;
+	padding: 4px;
+	border-radius: 6px;
+	background: #ffe7d6;
+}
+.courrier-postmark {
+	position: absolute;
+	right: 38px;
+	top: 34px;
+	padding: 9px 7px;
+	border: 2px solid rgba(70, 70, 120, 0.45);
+	border-radius: 50%;
+	color: rgba(70, 70, 120, 0.6);
+	font-size: 9px;
+	font-weight: 700;
+	letter-spacing: 1px;
+	transform: rotate(-14deg);
+	pointer-events: none;
+}
+.courrier-list {
+	min-height: 0;
+	margin: 0;
+	padding: 0 6px 0 0;
+	overflow-y: auto;
+	list-style: none;
+	scrollbar-width: thin;
+}
+.courrier-item {
+	display: flex;
+	gap: 12px;
+	padding: 10px 0 12px;
+	border-bottom: 1px dashed rgba(90, 60, 30, 0.2);
+	animation: courrier-line 0.45s ease calc(2.15s + var(--i) * 0.12s) both;
+}
+.courrier-item:last-child {
+	border-bottom: 0;
+}
+.courrier-item-emoji {
+	flex-shrink: 0;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 12px;
+	background: #fff0e5;
+	font-size: 20px;
+}
+.courrier-item-date {
+	font-size: 11.5px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: var(--milo-braise);
+}
+.courrier-item-title {
+	margin: 2px 0 3px;
+	font-size: 16px;
+	font-weight: 700;
+}
+.courrier-item-text {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.4;
+	color: var(--text-2);
+}
+.courrier-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 14px;
+}
+.courrier-sign {
+	font-family: var(--f-display);
+	font-size: 20px;
+	color: #5e2e12;
+	transform: rotate(-3deg);
+}
+.courrier-close {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	height: 42px;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 14px;
+	background: var(--milo-orange);
+	box-shadow: 0 4px 0 var(--milo-relief);
+	color: #fff;
+	font-family: inherit;
+	font-size: 15px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease;
+}
+.courrier-close:hover {
+	transform: translateY(-2px);
+}
+.courrier-close:focus-visible {
+	outline: 3px solid var(--milo-encre);
+	outline-offset: 2px;
+}
+
+/* Clic pendant l'arrivée : on passe directement à la lecture */
+.courrier-layer.is-skip *,
+.courrier-layer.is-skip {
+	animation-delay: 0s !important;
+	animation-duration: 0.01ms !important;
+}
+
+/* Fermeture : la lettre se replie et s'efface */
+.courrier-layer.is-closing .courrier-sheet {
+	animation: courrier-sheet-out 0.32s ease-in both;
+}
+.courrier-layer.is-closing .courrier-backdrop,
+.courrier-layer.is-closing .courrier-flight {
+	animation: overlay-fade-out 0.3s ease both;
+}
+
+@keyframes courrier-fly {
+	from {
+		opacity: 0;
+		transform: translate(var(--from-x, 30vw), var(--from-y, 0)) scale(0.14) rotate(-35deg);
+	}
+	18% {
+		opacity: 1;
+	}
+	to {
+		opacity: 1;
+		transform: rotate(-3deg);
+	}
+}
+@keyframes courrier-drop {
+	from {
+		opacity: 1;
+		transform: rotate(-3deg);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(65vh) rotate(9deg);
+	}
+}
+@keyframes courrier-flap {
+	from {
+		z-index: 3;
+		transform: perspective(700px) rotateX(0deg);
+	}
+	to {
+		z-index: 0;
+		transform: perspective(700px) rotateX(180deg);
+	}
+}
+@keyframes courrier-seal {
+	to {
+		opacity: 0;
+		scale: 1.3;
+	}
+}
+@keyframes courrier-pull {
+	to {
+		transform: translateY(-64%);
+	}
+}
+@keyframes courrier-sheet-in {
+	from {
+		opacity: 0;
+		transform: translateY(-16%) scale(0.36) rotate(-4deg);
+	}
+	35% {
+		opacity: 1;
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes courrier-sheet-out {
+	to {
+		opacity: 0;
+		transform: translateY(6%) scale(0.86) rotate(2deg);
+	}
+}
+@keyframes courrier-line {
+	from {
+		opacity: 0;
+		transform: translateX(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ============================================================ COMMUN */
+
+/* Le focus est posé sur la fenêtre à l'ouverture (pour le clavier) */
+.pancarte-layer:focus,
+.courrier-layer:focus {
+	outline: none;
+}
+
+@keyframes overlay-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes overlay-fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@media (max-width: 560px) {
+	.pancarte-layer {
+		padding: 16px 10px;
+	}
+	.pancarte-frame {
+		padding: 18px 14px 18px;
+		border-width: 8px;
+		border-radius: 18px;
+	}
+	.pancarte-notes {
+		grid-template-columns: 1fr;
+	}
+	.pancarte-count {
+		font-size: 18px;
+		padding: 6px 12px 4px;
+	}
+	.courrier-sheet {
+		padding: 20px 16px 14px 50px;
+		background-image:
+			linear-gradient(90deg, transparent 36px, rgba(230, 80, 80, 0.4) 36px 38px, transparent 38px),
+			repeating-linear-gradient(180deg, transparent 0 31px, rgba(90, 140, 220, 0.22) 31px 32px);
+	}
+	.courrier-stamp {
+		width: 52px;
+		height: 62px;
+	}
+	.courrier-stamp img {
+		width: 36px;
+		height: 36px;
+	}
+	.courrier-postmark {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.courrier-flight {
+		display: none;
+	}
+	.pancarte-layer *,
+	.pancarte-backdrop,
+	.courrier-layer * {
+		animation: none !important;
+	}
+}
