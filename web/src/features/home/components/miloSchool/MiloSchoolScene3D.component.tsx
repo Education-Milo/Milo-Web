@@ -18,9 +18,10 @@ import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import MiloSchoolYard, { SCHOOL } from "@features/home/components/miloSchool/MiloSchoolYard.component";
 import MiloSchoolCanvas from "@features/home/components/miloSchool/MiloSchoolCanvas.component";
+import { MiloFootsteps, type FootGround } from "@features/home/components/miloSchool/miloSchool.footsteps";
 import {
-	ENTRY_HOPS,
-	HOP_SECONDS,
+	ENTRY_MS,
+	EXIT_MS,
 	frameStep,
 	partHandlers,
 	schoolScene,
@@ -31,8 +32,8 @@ import {
 } from "@features/home/components/miloSchool/miloSchool.bridge";
 
 /// Scène 3D de la carte « Discute avec Milo » : Milo attend devant la porte
-/// de sa salle de classe. Au survol du bouton, la porte s'ouvre et il montre
-/// le chemin ; au clic, il rentre en classe en sautillant.
+/// de sa salle de classe. Au survol de la porte (ou du bouton), elle s'ouvre
+/// et Milo la montre du doigt ; au clic, il rentre en classe en marchant.
 
 /// Le modèle de Milo est téléchargé dès le chargement de l'appli (souvent déjà
 /// en cache) : l'accueil s'affiche directement, sans écran d'attente
@@ -64,11 +65,13 @@ const CAMERA_LIFT = 0.55;
 const SPARE_ABOVE_NARROW = 0.7;
 const SPARE_ABOVE_WIDE = 0.4;
 const CROSSFADE = 0.3;
+const POINT_FADE = 0.45;
 /// Bulle : à gauche de la tête (carte large) ou au-dessus (carte étroite)
 const BUBBLE_SIDE_OFFSET = new THREE.Vector3(-0.32, 0.38, 0);
 const BUBBLE_ABOVE_OFFSET = new THREE.Vector3(0, 0.82, 0);
-/// Tournée vers la porte quand il invite l'élève à entrer
-const INVITE_YAW = 0.55;
+/// Quand il invite l'élève à entrer, Milo se tourne un peu vers la porte :
+/// assez pour que son doigt (clip « Point ») la montre, la tête vers l'élève
+const INVITE_YAW = 0.45;
 /// Les semelles juste posées sur l'herbe
 const GROUND_CLEARANCE = 0.012;
 
@@ -273,39 +276,108 @@ const Lights: React.FC<{ night: number }> = ({ night }) => {
 
 /* ============================================================== MILO */
 
-/// Trajet de l'entrée en classe : jusqu'au seuil, puis dans la classe
-/// (ENTRY_HOPS + 1 points : un saut entre deux points)
-const ENTRY_POINTS = [
+/// Trajets lissés en courbe. À l'entrée : en diagonale sur la pelouse, tout
+/// droit sur la marche et par la porte, un pas dans la classe (la lumière de
+/// la classe recouvre alors l'écran). Au retour de l'élève, il sort de
+/// derrière le mur de gauche, traverse la classe et revient à sa place.
+const DOOR_X = SCHOOL.door.x;
+const curve = (points: THREE.Vector3[]) => new THREE.CatmullRomCurve3(points, false, "centripetal");
+const OUTSIDE = [
 	MILO_SPOT.clone(),
-	new THREE.Vector3(0.02, 0, 1.08),
-	new THREE.Vector3(SCHOOL.door.x, 0, 0.58),
-	new THREE.Vector3(SCHOOL.door.x, 0.12, -0.25),
-	new THREE.Vector3(SCHOOL.door.x, 0, -1.25),
+	new THREE.Vector3(0.28, 0, 1.12),
+	new THREE.Vector3(DOOR_X, 0, 0.8),
+	new THREE.Vector3(DOOR_X, 0, 0.15),
+	new THREE.Vector3(DOOR_X, 0, -0.45),
 ];
-const HOP_HEIGHT = 0.26;
-/// Retour de l'élève : le même trajet, à l'envers, de la classe à sa place
-const EXIT_POINTS = [...ENTRY_POINTS].reverse();
-/// Pendant la sortie, la porte se referme une fois Milo passé devant le seuil
-const EXIT_DOOR_CLOSES_AT = 2.25;
+const ENTRY_PATH = curve([...OUTSIDE, new THREE.Vector3(DOOR_X - 0.22, 0, -0.95)]);
+const EXIT_PATH = curve(
+	[...OUTSIDE, new THREE.Vector3(DOOR_X - 0.35, 0, -0.95), new THREE.Vector3(DOOR_X - 1.05, 0, -1.25)].reverse(),
+);
+const ENTRY_LENGTH = ENTRY_PATH.getLength();
+/// Temps (s) qu'il marche encore après le bout du trajet d'entrée
+const ENTRY_OVERRUN = 0.6;
+const EXIT_LENGTH = EXIT_PATH.getLength();
+/// Pendant la sortie, la porte se referme une fois Milo descendu de la marche
+const EXIT_DOOR_CLOSES_AT = (() => {
+	const point = new THREE.Vector3();
+	for (let i = 0; i <= 200; i++) {
+		if (EXIT_PATH.getPointAt(i / 200, point).z > 0.85) return i / 200;
+	}
+	return 0.6;
+})();
+
+/// Clip « Walk » joué à vitesse normale : un cycle de deux pas (0,67 s)
+/// avance de 2,4 unités du modèle. La cadence des pas suit la vitesse de
+/// marche, pour que les pieds restent posés au sol sans glisser.
+const WALK_CLIP_UNITS_PER_SECOND = 3.6;
+/// Milo démarre et s'arrête en douceur (secondes)
+const WALK_START = 0.3;
+const WALK_STOP = 0.5;
+
+/// Distance parcourue (et vitesse) au bout de `t` secondes d'un trajet de
+/// `length` en `duration` secondes : accélération, allure constante, puis
+/// arrêt en douceur si `stops`. Sinon (en entrant), il continue sur sa
+/// lancée au-delà du bout du trajet, le temps que l'écran s'illumine.
+const walkState = { distance: 0, speed: 0 };
+function walkProfile(t: number, duration: number, length: number, stops: boolean) {
+	const a = WALK_START;
+	const d = stops ? WALK_STOP : 0;
+	const cruise = length / (duration - a / 2 - d / 2);
+	if (t >= duration) {
+		walkState.distance = stops ? length : length + cruise * (t - duration);
+		walkState.speed = stops ? 0 : cruise;
+	} else if (t < a) {
+		walkState.distance = (cruise * t * t) / (2 * a);
+		walkState.speed = (cruise * t) / a;
+	} else if (t < duration - d) {
+		walkState.distance = (cruise * a) / 2 + cruise * (t - a);
+		walkState.speed = cruise;
+	} else {
+		const left = duration - t;
+		walkState.distance = length - (cruise * left * left) / (2 * d);
+		walkState.speed = (cruise * left) / d;
+	}
+	return walkState;
+}
+
+/// La marche devant la porte (dessus à 11 cm) : Milo y monte, puis redescend
+/// sur le plancher de la classe, au niveau de la pelouse
+const STEP_TOP = 0.11;
+const STEP_HALF_WIDTH = (SCHOOL.door.width + 0.6) / 2;
+const smooth01 = (t: number) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+function groundHeight(x: number, z: number) {
+	if (Math.abs(x - DOOR_X) > STEP_HALF_WIDTH) return 0;
+	return STEP_TOP * (smooth01((0.62 - z) / 0.16) - smooth01((-0.1 - z) / 0.16));
+}
+/** Sol sous un pied : herbe, pierre de la marche, ou rien (dans la classe) */
+function groundUnder(x: number, z: number): FootGround | null {
+	if (z < -0.06) return null;
+	return Math.abs(x - DOOR_X) < STEP_HALF_WIDTH && z < 0.5 ? "stone" : "grass";
+}
 
 interface SchoolMiloProps {
 	bridge: MiloSchoolBridge;
 	gaze: boolean;
 	reducedMotion: boolean;
+	/** 0 = jour, 1 = nuit (les brins d'herbe et la poussière s'assombrissent) */
+	night: number;
 	onReady?: () => void;
 }
 
-const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, onReady }) => {
+const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, night, onReady }) => {
 	const root = useRef<THREE.Group>(null);
 	const body = useRef<THREE.Group>(null);
 	const { scene, animations } = useMiloInstance(MILO_MODEL_PATH);
 	const { actions, mixer } = useAnimations(animations, body);
 	const { equippedMeshNames } = useEquippedMeshNames();
 	const { camera, size, invalidate } = useThree();
+	/// Taille d'une unité du modèle dans la scène (mesurée une fois Milo cadré)
+	const modelUnit = useRef(FIT_HEIGHT / 7.8);
 
 	useMemo(() => prepareMiloScene(scene), [scene]);
 	useLayoutEffect(() => {
 		fitMiloToHeight(scene, FIT_HEIGHT);
+		modelUnit.current = scene.scale.x * (scene.getObjectByName("rig")?.scale.x ?? 1);
 		scene.traverse((child) => {
 			if ((child as THREE.Mesh).isMesh) child.castShadow = true;
 		});
@@ -318,17 +390,34 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 	/// Contour blanc au survol (Milo est cliquable)
 	useHoverOutline(body, () => bridge.hovered === "milo" && state.current.phase === "idle", [scene]);
 
+	/// Herbe et poussière sous ses pas
+	const footsteps = useMemo(() => new MiloFootsteps(), []);
+	useEffect(() => () => footsteps.dispose(), [footsteps]);
+	const feet = useMemo(() => {
+		/// (le chargeur retire les points des noms : « DEF-foot.L » devient « DEF-footL »)
+		const bone = (name: string) => scene.getObjectByName(name) ?? scene.getObjectByName(name.replace(".", "")) ?? null;
+		return {
+			heelL: bone("DEF-foot.L"),
+			heelR: bone("DEF-foot.R"),
+			toeL: bone("DEF-toe.L"),
+			toeR: bone("DEF-toe.R"),
+		};
+	}, [scene]);
+
 	const state = useRef({
 		current: null as THREE.AnimationAction | null,
 		reaction: null as THREE.AnimationAction | null,
+		walk: null as THREE.AnimationAction | null,
 		phase: "idle" as MiloSchoolPhase,
 		yaw: 0,
-		entryTime: 0,
+		walkTime: 0,
+		/// Avancement du cycle de marche à l'image précédente (-1 : pas encore)
+		stepPhase: -1,
 	});
 
 	const idleAction = useCallback(() => findAction(actions, "Idle"), [actions]);
 
-	const playLoop = useCallback((action: THREE.AnimationAction | null) => {
+	const playLoop = useCallback((action: THREE.AnimationAction | null, fade = CROSSFADE) => {
 		if (!action) return;
 		const s = state.current;
 		const prev = s.current;
@@ -340,7 +429,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		action.setLoop(THREE.LoopRepeat, Infinity);
 		action.clampWhenFinished = false;
 		action.play();
-		if (prev && prev !== action) action.crossFadeFrom(prev, CROSSFADE, false);
+		if (prev && prev !== action) action.crossFadeFrom(prev, fade, false);
 		s.current = action;
 	}, []);
 
@@ -389,7 +478,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		const onFinished = (event: { action: THREE.AnimationAction }) => {
 			if (event.action !== s.reaction) return;
 			s.reaction = null;
-			if (s.phase !== "entering") playLoop(restLoop());
+			if (s.phase === "idle") playLoop(restLoop());
 		};
 		mixer.addEventListener("finished", onFinished);
 		return () => {
@@ -397,6 +486,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			mixer.stopAllAction();
 			s.current = null;
 			s.reaction = null;
+			s.walk = null;
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- lancé une fois par instance de Milo
 	}, [actions, mixer, scene]);
@@ -406,7 +496,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		() =>
 			alternateIdlesOnLoop(mixer, actions, () => state.current.current, (next) => {
 				const s = state.current;
-				if (s.reaction || s.phase === "entering") return;
+				if (s.reaction || s.phase !== "idle") return;
 				playLoop(next);
 			}),
 		[mixer, actions, playLoop],
@@ -417,11 +507,34 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 		() => ({ head: new THREE.Vector3(), v: new THREE.Vector3(), key: "", element: null as HTMLElement | null }),
 		[],
 	);
-	const tmp = useMemo(() => ({ a: new THREE.Vector3(), b: new THREE.Vector3() }), []);
+	const tmp = useMemo(
+		() => ({
+			a: new THREE.Vector3(),
+			b: new THREE.Vector3(),
+			heel: new THREE.Vector3(),
+			toe: new THREE.Vector3(),
+			viewport: new THREE.Vector2(),
+		}),
+		[],
+	);
 
 	const project = (offset: THREE.Vector3) => {
 		anchor.v.copy(anchor.head).add(offset).project(camera);
 		return [Math.round(((anchor.v.x + 1) / 2) * size.width), Math.round(((1 - anchor.v.y) / 2) * size.height)];
+	};
+
+	/** Un pas : le talon `heel` se pose, la pointe `toe` de l'autre pied pousse */
+	const footfall = (heel: THREE.Object3D | null, toe: THREE.Object3D | null) => {
+		const group = root.current;
+		if (!heel || !toe || !group) return;
+		heel.getWorldPosition(tmp.heel);
+		toe.getWorldPosition(tmp.toe);
+		const ground = groundUnder(tmp.heel.x, tmp.heel.z);
+		if (!ground) return;
+		tmp.heel.y = groundHeight(tmp.heel.x, tmp.heel.z);
+		tmp.toe.y = groundHeight(tmp.toe.x, tmp.toe.z);
+		const yaw = state.current.yaw;
+		footsteps.step(tmp.heel, tmp.toe, -Math.sin(yaw), -Math.cos(yaw), ground);
 	};
 
 	const lastBridge = useRef(bridge);
@@ -439,7 +552,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			s.reaction = null;
 			s.yaw = 0;
 			group.visible = true;
-			group.scale.setScalar(1);
+			footsteps.clear();
 			playLoop(restLoop());
 		}
 
@@ -448,72 +561,95 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 			const previous = s.phase;
 			s.phase = bridge.phase;
 			if (s.phase === "inviting") {
-				const success = findAction(actions, "Success");
-				if (success && !reducedMotion) playOnce(success, 1.15);
+				/// Il montre la porte du doigt, tant qu'on la survole (le bras se
+				/// lève pendant le fondu, un peu plus long que d'habitude)
+				const point = findAction(actions, "Point");
+				if (point && !reducedMotion) {
+					s.reaction = null;
+					playLoop(point, POINT_FADE);
+				}
 			} else if (s.phase === "entering" || s.phase === "exiting") {
-				s.entryTime = 0;
-				const cheer = findAction(actions, "Success");
-				if (cheer && !reducedMotion) playOnce(cheer, 1.3);
+				s.walkTime = 0;
+				s.stepPhase = -1;
+				s.reaction = null;
+				s.walk = reducedMotion ? null : findAction(actions, "Walk");
+				playLoop(s.walk);
+				/// Il sort de derrière le mur de la classe, déjà tourné dans le sens de la marche
+				if (s.phase === "exiting") {
+					EXIT_PATH.getTangentAt(0, tmp.b);
+					s.yaw = Math.atan2(tmp.b.x, tmp.b.z);
+				}
 			} else if (previous === "inviting" && !s.reaction) {
 				playLoop(restLoop());
 			}
 		}
 
-		const hopping = s.phase === "entering" || s.phase === "exiting";
-		/// Réaction ponctuelle (clic sur Milo)
-		if (bridge.reactions.length && !hopping) {
+		const walking = s.phase === "entering" || s.phase === "exiting";
+		/// Réaction ponctuelle (clic sur Milo…)
+		if (bridge.reactions.length && !walking) {
 			const action = findAction(actions, bridge.reactions.shift() ?? "");
 			if (action) playOnce(action);
 		}
 		/// Garde-fou : plus rien ne joue, Milo serait figé
-		if (!s.reaction && !hopping && s.current && !s.current.isRunning()) playLoop(restLoop());
+		if (!s.reaction && !walking && s.current && !s.current.isRunning()) playLoop(restLoop());
 
 		const dt = frameStep(delta);
-		if (hopping) {
-			/// Petits sauts d'un point à l'autre du trajet, tourné dans le sens de la marche
+		if (walking) {
+			/// Il marche le long du trajet, tourné dans le sens de la marche
 			const exiting = s.phase === "exiting";
-			const points = exiting ? EXIT_POINTS : ENTRY_POINTS;
-			s.entryTime += reducedMotion ? 10 : dt;
-			const hops = ENTRY_HOPS;
-			const progress = Math.min(s.entryTime / HOP_SECONDS, hops);
-			const index = THREE.MathUtils.clamp(Math.floor(progress), 0, hops - 1);
-			const local = progress - index;
-			const from = points[index];
-			const to = points[index + 1];
-			tmp.a.lerpVectors(from, to, local);
-			const lift = Math.sin(local * Math.PI) * HOP_HEIGHT * (progress >= hops ? 0 : 1);
-			group.position.set(tmp.a.x, tmp.a.y + lift + FIT_HEIGHT / 2, tmp.a.z);
-			tmp.b.subVectors(to, from);
-			const heading = Math.atan2(tmp.b.x, tmp.b.z);
-			s.yaw = dampAngle(s.yaw, heading, 14, dt);
-			/// Écrasé à l'atterrissage, étiré en l'air
-			const squash = 1 - Math.sin(local * Math.PI * 2) * 0.06;
-			group.scale.set(2 - squash, squash, 2 - squash);
+			const path = exiting ? EXIT_PATH : ENTRY_PATH;
+			const length = exiting ? EXIT_LENGTH : ENTRY_LENGTH;
+			const duration = (exiting ? EXIT_MS : ENTRY_MS) / 1000;
+			s.walkTime = reducedMotion ? duration : s.walkTime + dt;
+			const { distance, speed } = walkProfile(s.walkTime, duration, length, exiting);
+			const u = THREE.MathUtils.clamp(distance / length, 0, 1);
+			path.getPointAt(u, tmp.a);
+			path.getTangentAt(u, tmp.b);
+			/// Au-delà du bout du trajet, il continue tout droit
+			if (distance > length) tmp.a.addScaledVector(tmp.b, distance - length);
+			group.position.set(tmp.a.x, groundHeight(tmp.a.x, tmp.a.z) + FIT_HEIGHT / 2, tmp.a.z);
+			s.yaw = dampAngle(s.yaw, Math.atan2(tmp.b.x, tmp.b.z), 9, dt);
+
+			const walk = s.walk;
+			if (walk) {
+				/// La cadence des pas suit la vitesse : les pieds ne glissent pas
+				walk.setEffectiveTimeScale(Math.max(speed / (WALK_CLIP_UNITS_PER_SECOND * modelUnit.current), 0.2));
+				/// Un pied se pose à chaque demi-cycle : le gauche au début, le droit au milieu
+				const phase = (walk.time / walk.getClip().duration) % 1;
+				const last = s.stepPhase;
+				s.stepPhase = phase;
+				if (last >= 0 && group.visible && speed > 0.2 && walk.getEffectiveWeight() > 0.5) {
+					if (phase < last) footfall(feet.heelL, feet.toeR);
+					else if (last < 0.5 && phase >= 0.5) footfall(feet.heelR, feet.toeL);
+				}
+			}
+
 			if (exiting) {
 				group.visible = true;
-				if (progress >= EXIT_DOOR_CLOSES_AT) bridge.doorOpen = false;
+				if (u >= EXIT_DOOR_CLOSES_AT) bridge.doorOpen = false;
 				/// Arrivé à sa place : il se retourne vers l'élève et le salue
-				if (progress >= hops) {
+				if (s.walkTime >= duration) {
 					s.phase = "idle";
 					bridge.phase = "idle";
 					bridge.doorOpen = false;
 					bridge.reactions.push("Hello");
 					bridge.onExitDone?.();
-					group.scale.setScalar(1);
 				}
 			} else {
-				/// Une fois dans la classe, il disparaît (la porte se referme derrière lui)
-				group.visible = progress < hops - 0.05;
+				/// L'écran est tout illuminé : on change de page. Si ça tarde, il
+				/// disparaît plutôt que de traverser le fond de la classe.
+				group.visible = s.walkTime < duration + ENTRY_OVERRUN;
 			}
 		} else {
 			group.visible = true;
-			group.scale.setScalar(1);
 			group.position.set(MILO_SPOT.x, MILO_SPOT.y + FIT_HEIGHT / 2, MILO_SPOT.z);
 			const target = s.phase === "inviting" ? INVITE_YAW : 0;
 			s.yaw = reducedMotion ? target : dampAngle(s.yaw, target, 6, dt);
 		}
 		group.rotation.y = s.yaw;
 
+		frame.gl.getDrawingBufferSize(tmp.viewport);
+		footsteps.update(dt, tmp.viewport.y / 2, 1 - night * 0.55);
 		updateAngelCircleGlow(scene, frame.clock.elapsedTime);
 
 		/// Bulle accrochée à la tête : position écran, écrite sans passer par React
@@ -535,16 +671,20 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, on
 	});
 
 	return (
-		<group ref={root} position={[MILO_SPOT.x, FIT_HEIGHT / 2, MILO_SPOT.z]}>
-			<group ref={body}>
-				<primitive object={scene} />
+		<>
+			<group ref={root} position={[MILO_SPOT.x, FIT_HEIGHT / 2, MILO_SPOT.z]}>
+				<group ref={body}>
+					<primitive object={scene} />
+				</group>
+				{/* Zone de clic : une capsule invisible autour de Milo, au lieu de
+				    tester les ~50 000 triangles animés du modèle */}
+				<mesh visible={false} {...partHandlers(bridge, "milo")}>
+					<capsuleGeometry args={[0.48, 0.8, 6, 12]} />
+				</mesh>
 			</group>
-			{/* Zone de clic : une capsule invisible autour de Milo, au lieu de
-			    tester les ~50 000 triangles animés du modèle */}
-			<mesh visible={false} {...partHandlers(bridge, "milo")}>
-				<capsuleGeometry args={[0.48, 0.8, 6, 12]} />
-			</mesh>
-		</group>
+			{/* Herbe et poussière sous ses pas (coordonnées du monde) */}
+			<primitive object={footsteps.points} />
+		</>
 	);
 };
 
@@ -633,7 +773,13 @@ const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
 					missions={missions}
 					unreadNews={unreadNews}
 				/>
-				<SchoolMilo bridge={bridge} gaze={gaze && !reducedMotion} reducedMotion={reducedMotion} onReady={handleReady} />
+				<SchoolMilo
+					bridge={bridge}
+					gaze={gaze && !reducedMotion}
+					reducedMotion={reducedMotion}
+					night={night}
+					onReady={handleReady}
+				/>
 			</Suspense>
 		</MiloSchoolCanvas>
 	);

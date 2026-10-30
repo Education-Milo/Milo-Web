@@ -30,8 +30,11 @@
 	transform-origin: var(--door-x, 50%) var(--door-y, 50%);
 	transition: transform 1.7s cubic-bezier(0.55, 0, 0.35, 1);
 }
+/* Pendant que Milo marche jusqu'à la porte (durée écrite par la carte) */
 .ecl-card.is-entering .ecl-stage {
 	transform: scale(1.14);
+	transition-duration: var(--ecl-entry, 1.7s);
+	transition-timing-function: cubic-bezier(0.45, 0, 0.4, 1);
 }
 .ecl-canvas-host {
 	position: absolute;
@@ -71,12 +74,13 @@
 	opacity: 0;
 	pointer-events: none;
 }
+/* (elle monte quand Milo passe la porte, et remplit l'écran au départ) */
 .ecl-card.is-entering .ecl-flash {
-	animation: ecl-flash 1.8s ease-in forwards;
+	animation: ecl-flash var(--ecl-flash, 1.8s) ease-in forwards;
 }
 @keyframes ecl-flash {
 	0%,
-	62% {
+	66% {
 		opacity: 0;
 	}
 	100% {
@@ -294,7 +298,7 @@
 /* Milo est rentré : la bulle s'efface avec lui */
 .ecl-card.is-entering .ecl-bubble {
 	opacity: 0;
-	transition: opacity 0.3s ease 0.9s;
+	transition: opacity 0.3s ease 1.5s;
 }
 
 /* ------------------------------------------------ gros plan (pancarte, courrier) */

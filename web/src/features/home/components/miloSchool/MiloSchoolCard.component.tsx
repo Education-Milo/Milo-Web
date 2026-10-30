@@ -6,6 +6,7 @@ import { ROUTES } from "@shared/constants/routes";
 import { nightMixAt } from "@features/milo-scene/hooks/useDayNight";
 import {
 	ENTRY_MS,
+	EXIT_MS,
 	createMiloSchoolBridge,
 	inClassroom,
 	schoolScene,
@@ -40,8 +41,9 @@ const TYPE_MS = 26;
 const POKE_MS = 3000;
 /// Laisse le temps de passer du bouton à la porte sans que celle-ci claque
 const CLOSE_DELAY_MS = 260;
-/// Après les sauts : la porte se referme, l'écran s'illumine, on entre en classe
-const NAVIGATE_AFTER_MS = ENTRY_MS + 420;
+/// Milo est entré : l'écran s'illumine (la lumière monte pendant qu'il passe
+/// la porte), la porte se referme, on entre en classe
+const NAVIGATE_AFTER_MS = ENTRY_MS + 200;
 /// En dessous de ce rapport largeur / hauteur, la pancarte et la boîte aux
 /// lettres sortent du cadre : elles deviennent des boutons
 const WIDE_ASPECT = 1.2;
@@ -49,7 +51,12 @@ const WIDE_ASPECT = 1.2;
 const BOTTOM_MARGIN_PX = 28;
 /// Milo ressort de la classe : la scène prévient quand il est arrivé ; au cas
 /// où elle ne tournerait pas (onglet en arrière-plan…), on n'attend pas plus
-const EXIT_FALLBACK_MS = ENTRY_MS * 3;
+const EXIT_FALLBACK_MS = EXIT_MS * 2.5;
+/// Le zoom vers la porte et la lumière de la classe durent le temps de la marche
+const ENTRY_TIMING = {
+	"--ecl-entry": `${ENTRY_MS}ms`,
+	"--ecl-flash": `${NAVIGATE_AFTER_MS}ms`,
+} as React.CSSProperties;
 
 type Mode = "idle" | "invite" | "poke" | "enter" | "exit";
 type DoorSource = "button" | "door";
@@ -185,7 +192,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 	}, [bridge, reducedMotion, comingBack]);
 
 	/// Retour de la classe : une fois la scène affichée, Milo ressort en
-	/// sautillant ; la scène referme la porte et le ramène à sa place
+	/// marchant ; la scène referme la porte et le ramène à sa place
 	useEffect(() => inClassroom.set(false), []);
 	useEffect(() => {
 		if (mode !== "exit" || !loaded) return;
@@ -339,6 +346,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 	return (
 		<section
 			ref={setRoot}
+			style={ENTRY_TIMING}
 			className={[
 				"ecl-card",
 				focus && "is-focused",

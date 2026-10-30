@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import {
+	MILO_MODEL_PATH,
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
 	applyMetalReflections,
@@ -16,7 +17,8 @@ import {
 /// donc UN seul rendu hors écran, partagé, dont le résultat est mis en cache
 /// par combinaison d'accessoires : quelques images pour toute l'application.
 
-const MODEL_PATH = "/MiloV15.glb";
+/// Le même fichier que partout ailleurs : déjà en cache, pas de second téléchargement
+const MODEL_PATH = MILO_MODEL_PATH;
 /// Taille de rendu : l'avatar est affiché bien plus petit, on garde de la marge
 /// pour les écrans à forte densité
 const RENDER_SIZE = 256;

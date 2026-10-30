@@ -70,11 +70,12 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 /// une fois Milo et l'école affichés, un retour sur l'accueil est immédiat
 export const schoolScene = { ready: false };
 
-/// Entrée en classe (et sortie) : Milo fait ENTRY_HOPS petits sauts de
-/// HOP_SECONDS chacun
-export const HOP_SECONDS = 0.34;
-export const ENTRY_HOPS = 4;
-export const ENTRY_MS = HOP_SECONDS * ENTRY_HOPS * 1000;
+/// Entrée en classe : Milo marche de sa place jusqu'un pas après la porte en
+/// ENTRY_MS (la scène règle sa vitesse et la cadence de ses pas sur cette
+/// durée : plus court = il presse le pas). Au retour de l'élève, il ressort
+/// de la classe et revient à sa place en EXIT_MS.
+export const ENTRY_MS = 2300;
+export const EXIT_MS = 3100;
 
 /// Milo est-il resté en classe ? Noté à l'entrée, pour le faire ressortir quand
 /// l'élève revient sur l'accueil, même après un rechargement de la page. Le
