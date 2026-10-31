@@ -15,6 +15,9 @@ import miloLogo from "/milo-logo.webp";
 import MainButtonComponent from "@shared/components/MainButton.component";
 import TwoFactorStep from "@features/auth/components/TwoFactorStep.component";
 
+/// Milo, à gauche de la carte : il tient la clé de ton espace et te montre le formulaire
+const MILO_LOGIN_IMAGE = "/landing/milo/milo-login.webp";
+
 const Login: React.FC = () => {
 	const {
 		formData,
@@ -52,6 +55,18 @@ const Login: React.FC = () => {
 			<AuthHeader rightLinkTo="/register" rightLinkLabel="Pas de compte ?" />
 
 			<main className="auth-main login-main">
+				<div className="login-stage">
+				{/* Milo tend la clé de son espace et présente le formulaire (image décorative) */}
+				<motion.div
+					className="login-milo"
+					aria-hidden="true"
+					initial={{ opacity: 0, x: -40 }}
+					animate={{ opacity: 1, x: 0 }}
+					transition={{ type: "spring", stiffness: 90, damping: 16, delay: 0.15 }}
+				>
+					<img src={MILO_LOGIN_IMAGE} alt="" className="login-milo-img" draggable={false} />
+					<span className="login-milo-shadow" />
+				</motion.div>
 				<motion.div
 					className="auth-glass-card login-card"
 					initial={{ opacity: 0, scale: 0.95 }}
@@ -140,6 +155,7 @@ const Login: React.FC = () => {
 					</>
 					)}
 				</motion.div>
+				</div>
 			</main>
 		</div>
 	);

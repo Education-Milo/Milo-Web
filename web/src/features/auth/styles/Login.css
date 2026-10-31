@@ -139,3 +139,90 @@
 		font-size: 1.5rem;
 	}
 }
+
+/* ------------------------------------------------ Milo, à gauche de la carte */
+
+/* La carte reste centrée ; Milo se tient à sa gauche, les pieds au niveau du
+   bas de la carte, le bout des doigts posé sur le bord de la carte (devant
+   elle, sinon le verre dépoli de la carte brouille sa main) */
+.login-stage {
+	position: relative;
+	width: 100%;
+	max-width: 460px;
+}
+
+.login-milo {
+	position: absolute;
+	right: calc(100% - 26px);
+	bottom: -6px;
+	height: 500px;
+	aspect-ratio: 736 / 1086;
+	z-index: 7;
+	pointer-events: none;
+	user-select: none;
+}
+
+.login-milo-img {
+	position: relative;
+	z-index: 1;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	transform-origin: 50% 100%;
+	animation: login-milo-float 4.5s ease-in-out infinite;
+}
+
+/* Ombre douce sous ses pieds */
+.login-milo-shadow {
+	position: absolute;
+	left: 16%;
+	right: 22%;
+	bottom: 0.4%;
+	height: 22px;
+	border-radius: 50%;
+	background: radial-gradient(closest-side, rgba(94, 46, 18, 0.28), rgba(94, 46, 18, 0));
+	animation: login-milo-shadow 4.5s ease-in-out infinite;
+}
+
+/* Il se balance tout doucement d'un pied sur l'autre */
+@keyframes login-milo-float {
+	0%,
+	100% {
+		transform: rotate(-1deg) translateY(0);
+	}
+	50% {
+		transform: rotate(1.2deg) translateY(-4px);
+	}
+}
+@keyframes login-milo-shadow {
+	0%,
+	100% {
+		transform: scaleX(1);
+		opacity: 1;
+	}
+	50% {
+		transform: scaleX(0.94);
+		opacity: 0.8;
+	}
+}
+
+@media (max-width: 1239px) {
+	.login-milo {
+		height: 390px;
+	}
+}
+
+/* Pas la place à côté de la carte : Milo s'efface (le logo reste) */
+@media (max-width: 979px) {
+	.login-milo {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.login-milo-img,
+	.login-milo-shadow {
+		animation: none;
+	}
+}
