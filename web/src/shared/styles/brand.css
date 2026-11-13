@@ -3,13 +3,15 @@
    Source : brand/charte-graphique.html (octobre 2026).
    Toute couleur, police ou rayon de l'interface doit passer
    par ces variables plutôt que par une valeur en dur.
-   Les polices sont chargées dans index.html.
+   Les polices sont auto-hébergées (voir fonts.css).
    ============================================================ */
 :root {
 	/* Palette de marque */
 	--milo-orange: #FF541D;   /* Orange Milo — couleur dominante */
 	--milo-braise: #C73A0C;   /* Braise — orange lisible sur blanc (texte, liens) */
 	--milo-relief: #D9400F;   /* Tranche 3D des boutons orange */
+	--milo-action: #D14417;   /* Orange action : fond des boutons à texte blanc (4,6:1, WCAG AA) */
+	--milo-action-edge: #9A300B; /* Tranche 3D des boutons orange action */
 	--milo-blanc:  #FFFFFF;   /* Blanc — couleur secondaire */
 	--milo-creme:  #FFF4E5;   /* Crème — surfaces douces */
 	--milo-lettre: #FBE6C9;   /* Crème des lettres du logo */
@@ -166,3 +168,46 @@ h1.st-header-title {
 	letter-spacing: .01em;
 	line-height: 1.05;
 }
+
+/* ============================================================
+   ACCESSIBILITÉ — utilitaires partagés
+   ============================================================ */
+/* Texte lu par les lecteurs d'écran, invisible à l'écran */
+.sr-only {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Lien « Aller au contenu » : caché jusqu'au premier Tab (RGAA 12.7) */
+.skip-link {
+	position: fixed;
+	top: 12px;
+	left: 12px;
+	z-index: 10000;
+	padding: 0.7rem 1.1rem;
+	border-radius: 999px;
+	background: var(--milo-encre);
+	color: var(--milo-creme);
+	font-family: var(--f-text);
+	font-weight: 700;
+	text-decoration: none;
+	transform: translateY(-160%);
+	transition: transform 0.15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+	transform: translateY(0);
+	outline: 3px solid var(--milo-pompon);
+	outline-offset: 2px;
+}
+
+/* Titre de page ciblé après un changement de route : pas de contour
+   au clic, le focus sert seulement de point de départ au clavier */
+[data-route-focus]:focus { outline: none; }

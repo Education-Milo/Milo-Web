@@ -111,7 +111,7 @@
 .pf-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--edge); }
 .pf-btn:disabled { cursor: not-allowed; opacity: 0.55; }
 
-.pf-btn-primary { background: var(--milo-orange); color: #fff; }
+.pf-btn-primary { --edge: var(--milo-action-edge); background: var(--milo-action); color: #fff; }
 
 .pf-btn-ghost {
 	--edge: var(--pf-sable);
@@ -278,7 +278,7 @@ h1.pf-hero-title {
 }
 
 .pf-username:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--edge); border-color: var(--pf-sable); }
-.pf-username:hover .pf-username-icon { background: var(--milo-orange); color: #fff; transform: rotate(-8deg) scale(1.08); }
+.pf-username:hover .pf-username-icon { background: var(--milo-action); color: #fff; transform: rotate(-8deg) scale(1.08); }
 .pf-username:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--edge); }
 
 /* Copié : vert tableau, l'accent ponctuel des confirmations */
@@ -758,10 +758,10 @@ h1.pf-hero-title {
 	height: 34px;
 	padding: 0 0.6rem;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	font-weight: 700;
-	box-shadow: 0 3px 0 var(--milo-braise);
+	box-shadow: 0 3px 0 var(--milo-action-edge);
 }
 
 .pf-toggle {

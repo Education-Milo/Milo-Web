@@ -275,7 +275,7 @@
 	height: 20px;
 	padding: 0 6px;
 	border-radius: 100px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	font-size: 0.875rem;
 	font-weight: 700;
@@ -310,7 +310,8 @@
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 	border: 1px solid rgba(255, 255, 255, 0.8);
 	overflow: hidden;
-	cursor: pointer;
+	/* Carte non cliquable : pas de curseur main (seuls ses boutons agissent) */
+	cursor: default;
 }
 
 .friend-card-bg {

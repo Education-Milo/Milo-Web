@@ -179,7 +179,7 @@
 	box-shadow: 0 7px 0 var(--milo-braise);
 }
 .dz-btn--cta:focus-visible { outline-color: #FFF4E5; }
-.dz-btn--primary { background: var(--milo-orange); color: #fff; box-shadow: 0 5px 0 var(--milo-braise); }
+.dz-btn--primary { background: var(--milo-action); color: #fff; box-shadow: 0 5px 0 var(--milo-action-edge); }
 .dz-btn--ghost { border: 2px solid var(--dz-line); background: #fff; color: var(--milo-encre); box-shadow: 0 5px 0 var(--dz-sable); }
 .dz-btn:hover:not(:disabled) { transform: translateY(-2px); }
 .dz-btn--cta:hover { box-shadow: 0 9px 0 var(--milo-braise); }
@@ -254,7 +254,7 @@
 	height: 26px;
 	border: 2px solid #fff;
 	border-radius: 50%;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 }
 .dz-challenger__name { max-width: 100%; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 700; }

@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
@@ -107,7 +108,7 @@ const DancePreview3D: React.FC<{ clip: string }> = ({ clip }) => {
 
 	return (
 		<div className={`shop-dance-preview${isReady ? " is-ready" : ""}`} aria-hidden="true">
-			<Canvas
+			<Canvas aria-hidden="true"
 				dpr={[1, 2]}
 				camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}
 				gl={{ alpha: true, antialias: true }}

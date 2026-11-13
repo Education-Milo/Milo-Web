@@ -75,7 +75,7 @@ const FriendsPage: React.FC = () => {
 		<ScreenLayout>
 			<div className="friends-viewport">
 
-				<main className="friends-content-area">
+				<div className="friends-content-area">
 					{/* EN-TÊTE */}
 					<motion.header
 						className="friends-pimped-header"
@@ -116,9 +116,11 @@ const FriendsPage: React.FC = () => {
 					>
 						<div className="friends-search-box">
 							<div className="search-icon-wrapper">
-								<Search size={18} className="search-icon" />
+								<Search size={18} className="search-icon" aria-hidden="true" />
 							</div>
+							<label htmlFor="friends-search" className="sr-only">Rechercher un ami</label>
 							<input
+								id="friends-search"
 								type="text"
 								placeholder="Rechercher un ami..."
 								value={searchQuery}
@@ -173,6 +175,7 @@ const FriendsPage: React.FC = () => {
 									initial="hidden"
 									animate="visible"
 								>
+									<h2 className="sr-only">Liste de tes amis</h2>
 									<AnimatePresence mode="popLayout">
 										{filteredFriends.map((friend) => (
 											<FriendCard
@@ -215,7 +218,7 @@ const FriendsPage: React.FC = () => {
 							</LayoutGroup>
 						)}
 					</div>
-				</main>
+				</div>
 
 				{/* MODAL AJOUTER UN AMI */}
 				<AnimatePresence>

@@ -11,7 +11,7 @@
 	height: 4rem;
 	margin-bottom: 0.9rem;
 	border-radius: 22px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	box-shadow: 0 10px 25px rgba(255, 84, 29, 0.25);
 }

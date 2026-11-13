@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { renderMiloAvatar } from "@features/my-milo/utils/miloAvatar";
 
 interface MiloAvatarProps {
 	/// Maillages équipés par CET utilisateur (champ `mesh_name` des cosmétiques).
@@ -26,9 +25,16 @@ const MiloAvatar: React.FC<MiloAvatarProps> = ({
 	useEffect(() => {
 		let cancelled = false;
 		const names = key ? key.split("|") : [];
-		renderMiloAvatar(names).then((url) => {
-			if (!cancelled) setSrc(url);
-		});
+		// Three.js n'est chargé qu'ici, après le premier affichage : la barre
+		// latérale (présente sur toutes les pages) ne l'embarque plus d'office
+		import("@features/my-milo/utils/miloAvatar")
+			.then(({ renderMiloAvatar }) => renderMiloAvatar(names))
+			.then((url) => {
+				if (!cancelled) setSrc(url);
+			})
+			.catch(() => {
+				/* portrait indisponible : les initiales restent affichées */
+			});
 		return () => {
 			cancelled = true;
 		};

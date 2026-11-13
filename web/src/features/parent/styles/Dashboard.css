@@ -28,7 +28,7 @@
 .achievement-item:nth-child(3) { animation-delay: 1.6s; }
 
 .achievement-item:hover {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: white;
 	transform: translateX(8px);
 }

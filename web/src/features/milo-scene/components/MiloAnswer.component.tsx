@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, Bookmark, BookmarkCheck, Eye, PencilLine, Square, Volume2 } from "lucide-react";
 import RichText from "@features/milo-scene/components/RichText.component";
@@ -70,9 +70,30 @@ const MiloAnswer: React.FC<MiloAnswerProps> = ({
 	const reveal = useChalkReveal(answer.pending ? "" : answer.text, `${answer.id}-${answer.pending ? "p" : "r"}`);
 	const exerciseOpen = answer.exercise?.status === "open";
 	const ready = !answer.pending && reveal.done;
+	const viewRef = useRef<HTMLDivElement>(null);
+
+	// La feuille vient de se fermer après « Envoyer » : le focus serait perdu
+	// sur <body>. On le pose sur la réponse pour repartir de là (WCAG 2.4.3).
+	useEffect(() => {
+		const active = document.activeElement;
+		if (!active || active === document.body || !document.contains(active)) {
+			viewRef.current?.focus({ preventScroll: true });
+		}
+	}, [answer.id]);
+
+	// Texte annoncé une seule fois, complet, quand Milo a fini d'écrire
+	// (l'écriture à la craie lettre par lettre n'est pas lue : aria-busy)
+	const spoken = answer.pending
+		? "Milo réfléchit…"
+		: ready
+			? `${TITLES[answer.action] ?? "Milo te répond"}. ${answer.text.replace(/[*_#`>]+/g, "")}`
+			: "";
 
 	return (
-		<div className="cls-board-view">
+		<div className="cls-board-view" ref={viewRef} tabIndex={-1} data-route-focus>
+			<p className="cls-sr-only" role="status" aria-live="polite" aria-atomic="true">
+				{spoken}
+			</p>
 			<header className="cls-board-head">
 				<div className="cls-board-titles">
 					<span className="cls-chalk-eyebrow">
@@ -100,7 +121,7 @@ const MiloAnswer: React.FC<MiloAnswerProps> = ({
 
 			<div
 				className={`cls-board-content${ready ? "" : " is-writing"}`}
-				aria-live="polite"
+				aria-busy={!ready}
 				onClick={reveal.done ? undefined : reveal.skip}
 			>
 				{answer.pending ? (

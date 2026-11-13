@@ -196,7 +196,7 @@
 	box-shadow: 0 6px 0 var(--lm-sable);
 	transition: transform 0.2s ease;
 }
-.lm-choice--cours .lm-cta { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.lm-choice--cours .lm-cta { border: 0; background: var(--milo-action); color: #fff; box-shadow: 0 6px 0 var(--milo-action-edge); }
 .lm-choice:hover .lm-cta svg { transform: translateX(3px); }
 .lm-cta svg { transition: transform 0.2s ease; }
 

@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
+import LoadingScreen from "@shared/components/LoadingScreen.component";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { rememberPath } from "@shared/lib/exitPath";
 import ProtectedRoute from "@shared/components/ProtectedRoute.component";
-import RedirectScreen from "@features/auth/pages/Redirect.page";
+const RedirectScreen = lazy(() => import("@features/auth/pages/Redirect.page"));
 import { DuelProvider } from "@features/duels/context/DuelContext";
 import ChallengeNotification from "@features/duels/components/ChallengeNotification";
 import ToastContainer from "@shared/components/Toast.component";
@@ -10,31 +11,31 @@ import DemoBanner from "@shared/components/DemoBanner.component";
 import WellbeingNudge from "@features/wellbeing/components/WellbeingNudge.component";
 
 // Pages communes
-import HomeScreen from "@features/home/pages/Home.page";
-import ProfilePage from "@features/profile/pages/Profile.page";
-import UnauthorizedPage from "@features/auth/pages/Unauthorized.page";
+const HomeScreen = lazy(() => import("@features/home/pages/Home.page"));
+const ProfilePage = lazy(() => import("@features/profile/pages/Profile.page"));
+const UnauthorizedPage = lazy(() => import("@features/auth/pages/Unauthorized.page"));
 
 // Pages User (Enfant/Élève)
-import MiloScene from "@features/milo-scene/pages/MiloScene";
-import CoursesPage from "@features/courses/pages/Courses.page";
-import CourseDetailScreen from "@features/courses/pages/CourseDetail.page";
-import MissionsPage from "@features/missions/pages/Missions.page";
-import DuelsPage from "@features/duels/pages/Duels.page";
-import ExerciseResultScreen from "@features/exercices/pages/ExerciseResult.page";
-import ExerciseScreen from "@features/exercices/pages/Exercise.page";
-import MyMiloPage from "@features/my-milo/pages/MyMilo.page";
-import BoutiquePage from "@features/milo-shop/pages/MiloShop.page";
-import FriendsPage from "@features/friends/pages/Friends.page";
-import AdminPage from "@features/admin/pages/Admin.page";
-import OcrPage from "@features/ocr/pages/OcrPage";
-import GeneratedExercisePage from "@features/ocr/pages/GeneratedExercisePage";
-import ProfilePickerPage from "@features/account/pages/ProfilePicker.page";
+const MiloScene = lazy(() => import("@features/milo-scene/pages/MiloScene"));
+const CoursesPage = lazy(() => import("@features/courses/pages/Courses.page"));
+const CourseDetailScreen = lazy(() => import("@features/courses/pages/CourseDetail.page"));
+const MissionsPage = lazy(() => import("@features/missions/pages/Missions.page"));
+const DuelsPage = lazy(() => import("@features/duels/pages/Duels.page"));
+const ExerciseResultScreen = lazy(() => import("@features/exercices/pages/ExerciseResult.page"));
+const ExerciseScreen = lazy(() => import("@features/exercices/pages/Exercise.page"));
+const MyMiloPage = lazy(() => import("@features/my-milo/pages/MyMilo.page"));
+const BoutiquePage = lazy(() => import("@features/milo-shop/pages/MiloShop.page"));
+const FriendsPage = lazy(() => import("@features/friends/pages/Friends.page"));
+const AdminPage = lazy(() => import("@features/admin/pages/Admin.page"));
+const OcrPage = lazy(() => import("@features/ocr/pages/OcrPage"));
+const GeneratedExercisePage = lazy(() => import("@features/ocr/pages/GeneratedExercisePage"));
+const ProfilePickerPage = lazy(() => import("@features/account/pages/ProfilePicker.page"));
 import { ROUTES } from "@shared/constants/routes";
 import { PLAYER_ROLES } from "@shared/constants/roles";
 
 // Pages Parent
-import ParentDashboard from "@features/parent/pages/Dashboard.page";
-import SubscriptionPage from "@features/parent/pages/Subscription.page";
+const ParentDashboard = lazy(() => import("@features/parent/pages/Dashboard.page"));
+const SubscriptionPage = lazy(() => import("@features/parent/pages/Subscription.page"));
 // import ChildrenManagement from '@screens/Parent/ChildrenManagement';
 // import ProgressTracking from '@screens/Parent/ProgressTracking';
 // import ParentalControls from '@screens/Parent/ParentalControls';
@@ -66,6 +67,9 @@ const AuthNavigator: React.FC = () => {
 			<ToastContainer />
 			<DemoBanner />
 			<WellbeingNudge />
+			{/* Pages chargées à la demande : Three.js et les scènes 3D ne sont
+			    téléchargés que sur les pages qui en ont besoin */}
+			<Suspense fallback={<LoadingScreen label="Chargement…" />}>
 			<Routes>
 				{/* ==================== PAGE DE REDIRECTION ==================== */}
 
@@ -328,6 +332,7 @@ const AuthNavigator: React.FC = () => {
 
 				<Route path="*" element={<Navigate to="/" replace />} />
 			</Routes>
+			</Suspense>
 		</DuelProvider>
 	);
 };

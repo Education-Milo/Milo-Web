@@ -1,5 +1,6 @@
 import axios, { type CreateAxiosDefaults, type InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@shared/store/auth/auth.store';
+import { stripCitations } from '@shared/utils/stripCitations';
 
 const API_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -53,7 +54,11 @@ const AUTH_ENDPOINTS = ['/token', '/register', '/logout'];
 
 // 🔹 Intercepteur de réponse : sur 401, un seul refresh puis rejeu de la requête
 APIAxios.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Marqueurs « [cite: N] » hérités des contenus générés : jamais affichés
+    if (response.data && typeof response.data === 'object') stripCitations(response.data);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config as RetriableConfig | undefined;
     const status = error.response?.status;

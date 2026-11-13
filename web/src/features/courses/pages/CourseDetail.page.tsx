@@ -144,7 +144,7 @@ const CourseDetailScreen: React.FC = () => {
 				</section>
 
 				{/* --- STAGE : contenu de l'étape --- */}
-				<main className="cd-stage">
+				<div className="cd-stage">
 					{loading && (
 						<div className="cd-state">
 							<div className="cd-loader" aria-hidden="true" />
@@ -175,9 +175,9 @@ const CourseDetailScreen: React.FC = () => {
 									onClick={() => selectCourse(course.id)}
 									style={{ animationDelay: `${0.05 * i}s` }}
 								>
-									<div className="cd-card-emoji">{COURSE_EMOJIS[i % COURSE_EMOJIS.length]}</div>
+									<div className="cd-card-emoji" aria-hidden="true">{COURSE_EMOJIS[i % COURSE_EMOJIS.length]}</div>
 									<div className="cd-card-body">
-										<h3 className="cd-card-title">{course.title}</h3>
+										<h2 className="cd-card-title">{course.title}</h2>
 										{course.description && (
 											<p className="cd-card-desc">{course.description}</p>
 										)}
@@ -208,11 +208,11 @@ const CourseDetailScreen: React.FC = () => {
 											style={{ animationDelay: `${0.05 * i}s` }}
 										>
 											<div className="cd-card-index">Ch. {i + 1}</div>
-											<div className="cd-card-emoji cd-card-emoji-sm">
+											<div className="cd-card-emoji cd-card-emoji-sm" aria-hidden="true">
 												{CHAPTER_EMOJIS[i % CHAPTER_EMOJIS.length]}
 											</div>
 											<div className="cd-card-body">
-												<h3 className="cd-card-title">{chapter.title}</h3>
+												<h2 className="cd-card-title">{chapter.title}</h2>
 												<div className="cd-card-meta">
 													<GraduationCap size={12} />
 													<span>{chapter.lessons.length} leçon{chapter.lessons.length > 1 ? "s" : ""}</span>
@@ -264,7 +264,7 @@ const CourseDetailScreen: React.FC = () => {
 							)}
 						</>
 					)}
-				</main>
+				</div>
 			</div>
 
 			<LessonModal lesson={selectedLesson} onClose={() => setSelectedLesson(null)} />

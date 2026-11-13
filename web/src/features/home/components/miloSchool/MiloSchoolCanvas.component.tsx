@@ -12,6 +12,7 @@ import {
 import { QueryClientProvider } from "@tanstack/react-query";
 import * as THREE from "three";
 import { queryClient } from "@shared/lib/queryClient";
+import { isWebGLAvailable } from "@shared/utils/webgl";
 
 /// Toile 3D de l'accueil qui SURVIT à la navigation.
 ///
@@ -82,6 +83,9 @@ const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, onDetach
 
 	/// Configure (taille, boucle de rendu) puis rend le contenu dans la scène persistante
 	const sync = useRef(async (paused = false) => {
+		// Sans WebGL, la cour reste vide : les boutons HTML (Discuter,
+		// Missions, Courrier) suffisent et l'onglet ne boucle pas sur des erreurs
+		if (!isWebGLAvailable()) return;
 		const p = getPersistent();
 		const { frameloop: loop, config: base, onCreated: created, children: content } = latest.current;
 		await p.root.configure({
@@ -143,7 +147,8 @@ const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, onDetach
 		void sync.current();
 	});
 
-	return <div ref={host} className="ecl-canvas-host" />;
+	// Scène décorative : ses actions existent en boutons HTML (Discuter, Missions, Courrier)
+	return <div ref={host} className="ecl-canvas-host" aria-hidden="true" />;
 };
 
 export default MiloSchoolCanvas;

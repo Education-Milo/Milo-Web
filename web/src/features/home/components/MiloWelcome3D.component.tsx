@@ -6,7 +6,8 @@ import React, {
 	useMemo,
 	useRef,
 } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
@@ -165,7 +166,7 @@ function MiloHello() {
 const MiloWelcome3D: React.FC = () => (
 	/// Milo respire en continu : contrairement à la version figée sur la
 	/// dernière frame du salut, le canvas rend à chaque frame.
-	<Canvas
+	<Canvas aria-hidden="true"
 		className="hp-welcome-canvas"
 		frameloop="always"
 		dpr={[1, 2]}

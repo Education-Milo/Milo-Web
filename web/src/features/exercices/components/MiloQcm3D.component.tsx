@@ -6,7 +6,8 @@ import React, {
 	useRef,
 	useState,
 } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
@@ -257,7 +258,7 @@ const MiloQcm3D: React.FC<{ state: MiloQcmState }> = ({ state }) => {
 			aria-hidden="true"
 		>
 			{canMount && (
-				<Canvas
+				<Canvas aria-hidden="true"
 					dpr={[1, 2]}
 					camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}
 					gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}

@@ -133,7 +133,7 @@
 
 .chapter-accordion.open .chapter-chevron {
   transform: rotate(180deg);
-  background: var(--milo-orange);
+  background: var(--milo-action);
   color: #FFF;
   box-shadow: 0 4px 10px rgba(255, 84, 29, 0.4);
 }

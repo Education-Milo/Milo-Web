@@ -8,6 +8,7 @@ import {
 	applyMetalReflections,
 	isBodyPart,
 } from "@features/my-milo/utils/miloModel";
+import { isWebGLAvailable } from "@shared/utils/webgl";
 
 /// Portrait de Milo rendu en image, pour servir de photo de profil.
 ///
@@ -164,6 +165,8 @@ function buildRig(): Promise<Rig> {
 export async function renderMiloAvatar(
 	meshNames: string[],
 ): Promise<string | null> {
+	// Sans WebGL, pas de portrait : les initiales restent affichées
+	if (!isWebGLAvailable()) return null;
 	const key = avatarKey(meshNames);
 	const cached = cache.get(key);
 	if (cached) return cached;

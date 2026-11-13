@@ -73,7 +73,7 @@ const CoursesScreen: React.FC = () => {
 				</header>
 
 				{/* --- GRILLE DE TUILES --- */}
-				<main className="cs-stage">
+				<div className="cs-stage">
 					{loading && (
 						<div className="cs-state">
 							<div className="cs-loader" aria-hidden="true" />
@@ -133,7 +133,7 @@ const CoursesScreen: React.FC = () => {
 							})}
 						</div>
 					)}
-				</main>
+				</div>
 			</div>
 		</ScreenLayout>
 	);

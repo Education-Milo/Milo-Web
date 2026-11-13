@@ -219,7 +219,7 @@
 	cursor: pointer;
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.wb-btn--primary { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.wb-btn--primary { border: 0; background: var(--milo-action); color: #fff; box-shadow: 0 6px 0 var(--milo-action-edge); }
 .wb-btn--ghost { border: 2px solid var(--line); background: #fff; color: var(--milo-encre); box-shadow: 0 6px 0 var(--wb-sable); }
 .wb-btn:hover { transform: translateY(-2px); }
 .wb-btn--primary:hover { box-shadow: 0 8px 0 var(--milo-braise); }

@@ -109,7 +109,7 @@ const NotesPostIt: React.FC<NotesPostItProps> = ({
 					<p>
 						<b>Ton post-it est vide.</b>
 						<br />
-						Passe ta souris sur une phrase du tableau et clique sur <b>« Noter »</b> : elle viendra se coller ici.
+						Choisis une phrase du tableau, puis <b>« Noter »</b> : elle viendra se coller ici.
 					</p>
 				</div>
 			) : (

@@ -11,7 +11,7 @@ const STEPS: { emoji: string; title: string; text: string }[] = [
 	{ emoji: "books", title: "Lis le tableau", text: "Milo écrit la leçon au tableau, partie par partie. Trop lent ? Clique sur « Tout afficher »." },
 	{
 		emoji: "light_bulb",
-		title: "Passe ta souris sur une phrase",
+		title: "Choisis une phrase",
 		text: "Milo peut la ré-expliquer, te donner un exemple, t'inventer un exercice ou te la lire.",
 	},
 	{ emoji: "speech_balloon", title: "Écris sur ta feuille", text: "Clique sur la feuille posée sur ton bureau pour poser une question à Milo. Il te répond au tableau !" },

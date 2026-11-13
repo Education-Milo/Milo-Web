@@ -23,7 +23,7 @@
 
 	/* Raretés : une teinte par niveau, utilisée en petites touches
 	   (point, étiquette, halo de la vitrine), jamais en grand aplat */
-	--r: #8a7466;
+	--r: #857062;
 
 	min-height: 100vh;
 	background: var(--ms-creme);
@@ -103,7 +103,7 @@
 .ms-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 0 var(--edge); }
 .ms-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
 
-.ms-btn--primary { background: var(--milo-orange); color: #fff; }
+.ms-btn--primary { --edge: var(--milo-action-edge); background: var(--milo-action); color: #fff; }
 
 .ms-btn--ghost {
 	--edge: var(--ms-sable);
@@ -372,11 +372,11 @@
    Commun reste dans les tons crème de la marque : c'est la référence calme
    qui fait ressortir les autres niveaux. */
 .ms-r-commun {
-	--r: #8a7466; --r-ink: #fff; --r-edge: var(--ms-sable); --r-line: var(--ms-line);
+	--r: #857062; --r-ink: #fff; /* 4,7:1 */ --r-edge: var(--ms-sable); --r-line: var(--ms-line);
 	--r-bg: #fbf3ea; --r-bg-2: var(--ms-creme); --r-glow: transparent;
 }
 .ms-r-rare {
-	--r: #2f7fd1; --r-ink: #fff; --r-edge: #1d5a9e; --r-line: #2f7fd1;
+	--r: #2c77c4; --r-ink: #fff; /* 4,6:1 */ --r-edge: #1d5a9e; --r-line: #2f7fd1;
 	--r-bg: #eef6fe; --r-bg-2: #bcd9f7; --r-glow: rgba(47, 127, 209, 0.35);
 }
 .ms-r-tres-rare {

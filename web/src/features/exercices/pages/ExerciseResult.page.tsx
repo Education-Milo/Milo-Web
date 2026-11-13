@@ -146,7 +146,7 @@ const ExerciseResultScreen: React.FC = () => {
   const message =
     percentage === 100 ? { text: 'Parfait !', highlight: 'Parfait' }
     : stars >= 2 ? { text: 'Bien joué !', highlight: 'joué' }
-    : stars === 1 ? { text: 'Beau travail !', highlight: 'travail' }
+    : stars === 1 ? { text: 'Pas mal !', highlight: 'mal' }
     : { text: 'Tu y es presque !', highlight: 'presque' };
 
   const stats: { emoji: BrandEmoji; value: number; suffix?: string; text?: string; label: string }[] = [
@@ -160,7 +160,7 @@ const ExerciseResultScreen: React.FC = () => {
   const hasRewards = missions.length > 0 || dailyStreak > 0;
 
   return (
-    <div className="qcm-result-page">
+    <main className="qcm-result-page">
       <QuizBackdrop variant="fete" />
       <MiloQcm3D state={miloState} />
 
@@ -297,7 +297,7 @@ const ExerciseResultScreen: React.FC = () => {
           </button>
         </motion.div>
       </motion.div>
-    </div>
+    </main>
   );
 };
 

@@ -147,11 +147,11 @@
 	padding: 0 18px;
 	border: 0;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	font: 700 1rem/1 var(--f-text);
 	cursor: pointer;
-	box-shadow: 0 4px 0 var(--milo-braise);
+	box-shadow: 0 4px 0 var(--milo-action-edge);
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .af-add:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--milo-braise); }

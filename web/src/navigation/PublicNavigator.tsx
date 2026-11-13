@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
+import LoadingScreen from '@shared/components/LoadingScreen.component';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginScreen from '@features/auth/pages/Login.page';
-import RoleSelectScreen from '@features/auth/pages/RoleSelect.page';
-import RegisterScreen from '@features/auth/pages/Register.page';
-import ForgotPasswordScreen from '@features/auth/pages/ForgotPassword.page';
-import VitrinePage from '@features/landing/pages/Vitrine.page';
-import ContactPage from '@features/landing/pages/Contact.page';
-import FAQPage from '@features/landing/pages/FAQ.page';
-import ProfilePickerPage from '@features/account/pages/ProfilePicker.page';
+const LoginScreen = lazy(() => import('@features/auth/pages/Login.page'));
+const RoleSelectScreen = lazy(() => import('@features/auth/pages/RoleSelect.page'));
+const RegisterScreen = lazy(() => import('@features/auth/pages/Register.page'));
+const ForgotPasswordScreen = lazy(() => import('@features/auth/pages/ForgotPassword.page'));
+const VitrinePage = lazy(() => import('@features/landing/pages/Vitrine.page'));
+const ContactPage = lazy(() => import('@features/landing/pages/Contact.page'));
+const FAQPage = lazy(() => import('@features/landing/pages/FAQ.page'));
+const ProfilePickerPage = lazy(() => import('@features/account/pages/ProfilePicker.page'));
 import { ROUTES } from '@shared/constants/routes';
 
 const PublicNavigator: React.FC = () => {
   return (
+    // Chaque page est chargée à la demande (découpage du bundle par route)
+    <Suspense fallback={<LoadingScreen label="Chargement…" />}>
     <Routes>
       <Route path="/" element={<VitrinePage />} />
 
@@ -26,6 +29,7 @@ const PublicNavigator: React.FC = () => {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 };
 

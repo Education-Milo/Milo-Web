@@ -326,7 +326,7 @@ const LessonBoard: React.FC<LessonBoardProps> = ({
 				tabIndex={interactive ? 0 : -1}
 				role={interactive ? "button" : undefined}
 				aria-haspopup={interactive ? "menu" : undefined}
-				aria-describedby={interactive ? "cls-board-hint" : undefined}
+				aria-expanded={interactive ? target?.index === sentence.index : undefined}
 				onMouseEnter={(e) => openForSentence(e.currentTarget, sentence.index, sentence.text, false)}
 				onMouseLeave={scheduleHide}
 				onFocus={(e) => (lastFocused.current = e.currentTarget)}

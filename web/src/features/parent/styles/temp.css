@@ -98,7 +98,7 @@ body {
 
 .nav-item-badge {
     margin-left: auto;
-    background: var(--milo-orange);
+    background: var(--milo-action);
     color: white;
     font-size: 0.875rem;
     padding: 0.2rem 0.5rem;
@@ -265,7 +265,7 @@ body {
 }
 
 .action-button:hover {
-    background: var(--milo-orange);
+    background: var(--milo-action);
     color: white;
     border-color: var(--milo-orange);
     transform: translateY(-2px);
@@ -623,7 +623,7 @@ body {
 }
 
 .achievement-item:hover {
-    background: var(--milo-orange);
+    background: var(--milo-action);
     color: white;
     transform: translateX(8px);
 }

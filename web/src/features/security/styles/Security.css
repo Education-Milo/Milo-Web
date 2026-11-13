@@ -35,7 +35,7 @@
 .sec-btn:hover:not(:disabled) { transform: translateY(-1px); }
 .sec-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .sec-btn--sm { padding: 7px 13px; font-size: 1rem; }
-.sec-btn--primary { background: var(--milo-orange); color: #fff; box-shadow: 0 8px 18px rgba(255, 84, 29, 0.22); }
+.sec-btn--primary { background: var(--milo-action); color: #fff; box-shadow: 0 8px 18px rgba(255, 84, 29, 0.22); }
 .sec-btn--ghost { background: var(--surface); border-color: var(--line); color: var(--text); }
 .sec-btn--danger { background: var(--ko); color: #fff; }
 .sec-btn--danger-ghost { background: transparent; border-color: var(--ko-bg); color: var(--ko); }

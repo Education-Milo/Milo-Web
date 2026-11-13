@@ -975,9 +975,9 @@
    enfoncé de 5 px au clic)
    ============================================================ */
 .qz-btn {
-	--b-bg: var(--milo-orange);
+	--b-bg: var(--milo-action);
 	--b-fg: #fff;
-	--b-edge: var(--milo-braise);
+	--b-edge: var(--milo-action-edge);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;

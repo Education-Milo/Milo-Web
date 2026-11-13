@@ -1,8 +1,9 @@
-import React, { useEffect, useId, useRef } from "react";
+import React, { useId, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, X } from "lucide-react";
 import { ROUTES } from "@shared/constants/routes";
+import { useDialogFocus } from "@shared/hooks/useDialogFocus";
 import type { LessonWithStatus } from "@features/courses/store/course.model";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import type { Emoji3DName } from "@features/landing/data/landing.data";
@@ -60,21 +61,17 @@ const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
 	const navigate = useNavigate();
 	const reduceMotion = useReducedMotion();
 	const titleId = useId();
-	const closeRef = useRef<HTMLButtonElement>(null);
+	const cardRef = useRef<HTMLDivElement>(null);
+	const firstChoiceRef = useRef<HTMLButtonElement>(null);
 
-	useEffect(() => {
-		if (!lesson) return;
-		const previous = document.activeElement as HTMLElement | null;
-		closeRef.current?.focus();
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === "Escape") onClose();
-		};
-		window.addEventListener("keydown", onKey);
-		return () => {
-			window.removeEventListener("keydown", onKey);
-			previous?.focus?.();
-		};
-	}, [lesson, onClose]);
+	// Focus sur le premier choix, Tab piégé dans la fenêtre, Échap ferme
+	// et le focus revient sur la carte de leçon (WCAG 2.1.2, 2.4.3)
+	useDialogFocus({
+		open: Boolean(lesson),
+		containerRef: cardRef,
+		initialFocusRef: firstChoiceRef,
+		onEscape: onClose,
+	});
 
 	const start = (id: Choice["id"]) => {
 		if (!lesson) return;
@@ -93,6 +90,7 @@ const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
 					exit={{ opacity: 0 }}
 				>
 					<motion.div
+						ref={cardRef}
 						className="lm-card"
 						role="dialog"
 						aria-modal="true"
@@ -103,8 +101,8 @@ const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
 						exit={{ y: 16, opacity: 0, scale: 0.97 }}
 						transition={{ type: "spring", stiffness: 260, damping: 24 }}
 					>
-						<button ref={closeRef} type="button" className="lm-close" onClick={onClose} aria-label="Fermer">
-							<X size={20} aria-hidden="true" />
+						<button type="button" className="lm-close" onClick={onClose} aria-label="Fermer la fenêtre">
+							<X size={20} aria-hidden="true" focusable="false" />
 						</button>
 
 						<header className="lm-head">
@@ -115,9 +113,10 @@ const LessonModal: React.FC<LessonModalProps> = ({ lesson, onClose }) => {
 						</header>
 
 						<div className="lm-choices">
-							{CHOICES.map((choice) => (
+							{CHOICES.map((choice, index) => (
 								<button
 									key={choice.id}
+									ref={index === 0 ? firstChoiceRef : undefined}
 									type="button"
 									className={`lm-choice lm-choice--${choice.id}`}
 									onClick={() => start(choice.id)}
