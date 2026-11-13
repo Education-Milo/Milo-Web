@@ -135,7 +135,8 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 
 	/// Retour sur l'accueil : la scène 3D est restée prête, elle s'affiche aussitôt
 	// Sans WebGL la scène ne se signalera jamais prête : l'accueil s'affiche tout de suite
-	const [loaded, setLoaded] = useState(() => schoolScene.ready || !isWebGLAvailable());
+	const [webgl] = useState(() => isWebGLAvailable());
+	const [loaded, setLoaded] = useState(() => schoolScene.ready || !webgl);
 	const [visible, setVisible] = useState(true);
 	const [wide, setWide] = useState(true);
 	const [night, setNight] = useState(() => nightMixAt(new Date()));
@@ -366,6 +367,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 				"ecl-card",
 				focus && "is-focused",
 				loaded && "is-loaded",
+				!webgl && "no-webgl",
 				loaded && landed && "is-landed",
 				wide ? "is-wide" : "is-narrow",
 				night > 0.5 && "is-night",
@@ -378,6 +380,18 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 			aria-label="Accueil : Milo devant sa salle de classe"
 		>
 			<div className="ecl-stage" aria-hidden="true">
+				{/* Affiche dans la charte, le temps que la 3D charge (et à sa place
+				    quand WebGL est indisponible) : crème à pois, soleil feu, Milo */}
+				<div className="ecl-placeholder">
+					<span className="ecl-placeholder-sun" />
+					<img src="/landing/milo/milo-adopt.webp" alt="" className="ecl-placeholder-milo" draggable={false} />
+					{webgl && (
+						<span className="ecl-placeholder-wait">
+							<i />
+							Milo arrive…
+						</span>
+					)}
+				</div>
 				<MiloSchoolScene3D
 					bridge={bridge}
 					active={visible}

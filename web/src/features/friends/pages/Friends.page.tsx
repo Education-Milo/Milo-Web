@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { motion, AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
@@ -9,8 +9,6 @@ import ConfirmDeleteFriendModal from "@features/friends/components/ConfirmDelete
 import { getFriendDisplayName, getFriendInitials, getOtherUserId, type Friend } from "@features/friends/store/friend.model";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import { useFriends, type FriendsTab } from "@features/friends/hooks/useFriends";
-import { useUserStore } from "@shared/store/user/user.store";
-import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import CountUp from "@shared/components/quiz/CountUp.component";
@@ -21,18 +19,6 @@ const TABS: { id: FriendsTab; label: string }[] = [
 	{ id: "Invitations", label: "Invitations" },
 	{ id: "En attente", label: "Envoyées" },
 ];
-
-/** Participant au classement de la bande (les amis et toi) */
-interface Contender {
-	key: string;
-	name: string;
-	initials: string;
-	xp: number;
-	meshes?: string[];
-	isMe: boolean;
-}
-
-const PODIUM_ORDER = [1, 0, 2]; // 2e à gauche, 1er au centre, 3e à droite
 
 const FriendsPage: React.FC = () => {
 	const {
@@ -53,44 +39,10 @@ const FriendsPage: React.FC = () => {
 		isLoading,
 	} = useFriends();
 	const reduceMotion = useReducedMotion();
-	const me = useUserStore((state) => state.user);
-	const { equippedMeshNames } = useEquippedMeshNames();
 
 	const isPendingTab = activeTab === "En attente" || activeTab === "Invitations";
 	const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
 
-	// Classement de la bande à l'XP : tes amis et toi
-	const ranking = useMemo<Contender[]>(() => {
-		const list: Contender[] = friends.map((f) => ({
-			key: String(getOtherUserId(f)),
-			name: getFriendDisplayName(f),
-			initials: getFriendInitials(f),
-			xp: f.xp ?? 0,
-			meshes: f.equipped_meshes,
-			isMe: false,
-		}));
-		if (me) {
-			list.push({
-				key: "me",
-				name: "Toi",
-				initials: `${me.first_name?.[0] ?? "T"}`.toUpperCase(),
-				xp: me.xp ?? 0,
-				meshes: equippedMeshNames ?? [],
-				isMe: true,
-			});
-		}
-		return list.sort((a, b) => b.xp - a.xp);
-	}, [friends, me, equippedMeshNames]);
-
-	/** Rang (1, 2, 3) des amis présents sur le podium, pour leur carte */
-	const podiumRank = useMemo(() => {
-		const map = new Map<string, number>();
-		ranking.slice(0, 3).forEach((c, i) => map.set(c.key, i + 1));
-		return map;
-	}, [ranking]);
-
-	const myIndex = ranking.findIndex((c) => c.isMe);
-	const ahead = myIndex > 0 ? ranking[myIndex - 1] : null;
 	const bestStreak = [...friends].sort((a, b) => (b.streak ?? 0) - (a.streak ?? 0))[0];
 
 	// Supprimer un ami accepté demande confirmation ; refuser ou annuler
@@ -134,7 +86,7 @@ const FriendsPage: React.FC = () => {
 								<h1 className="fr-hero__title">
 									Mes <span className="fr-hl">amis</span>
 								</h1>
-								<p className="fr-hero__lead">Ta bande pour réviser, se défier et grimper au classement.</p>
+								<p className="fr-hero__lead">Ta bande pour réviser ensemble et te lancer des défis.</p>
 							</div>
 							<div className="fr-hero__actions">
 								<button type="button" className="fr-btn fr-btn--primary" onClick={() => setIsAddModalOpen(true)}>
@@ -181,67 +133,6 @@ const FriendsPage: React.FC = () => {
 								</p>
 							)}
 						</div>
-					</motion.section>
-
-					{/* CLASSEMENT DE LA BANDE */}
-					<motion.section
-						className="fr-board"
-						aria-labelledby="fr-board-title"
-						initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-					>
-						<div className="fr-head">
-							<Emoji3D name="trophy" className="fr-head__icon" />
-							<h2 className="fr-head__title" id="fr-board-title">
-								Classement <span className="fr-hl">XP</span>
-							</h2>
-						</div>
-						{ranking.length < 2 ? (
-							<div className="fr-empty fr-empty--board">
-								<Emoji3D name="sports_medal" />
-								<p>Ajoute des amis pour lancer le classement de ta bande.</p>
-							</div>
-						) : (
-							<>
-								<ol className="fr-podium">
-									{PODIUM_ORDER.map((i) => {
-										const c = ranking[i];
-										if (!c) return <li key={`void-${i}`} className="fr-podium__spot is-void" aria-hidden="true" />;
-										return (
-											<li key={c.key} className={`fr-podium__spot is-${i + 1}${c.isMe ? " is-me" : ""}`}>
-												<motion.span
-													className="fr-podium__avatar"
-													initial={reduceMotion ? false : { y: -30, opacity: 0 }}
-													animate={{ y: 0, opacity: 1 }}
-													transition={{ type: "spring", stiffness: 300, damping: 12, delay: 0.5 + (2 - i) * 0.12 }}
-												>
-													<MiloAvatar equippedMeshNames={c.meshes} initials={c.initials} />
-												</motion.span>
-												<span className="fr-podium__name">{c.name}</span>
-												<span className="fr-podium__xp">{c.xp.toLocaleString("fr-FR")} XP</span>
-												<motion.span
-													className="fr-podium__step"
-													initial={reduceMotion ? false : { scaleY: 0 }}
-													animate={{ scaleY: 1 }}
-													transition={{ type: "spring", stiffness: 160, damping: 16, delay: 0.25 + (2 - i) * 0.1 }}
-												>
-													<span className="fr-sr-only">{i + 1}e place</span>
-													<span aria-hidden="true">{i + 1}</span>
-												</motion.span>
-											</li>
-										);
-									})}
-								</ol>
-								<p className="fr-board__me">
-									{myIndex === 0
-										? "Tu es en tête de ta bande. Garde ta couronne !"
-										: ahead
-											? <>Tu es <b>{myIndex + 1}e sur {ranking.length}</b> : encore <b>{(ahead.xp - (ranking[myIndex]?.xp ?? 0) + 1).toLocaleString("fr-FR")} XP</b> pour passer {ahead.name}.</>
-											: null}
-								</p>
-							</>
-						)}
 					</motion.section>
 				</div>
 
@@ -293,7 +184,6 @@ const FriendsPage: React.FC = () => {
 										key={friend.id}
 										friend={friend}
 										index={i}
-										podiumRank={podiumRank.get(String(getOtherUserId(friend)))}
 										onTogglePin={togglePin}
 										onAccept={acceptFriend}
 										onDelete={handleDeleteRequest}
