@@ -106,7 +106,8 @@
 	/* Carte de la charte : tranche sable pleine, ombre chaude douce */
 	box-shadow: 0 6px 0 #F1D2B2, 0 22px 34px -22px rgba(42, 24, 16, 0.55);
 	pointer-events: none;
-	animation: ecl-drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+	transform-origin: 50% 100%;
+	animation: var(--ecl-arrive), ecl-drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
 .ecl-hello-titles { display: grid; gap: 4px; }
 .ecl-hello-title {
@@ -135,6 +136,36 @@
 	to {
 		opacity: 1;
 		transform: none;
+	}
+}
+
+/* Arrivée par la droite, comme la scène derrière : le titre file vers la
+   gauche en penchant, dépasse un peu sa place en freinant et s'y pose.
+   Sur `translate` / `rotate` (et non `transform`) : elle se cumule avec la
+   chute et l'envol du gros plan, et reste dans la liste d'animations quand
+   ceux-ci changent, pour ne pas être rejouée en sortant d'un gros plan. */
+.ecl-card {
+	--ecl-arrive: ecl-arrive 1s linear 0.3s both;
+}
+@keyframes ecl-arrive {
+	0% {
+		translate: 100cqw 0;
+		rotate: 7deg;
+		animation-timing-function: cubic-bezier(0.18, 0.75, 0.3, 1);
+	}
+	62% {
+		translate: -16px 0;
+		rotate: -3deg;
+		animation-timing-function: ease-in-out;
+	}
+	82% {
+		translate: 4px 0;
+		rotate: 1deg;
+		animation-timing-function: ease-in-out;
+	}
+	100% {
+		translate: 0 0;
+		rotate: 0deg;
 	}
 }
 
@@ -175,6 +206,17 @@
 }
 .ecl-quick-btn svg {
 	color: var(--milo-orange);
+}
+/* Ils entrent par la droite après le titre, l'un après l'autre */
+.ecl-quick-btn {
+	transform-origin: 50% 100%;
+	animation: ecl-arrive 0.9s linear 0.45s both;
+}
+.ecl-quick-btn:nth-child(2) {
+	animation-delay: 0.53s;
+}
+.ecl-quick-btn:nth-child(3) {
+	animation-delay: 0.61s;
 }
 /* « Discuter » : le bouton principal (la porte, sur écran étroit) */
 .ecl-quick-btn.is-main {
@@ -252,13 +294,14 @@
 	opacity: 0;
 	pointer-events: none;
 	transition:
-		opacity 0.4s ease 0.3s,
-		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s,
+		opacity 0.4s ease 0.1s,
+		transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s,
 		background 0.25s ease,
 		color 0.25s ease,
 		border-color 0.25s ease;
 }
-.ecl-card.is-loaded .ecl-bubble {
+/* Elle s'ouvre quand Milo est arrivé à sa place (il entre par la droite) */
+.ecl-card.is-landed .ecl-bubble {
 	opacity: 1;
 	transform: translateY(-100%);
 }
@@ -320,6 +363,11 @@
 .ecl-card[data-zoomed] .ecl-quick {
 	animation: ecl-lift 0.3s ease forwards;
 	pointer-events: none;
+}
+/* (l'arrivée du titre reste dans la liste : elle n'est pas rejouée au retour) */
+.ecl-card.is-focused .ecl-hello,
+.ecl-card[data-zoomed] .ecl-hello {
+	animation: var(--ecl-arrive), ecl-lift 0.3s ease forwards;
 }
 .ecl-card.is-focused .ecl-bubble,
 .ecl-card.is-loaded[data-zoomed] .ecl-bubble {
@@ -410,6 +458,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.ecl-hello,
+	.ecl-quick-btn,
 	.ecl-card.is-loaded .ecl-bubble.is-loud {
 		animation: none;
 	}
