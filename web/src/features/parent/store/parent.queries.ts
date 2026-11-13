@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import APIAxios, { APIRoutes } from "@api/axios.api";
 import { useAccountProfiles } from "@features/account/store/account.queries";
 import type { ActivityItem, StatsResponse } from "@features/stats/store/stats.model";
 import type { LinkedChild, ParentData, WeeklyReport } from "@features/parent/store/parent.model";
@@ -10,22 +12,35 @@ import type { LinkedChild, ParentData, WeeklyReport } from "@features/parent/sto
  * - GET /profiles : les profils élèves du compte famille, c'est-à-dire les
  *   enfants que le parent suit (accepte le jeton du profil Parent) ;
  * - POST /profiles : ajout d'un profil élève au compte (useCreateProfile,
- *   mot de passe du compte exigé, refusé sur un profil de démonstration).
+ *   mot de passe du compte exigé, refusé sur un profil de démonstration) ;
+ * - GET /parent/children/{id}/stats et /activity : statistiques et journal
+ *   d'un enfant du compte famille, même forme que /tracking/stats/me et
+ *   /tracking/activity/me (profil Parent uniquement).
  *
- * Absent de l'API au 13/11/2026 (aucune route, vérifié sur le back et en
- * production). Les écrans affichent un état vide explicite en attendant :
+ * Absent de l'API au 13/11/2026. Les écrans affichent un état vide explicite :
  * - liaison d'un compte élève par un code généré côté élève (F-26) ;
- * - statistiques d'un enfant lisibles par son parent (F-27). Le back a déjà
- *   la fonction d'agrégat (`compute_stats`, même forme que
- *   GET /tracking/stats/me), il manque la route ;
- * - journal d'activité d'un enfant pour son parent (F-27, F-28) ;
  * - bilans hebdomadaires rédigés par l'IA (F-28).
  *
- * Pour brancher une route : remplacer le hook concerné par un useQuery,
- * les composants lisent déjà `data`, `isLoading`, `isError` et `isUnavailable`.
+ * Les composants lisent `data`, `isLoading`, `isError` et `isUnavailable` :
+ * brancher une nouvelle route revient à remplacer le hook par un useQuery.
  */
 
 const UNAVAILABLE = { data: undefined, isLoading: false, isError: false, isUnavailable: true } as const;
+
+/** Période des cartes du tableau de bord : la semaine écoulée */
+const WEEK_DAYS = 7;
+/** Activités affichées dans « Activité récente » */
+const RECENT_ACTIVITY_LIMIT = 6;
+
+const PARENT_QUERY_KEY = ["parent", "child"] as const;
+
+/** Forme commune des hooks parent à partir d'une query react-query */
+const toParentData = <T,>(query: { data: T | undefined; isLoading: boolean; isError: boolean }): ParentData<T> => ({
+	data: query.data,
+	isLoading: query.isLoading,
+	isError: query.isError,
+	isUnavailable: false,
+});
 
 /** Enfants suivis : les profils « Enfant » du compte. */
 export const useLinkedChildren = () => {
@@ -44,11 +59,40 @@ export const useLinkedChildren = () => {
 	};
 };
 
-/** Statistiques de la semaine d'un enfant (forme de GET /tracking/stats/me). Route absente. */
-export const useChildStats = (_childId: number | null): ParentData<StatsResponse> => UNAVAILABLE;
+/**
+ * Statistiques des 7 derniers jours d'un enfant. Rafraîchies au retour sur
+ * l'onglet : les données suivent l'activité de l'enfant sans recharger.
+ */
+export const useChildStats = (childId: number | null): ParentData<StatsResponse> =>
+	toParentData(
+		useQuery({
+			queryKey: [...PARENT_QUERY_KEY, childId, "stats", WEEK_DAYS],
+			queryFn: async () =>
+				(
+					await APIAxios.get<StatsResponse>(APIRoutes.GET_Parent_Child_Stats(childId as number), {
+						params: { days: WEEK_DAYS },
+					})
+				).data,
+			enabled: childId !== null,
+			staleTime: 60 * 1000,
+		}),
+	);
 
-/** Dernières activités d'un enfant (forme de GET /tracking/activity/me). Route absente. */
-export const useChildActivity = (_childId: number | null): ParentData<ActivityItem[]> => UNAVAILABLE;
+/** Dernières activités d'un enfant, du plus récent au plus ancien. */
+export const useChildActivity = (childId: number | null): ParentData<ActivityItem[]> =>
+	toParentData(
+		useQuery({
+			queryKey: [...PARENT_QUERY_KEY, childId, "activity", WEEK_DAYS],
+			queryFn: async () =>
+				(
+					await APIAxios.get<ActivityItem[]>(APIRoutes.GET_Parent_Child_Activity(childId as number), {
+						params: { days: WEEK_DAYS, limit: RECENT_ACTIVITY_LIMIT },
+					})
+				).data,
+			enabled: childId !== null,
+			staleTime: 60 * 1000,
+		}),
+	);
 
 /** Bilans hebdomadaires d'un enfant, du plus récent au plus ancien. Route absente. */
 export const useWeeklyReports = (_childId: number | null): ParentData<WeeklyReport[]> => UNAVAILABLE;
