@@ -85,20 +85,6 @@
 	background: linear-gradient(155deg, rgba(255, 255, 255, 0.22), transparent 40%);
 }
 
-.lp-mission__badge {
-	display: inline-flex;
-	align-items: center;
-	font-weight: 700;
-	font-size: 0.82rem;
-	letter-spacing: 0.08em;
-	line-height: 1;
-	color: var(--lp-braise);
-	background: #fff;
-	border: 2px solid var(--lp-line);
-	padding: 0.55rem 0.95rem 0.5rem;
-	border-radius: 999px;
-}
-
 .lp-mission h3 {
 	font-size: clamp(2.3rem, 4.4vw, 3.6rem);
 	margin: 1.1rem 0 1rem;
@@ -130,8 +116,6 @@
 	height: 32px;
 }
 
-/* Éléments réservés au mode épinglé */
-.lp-missions__glow,
 .lp-mission__decor,
 .lp-missions__nav,
 .lp-missions__num {
@@ -189,22 +173,6 @@
 
 .lp-missions.is-pinned .lp-mission__device {
 	will-change: clip-path;
-}
-
-/* Halo de couleur qui tourne derrière les tablettes à chaque mission */
-.lp-missions.is-pinned .lp-missions__glow {
-	display: block;
-	grid-column: 1;
-	grid-row: 1;
-	place-self: center;
-	width: 92%;
-	aspect-ratio: 1.6;
-	border-radius: 50%;
-	background: conic-gradient(from 0deg, var(--lp-mandarine), var(--lp-milo), var(--milo-pompon), var(--lp-vermillon), var(--lp-mandarine));
-	filter: blur(70px);
-	opacity: 0.42;
-	pointer-events: none;
-	will-change: transform;
 }
 
 .lp-missions.is-pinned .lp-mission__text {
@@ -276,7 +244,7 @@
 	padding: 0.45rem 0.9rem;
 	font: inherit;
 	font-weight: 600;
-	font-size: 0.92rem;
+	font-size: 1rem;
 	cursor: pointer;
 	transition: background 0.3s, color 0.3s, border-color 0.3s;
 }

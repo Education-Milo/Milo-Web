@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-	BookOpen,
 	CheckCircle2,
 	ChevronRight,
 	GraduationCap,
@@ -8,7 +7,6 @@ import {
 	Layers,
 	Lock,
 	PlayCircle,
-	Sparkles,
 } from "lucide-react";
 import LessonModal from "@features/courses/components/lessonModal/LessonModal.component";
 import { useCourseStore } from "@features/courses/store/course.store";
@@ -101,10 +99,10 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 	};
 
 	const meta = {
-		subjects: { icon: <Sparkles size={16} />, n: 1, title: "Choisis une matière", sub: "Toutes les matières de ton niveau." },
-		courses: { icon: <BookOpen size={16} />, n: 2, title: "Choisis ton cours", sub: "Sélectionne un programme pour voir ses chapitres." },
-		chapters: { icon: <Layers size={16} />, n: 3, title: "Choisis un chapitre", sub: "Explore les chapitres et leurs leçons." },
-		lessons: { icon: <GraduationCap size={16} />, n: 4, title: "Choisis une leçon", sub: "Démarre une leçon pour apprendre ou t'entraîner." },
+		subjects: { title: "Choisis une matière", sub: "Toutes les matières de ton niveau." },
+		courses: { title: "Choisis ton cours", sub: "Sélectionne un programme pour voir ses chapitres." },
+		chapters: { title: "Choisis un chapitre", sub: "Explore les chapitres et leurs leçons." },
+		lessons: { title: "Choisis une leçon", sub: "Démarre une leçon pour apprendre ou t'entraîner." },
 	}[step];
 
 	const showLoading = loading && step !== "subjects";
@@ -148,13 +146,8 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 
 			{/* En-tête d'étape des pages Cours */}
 			<section className="cd-hero cls-picker-hero">
-				<div className="cd-hero-halo" aria-hidden="true" />
 				<img src={miloFoxImage} alt="" className="cd-hero-mascot" />
 				<div className="cd-hero-text">
-					<div className="cd-hero-chip">
-						{meta.icon}
-						<span>Étape {meta.n} / 4</span>
-					</div>
 					<h3 className="cd-hero-title">{meta.title}</h3>
 					<p className="cd-hero-sub">{meta.sub}</p>
 				</div>
@@ -210,7 +203,6 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 									disabled={isLocked}
 									style={{ animationDelay: `${0.05 * i}s` }}
 								>
-									<div className="cs-tile-bg" aria-hidden="true" />
 									<div className="cs-tile-shine" aria-hidden="true" />
 									<div className="cs-tile-emoji-wrap">
 										<span className="cs-tile-emoji">{config.emoji}</span>

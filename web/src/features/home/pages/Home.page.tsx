@@ -47,7 +47,7 @@ const ANNOUNCEMENT_IDS = ANNOUNCEMENTS.map((announcement) => announcement.id);
 
 const HomePage: React.FC = () => {
 	const navigate = useNavigate();
-	const { welcomeMessage } = useHomePage();
+	useHomePage();
 	const user = useUserStore((state) => state.user);
 	const firstName = user?.first_name?.trim() || "champion";
 	const { data: dailyMissions } = useDailyMissions();
@@ -113,7 +113,6 @@ const HomePage: React.FC = () => {
 			    ouvre les missions du jour, la boîte aux lettres les actualités. */}
 			<div className="hp-world">
 				<MiloSchoolCard
-					welcome={welcomeMessage}
 					firstName={firstName}
 					streak={user?.streak}
 					weakSubject={difficultSubjects[0]?.subject}

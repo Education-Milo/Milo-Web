@@ -88,7 +88,6 @@ function useTypewriter(text: string, instant: boolean) {
 
 export interface MiloSchoolCardProps extends MiloSchoolContext {
 	/** Titre d'accueil (« Bonsoir, Tinky ! 🌙 ») */
-	welcome: string;
 	missions: MissionsSummary;
 	onOpenMissions: () => void;
 	onOpenNews: () => void;
@@ -99,7 +98,6 @@ export interface MiloSchoolCardProps extends MiloSchoolContext {
 }
 
 const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
-	welcome,
 	missions,
 	onOpenMissions,
 	onOpenNews,
@@ -375,9 +373,15 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 				<div className="ecl-flash" />
 			</div>
 
+			{/* Titre Luckiest avec un seul mot en orange, puis le chapeau.
+			    Plus de « Bon après-midi » : Milo salue déjà dans sa bulle. */}
 			<header className="ecl-hello">
-				<h1 className="ecl-hello-title">{welcome}</h1>
-				<p className="ecl-hello-sub">Prêt à conquérir de nouveaux défis aujourd'hui ?</p>
+				<div className="ecl-hello-titles">
+					<h1 className="ecl-hello-title">
+						Salut <span className="ecl-hl">{firstName}</span> !
+					</h1>
+					<p className="ecl-hello-sub">Entre en classe, relève tes missions ou ouvre ton courrier.</p>
+				</div>
 			</header>
 
 			{/* Raccourcis : visibles sur écran étroit (la pancarte et la boîte
@@ -399,7 +403,6 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 				<button type="button" className="ecl-quick-btn" onClick={onOpenMissions} aria-label={missionsLabel}>
 					<Target size={18} strokeWidth={2.6} aria-hidden="true" />
 					<span>Missions</span>
-					{missions.pending > 0 && <b className="ecl-quick-count">{missions.pending}</b>}
 				</button>
 				<button
 					type="button"

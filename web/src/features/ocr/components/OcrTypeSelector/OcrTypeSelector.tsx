@@ -38,7 +38,6 @@ export const OcrTypeSelector: React.FC<OcrTypeSelectorProps> = ({
 						aria-label={`Sélectionner ${option.label}`}
 						style={{ animationDelay: `${0.05 * index}s` }}
 					>
-						<div className="ocr-tile-bg" aria-hidden="true" />
 						<div className="ocr-tile-shine" aria-hidden="true" />
 
 						<div className="ocr-tile-emoji-wrap">

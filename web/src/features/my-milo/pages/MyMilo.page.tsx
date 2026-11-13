@@ -38,6 +38,8 @@ import CosmeticVisual from "@features/milo-shop/components/CosmeticVisual.compon
 import { formatMiloros } from "@features/milo-shop/utils/format";
 import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
 import DuelWheel from "@features/my-milo/components/DuelWheel.component";
+import InterestsEditor from "@features/interests/components/InterestsEditor.component";
+import MiloConfirm from "@shared/components/MiloConfirm.component";
 import MiloBubble from "@features/my-milo/components/MiloBubble.component";
 import { PoofSmoke } from "@features/my-milo/components/MiloPoof.component";
 import { POOF_TIMING, pirouetteAt } from "@features/my-milo/utils/miloPoof";
@@ -392,7 +394,12 @@ const MyMiloPage: React.FC = () => {
 		);
 	};
 
+	// « Tout enlever » demande confirmation : un clic de trop vidait la tenue et la roue
+	const [confirmUnequip, setConfirmUnequip] = useState(false);
+	const equippedCount = equippedByType.size + wheelUsed;
+
 	const unequipAll = () => {
+		setConfirmUnequip(false);
 		if (isBusy) return;
 		/// Pirouette et pouf de fumée, seulement si Milo porte quelque chose
 		if (equippedByType.size > 0 && !calm) {
@@ -494,14 +501,9 @@ const MyMiloPage: React.FC = () => {
 						transition={{ duration: 0.45, ease: "easeOut" }}
 					>
 						<div className="mm-head__copy">
-							<span className="mm-eyebrow">
-								<i aria-hidden="true" />
-								Ton casier
-							</span>
-							<h1 className="mm-title">
-								Mon <span className="mm-hl">Milo</span>
-							</h1>
-							<p className="mm-lead">Touche une case autour de Milo pour changer sa tenue, puis prépare ta roue de duel.</p>
+							{/* Charte : jamais tout le titre en orange, il reste à l'encre */}
+							<h1 className="mm-title">Personnalisation</h1>
+							<p className="mm-lead">Habille Milo, prépare ta roue de duel et dis-lui ce que tu aimes.</p>
 						</div>
 
 						<div className="mm-head__side">
@@ -526,7 +528,7 @@ const MyMiloPage: React.FC = () => {
 								<button
 									type="button"
 									className="mm-btn mm-btn--ghost"
-									onClick={unequipAll}
+									onClick={() => setConfirmUnequip(true)}
 									disabled={isBusy}
 									title="Retire la tenue complète et la roue. Tes objets restent dans ton casier."
 								>
@@ -709,7 +711,47 @@ const MyMiloPage: React.FC = () => {
 							</div>
 						</motion.section>
 					</main>
+
+					{/* ---------- Centres d'intérêt : Milo s'en sert pour personnaliser les exercices ---------- */}
+					<motion.section
+						className="mm-interests"
+						aria-labelledby="mm-interests-title"
+						initial={calm ? false : { opacity: 0, y: 22 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.25 }}
+					>
+						<header className="mm-interests__head">
+							<h2 id="mm-interests-title" className="mm-h2">Centres d'intérêt</h2>
+							<p className="mm-interests__hint">
+								Milo s'en sert pour créer des exercices qui parlent de ce que tu aimes.
+							</p>
+						</header>
+						<InterestsEditor />
+					</motion.section>
 				</div>
+
+				<MiloConfirm
+					isOpen={confirmUnequip}
+					title="Tout enlever ?"
+					message={
+						<>
+							<p>
+								{equippedCount > 0 ? (
+									<>
+										Milo va retirer <b>toute sa tenue</b> et vider <b>ta roue de duel</b>.
+									</>
+								) : (
+									<>Milo ne porte rien pour l'instant.</>
+								)}
+							</p>
+							<p>Pas d'inquiétude : tes objets restent dans ton casier, tu pourras les remettre quand tu veux.</p>
+						</>
+					}
+					confirmLabel="Oui, tout enlever"
+					cancelLabel="Non, je garde"
+					onConfirm={unequipAll}
+					onCancel={() => setConfirmUnequip(false)}
+				/>
 
 				<AnimatePresence>
 					{pickerProps && (

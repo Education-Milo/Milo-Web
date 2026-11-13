@@ -34,7 +34,7 @@
 	--surface-2: var(--milo-creme);
 	--text: var(--milo-encre);
 	--text-2: #6E5546;
-	--text-3: #A08A7C;        /* Texte désactivé / indications (dérivé de --text-2) */
+	--text-3: #7F6858;        /* Indications (dérivé de --text-2) : 4,8:1 sur crème, conforme WCAG AA */
 	--line: #F1DFCB;
 	--accent: var(--milo-orange);
 	--accent-light: #FF7C52;  /* Orange éclairci (dégradés, survol) */
@@ -65,11 +65,41 @@
 /* ============================================================
    BASE
    ============================================================ */
+/* Accessibilité (WCAG 2.2 AA, public collégien 11-15 ans) :
+   - texte courant à 16 px minimum, interligne 1,5 ;
+   - le zoom navigateur reste actif (tailles en rem) ;
+   - pas de texte secondaire sous 12 px. */
+html { font-size: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Application élève (connecté) : base à 18 px au lieu de 16. Toutes les
+   tailles étant en rem, textes, champs et boutons grandissent ensemble ;
+   la landing garde l'échelle de sa charte. Le navigateur peut toujours
+   zoomer par-dessus (on reste en %, jamais en px). */
+html.milo-app { font-size: 112.5%; }
+
 body {
 	font-family: var(--f-text);
+	font-size: 1.0625rem;
+	line-height: 1.5;
 	color: var(--text);
 	background: var(--bg);
 	-webkit-font-smoothing: antialiased;
+}
+
+/* Loi de proximité : un titre et le paragraphe qui le suit forment un bloc.
+   :where() garde une spécificité nulle pour que chaque page puisse affiner. */
+:where(h1, h2, h3, h4, h5, h6) { line-height: 1.2; }
+:where(h1, h2, h3, h4, h5, h6) + :where(p) { margin-top: 0.25em; }
+
+/* Mouvements réduits : on coupe les animations décoratives si l'élève
+   l'a demandé dans son système (vestibulaire, TDAH, épilepsie). */
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }
 
 a { color: var(--accent-text); }

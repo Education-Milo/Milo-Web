@@ -88,10 +88,6 @@ const QuizBoardLoader: React.FC<QuizBoardLoaderProps> = ({ onCancel }) => {
 
 			{/* Texte : titre, étapes cochées, bulle de Milo */}
 			<div className="cls-qload-copy">
-				<span className="cls-chalk-eyebrow">
-					<i />
-					Quiz de la leçon
-				</span>
 				<ChalkTitle text="Milo prépare ton quiz !" highlight="quiz" className="cls-board-title cls-qload-title" />
 
 				<ol className="cls-qload-steps">

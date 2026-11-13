@@ -35,7 +35,6 @@ const ConfirmDeleteFriendModal: React.FC<ConfirmDeleteFriendModalProps> = ({
 				exit={{ scale: 0.8, opacity: 0 }}
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="modal-glow" />
 				<div className="friends-confirm-icon">
 					<UserX size={28} />
 				</div>

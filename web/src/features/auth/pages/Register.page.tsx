@@ -40,7 +40,6 @@ const Register: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
 
 			<AuthHeader
 				onBack={() => navigate("/register")}

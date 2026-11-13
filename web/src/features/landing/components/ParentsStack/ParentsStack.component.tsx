@@ -69,7 +69,6 @@ const ParentsStack: React.FC = () => {
 				{PARENT_FEATURES.map((feature, i) => (
 					<article key={feature.title} className="lp-stack-card" style={{ "--i": i } as React.CSSProperties}>
 						<div className="lp-stack-card__copy">
-							<span className="lp-stack-card__num">{String(i + 1).padStart(2, "0")}</span>
 							<h3 className="lp-display">{feature.title}</h3>
 							<p className="lp-lead">{feature.description}</p>
 						</div>

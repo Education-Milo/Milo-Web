@@ -49,11 +49,11 @@
 	font-weight: 600;
 	color: var(--milo-encre);
 	margin-bottom: 0.25rem;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 }
 
 .achievement-info p {
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: var(--text-2);
 }
 
@@ -163,7 +163,7 @@
 
 .child-info p {
 	margin: 0;
-	font-size: 0.875rem;
+	font-size: 1rem;
 	color: var(--text-2);
 }
 
@@ -191,11 +191,11 @@
 .stat-value {
 	font-weight: 700;
 	color: var(--milo-encre);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 }
 
 .stat-label {
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	color: var(--text-2);
 }
 
@@ -218,7 +218,7 @@
 }
 
 .progress-text {
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	color: var(--text-2);
 }
 
@@ -276,7 +276,7 @@
 }
 
 .stat-card-content h3 {
-	font-size: 0.875rem;
+	font-size: 1rem;
 	color: var(--text-2);
 	margin: 0 0 0.5rem 0;
 	font-weight: 500;

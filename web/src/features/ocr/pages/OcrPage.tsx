@@ -5,7 +5,6 @@ import { OcrFileUploader } from "@features/ocr/components/OcrFileUploader/OcrFil
 import { OcrActionModal } from "../components/OcrActionModal/OcrActionModal";
 import { useOcrStore } from "../store/ocr.store";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import { Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import miloGreeting from "/buttonGo.webp";
 import "@features/ocr/styles/OcrScreen.css";
@@ -50,15 +49,10 @@ const OcrPage: React.FC = () => {
 				<div className="ocr-content">
 					{/* ─── Hero ─── */}
 					<section className="ocr-hero">
-						<div className="ocr-hero-halo" aria-hidden="true" />
 						<div className="ocr-hero-left">
 							<img src={miloGreeting} alt="Milo" className="ocr-hero-mascot" />
 						</div>
 						<div className="ocr-hero-center">
-							<div className="ocr-hero-chip">
-								<Sparkles size={14} />
-								<span>Import intelligent</span>
-							</div>
 							<h1 className="ocr-hero-title">Importer un document</h1>
 							<p className="ocr-hero-sub">
 								Scanne tes cours, exercices ou bulletins et laisse Milo les

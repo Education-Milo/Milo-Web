@@ -8,6 +8,7 @@ import {
 	alternateIdlesOnLoop,
 	applyAngelCircleGlow,
 	applyEquippedAccessories,
+	findAction,
 	MILO_MODEL_PATH,
 	prepareMiloScene,
 	updateAngelCircleGlow,
@@ -80,6 +81,9 @@ interface MiloModelProps {
 	activeAnimation: string;
 }
 
+/// Réactions jouées par l'easter egg (clic sur Milo)
+const EASTER_EGG_CLIPS = ["67", "HatLook", "Hello"];
+
 function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
 	/// Copie dédiée à la salle de classe : la scène du .glb est partagée avec
@@ -128,6 +132,41 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 		if (nextAction) loopTo(nextAction);
 	}, [actions, activeAnimation, loopTo]);
 
+	/// Easter egg : un clic sur Milo joue une réaction au hasard, puis il
+	/// reprend ce qu'il faisait. Volontairement discret : pas de curseur
+	/// « main » ni d'indication, c'est une surprise à découvrir.
+	const activeRef = useRef(activeAnimation);
+	activeRef.current = activeAnimation;
+	const reacting = useRef<THREE.AnimationAction | null>(null);
+
+	useEffect(() => {
+		const onFinished = (event: { action: THREE.AnimationAction }) => {
+			if (event.action !== reacting.current) return;
+			reacting.current = null;
+			const back = actions[activeRef.current];
+			if (back) loopTo(back);
+		};
+		mixer.addEventListener("finished", onFinished);
+		return () => mixer.removeEventListener("finished", onFinished);
+	}, [mixer, actions, loopTo]);
+
+	const playEasterEgg = useCallback(() => {
+		if (reacting.current) return;
+		const pool = EASTER_EGG_CLIPS.map((name) => findAction(actions, name)).filter(
+			(action): action is THREE.AnimationAction => Boolean(action),
+		);
+		if (pool.length === 0) return;
+		const action = pool[Math.floor(Math.random() * pool.length)];
+		const prev = currentAction.current;
+		action.reset();
+		action.setLoop(THREE.LoopOnce, 1);
+		action.clampWhenFinished = true;
+		action.play();
+		if (prev && prev !== action) prev.crossFadeTo(action, 0.3, true);
+		currentAction.current = action;
+		reacting.current = action;
+	}, [actions]);
+
 	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
 	useEffect(
 		() => alternateIdlesOnLoop(mixer, actions, () => currentAction.current, loopTo),
@@ -149,7 +188,13 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	});
 
 	return (
-		<group ref={group}>
+		<group
+			ref={group}
+			onClick={(e) => {
+				e.stopPropagation();
+				playEasterEgg();
+			}}
+		>
 			<primitive object={scene} scale={[0.45, 0.45, 0.45]} position={[2.2, -2.3, 1.4]} rotation={[0, -0.4, 0]} />
 		</group>
 	);
@@ -392,8 +437,12 @@ const DeskItem: React.FC<{
 	label: string;
 	/** Change à chaque ajout : l'objet fait un petit bond sur le bureau */
 	bumpKey?: number;
+	/** L'autre objet du bureau est en main : celui-ci ne réagit plus. Sinon,
+	 *  un clic à côté de la feuille tombait sur le post-it resté derrière,
+	 *  ce qui reposait la feuille pour ouvrir les notes (et inversement). */
+	locked?: boolean;
 	children: React.ReactNode;
-}> = ({ config, isHeld, onPick, label, bumpKey, children }) => {
+}> = ({ config, isHeld, onPick, label, bumpKey, locked = false, children }) => {
 	const groupRef = useRef<THREE.Group>(null);
 	const glowRef = useRef<THREE.Mesh>(null);
 	const paperRef = useRef<THREE.Mesh>(null);
@@ -464,8 +513,9 @@ const DeskItem: React.FC<{
 		// Posé, un halo respire doucement pour inviter à cliquer
 		if (glowRef.current) {
 			const material = glowRef.current.material as THREE.MeshBasicMaterial;
-			const idle = 0.16 + 0.12 * Math.sin(state.clock.elapsedTime * 2.2);
-			const goal = isHeld ? 0 : isHovered ? 0.7 : Math.max(idle, bump.current);
+			// Plus marqué qu'avant (0,16 ± 0,12) : on comprenait mal qu'on pouvait cliquer
+			const idle = 0.34 + 0.2 * Math.sin(state.clock.elapsedTime * 2.2);
+			const goal = isHeld || locked ? 0 : isHovered ? 0.7 : Math.max(idle, bump.current);
 			material.opacity = THREE.MathUtils.damp(material.opacity, goal, 8, delta);
 		}
 	});
@@ -485,7 +535,7 @@ const DeskItem: React.FC<{
 				ref={paperRef}
 				name={label}
 				onPointerOver={(e) => {
-					if (isHeld) return;
+					if (isHeld || locked) return;
 					e.stopPropagation();
 					setIsHovered(true);
 					document.body.style.cursor = "pointer";
@@ -495,7 +545,7 @@ const DeskItem: React.FC<{
 					document.body.style.cursor = "auto";
 				}}
 				onClick={(e) => {
-					if (isHeld) return;
+					if (isHeld || locked) return;
 					e.stopPropagation();
 					setIsHovered(false);
 					document.body.style.cursor = "auto";
@@ -649,10 +699,17 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 				</NightBakeBoundary>
 				<MiloModel modelPath={MILO_MODEL_PATH} activeAnimation={activeAnimation} />
 				<Board visible={boardVisible}>{board}</Board>
-				<DeskItem config={SHEET} isHeld={isEditing} onPick={onSheetClick} label="feuille">
+				<DeskItem config={SHEET} isHeld={isEditing} locked={isNotesOpen} onPick={onSheetClick} label="feuille">
 					{sheet}
 				</DeskItem>
-				<DeskItem config={POSTIT} isHeld={isNotesOpen} onPick={onNotesClick} label="post-it" bumpKey={notesBump}>
+				<DeskItem
+					config={POSTIT}
+					isHeld={isNotesOpen}
+					locked={isEditing}
+					onPick={onNotesClick}
+					label="post-it"
+					bumpKey={notesBump}
+				>
 					{notes}
 				</DeskItem>
 				{introDone ? (

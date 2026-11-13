@@ -286,7 +286,7 @@
 	background: linear-gradient(135deg, var(--ok) 0%, var(--ok) 100%);
 	color: #fff;
 	font-weight: 700;
-	font-size: 0.68rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.9px;
 	text-transform: uppercase;
 	box-shadow: 0 4px 12px rgba(35, 135, 75, 0.4);
@@ -302,12 +302,12 @@
 	background: var(--hp-accent-soft);
 	border: 1px solid rgba(255, 84, 29, 0.15);
 	font-weight: 700;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	flex-shrink: 0;
 }
 .hp-progress-value {
 	color: var(--hp-accent-dark);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 }
 .hp-progress-sep {
 	color: var(--hp-text-muted);
@@ -388,7 +388,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	font-size: 0.68rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	color: var(--hp-accent);
 	text-transform: uppercase;
@@ -396,7 +396,7 @@
 }
 .hp-announcement-title {
 	margin: 0;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	font-weight: 700;
 	color: var(--hp-text-main);
 	letter-spacing: -0.2px;
@@ -404,7 +404,7 @@
 }
 .hp-announcement-text {
 	margin: 2px 0 0;
-	font-size: 0.82rem;
+	font-size: 1rem;
 	font-weight: 600;
 	color: var(--hp-text-soft);
 	line-height: 1.4;
@@ -495,7 +495,7 @@
 }
 .hp-mission-title {
 	margin: 0;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	font-weight: 700;
 	color: var(--hp-text-main);
 	letter-spacing: -0.2px;
@@ -509,7 +509,7 @@
 	padding: 4px 11px;
 	border-radius: 100px;
 	font-weight: 700;
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.4px;
 	flex-shrink: 0;
 }
@@ -525,7 +525,7 @@
 }
 .hp-mission-desc {
 	margin: 0;
-	font-size: 0.82rem;
+	font-size: 1rem;
 	font-weight: 600;
 	color: var(--hp-text-soft);
 	line-height: 1.4;
@@ -537,7 +537,7 @@
 	margin-top: 4px;
 	padding: 3px 10px;
 	border-radius: 100px;
-	font-size: 0.62rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	letter-spacing: 0.7px;
 	text-transform: uppercase;
@@ -581,7 +581,7 @@
 	align-items: center;
 	gap: 8px;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--hp-text-main);
 }
 
@@ -609,7 +609,7 @@
 	cursor: pointer;
 	font-family: var(--hp-font);
 	font-weight: 600;
-	font-size: 0.94rem;
+	font-size: 1.0625rem;
 	color: var(--hp-text-main);
 	transition: all 0.35s var(--hp-spring);
 }
@@ -644,7 +644,7 @@
 	);
 	color: #fff;
 	font-weight: 700;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	flex-shrink: 0;
 }
 
@@ -658,7 +658,7 @@
 }
 
 .hp-bulletin-summary-text {
-	font-size: 0.88rem;
+	font-size: 1rem;
 	color: var(--hp-ok-dark);
 	font-weight: 600;
 }
@@ -699,10 +699,10 @@
 		border-radius: 12px;
 	}
 	.hp-announcement-title {
-		font-size: 0.9rem;
+		font-size: 1rem;
 	}
 	.hp-announcement-text {
-		font-size: 0.78rem;
+		font-size: 0.875rem;
 	}
 	.hp-mission {
 		padding: 14px;
@@ -715,10 +715,10 @@
 		border-radius: 12px;
 	}
 	.hp-mission-title {
-		font-size: 0.92rem;
+		font-size: 1.0625rem;
 	}
 	.hp-mission-desc {
-		font-size: 0.78rem;
+		font-size: 0.875rem;
 	}
 }
 @media (max-width: 380px) {

@@ -17,7 +17,6 @@ const CourseSwitcher: React.FC<CourseSwitcherProps> = ({ isOpen, onClose, curren
 		onClose={onClose}
 		variant="center"
 		size="xl"
-		eyebrow="Mes cours"
 		title="Changer de leçon"
 		icon={<img src="/landing/emoji/books.webp" alt="" />}
 	>

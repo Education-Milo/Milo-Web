@@ -26,10 +26,6 @@ const ProfileHero: React.FC<ProfileHeroProps> = ({ firstName, lastName, username
 	return (
 		<section className="pf-hero">
 			<div className="pf-hero-copy">
-				<span className="pf-eyebrow">
-					<i aria-hidden="true" />
-					Mon profil
-				</span>
 
 				<h1 className="pf-hero-title">
 					{firstName} <span className="pf-hl">{lastName}</span>

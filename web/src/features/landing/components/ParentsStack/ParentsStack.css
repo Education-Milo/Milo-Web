@@ -39,16 +39,6 @@
 	padding: clamp(8px, 2vw, 24px);
 }
 
-.lp-stack-card__num {
-	align-self: flex-start;
-	font-family: var(--lp-f-display);
-	font-size: 1.2rem;
-	color: var(--lp-braise);
-	background: var(--lp-creme);
-	border-radius: 999px;
-	padding: 0.35rem 0.9rem 0.2rem;
-}
-
 .lp-stack-card h3 {
 	font-size: clamp(2rem, 3.8vw, 3.2rem);
 	margin: 1rem 0 0.8rem;
@@ -87,10 +77,6 @@
 	.lp-stack-card__copy {
 		text-align: center;
 		align-items: center;
-	}
-
-	.lp-stack-card__num {
-		align-self: center;
 	}
 
 	.lp-stack-card__art {

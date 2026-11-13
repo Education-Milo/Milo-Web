@@ -107,7 +107,7 @@
 }
 
 .chapter-lesson-count {
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-2);
   text-transform: uppercase;
@@ -176,7 +176,7 @@
   gap: 14px;
   padding: 14px 18px;
   font-family: var(--f-text);
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   color: var(--milo-encre);
   border-radius: 16px;
@@ -270,7 +270,7 @@
   }
 
   .chapter-lesson-count {
-    font-size: 0.7rem;
+    font-size: 0.875rem;
   }
 
   .chapter-chevron {
@@ -285,7 +285,7 @@
 
   .lesson-item {
     padding: 12px 14px;
-    font-size: 0.95rem;
+    font-size: 1.0625rem;
     gap: 10px;
   }
 }

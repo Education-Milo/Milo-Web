@@ -59,7 +59,6 @@ const ForgotPassword: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
 
 			<AuthHeader onBack={handleBackToLogin} backLabel="Retour à la connexion" />
 

@@ -22,7 +22,7 @@
 	border: 2px solid var(--lp-line);
 	color: var(--lp-ink-2);
 	font-weight: 600;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 }
 
 .lg-meta svg { color: var(--lp-braise); }
@@ -144,7 +144,7 @@
 	border-radius: 14px;
 	color: var(--lp-ink-2);
 	font-weight: 600;
-	font-size: 0.93rem;
+	font-size: 1.0625rem;
 	line-height: 1.35;
 	text-decoration: none;
 	transition: background-color 0.2s ease, color 0.2s ease;
@@ -160,7 +160,7 @@
 	border-radius: 50%;
 	background: var(--lp-creme);
 	color: var(--lp-braise);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 }
 
@@ -286,7 +286,7 @@
 	width: 100%;
 	min-width: 560px;
 	border-collapse: collapse;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	line-height: 1.5;
 }
 
@@ -391,7 +391,7 @@
 .lg-doc-card:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--lp-sable); }
 .lg-doc-card-icon { width: 44px; height: 44px; margin-bottom: 0.2rem; }
 .lg-doc-card-title { font-weight: 700; line-height: 1.3; }
-.lg-doc-card-text { color: var(--lp-ink-2); font-size: 0.9rem; line-height: 1.4; }
+.lg-doc-card-text { color: var(--lp-ink-2); font-size: 1rem; line-height: 1.4; }
 
 /* Encart final. L'espace avant le footer est un padding du panneau : une
    marge basse sur ce dernier élément traverserait le panneau (fusion des
@@ -451,5 +451,5 @@
 	.lg-facts > div { grid-template-columns: minmax(0, 1fr); }
 	.lg-dos,
 	.lg-prose .lg-helplines { grid-template-columns: minmax(0, 1fr); }
-	.lg-section-num { width: 34px; height: 34px; border-radius: 12px; font-size: 1rem; }
+	.lg-section-num { width: 34px; height: 34px; border-radius: 12px; font-size: 1.0625rem; }
 }

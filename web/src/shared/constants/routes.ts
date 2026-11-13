@@ -28,6 +28,8 @@ export const ROUTES = {
 	STATS: "/stats",
 	DUELS: "/duels",
 	OCR: "/ocr",
+	/** Ex-« Mon Milo » : tenue, roue de duel et centres d'intérêt (/mon-milo y redirige) */
+	PERSONALIZATION: "/personnalisation",
 
 	PARENT: {
 		DASHBOARD: "/parent/dashboard",
@@ -50,5 +52,6 @@ export const ROUTES = {
 		DEMO: "/admin/demo",
 		MODERATION: "/admin/moderation",
 		PROGRAMMES: "/admin/programmes",
+		WELLBEING: "/admin/bien-etre",
 	},
 } as const;

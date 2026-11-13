@@ -6,8 +6,6 @@ interface ClassSheetProps {
 	isOpen: boolean;
 	onClose: () => void;
 	title: string;
-	/** Petit texte au-dessus du titre */
-	eyebrow?: string;
 	icon?: React.ReactNode;
 	/** « side » : panneau latéral · « center » : fenêtre centrée */
 	variant?: "side" | "center";
@@ -25,7 +23,6 @@ const ClassSheet: React.FC<ClassSheetProps> = ({
 	isOpen,
 	onClose,
 	title,
-	eyebrow,
 	icon,
 	variant = "side",
 	size = "md",
@@ -111,7 +108,6 @@ const ClassSheet: React.FC<ClassSheetProps> = ({
 						<header className="cls-sheet-head">
 							{icon && <span className="cls-sheet-icon">{icon}</span>}
 							<div className="cls-sheet-titles">
-								{eyebrow && <span className="cls-eyebrow">{eyebrow}</span>}
 								<h2 id={titleId}>{title}</h2>
 							</div>
 							<button type="button" className="cls-icon-btn" onClick={onClose} aria-label="Fermer">

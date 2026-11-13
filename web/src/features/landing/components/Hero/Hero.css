@@ -27,30 +27,6 @@
 	mask-image: radial-gradient(ellipse 70% 60% at 70% 45%, #000 20%, transparent 75%);
 }
 
-.lp-hero__blob {
-	position: absolute;
-	border-radius: 50%;
-	filter: blur(70px);
-}
-
-.lp-hero__blob--1 {
-	width: 44vw;
-	height: 44vw;
-	background: var(--lp-sable);
-	top: -14vw;
-	left: -12vw;
-	opacity: 0.7;
-}
-
-.lp-hero__blob--2 {
-	width: 36vw;
-	height: 36vw;
-	background: var(--lp-mandarine);
-	bottom: -16vw;
-	right: -6vw;
-	opacity: 0.22;
-}
-
 .lp-hero__floats {
 	position: absolute;
 	inset: 0;
@@ -315,7 +291,7 @@
 	display: grid;
 	justify-items: center;
 	gap: 0.4rem;
-	font-size: 0.82rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--lp-ink-2);
 	text-decoration: none;
@@ -403,7 +379,7 @@
 
 	.lp-hero__bubble {
 		min-width: 0;
-		font-size: 0.85rem;
+		font-size: 0.875rem;
 		left: 0;
 	}
 }

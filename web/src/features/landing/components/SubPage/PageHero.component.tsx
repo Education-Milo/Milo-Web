@@ -12,8 +12,6 @@ interface PageHeroProps {
 	milo?: string;
 	/// Deux icônes qui flottent de part et d'autre
 	floats: [Emoji3DName, Emoji3DName];
-	/// Petite étiquette au-dessus du titre
-	eyebrow: string;
 	title: React.ReactNode;
 	lead: React.ReactNode;
 	/// Contenu sous l'accroche (ex. barre de recherche)
@@ -22,7 +20,7 @@ interface PageHeroProps {
 
 /// En-tête des pages secondaires : le décor du hero de la Vitrine (pois,
 /// halos, icônes 3D flottantes) autour d'un titre révélé lettre par lettre.
-const PageHero: React.FC<PageHeroProps> = ({ icon, milo, floats, eyebrow, title, lead, children }) => {
+const PageHero: React.FC<PageHeroProps> = ({ icon, milo, floats, title, lead, children }) => {
 	const root = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -45,8 +43,6 @@ const PageHero: React.FC<PageHeroProps> = ({ icon, milo, floats, eyebrow, title,
 		<header className="lp-page-hero" ref={root}>
 			<div className="lp-page-hero__bg" aria-hidden="true">
 				<div className="lp-page-hero__dots" />
-				<div className="lp-page-hero__blob lp-page-hero__blob--1" />
-				<div className="lp-page-hero__blob lp-page-hero__blob--2" />
 				<Emoji3D name={floats[0]} className="lp-page-hero__float lp-page-hero__float--left" />
 				<Emoji3D name={floats[1]} className="lp-page-hero__float lp-page-hero__float--right" />
 			</div>
@@ -57,9 +53,6 @@ const PageHero: React.FC<PageHeroProps> = ({ icon, milo, floats, eyebrow, title,
 				) : (
 					<Emoji3D name={icon} className="lp-page-hero__icon" loading="eager" />
 				)}
-				<span className="lp-page-hero__eyebrow" data-hero-up>
-					{eyebrow}
-				</span>
 				<h1 className="lp-display lp-page-hero__title">{title}</h1>
 				<p className="lp-lead lp-page-hero__lead" data-hero-up>
 					{lead}

@@ -8,39 +8,6 @@
 	flex-direction: column;
 }
 
-.auth-mesh {
-	position: fixed;
-	inset: 0;
-	z-index: 0;
-	pointer-events: none;
-	overflow: hidden;
-}
-
-.auth-mesh::before,
-.auth-mesh::after {
-	content: "";
-	position: absolute;
-	border-radius: 50%;
-	filter: blur(120px);
-	opacity: 0.35;
-}
-
-.auth-mesh::before {
-	width: 500px;
-	height: 500px;
-	background: var(--milo-orange);
-	top: -150px;
-	left: -120px;
-}
-
-.auth-mesh::after {
-	width: 500px;
-	height: 500px;
-	background: var(--milo-orange);
-	bottom: -150px;
-	right: -120px;
-}
-
 .auth-main {
 	flex: 1;
 	display: flex;

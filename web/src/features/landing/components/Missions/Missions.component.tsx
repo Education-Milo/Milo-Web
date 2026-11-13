@@ -35,7 +35,7 @@ const Missions: React.FC = () => {
 				const texts = q(".lp-mission__text");
 				// Titre découpé en mots (révélés un par un), puis le reste du texte
 				const titles = texts.map((t) => SplitText.create(t.querySelector("h3"), { type: "words" }).words);
-				const bodies = texts.map((t) => Array.from(t.querySelectorAll(".lp-mission__badge, .lp-lead, .lp-mission__tags li")));
+				const bodies = texts.map((t) => Array.from(t.querySelectorAll(".lp-lead, .lp-mission__tags li")));
 				const decor = q(".lp-mission__decor").map((d) => Array.from(d.children));
 				const dots = q(".lp-missions__dots button");
 				const setCurrent = (index: number) =>
@@ -93,8 +93,6 @@ const Missions: React.FC = () => {
 						.to(texts[prev], { autoAlpha: 0, duration: 0.01 }, t0 + 0.4)
 						.to(decor[prev], { scale: 0, rotate: 40, duration: 0.22, stagger: 0.03, ease: "power2.in" }, t0 + 0.04)
 						.to(devices[prev], { rotateY: -28, rotateX: 10, xPercent: -14, scale: 0.78, opacity: 0, duration: 0.55, ease: "power2.in" }, t0 + 0.12)
-						// Le halo de couleur tourne et change de côté
-						.to(q(".lp-missions__glow"), { rotate: 140 * i, xPercent: i % 2 ? 14 : -10, scale: i % 2 ? 1.15 : 0.95, duration: 0.7, ease: "power2.inOut" }, t0 + 0.1)
 						// Entrée : portail circulaire, la tablette atterrit en 3D
 						.to(screens[i], { clipPath: "circle(100% at 50% 50%)", duration: 0.55, ease: "power3.inOut" }, t0 + 0.2)
 						.fromTo(
@@ -197,7 +195,6 @@ const Missions: React.FC = () => {
 				</div>
 
 				<div className="lp-missions__list">
-					<div className="lp-missions__glow" aria-hidden="true" />
 					{MISSIONS.map((mission, i) => (
 						<article className="lp-mission" key={mission.navLabel}>
 							<div className="lp-mission__device-wrap">
@@ -214,9 +211,6 @@ const Missions: React.FC = () => {
 								</div>
 							</div>
 							<div className="lp-mission__text">
-								<span className="lp-mission__badge">
-									MISSION {i + 1}/{count}
-								</span>
 								<h3 className="lp-display">
 									{mission.title} <span className="lp-hl">{mission.highlight}</span>
 								</h3>

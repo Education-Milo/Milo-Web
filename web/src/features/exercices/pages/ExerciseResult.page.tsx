@@ -136,7 +136,6 @@ const ExerciseResultScreen: React.FC = () => {
     return (
       <QuizLoader
         variant="qcm"
-        eyebrow="QCM terminé"
         title="Milo compte tes points"
         highlight="points"
         messages={["Je vérifie tes réponses…", "Je calcule ton score…", "Encore une seconde !"]}

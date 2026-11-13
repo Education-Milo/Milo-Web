@@ -95,30 +95,36 @@
 	z-index: 3;
 	top: var(--ecl-gap);
 	left: var(--ecl-gap);
-	max-width: min(520px, 60cqw);
-	padding: 14px 20px 15px;
-	border-radius: 22px;
-	background: rgba(255, 255, 255, 0.78);
-	backdrop-filter: blur(12px);
-	-webkit-backdrop-filter: blur(12px);
-	border: 2px solid rgba(255, 255, 255, 0.95);
-	box-shadow: 0 12px 28px -16px rgba(40, 70, 20, 0.45);
+	display: grid;
+	justify-items: start;
+	gap: 12px; /* étiquette écartée du titre, titre collé à son texte */
+	max-width: min(500px, 60cqw);
+	padding: 16px 22px 18px;
+	border: 2px solid var(--line);
+	border-radius: 28px;
+	background: #FFFFFF;
+	/* Carte de la charte : tranche sable pleine, ombre chaude douce */
+	box-shadow: 0 6px 0 #F1D2B2, 0 22px 34px -22px rgba(42, 24, 16, 0.55);
 	pointer-events: none;
 	animation: ecl-drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
 }
+.ecl-hello-titles { display: grid; gap: 4px; }
 .ecl-hello-title {
 	margin: 0;
 	font-family: var(--f-display);
 	font-weight: 400;
-	font-size: clamp(22px, 2.2vw, 30px);
-	line-height: 1.1;
-	letter-spacing: 0.4px;
+	font-size: clamp(1.75rem, 2.6vw, 2.4rem);
+	line-height: 0.95;
+	letter-spacing: 0.01em;
 	color: var(--milo-encre);
 }
+/* Un seul mot en orange avec le relief braise (charte) */
+.ecl-hl { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--milo-braise); }
 .ecl-hello-sub {
-	margin: 5px 0 0;
-	font-size: 15px;
+	margin: 0;
+	font-size: 1.0625rem;
 	font-weight: 500;
+	line-height: 1.4;
 	color: var(--text-2);
 }
 @keyframes ecl-drop {
@@ -159,7 +165,7 @@
 	-webkit-backdrop-filter: blur(10px);
 	box-shadow: 0 10px 22px -12px rgba(40, 70, 20, 0.45);
 	font-family: var(--f-text);
-	font-size: 15px;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	color: var(--milo-encre);
 	cursor: pointer;
@@ -202,7 +208,7 @@
 	background: var(--milo-orange);
 	border: 2px solid #fff;
 	color: #fff;
-	font-size: 12px;
+	font-size: 1.0625rem;
 	font-weight: 700;
 	line-height: 18px;
 	text-align: center;
@@ -238,7 +244,7 @@
 	background: #fff;
 	border: 2px solid var(--line);
 	box-shadow: 0 14px 28px -14px rgba(40, 70, 20, 0.5);
-	font-size: 14px;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	line-height: 1.32;
 	transform: translateY(-100%) scale(0.9);
@@ -263,7 +269,7 @@
 	color: #fff;
 	font-family: var(--f-display);
 	font-weight: 400;
-	font-size: 18px;
+	font-size: 1.125rem;
 	letter-spacing: 0.4px;
 	transition-delay: 0s;
 }
@@ -350,13 +356,13 @@
 		width: var(--ecl-bubble-w);
 		max-width: none;
 		border-radius: 18px;
-		font-size: 13px;
+		font-size: 1.0625rem;
 		padding: 9px 12px;
 		transform-origin: 50% 100%;
 		text-align: center;
 	}
 	.ecl-bubble.is-loud {
-		font-size: 16px;
+		font-size: 1.0625rem;
 	}
 	.ecl-bubble::after {
 		right: auto;
@@ -366,7 +372,9 @@
 	}
 }
 
-@container (max-width: 560px) {
+/* 900 px (et non 560) : avec le texte agrandi, titre et raccourcis se
+   chevauchaient dès qu'un écran de portable réduisait la scène. */
+@container (max-width: 900px) {
 	.ecl-hello,
 	.ecl-quick {
 		--ecl-gap: 14px;
@@ -376,8 +384,9 @@
 		padding: 10px 14px 11px;
 		border-radius: 18px;
 	}
+	.ecl-hello { gap: 8px; }
 	.ecl-hello-title {
-		font-size: 21px;
+		font-size: 1.5rem;
 	}
 	.ecl-hello-sub {
 		display: none;
@@ -395,7 +404,7 @@
 	.ecl-quick-btn {
 		height: 38px;
 		padding: 0 13px 0 11px;
-		font-size: 14px;
+		font-size: 1.0625rem;
 	}
 }
 

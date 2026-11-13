@@ -14,7 +14,7 @@ interface ClassSelectorProps {
 
 export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelectorProps ) => (
   <div style={{ width: '100%' }}>
-    <p style={{ fontSize: '0.85rem', color: 'var(--milo-encre)', marginBottom: '0.6rem', fontWeight: '700' }}>
+    <p style={{ fontSize: '0.875rem', color: 'var(--milo-encre)', marginBottom: '0.6rem', fontWeight: '700' }}>
       Sélectionne ta classe
     </p>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
@@ -40,6 +40,6 @@ export const ClassSelector = ({ value, onChange, error, disabled }: ClassSelecto
         </button>
       ))}
     </div>
-    {error && <p style={{ color: 'var(--ko)', fontSize: '0.8rem', fontWeight: 600, marginTop: '6px' }}>{error}</p>}
+    {error && <p style={{ color: 'var(--ko)', fontSize: '0.875rem', fontWeight: 600, marginTop: '6px' }}>{error}</p>}
   </div>
 );

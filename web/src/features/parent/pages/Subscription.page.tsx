@@ -134,7 +134,7 @@ const SubscriptionPage: React.FC = () => {
 										<p style={{ fontWeight: "bold", color: "var(--milo-encre)" }}>
 											Visa se terminant par 4242
 										</p>
-										<p style={{ color: "var(--text-2)", fontSize: "0.9rem" }}>
+										<p style={{ color: "var(--text-2)", fontSize: "0.9375rem" }}>
 											Expiration : 12/28
 										</p>
 									</div>
@@ -161,7 +161,7 @@ const SubscriptionPage: React.FC = () => {
 									<h2 className="section-title">🧾 Facturation</h2>
 								</div>
 								<div style={{ marginBottom: "1rem" }}>
-									<p style={{ color: "var(--text-2)", fontSize: "0.9rem" }}>
+									<p style={{ color: "var(--text-2)", fontSize: "0.9375rem" }}>
 										Prochain prélèvement :
 									</p>
 									<p

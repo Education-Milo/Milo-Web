@@ -1260,12 +1260,8 @@ const MissionsBoard: React.FC<{ bridge: MiloSchoolBridge; missions: MissionsSumm
 					</mesh>
 				))}
 			</group>
-			<FloatingBadge
-				value={missions.pending > 0 ? String(missions.pending) : ""}
-				position={[0.5, 1.55, 0.1]}
-				animate={animate}
-				hidden={() => bridge.zoom > 0.02}
-			/>
+			{/* Pas de pastille « missions restantes » : le panneau affiche déjà
+			    « 0/3 », la bulle en plus faisait une fausse notification */}
 			<mesh position={[0, 0.85, 0.05]} visible={false} {...partHandlers(bridge, "missions")}>
 				<boxGeometry args={[1.25, 1.75, 0.45]} />
 			</mesh>

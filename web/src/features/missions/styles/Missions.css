@@ -1,0 +1,597 @@
+/* ============================================================
+   PAGE MISSIONS (refonte, charte landing)
+   Crème en fond, cartes blanches à tranche sable, aplats feu,
+   Luckiest Guy pour les titres, icônes 3D, pilules en relief.
+   Pas d'étiquettes à pastille, pas de halos : du relief et du
+   mouvement à l'arrivée seulement (rien ne bouge en continu).
+   ============================================================ */
+.mp {
+	--mp-sable: #F1D2B2;
+	--mp-line: var(--line);
+	--mp-feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+	--mp-dots-braise: radial-gradient(rgba(199, 58, 12, 0.14) 1.4px, transparent 1.4px);
+	--mp-dots-creme: radial-gradient(rgba(255, 244, 229, 0.25) 1.4px, transparent 1.4px);
+	/* Couleurs utilisées par les confettis partagés */
+	--qz-mandarine: #F4922A;
+	--qz-vermillon: #ED3C1D;
+	--qz-sable: #F1D2B2;
+	--qz-creme: #F6EBDF;
+	min-height: 100vh;
+	background: var(--bg);
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+
+.mp-wrap {
+	--mp-gap: clamp(28px, 3vw, 40px);
+	display: grid;
+	gap: var(--mp-gap);
+	max-width: 1240px;
+	margin: 0 auto;
+	padding: clamp(20px, 3vw, 40px) clamp(16px, 3vw, 40px) 72px;
+}
+
+.mp-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Un ou deux mots en orange avec le relief braise (charte) */
+.mp-hl { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--milo-braise); }
+
+.mp-h2 {
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(1.7rem, 2.6vw, 2.25rem);
+	line-height: 0.95;
+	letter-spacing: 0.01em;
+}
+
+/* ================= EN-TÊTE ================= */
+.mp-hero {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 24px;
+	padding: clamp(22px, 2.6vw, 34px) clamp(24px, 3vw, 40px);
+	border: 2px solid var(--mp-line);
+	border-radius: 36px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mp-sable);
+	overflow: hidden;
+}
+.mp-hero::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: var(--mp-dots-braise);
+	background-size: 28px 28px;
+	-webkit-mask-image: linear-gradient(90deg, transparent 35%, #000 100%);
+	mask-image: linear-gradient(90deg, transparent 35%, #000 100%);
+	pointer-events: none;
+}
+.mp-hero__copy { position: relative; display: grid; gap: 20px; justify-items: start; }
+.mp-hero__titles { display: grid; gap: 8px; }
+.mp-hero__title {
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(2rem, 3.4vw, 2.9rem);
+	line-height: 0.92;
+	letter-spacing: 0.01em;
+	text-wrap: balance;
+}
+.mp-hero__lead { margin: 0; max-width: 40em; font-size: 1.0625rem; line-height: 1.5; color: var(--text-2); }
+.mp-hero__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.mp-hero__facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.mp-fact {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 14px;
+	border: 2px solid var(--mp-line);
+	border-radius: 999px;
+	background: #fff;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-2);
+}
+.mp-fact svg { color: var(--milo-orange); }
+
+.mp-hero__art { position: relative; display: grid; place-items: center; }
+.mp-hero__archer {
+	width: clamp(220px, 24vw, 320px);
+	height: auto;
+	filter: drop-shadow(0 18px 18px rgba(120, 50, 10, 0.22));
+}
+.mp-hero__progress {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 12px 24px 12px 12px;
+	border-radius: 28px;
+	background: var(--milo-creme);
+	width: fit-content;
+	max-width: 100%;
+}
+.mp-hero__progress-copy { display: grid; gap: 4px; }
+.mp-hero__progress-sub { margin: 0; font-size: 1rem; color: var(--text-2); }
+.mp-hero__progress-title { margin: 0; font-size: 1.125rem; font-weight: 700; line-height: 1.25; }
+
+.mp-ring { position: relative; display: grid; place-items: center; }
+.mp-ring svg { position: absolute; inset: 0; }
+.mp-ring__center { position: relative; display: grid; justify-items: center; gap: 4px; }
+.mp-ring__value { font-family: var(--f-display); font-size: 1.9rem; line-height: 0.9; color: var(--milo-encre); }
+.mp-ring__value small { font-size: 0.5em; color: var(--text-2); }
+
+
+/* ================= SECTIONS ================= */
+.mp-section { display: grid; gap: 22px; }
+.mp-section__head { display: grid; gap: 6px; }
+.mp-section__head--row { grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+.mp-section__titles { display: grid; gap: 6px; }
+.mp-section__sub { margin: 0; font-size: 1.0625rem; color: var(--text-2); }
+
+/* ================= CARTES MISSION =================
+   Cartes horizontales empilées : 3 missions par jour, pas de case vide
+   dans une grille, et une liste plus courte à parcourir. */
+.mp-grid { display: grid; gap: 16px; }
+
+.mp-mission {
+	position: relative;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 22px;
+	padding: 20px 22px;
+	border: 2px solid var(--mp-line);
+	border-radius: 30px;
+	background: #fff;
+	box-shadow: 0 8px 0 var(--mp-sable);
+}
+.mp-mission--skeleton { min-height: 120px; background: linear-gradient(100deg, #fff 30%, var(--milo-creme) 50%, #fff 70%) 0 0 / 300% 100%; animation: mp-shimmer 1.4s linear infinite; }
+
+.mp-mission__icon {
+	display: grid;
+	place-items: center;
+	width: 76px;
+	height: 76px;
+	border-radius: 24px;
+	background: var(--milo-creme);
+	box-shadow: 0 5px 0 var(--mp-sable);
+}
+.mp-mission__icon img { width: 50px; height: 50px; filter: drop-shadow(0 5px 5px rgba(120, 50, 10, 0.22)); }
+
+.mp-mission__body { display: grid; gap: 12px; min-width: 0; }
+.mp-mission__titles { display: grid; gap: 2px; }
+.mp-mission__title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.25; }
+.mp-mission__desc { margin: 0; font-size: 1rem; line-height: 1.45; color: var(--text-2); }
+.mp-mission__level { display: inline-flex; gap: 1px; color: var(--mp-sable); }
+.mp-mission__level .is-on { color: var(--milo-orange); fill: var(--milo-orange); }
+
+.mp-mission__progress { display: flex; align-items: center; gap: 12px; max-width: 420px; }
+.mp-bar { flex: 1; height: 14px; border-radius: 999px; background: var(--milo-creme); overflow: hidden; box-shadow: inset 0 2px 0 rgba(120, 50, 10, 0.08); }
+.mp-bar__fill { height: 100%; border-radius: inherit; background: var(--mp-feu); }
+.mp-mission__count { font-family: var(--f-display); font-size: 1.2rem; line-height: 1; }
+
+.mp-mission__side { display: grid; justify-items: end; gap: 12px; }
+.mp-mission__rewards { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.mp-reward {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px 6px 8px;
+	border-radius: 999px;
+	background: var(--pompon-bg);
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: var(--milo-encre);
+}
+.mp-reward img { width: 22px; height: 22px; }
+
+.mp-mission__actions { display: flex; align-items: center; gap: 10px; }
+.mp-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 52px;
+	padding: 0 22px;
+	border-radius: 999px;
+	font: 700 1.0625rem/1 var(--f-text);
+	white-space: nowrap;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mp-btn--primary { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.mp-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--milo-braise); }
+.mp-btn--primary:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--milo-braise); }
+.mp-btn svg { transition: transform 0.2s ease; }
+.mp-btn:hover svg { transform: translateX(3px); }
+.mp-icon-btn {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 52px;
+	height: 52px;
+	border: 2px solid var(--mp-line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	cursor: pointer;
+	box-shadow: 0 5px 0 var(--mp-sable);
+	transition: transform 0.15s ease, color 0.15s ease;
+}
+.mp-icon-btn:hover:not(:disabled) { transform: translateY(-2px) rotate(-30deg); color: var(--milo-encre); }
+.mp-icon-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--mp-sable); }
+.mp-icon-btn:disabled { opacity: 0.5; cursor: wait; }
+.mp-spin { animation: mp-spin 0.9s linear infinite; }
+
+.mp-mission__done { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; font-size: 1.0625rem; font-weight: 700; color: var(--ok); }
+
+/* Terminée : carte apaisée + tampon sur l'icône */
+.mp-mission.is-done { background: #FFFCF8; }
+.mp-mission.is-done .mp-bar__fill { background: var(--ok); }
+.mp-stamp {
+	position: absolute;
+	top: 10px;
+	left: 72px;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	border: 3px solid var(--ok);
+	border-radius: 50%;
+	background: var(--ok-bg);
+	color: var(--ok);
+}
+
+/* Bonus : grande carte sur l'aplat feu */
+.mp-bonus .mp-mission.is-featured {
+	padding: 24px 24px;
+	border: 0;
+	background: var(--mp-feu);
+	color: #fff;
+	box-shadow: 0 8px 0 var(--milo-braise);
+	overflow: hidden;
+}
+.mp-bonus .mp-mission.is-featured::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: var(--mp-dots-creme);
+	background-size: 28px 28px;
+	pointer-events: none;
+}
+.mp-bonus .is-featured > * { position: relative; }
+.mp-bonus .is-featured .mp-mission__icon { width: 92px; height: 92px; background: #FFF4E5; box-shadow: 0 6px 0 var(--milo-braise); }
+.mp-bonus .is-featured .mp-mission__icon img { width: 62px; height: 62px; }
+.mp-bonus .is-featured .mp-mission__title { font-family: var(--f-display); font-weight: 400; font-size: 1.7rem; line-height: 0.95; }
+.mp-bonus .is-featured .mp-mission__desc { color: #FFF4E5; }
+.mp-bonus .is-featured .mp-bar { background: rgba(255, 244, 229, 0.3); box-shadow: none; }
+.mp-bonus .is-featured .mp-bar__fill { background: #FFF4E5; }
+.mp-bonus .is-featured .mp-reward { background: rgba(255, 244, 229, 0.92); }
+.mp-bonus .is-featured .mp-btn--primary { background: #FFF4E5; color: var(--milo-braise); box-shadow: 0 6px 0 var(--milo-braise); }
+.mp-bonus .is-featured .mp-mission__done { color: #FFF4E5; }
+.mp-bonus .is-featured .mp-stamp { border-color: #FFF4E5; background: rgba(255, 244, 229, 0.2); color: #FFF4E5; }
+
+/* ================= MISE EN PAGE : MISSIONS + COLONNE BADGES =================
+   Les badges vivent dans une colonne latérale qui reste visible pendant
+   le défilement : la page est bien plus courte qu'avec la collection
+   entière en bas. */
+.mp-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 360px;
+	align-items: stretch; /* les deux colonnes ont la même hauteur */
+	gap: clamp(20px, 2.4vw, 28px);
+}
+/* Le titre « Missions du jour » est au-dessus des deux colonnes, collé à elles */
+.mp-layout__head { margin-bottom: calc(18px - var(--mp-gap)); }
+.mp-main { display: flex; flex-direction: column; min-width: 0; }
+/* Les cartes se partagent la hauteur : missions et badges finissent ensemble */
+.mp-list { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+.mp-list > .mp-mission,
+.mp-list > .mp-bonus { flex: 1 1 auto; }
+.mp-list > .mp-bonus { display: flex; }
+.mp-list > .mp-bonus > .mp-mission { flex: 1; }
+.mp-aside { display: flex; flex-direction: column; gap: 20px; }
+
+/* ---------- Badge du mois (carte feu) ---------- */
+.mp-month {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	grid-template-columns: 118px minmax(0, 1fr);
+	align-items: center;
+	gap: 16px;
+	padding: 18px 20px;
+	overflow: hidden;
+	border-radius: 32px;
+	background: var(--mp-feu);
+	color: #fff;
+	box-shadow: 0 10px 0 var(--milo-braise);
+}
+.mp-month__dots { position: absolute; inset: 0; z-index: -1; background-image: var(--mp-dots-creme); background-size: 28px 28px; }
+.mp-month__badge {
+	width: 118px;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	filter: drop-shadow(0 16px 14px rgba(90, 20, 0, 0.35));
+}
+.mp-month__badge img { display: block; width: 100%; height: auto; }
+.mp-month__badge:focus-visible { outline: 3px solid #FFF4E5; outline-offset: 6px; border-radius: 24px; }
+.mp-month__copy { display: grid; gap: 10px; min-width: 0; }
+.mp-month__titles { display: grid; gap: 2px; }
+.mp-month__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.4rem; line-height: 0.95; letter-spacing: 0.01em; text-wrap: balance; }
+.mp-month__text { margin: 0; font-size: 0.9375rem; line-height: 1.4; color: #FFF4E5; }
+.mp-month__progress { display: flex; align-items: center; gap: 10px; }
+.mp-bar--light { height: 12px; background: rgba(255, 244, 229, 0.28); box-shadow: none; }
+.mp-bar__fill--light { background: #FFF4E5; }
+.mp-month__count { font-family: var(--f-display); font-size: 1.1rem; line-height: 1; }
+.mp-month__left { margin: 0; font-size: 0.9375rem; color: #FFF4E5; }
+.mp-month__left b { color: #fff; }
+
+/* ---------- Collection : aperçu des 12 badges ---------- */
+.mp-collection {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 20px 20px 22px;
+	border: 2px solid var(--mp-line);
+	border-radius: 36px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mp-sable);
+}
+.mp-collection__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.mp-collection__titles { display: grid; gap: 4px; }
+.mp-collection__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.6rem; line-height: 0.95; letter-spacing: 0.01em; }
+.mp-collection__sub { margin: 0; font-size: 0.9375rem; color: var(--text-2); }
+.mp-mini-badges { flex: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mp-mini-badge {
+	display: block;
+	width: 100%;
+	padding: 4px;
+	border: 0;
+	border-radius: 18px;
+	background: none;
+	cursor: pointer;
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+}
+.mp-mini-badge img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.22)); }
+.mp-mini-badge:hover { transform: translateY(-3px) scale(1.06); background: var(--milo-creme); }
+.mp-mini-badge:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 2px; }
+.mp-mini-badge.is-missed img { filter: grayscale(1) opacity(0.5); }
+.mp-mini-badge.is-locked img { filter: brightness(0) opacity(0.1); }
+.mp-mini-badge.is-in-progress { box-shadow: inset 0 0 0 3px var(--milo-orange); }
+.mp-btn--ghost {
+	border: 2px solid var(--mp-line);
+	background: #fff;
+	color: var(--milo-encre);
+	box-shadow: 0 6px 0 var(--mp-sable);
+}
+.mp-btn--ghost:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--mp-sable); }
+.mp-btn--ghost:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--mp-sable); }
+
+/* ================= COLLECTION COMPLÈTE (pop-up « Voir tout ») ================= */
+.mp-collection-count {
+	display: inline-flex;
+	align-items: baseline;
+	font-family: var(--f-display);
+	font-size: 2.6rem;
+	line-height: 1;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+.mp-collection-count small { font-size: 0.55em; color: var(--text-2); text-shadow: none; }
+
+.mp-all-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 900; /* la fiche d'un badge (1000) s'ouvre par-dessus */
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	overflow-y: auto;
+	background: rgba(42, 24, 16, 0.6);
+}
+.mp-all {
+	position: relative;
+	display: grid;
+	gap: 20px;
+	width: min(980px, 100%);
+	max-height: calc(100dvh - 32px);
+	padding: 28px 28px 30px;
+	overflow-y: auto;
+	border: 2px solid var(--mp-line);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mp-sable), 0 40px 70px -30px rgba(42, 24, 16, 0.6);
+}
+.mp-all__head { display: flex; align-items: flex-end; gap: 16px; padding-right: 56px; }
+.mp-all__titles { display: grid; flex: 1; gap: 6px; }
+.mp-all__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(1.9rem, 3vw, 2.4rem); line-height: 0.95; letter-spacing: 0.01em; }
+.mp-all__sub { margin: 0; font-size: 1.0625rem; color: var(--text-2); }
+.mp-all__close { top: 20px; right: 20px; }
+.mp-all .mp-badges { padding: 0; border: 0; box-shadow: none; }
+
+.mp-badges {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 34px 24px;
+	padding: clamp(24px, 3vw, 40px);
+	border: 2px solid var(--mp-line);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mp-sable);
+	perspective: 900px;
+}
+.mp-badge {
+	display: grid;
+	justify-items: center;
+	gap: 4px;
+	padding: 14px 10px 12px;
+	border: 0;
+	border-radius: 28px;
+	background: none;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+.mp-badge:hover { background: var(--milo-creme); }
+.mp-badge:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 2px; }
+.mp-badge__art { position: relative; display: block; width: 100%; max-width: 220px; transform-style: preserve-3d; }
+.mp-badge__art img { display: block; width: 100%; height: auto; filter: drop-shadow(0 12px 12px rgba(120, 50, 10, 0.25)); }
+.mp-badge__month { margin-top: 8px; font-family: var(--f-display); font-size: 1.5rem; line-height: 1; letter-spacing: 0.01em; }
+.mp-badge__state { font-size: 1rem; font-weight: 600; color: var(--text-2); }
+
+.mp-badge.is-earned .mp-badge__state { color: var(--ok); }
+.mp-badge.is-in-progress .mp-badge__state { color: var(--milo-braise); }
+.mp-badge.is-in-progress:not(.is-calm) .mp-badge__art { animation: mp-bounce-in 0.8s 0.6s both; }
+.mp-badge.is-in-progress .mp-badge__art::after {
+	content: "";
+	position: absolute;
+	inset: -6px;
+	border: 3px dashed var(--milo-orange);
+	border-radius: 30%;
+	pointer-events: none;
+}
+.mp-badge.is-missed .mp-badge__art img { filter: grayscale(1) opacity(0.55); }
+.mp-badge.is-locked .mp-badge__art img { filter: brightness(0) opacity(0.12); }
+.mp-badge.is-locked { cursor: default; }
+.mp-badge__lock {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: var(--text-3);
+}
+
+.mp-empty { display: grid; justify-items: center; gap: 10px; padding: 32px; border-radius: 32px; background: #fff; border: 2px solid var(--mp-line); text-align: center; color: var(--text-2); }
+.mp-empty img { width: 60px; height: 60px; }
+.mp-empty p { margin: 0; }
+
+/* ================= FICHE BADGE =================
+   Scène à hauteur fixe : soleil et badge y tiennent entiers, rien ne
+   déborde sur le texte ni sous le bouton de fermeture. */
+.mp-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	overflow-y: auto;
+	background: rgba(42, 24, 16, 0.55);
+	backdrop-filter: blur(4px);
+}
+.mp-modal {
+	position: relative;
+	width: min(480px, 100%);
+	overflow: hidden;
+	border: 2px solid var(--mp-line);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mp-sable), 0 40px 70px -30px rgba(42, 24, 16, 0.6);
+	text-align: center;
+}
+.mp-modal__close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--mp-line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	cursor: pointer;
+	box-shadow: 0 4px 0 var(--mp-sable);
+	transition: transform 0.15s ease;
+}
+.mp-modal__close:hover { transform: translateY(-2px); color: var(--milo-encre); }
+.mp-modal__scene {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: center;
+	height: 320px;
+	background: var(--milo-creme);
+	border-bottom: 2px solid var(--mp-line);
+	perspective: 900px;
+	overflow: hidden;
+}
+.mp-modal__scene::before { content: ""; position: absolute; inset: 0; z-index: -2; background-image: var(--mp-dots-braise); background-size: 28px 28px; }
+.mp-modal__sun {
+	position: absolute;
+	z-index: -1;
+	width: 260px;
+	height: 260px;
+	border-radius: 50%;
+	background: var(--mp-feu);
+	box-shadow: inset 0 -14px 0 rgba(199, 58, 12, 0.35);
+}
+.mp-modal__badge { position: relative; width: 220px; height: auto; filter: drop-shadow(0 16px 14px rgba(90, 20, 0, 0.35)); }
+.mp-modal.is-missed .mp-modal__badge { filter: grayscale(1) opacity(0.6); }
+.mp-modal.is-locked .mp-modal__badge { filter: brightness(0) opacity(0.25); }
+.mp-modal__titles { display: grid; gap: 6px; padding: 26px 32px 32px; }
+.mp-modal__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2rem; line-height: 0.95; letter-spacing: 0.01em; }
+.mp-modal__story { margin: 0; font-size: 1.0625rem; line-height: 1.5; color: var(--text-2); text-wrap: balance; }
+.mp-modal__status {
+	justify-self: center;
+	margin: 12px 0 0;
+	padding: 8px 16px;
+	border-radius: 999px;
+	background: var(--pompon-bg);
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--milo-braise);
+}
+.mp-modal.is-earned .mp-modal__status { background: var(--ok-bg); color: var(--ok); }
+.mp-modal.is-missed .mp-modal__status,
+.mp-modal.is-locked .mp-modal__status { background: var(--milo-creme); color: var(--text-2); }
+@media (max-width: 480px) {
+	.mp-modal__scene { height: 250px; }
+	.mp-modal__sun { width: 200px; height: 200px; }
+	.mp-modal__badge { width: 170px; }
+	.mp-modal__titles { padding: 22px 22px 26px; }
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes mp-spin { to { transform: rotate(360deg); } }
+@keyframes mp-shimmer { to { background-position: -150% 0; } }
+@keyframes mp-bounce-in { 0% { transform: scale(0.6); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1180px) {
+	.mp-layout { grid-template-columns: minmax(0, 1fr); }
+	.mp-aside { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: stretch; }
+}
+@media (max-width: 900px) {
+	.mp-badges { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+	.mp-hero { grid-template-columns: minmax(0, 1fr); }
+	.mp-hero__art { min-height: 0; }
+}
+@media (max-width: 760px) {
+	.mp-mission { grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
+	.mp-mission__side { grid-column: 1 / -1; justify-items: stretch; }
+	.mp-mission__rewards { justify-content: flex-start; }
+	.mp-mission__actions .mp-btn--primary { flex: 1; }
+	.mp-mission__icon { width: 64px; height: 64px; }
+	.mp-mission__icon img { width: 42px; height: 42px; }
+	.mp-stamp { left: 58px; }
+}
+@media (max-width: 560px) {
+	.mp-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 18px 12px; gap: 20px 8px; }
+	.mp-badge__month { font-size: 1.25rem; }
+	.mp-all { padding: 22px 16px 24px; border-radius: 32px; }
+	.mp-all__head { flex-wrap: wrap; }
+
+}

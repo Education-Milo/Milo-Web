@@ -82,7 +82,6 @@ const ExerciseScreen: React.FC = () => {
     return (
       <QuizLoader
         variant="qcm"
-        eyebrow="Préparation du QCM"
         title="Milo prépare tes questions"
         highlight="questions"
         messages={LOADING_MESSAGES}

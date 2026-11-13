@@ -59,7 +59,7 @@ const RedirectScreen: React.FC = () => {
 			<p
 				style={{
 					color: "var(--text-2)",
-					fontSize: "0.875rem",
+					fontSize: "0.9375rem",
 					margin: 0,
 				}}
 			>

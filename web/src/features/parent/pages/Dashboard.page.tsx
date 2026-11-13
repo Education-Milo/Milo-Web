@@ -86,7 +86,7 @@ const CircularProgress = ({
 				>
 					{label}
 				</div>
-				<p style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>
+				<p style={{ color: "var(--text-3)", fontSize: "0.875rem" }}>
 					Objectif : {max}h / semaine
 				</p>
 			</div>
@@ -332,7 +332,7 @@ const Dashboard: React.FC = () => {
 												>
 													{statsData.exercisesDone >=
 														statsData.exercisesGoal && (
-														<span style={{ fontSize: "0.8rem" }}>⭐</span>
+														<span style={{ fontSize: "0.875rem" }}>⭐</span>
 													)}
 												</div>
 											</div>

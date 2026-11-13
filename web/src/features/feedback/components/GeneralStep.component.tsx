@@ -32,7 +32,6 @@ const GeneralStep: React.FC<GeneralStepProps> = ({ value, onChange, features, fe
 		<header className="fb-step__head">
 			<Emoji3D name="trophy" className="fb-step__icon" />
 			<div>
-				<p className="fb-step__eyebrow">Dernière étape</p>
 				<h2 className="lp-display fb-step__title">Ton avis général</h2>
 				<p className="fb-step__goal">Prends un peu de recul sur tout ce que tu as testé.</p>
 			</div>

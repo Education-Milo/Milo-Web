@@ -7,13 +7,11 @@ import type { FeatureFeedback } from "@features/feedback/types";
 
 interface FeatureStepProps {
 	feature: BetaFeature;
-	index: number;
-	total: number;
 	value: FeatureFeedback;
 	onChange: (patch: Partial<FeatureFeedback>) => void;
 }
 
-const FeatureStep: React.FC<FeatureStepProps> = ({ feature, index, total, value, onChange }) => {
+const FeatureStep: React.FC<FeatureStepProps> = ({ feature, value, onChange }) => {
 	const toggleIssue = (issue: string) =>
 		onChange({
 			issues: value.issues.includes(issue) ? value.issues.filter((i) => i !== issue) : [...value.issues, issue],
@@ -24,9 +22,6 @@ const FeatureStep: React.FC<FeatureStepProps> = ({ feature, index, total, value,
 			<header className="fb-step__head">
 				<Emoji3D name={feature.icon} className="fb-step__icon" />
 				<div>
-					<p className="fb-step__eyebrow">
-						Feature {index} sur {total}
-					</p>
 					<h2 className="lp-display fb-step__title">{feature.title}</h2>
 					<p className="fb-step__goal">{feature.goal}</p>
 				</div>

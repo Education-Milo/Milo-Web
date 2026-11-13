@@ -117,7 +117,6 @@ const BetaJourneyPage: React.FC = () => {
 		<PageHero
 			icon="fox"
 			floats={["sparkles", "rocket"]}
-			eyebrow="Bêta testeurs"
 			title={
 				<>
 					Ton avis fait <span className="lp-hl">Milo</span>
@@ -201,8 +200,6 @@ const BetaJourneyPage: React.FC = () => {
 						<FeatureStep
 							key={currentFeature.id}
 							feature={currentFeature}
-							index={step}
-							total={features.length}
 							value={draft.features[currentFeature.id]}
 							onChange={(patch) => updateFeature(currentFeature.id, patch)}
 						/>

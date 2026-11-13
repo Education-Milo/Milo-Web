@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
 import { getSubjectVisuals } from "@shared/constants/courses";
@@ -30,15 +30,10 @@ const CoursesScreen: React.FC = () => {
 			<div className="cs-page">
 				{/* --- HERO --- */}
 				<section className="cs-hero">
-					<div className="cs-hero-halo" aria-hidden="true" />
 					<div className="cs-hero-left">
 						<img src={miloGreeting} alt="Milo" className="cs-hero-mascot" />
 					</div>
 					<div className="cs-hero-center">
-						<div className="cs-hero-chip">
-							<Sparkles size={14} />
-							<span>Étape 1 / 4</span>
-						</div>
 						<h1 className="cs-hero-title">
 							Bonjour {user?.first_name || "toi"} !
 						</h1>
@@ -115,7 +110,6 @@ const CoursesScreen: React.FC = () => {
 										title={isLocked ? "Cours verrouillé" : undefined}
 										style={{ animationDelay: `${0.05 * index}s` }}
 									>
-										<div className="cs-tile-bg" aria-hidden="true" />
 										<div className="cs-tile-shine" aria-hidden="true" />
 
 										<div className="cs-tile-emoji-wrap">

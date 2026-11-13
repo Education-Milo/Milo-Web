@@ -36,7 +36,7 @@
 
 .lp-plan__name {
 	font-weight: 700;
-	font-size: 0.9rem;
+	font-size: 0.9375rem;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 	color: var(--lp-braise);
@@ -117,7 +117,7 @@
 	background: #fff;
 	color: var(--lp-braise);
 	font-weight: 700;
-	font-size: 0.85rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.05em;
 	white-space: nowrap;
 	box-shadow: 0 4px 0 var(--lp-braise);

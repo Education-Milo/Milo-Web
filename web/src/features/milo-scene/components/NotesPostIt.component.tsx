@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowDown, Check, Copy, Plus, X } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowDown, Check, Copy, MousePointerClick, Plus, X } from "lucide-react";
 import type { MemoItem } from "@features/milo-scene/store/memo.store";
 import { plainText } from "@features/milo-scene/utils/lessonText";
 
@@ -38,10 +38,12 @@ const NotesPostIt: React.FC<NotesPostItProps> = ({
 	const [copied, setCopied] = useState(false);
 	const listRef = useRef<HTMLUListElement>(null);
 
-	// Une nouvelle note : on la montre en bas de la liste
+	// Les plus récentes en haut : une nouvelle note apparaît tout de suite,
+	// on fait défiler vers le bas pour relire les plus anciennes
+	const ordered = useMemo(() => [...items].reverse(), [items]);
 	useEffect(() => {
 		const list = listRef.current;
-		if (list) list.scrollTop = list.scrollHeight;
+		if (list) list.scrollTop = 0;
 	}, [items.length, isHeld]);
 
 	if (!isHeld) {
@@ -51,6 +53,10 @@ const NotesPostIt: React.FC<NotesPostItProps> = ({
 				<p className="cls-postit-idle-title">Mes notes</p>
 				<span className="cls-postit-idle-count">
 					{items.length === 0 ? "vide" : `${items.length} note${items.length > 1 ? "s" : ""}`}
+				</span>
+				<span className="cls-idle-hint">
+					<MousePointerClick size={28} aria-hidden="true" />
+					Clique pour ouvrir
 				</span>
 			</div>
 		);
@@ -107,8 +113,8 @@ const NotesPostIt: React.FC<NotesPostItProps> = ({
 					</p>
 				</div>
 			) : (
-				<ul className="cls-postit-list" ref={listRef}>
-					{items.map((item) => (
+				<ul className="cls-postit-list" ref={listRef} aria-label="Mes notes, des plus récentes aux plus anciennes">
+					{ordered.map((item) => (
 						<li key={item.id} className="cls-postit-note">
 							<span className="cls-postit-note-src">{item.source}</span>
 							<p>{plainText(item.text)}</p>

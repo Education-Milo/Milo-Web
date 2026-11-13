@@ -36,7 +36,6 @@ const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => (
 		isOpen={isOpen}
 		onClose={onClose}
 		variant="center"
-		eyebrow="La salle de classe"
 		title="Comment ça marche ?"
 		icon={<img src="/landing/emoji/light_bulb.webp" alt="" />}
 		footer={

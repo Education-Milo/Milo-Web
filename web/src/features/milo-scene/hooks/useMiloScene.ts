@@ -11,6 +11,7 @@ import type { MiloFreeChatSession } from "@features/milo-scene/store/freeChat.st
 import { useUserStore } from "@shared/store/user/user.store";
 import { useActivityTracker } from "@shared/hooks/useActivityTracker";
 import { clampText, getAiErrorMessage } from "@shared/lib/aiRequests";
+import { getClassroomExitPath } from "@shared/lib/exitPath";
 import { ROUTES } from "@shared/constants/routes";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -582,7 +583,11 @@ export const useMiloScene = (
 	}, [generateOpenQuestion, parts]);
 
 	// ─── Sorties ─────────────────────────────────────────────────────────────
-	const handleBackToLessons = useCallback(() => navigate(-1), [navigate]);
+	// Retour à la page d'où l'élève est entré en classe, et non d'un cran
+	// d'historique : changer de leçon depuis la classe empile des entrées
+	const handleBackToLessons = useCallback(() => {
+		navigate(getClassroomExitPath() ?? (hasLesson ? ROUTES.COURSES : ROUTES.HOME));
+	}, [navigate, hasLesson]);
 
 	const handleBackToLesson = useCallback(() => {
 		if (!hasLesson) {

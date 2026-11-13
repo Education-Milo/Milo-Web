@@ -188,9 +188,9 @@ export const BETA_FEATURES: BetaFeature[] = [
 	},
 	{
 		id: "boutique",
-		title: "Boutique et Mon Milo",
+		title: "Boutique et Personnalisation",
 		icon: "t_shirt",
-		entry: "Menus « Boutique » et « Mon Milo »",
+		entry: "Menus « Boutique » et « Personnalisation »",
 		goal: "Dépenser tes pièces pour personnaliser ton renard.",
 		tasks: [
 			"Filtre les objets par catégorie et rareté",

@@ -4,6 +4,7 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { WandSparkles, RotateCcw } from "lucide-react";
 import "@features/milo-shop/styles/MiloShop.css";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@shared/constants/routes";
 import { useUserStore } from "@shared/store/user/user.store";
 import { showToast } from "@shared/store/toast/toast.store";
 import {
@@ -130,7 +131,6 @@ const BoutiquePage: React.FC = () => {
 					{/* ---------- En-tête : titre, solde et soleil de Milo ---------- */}
 					<header className="ms-hero">
 						<div className="ms-hero__copy">
-							<span className="ms-eyebrow"><i aria-hidden="true" />La boutique de Milo</span>
 							<h1 className="ms-display ms-hero__title">
 								Habille ton <span className="ms-hl">renard</span>
 							</h1>
@@ -144,7 +144,7 @@ const BoutiquePage: React.FC = () => {
 									<span className="ms-wallet__amount">{formatMiloros(miloroCoin)}</span>
 									<span className="ms-wallet__unit">miloros</span>
 								</div>
-								<button type="button" className="ms-btn ms-btn--ghost" onClick={() => navigate("/mon-milo")}>
+								<button type="button" className="ms-btn ms-btn--ghost" onClick={() => navigate(ROUTES.PERSONALIZATION)}>
 									<WandSparkles size={18} aria-hidden="true" />
 									Personnaliser Milo
 								</button>

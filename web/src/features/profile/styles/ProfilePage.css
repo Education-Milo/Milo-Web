@@ -29,7 +29,7 @@
 	background: var(--pf-creme);
 	color: var(--milo-encre);
 	font-family: var(--f-text);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	line-height: 1.55;
 	-webkit-font-smoothing: antialiased;
 	overflow-x: clip;
@@ -78,32 +78,6 @@
 	}
 }
 
-.pf-eyebrow {
-	justify-self: start;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-	width: fit-content;
-	padding: 0.55em 1em 0.5em;
-	border-radius: 999px;
-	border: 2px solid var(--pf-line);
-	background: #fff;
-	color: var(--milo-braise);
-	font-weight: 600;
-	font-size: 0.82rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	line-height: 1;
-}
-
-.pf-eyebrow i {
-	width: 0.6em;
-	height: 0.6em;
-	border-radius: 50%;
-	background: var(--milo-vert);
-	animation: pf-pulse 1.8s infinite;
-}
-
 @keyframes pf-pulse {
 	0% { box-shadow: 0 0 0 0 rgba(43, 69, 32, 0.45); }
 	70% { box-shadow: 0 0 0 8px rgba(43, 69, 32, 0); }
@@ -112,7 +86,7 @@
 
 .pf-muted {
 	color: var(--text-2);
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 }
 
 /* ---------- Boutons en relief ---------- */
@@ -186,7 +160,7 @@
 	background: none;
 	color: var(--milo-braise);
 	font-weight: 700;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	cursor: pointer;
 }
 
@@ -282,7 +256,7 @@ h1.pf-hero-title {
 	background: #fff;
 	color: var(--milo-encre);
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	cursor: copy;
 	box-shadow: 0 4px 0 var(--edge);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -332,7 +306,7 @@ h1.pf-hero-title {
 	background: var(--milo-vert);
 	color: #fff;
 	font-family: var(--f-display);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	letter-spacing: 0.03em;
 	line-height: 1;
 	white-space: nowrap;
@@ -394,7 +368,7 @@ h1.pf-hero-title {
 
 .pf-level-xp {
 	font-weight: 600;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	color: var(--text-2);
 	font-variant-numeric: tabular-nums;
 }
@@ -466,7 +440,7 @@ h1.pf-hero-title {
 	font-variant-numeric: tabular-nums;
 }
 
-.pf-wallet-unit { font-weight: 600; font-size: 0.9rem; color: var(--text-2); }
+.pf-wallet-unit { font-weight: 600; font-size: 1rem; color: var(--text-2); }
 
 /* ---------- Soleil feu + Milo 3D ---------- */
 .pf-hero-art {
@@ -560,7 +534,7 @@ h1.pf-hero-title {
 	background: none;
 	color: var(--milo-encre);
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	white-space: nowrap;
 	cursor: pointer;
 	transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
@@ -640,7 +614,7 @@ h1.pf-hero-title {
 .pf .pf-panel-range {
 	color: var(--text-2);
 	font-weight: 600;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 }
 
 /* Période : pastilles groupées, l'active en dégradé feu comme la navbar */
@@ -661,7 +635,7 @@ h1.pf-hero-title {
 	background: none;
 	color: var(--milo-encre);
 	font-weight: 700;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	line-height: 1;
 	white-space: nowrap;
 	cursor: pointer;
@@ -757,7 +731,7 @@ h1.pf-hero-title {
 .pf .pf-card-sub {
 	margin-top: 0.15rem;
 	color: var(--text-2);
-	font-size: 0.85rem;
+	font-size: 1rem;
 	line-height: 1.35;
 }
 
@@ -801,7 +775,7 @@ h1.pf-hero-title {
 	background: #fff;
 	color: var(--milo-encre);
 	font-weight: 700;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	cursor: pointer;
 	box-shadow: 0 3px 0 var(--pf-sable);
 	transition: transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
@@ -823,7 +797,7 @@ h1.pf-hero-title {
 .pf-kpi-top .pf-card-icon img { width: 30px; height: 30px; }
 
 .pf-kpi-label {
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	font-weight: 700;
 	color: var(--text-2);
 	line-height: 1.2;
@@ -844,7 +818,7 @@ h1.pf-hero-title {
 	display: grid;
 	gap: 6px;
 	color: var(--text-2);
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 500;
 	line-height: 1.35;
 }
@@ -941,7 +915,7 @@ h1.pf-hero-title {
 	border: 2px dashed var(--pf-line);
 	color: var(--text-2);
 	font-weight: 600;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	line-height: 1.25;
 }
 
@@ -1063,7 +1037,7 @@ h1.pf-hero-title {
 .pf-action:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--pf-sable); }
 .pf-action-icon { width: 40px; height: 40px; margin-bottom: 0.2rem; }
 .pf-action-title { font-weight: 700; }
-.pf-action-text { font-size: 0.85rem; color: var(--text-2); line-height: 1.35; }
+.pf-action-text { font-size: 1rem; color: var(--text-2); line-height: 1.35; }
 
 /* ==========================================================================
    COMPTE : champs, centres d'intérêt, sécurité
@@ -1087,7 +1061,7 @@ h1.pf-hero-title {
 	gap: 8px;
 	padding-left: 0.2rem;
 	font-weight: 700;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	color: var(--milo-encre);
 }
 
@@ -1099,7 +1073,7 @@ h1.pf-hero-title {
 	border-radius: 999px;
 	background: var(--pf-creme);
 	color: var(--text-2);
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 }
 
@@ -1153,7 +1127,7 @@ h1.pf-hero-title {
 	padding: 0;
 	display: grid;
 	gap: 6px;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	font-weight: 600;
 }
 
@@ -1176,7 +1150,7 @@ h1.pf-hero-title {
 	background: var(--pf-creme);
 	border: 2px solid var(--pf-sable);
 	font-weight: 600;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	animation: pf-tag-in 0.35s var(--pf-spring) both;
 }
 
@@ -1208,7 +1182,7 @@ h1.pf-hero-title {
 }
 
 .pf-suggestions { display: grid; gap: 8px; }
-.pf-suggestions .pf-label { color: var(--text-2); font-size: 0.82rem; }
+.pf-suggestions .pf-label { color: var(--text-2); font-size: 1rem; }
 
 .pf-suggestions-list {
 	display: flex;
@@ -1226,7 +1200,7 @@ h1.pf-hero-title {
 	background: #fff;
 	color: var(--text-2);
 	font-weight: 600;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	cursor: pointer;
 	transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
@@ -1276,7 +1250,7 @@ h1.pf-hero-title {
 }
 
 .pf-subtitle {
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -1325,7 +1299,7 @@ h1.pf-hero-title {
 	align-items: center;
 	gap: 0.5em;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--milo-braise);
 }
 
@@ -1373,7 +1347,7 @@ h1.pf-hero-title {
 @media (max-width: 640px) {
 	/* Onglets : rangée défilante, étiquettes plus compactes */
 	.pf-tabs { margin: 0 calc(var(--pf-gutter) * -1); border-radius: 0; border-inline: 0; }
-	.pf-tab { flex: none; height: 48px; padding-right: 1rem; font-size: 0.95rem; }
+	.pf-tab { flex: none; height: 48px; padding-right: 1rem; font-size: 1.0625rem; }
 	.pf-tab-icon { width: 34px; height: 34px; }
 	.pf-tab-icon img { width: 22px; height: 22px; }
 

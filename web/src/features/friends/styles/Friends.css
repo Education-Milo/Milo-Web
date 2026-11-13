@@ -1,3 +1,12 @@
+/* Variables utilisées par toute la page mais jamais déclarées : les
+   couleurs (texte, accent, fond) retombaient sur les valeurs héritées. */
+.friends-viewport {
+	--color-text-main: var(--milo-encre);
+	--color-text-muted: var(--text-2);
+	--color-primary: var(--milo-orange);
+	--color-bg-base: var(--bg);
+}
+
 .friends-viewport {
 	display: flex;
 	flex-direction: column;
@@ -7,19 +16,6 @@
 	overflow: hidden;
 	background-color: var(--color-bg-base);
 	font-family: var(--f-text);
-}
-
-.friends-bg-glow {
-	position: absolute;
-	top: -100px;
-	right: -100px;
-	width: 500px;
-	height: 500px;
-	background: radial-gradient(circle, rgba(255, 84, 29, 0.15) 0%, rgba(255, 84, 29, 0) 70%);
-	border-radius: 50%;
-	pointer-events: none;
-	z-index: 0;
-	animation: floatGlow 10s infinite alternate ease-in-out;
 }
 
 @keyframes floatGlow {
@@ -99,7 +95,7 @@
 	border-radius: 22px;
 	font-family: inherit;
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -220,7 +216,7 @@
 	outline: none !important;
 	background: transparent !important;
 	width: 100%;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--color-text-main);
 	font-family: inherit;
 	margin: 0 !important;
@@ -248,7 +244,7 @@
 	padding: 0.6rem 1.2rem;
 	border-radius: 8px;
 	font-weight: 600;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--text-2);
 	cursor: pointer;
 	z-index: 1;
@@ -281,7 +277,7 @@
 	border-radius: 100px;
 	background: var(--milo-orange);
 	color: #fff;
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	line-height: 1;
 	box-shadow: 0 2px 6px rgba(255, 84, 29, 0.35);
@@ -353,8 +349,6 @@
 	transform: translateY(2px);
 }
 
-
-
 .friend-info {
 	text-align: center;
 	z-index: 1;
@@ -369,7 +363,7 @@
 }
 
 .friend-level {
-	font-size: 0.9rem;
+	font-size: 1rem;
 	color: var(--color-text-muted);
 	background: var(--milo-creme);
 	padding: 0.2rem 0.6rem;
@@ -419,7 +413,7 @@
 }
 
 .friend-interest-chip {
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--color-text-main);
 	background: rgba(255, 84, 29, 0.1);
@@ -449,7 +443,7 @@
 	background: linear-gradient(135deg, var(--ok) 0%, var(--ok) 100%);
 	color: white;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	box-shadow: 0 4px 12px rgba(35, 135, 75, 0.25);
 }
 
@@ -517,7 +511,7 @@
 	flex: 1;
 	gap: 0.5rem;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 }
 
 /* Bouton "épingler" en haut à droite de la carte */
@@ -605,17 +599,6 @@
 	overflow: hidden;
 }
 
-.modal-glow {
-	position: absolute;
-	top: -50px;
-	right: -50px;
-	width: 150px;
-	height: 150px;
-	background: radial-gradient(circle, rgba(255, 84, 29, 0.2) 0%, transparent 70%);
-	border-radius: 50%;
-	pointer-events: none;
-}
-
 .friends-modal h3 {
 	font-size: 1.75rem;
 	font-weight: 700;
@@ -627,7 +610,7 @@
 .friends-modal p {
 	color: var(--color-text-muted);
 	margin: 0;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	line-height: 1.5;
 }
 
@@ -736,7 +719,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 }
 
 .friends-search-result-item .friend-btn-accept {
@@ -751,7 +734,7 @@
 }
 
 .friend-request-sent {
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 700;
 	color: var(--ok);
 	background: var(--ok-bg);
@@ -762,7 +745,7 @@
 }
 
 .friend-request-error {
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 700;
 	color: var(--ko);
 	background: var(--ko-bg);
@@ -786,7 +769,7 @@
 	background: var(--milo-creme);
 	color: var(--text-2);
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	cursor: pointer;
 	transition: all 0.2s;
 }
@@ -804,7 +787,7 @@
 	background: var(--color-primary);
 	color: white;
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	cursor: pointer;
 	transition: all 0.2s;
 	box-shadow: 0 4px 15px rgba(255, 84, 29, 0.3);
@@ -915,7 +898,7 @@
 	border-radius: 14px;
 	border: none;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	cursor: pointer;
 	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }

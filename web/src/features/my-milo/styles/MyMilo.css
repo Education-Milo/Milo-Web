@@ -98,7 +98,7 @@
 .mm-btn--xs {
 	height: 38px;
 	padding: 0 0.9rem;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	box-shadow: inset 0 0 0 2px var(--mm-sable), 0 4px 0 var(--edge);
 }
 .mm-btn--xs:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--mm-sable), 0 6px 0 var(--edge); }
@@ -129,31 +129,7 @@
 	gap: 18px 32px;
 }
 
-.mm-head__copy { display: grid; gap: 0.7rem; justify-items: start; }
-
-/* Étiquette au-dessus du titre (charte : « eyebrow », point vert tableau) */
-.mm-eyebrow {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-	padding: 0.55em 1em 0.5em;
-	border-radius: 999px;
-	background: #fff;
-	border: 2px solid var(--mm-line);
-	font-weight: 600;
-	font-size: 0.82rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	line-height: 1;
-	color: var(--milo-braise);
-}
-.mm-eyebrow i {
-	width: 0.55em;
-	height: 0.55em;
-	border-radius: 50%;
-	background: var(--milo-vert);
-	box-shadow: 0 0 0 4px rgba(43, 69, 32, 0.14);
-}
+.mm-head__copy { display: grid; gap: 0.4rem; justify-items: start; }
 
 /* Titre de page : Luckiest Guy en encre, un seul mot en orange avec le
    relief braise. Pas de texte détouré ni de dégradé (charte landing). */
@@ -174,7 +150,7 @@ h1.mm-title {
 .mm-lead {
 	max-width: 30em;
 	text-wrap: balance;
-	font-size: clamp(1rem, 1.3vw, 1.1rem);
+	font-size: clamp(1.0625rem, 1.3vw, 1.1rem);
 	color: var(--text-2);
 }
 
@@ -214,7 +190,7 @@ h1.mm-title {
 	color: var(--milo-braise);
 	font-variant-numeric: tabular-nums;
 }
-.mm-wallet__unit { font-weight: 600; font-size: 0.92rem; color: var(--text-2); }
+.mm-wallet__unit { font-weight: 600; font-size: 1.0625rem; color: var(--text-2); }
 
 /* Casier : combien d'objets l'élève possède */
 .mm-stat {
@@ -236,7 +212,7 @@ h1.mm-title {
 	padding-top: 0.12em;
 	font-variant-numeric: tabular-nums;
 }
-.mm-stat__unit { font-weight: 600; font-size: 0.92rem; color: var(--text-2); }
+.mm-stat__unit { font-weight: 600; font-size: 1.0625rem; color: var(--text-2); }
 
 /* ==========================================================================
    GRILLE : loge + roue
@@ -472,7 +448,7 @@ h1.mm-title {
 	border-radius: 22px 22px 22px 6px;
 	box-shadow: 0 5px 0 var(--mm-sable), 0 18px 30px -16px rgba(120, 50, 10, 0.45);
 	font-weight: 600;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	line-height: 1.35;
 	color: var(--milo-encre);
 }
@@ -514,7 +490,7 @@ h1.mm-title {
 	translate: -50% 0;
 	width: max-content;
 	max-width: min(300px, calc(100% - 28px));
-	font-size: 0.9rem;
+	font-size: 1rem;
 	text-align: center;
 }
 .mm-stage__bubble::after { left: calc(50% - 8px); }
@@ -625,9 +601,9 @@ h1.mm-title {
 .mm-slot:hover:not(:disabled) .mm-slot__plus { transform: rotate(90deg) scale(1.1); }
 
 .mm-slot__text { display: grid; min-width: 0; line-height: 1.2; }
-.mm-slot__type { font-size: 0.74rem; font-weight: 600; color: var(--milo-braise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mm-slot__type { font-size: 0.875rem; font-weight: 600; color: var(--milo-braise); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mm-slot__name {
-	font-size: 0.93rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	overflow: hidden;
 	display: -webkit-box;
@@ -704,7 +680,7 @@ h1.mm-title {
 		translate: none;
 		width: auto;
 		max-width: min(230px, 30%);
-		font-size: 0.92rem;
+		font-size: 1.0625rem;
 		text-align: left;
 	}
 	.mm-stage__bubble::after { left: 20px; }
@@ -737,8 +713,6 @@ h1.mm-title {
 		max-width: 260px;
 	}
 }
-
-
 
 /* ==========================================================================
    ROUE DES DUELS
@@ -777,7 +751,7 @@ h1.mm-title {
 
 .mm-wheelcard__head { grid-area: head; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .mm-wheelcard__head .mm-h2 { font-size: clamp(1.3rem, 2vw, 1.6rem); white-space: nowrap; }
-.mm-wheelcard__hint { grid-area: hint; color: var(--text-2); font-size: 0.95rem; max-width: 34em; }
+.mm-wheelcard__hint { grid-area: hint; color: var(--text-2); font-size: 1.0625rem; max-width: 34em; }
 .mm-wheelcard__body { grid-area: body; display: grid; place-items: center; padding: 18px 0 14px; }
 
 .mm-wheelcard__foot {
@@ -789,7 +763,7 @@ h1.mm-title {
 	border-radius: 18px;
 	background: var(--mm-surface);
 	border: 2px dashed var(--mm-line);
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	font-weight: 500;
 	color: var(--text-2);
 }
@@ -933,7 +907,7 @@ h1.mm-title {
 	background: var(--milo-encre);
 	color: var(--milo-creme);
 	font-family: var(--f-display);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	line-height: 1;
 	padding-top: 0.15em;
 	box-shadow: 0 0 0 2px #fff;
@@ -987,11 +961,11 @@ h1.mm-title {
 	font-variant-numeric: tabular-nums;
 }
 .mm-wheel__hub-count small { font-size: 0.65em; color: var(--text-2); }
-.mm-wheel__hub-slot { font-size: 0.7rem; font-weight: 600; color: var(--milo-braise); }
+.mm-wheel__hub-slot { font-size: 0.875rem; font-weight: 600; color: var(--milo-braise); }
 .mm-wheel__hub-name {
 	max-width: 100%;
 	font-weight: 700;
-	font-size: 0.82rem;
+	font-size: 1rem;
 	color: var(--milo-encre);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -999,7 +973,7 @@ h1.mm-title {
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 }
-.mm-wheel__hub-kind { font-size: 0.7rem; font-weight: 500; color: var(--text-2); }
+.mm-wheel__hub-kind { font-size: 0.875rem; font-weight: 500; color: var(--text-2); }
 
 /* Roue d'attente (chargement / erreur) */
 .mm-wheel--placeholder {
@@ -1092,7 +1066,7 @@ h1.mm-title {
 	line-height: 1.05;
 	padding-top: 0.08em;
 }
-.mm-sheet__subtitle { margin-top: 2px; font-size: 0.92rem; color: var(--text-2); }
+.mm-sheet__subtitle { margin-top: 2px; font-size: 1.0625rem; color: var(--text-2); }
 
 .mm-sheet__close {
 	display: grid;
@@ -1138,7 +1112,7 @@ h1.mm-title {
 	border: 3px dashed var(--mm-sable-2);
 }
 .mm-sheet__current-text { flex: 1; display: grid; min-width: 0; line-height: 1.2; }
-.mm-sheet__current-label { font-size: 0.8rem; font-weight: 600; color: var(--milo-braise); }
+.mm-sheet__current-label { font-size: 1rem; font-weight: 600; color: var(--milo-braise); }
 .mm-sheet__current-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mm-sheet__current.is-empty .mm-sheet__current-name { color: var(--text-2); font-weight: 500; }
 
@@ -1221,11 +1195,11 @@ h1.mm-title {
 .mm-pick:hover:not(:disabled) .mm-pick__img { transform: translateY(-4px) rotate(-7deg) scale(1.1); }
 
 /* Cartes étroites : le nom de la rareté et sa couleur suffisent */
-.mm-pick .ms-tag--band { justify-content: center; font-size: 0.64rem; padding: 0.5rem 0.4rem 0.45rem; white-space: nowrap; }
+.mm-pick .ms-tag--band { justify-content: center; font-size: 0.875rem; padding: 0.5rem 0.4rem 0.45rem; white-space: nowrap; }
 .mm-pick .ms-pips { display: none; }
 
-.mm-pick__name { font-weight: 600; font-size: 0.98rem; line-height: 1.2; padding: 0 4px; text-wrap: balance; }
-.mm-pick__meta { margin-top: -6px; font-size: 0.78rem; font-weight: 500; color: var(--text-2); }
+.mm-pick__name { font-weight: 600; font-size: 1.0625rem; line-height: 1.2; padding: 0 4px; text-wrap: balance; }
+.mm-pick__meta { margin-top: -6px; font-size: 0.875rem; font-weight: 500; color: var(--text-2); }
 
 .mm-pick__badge {
 	position: absolute;
@@ -1239,7 +1213,7 @@ h1.mm-title {
 	border-radius: 999px;
 	background: var(--milo-vert);
 	color: var(--mm-creme);
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	line-height: 1;
 	box-shadow: 0 3px 0 #1d3115;
@@ -1270,10 +1244,10 @@ h1.mm-title {
 	gap: 10px;
 	padding-top: 12px;
 	border-top: 2px dashed var(--mm-line);
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	color: var(--text-2);
 }
-.mm-sheet__foot .mm-link { font-size: 0.92rem; }
+.mm-sheet__foot .mm-link { font-size: 1.0625rem; }
 
 /* Mobile : le tiroir monte du bas */
 @media (max-width: 720px) {
@@ -1315,8 +1289,8 @@ h1.mm-title {
 
 @container mm (max-width: 560px) {
 	.mm-head { gap: 16px; }
-	.mm-head__copy { gap: 0.55rem; }
-	.mm-lead { font-size: 1rem; }
+	.mm-head__copy { gap: 0.4rem; }
+	.mm-lead { font-size: 1.0625rem; }
 	/* La règle à 1020 px pose justify-content: flex-start, qui resserre la
 	   piste de la grille sur son contenu : on la remet en pleine largeur */
 	.mm-head__side { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: stretch; gap: 12px; }
@@ -1343,7 +1317,7 @@ h1.mm-title {
 	}
 	.mm-wallet__coin, .mm-stat__icon { width: 30px; height: 30px; flex: none; }
 	.mm-wallet__amount, .mm-stat__value { font-size: 1.15rem; }
-	.mm-wallet__unit, .mm-stat__unit { font-size: 0.82rem; }
+	.mm-wallet__unit, .mm-stat__unit { font-size: 1rem; }
 
 	.mm-slots { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 10px; }
 	.mm-slot {
@@ -1359,11 +1333,11 @@ h1.mm-title {
 	.mm-slot__visual { width: 52px; height: 52px; border-radius: 16px; }
 	.mm-slot__plus { width: 22px; height: 22px; right: -7px; bottom: -5px; }
 	.mm-slot__text { justify-items: center; width: 100%; line-height: 1.15; }
-	.mm-slot__type { max-width: 100%; font-size: 0.68rem; }
+	.mm-slot__type { max-width: 100%; font-size: 0.875rem; }
 	/* Le nom peut tenir sur deux lignes : « Casque Gamer », « Nœud Papillon » */
 	.mm-slot__name {
 		max-width: 100%;
-		font-size: clamp(0.74rem, 4cqw, 0.8rem);
+		font-size: clamp(0.875rem, 4cqw, 0.8rem);
 		line-height: 1.15;
 		text-wrap: balance;
 		overflow-wrap: normal; /* jamais « Moustach / e » : le mot entier passe à la ligne */
@@ -1371,7 +1345,7 @@ h1.mm-title {
 	.mm-slot__legend { top: -10px; right: -8px; width: 24px; height: 24px; }
 	.mm-slot--skeleton { height: 108px; }
 
-	.mm-wheelcard__hint { font-size: 0.92rem; }
+	.mm-wheelcard__hint { font-size: 1.0625rem; }
 }
 
 /* ==========================================================================
@@ -1441,3 +1415,20 @@ h1.mm-title {
 	pointer-events: none;
 }
 .locker-spin { animation: mm-spin 0.9s linear infinite; color: var(--accent-text); }
+
+/* ==========================================================================
+   CENTRES D'INTÉRÊT (sous la loge et la roue, pleine largeur)
+   ========================================================================== */
+.mm-interests {
+	display: grid;
+	gap: 18px;
+	margin-top: clamp(20px, 2.4vw, 30px);
+	padding: clamp(20px, 2.4vw, 28px);
+	background: #fff;
+	border: 2px solid var(--mm-line);
+	border-radius: 40px;
+	box-shadow: 0 10px 0 var(--mm-sable), 0 40px 60px -40px rgba(120, 50, 10, 0.45);
+}
+.mm-interests__head { display: grid; gap: 4px; }
+.mm-interests__hint { margin: 0; color: var(--text-2); font-size: 1.0625rem; max-width: 40em; }
+@media (max-width: 600px) { .mm-interests { border-radius: 28px; } }

@@ -94,32 +94,6 @@
 	text-shadow: 0 0.06em 0 rgba(42, 24, 16, 0.25);
 }
 
-/* Étiquette de la charte : pilule blanche, point vert qui pulse */
-.qz-eyebrow {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-	padding: 0.55em 1em 0.5em;
-	border-radius: 999px;
-	background: #fff;
-	border: 2px solid var(--qz-line);
-	color: var(--milo-braise);
-	font-family: var(--f-text);
-	font-weight: 600;
-	font-size: 0.82rem;
-	letter-spacing: 0.06em;
-	line-height: 1;
-	text-transform: uppercase;
-}
-
-.qz-eyebrow i {
-	width: 0.6em;
-	height: 0.6em;
-	border-radius: 50%;
-	background: var(--milo-vert);
-	animation: qz-pulse-dot 1.8s infinite;
-}
-
 /* Bulle de dialogue de la charte */
 .qz-bubble {
 	position: relative;
@@ -220,7 +194,7 @@
 	border: 2px dashed rgba(243, 241, 228, 0.55);
 	border-radius: 999px;
 	font-weight: 600;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	color: var(--board-text);
@@ -393,7 +367,7 @@
 	border-radius: 7px;
 	border: 1.5px solid var(--line);
 	color: var(--text-3);
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 }
 
@@ -456,7 +430,7 @@
 	padding: 0 10px;
 	border-radius: 999px;
 	border: 2px solid #fff;
-	font-size: 0.7rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	color: #fff;
@@ -520,7 +494,7 @@
 
 .qz-streak-label {
 	font-family: var(--f-text);
-	font-size: 0.68rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -554,7 +528,7 @@
 }
 
 .qz-streak--compact .qz-streak-emoji { width: 22px; height: 22px; }
-.qz-streak--compact .qz-streak-count { font-size: 1rem; padding-top: 2px; }
+.qz-streak--compact .qz-streak-count { font-size: 1.0625rem; padding-top: 2px; }
 .qz-streak--compact[data-tier="2"] { box-shadow: 0 3px 0 var(--qz-mandarine); }
 .qz-streak--compact[data-tier="3"] { box-shadow: 0 3px 0 var(--milo-braise); }
 
@@ -752,7 +726,7 @@
 .qz-fx-meter-label {
 	font-family: var(--f-text);
 	font-weight: 700;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	color: var(--milo-braise);
 }
 
@@ -868,7 +842,7 @@
 	box-shadow: 0 5px 0 var(--qz-sable);
 	font-family: var(--f-text);
 	font-weight: 600;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--milo-encre);
 	text-align: left;
 }
@@ -883,7 +857,7 @@
 	line-height: 1.2;
 }
 
-.qz-reward small { font-weight: 500; font-size: 0.78rem; color: var(--text-2); }
+.qz-reward small { font-weight: 500; font-size: 0.875rem; color: var(--text-2); }
 
 .qz-reward-gain {
 	display: flex;
@@ -891,7 +865,7 @@
 	align-items: flex-end;
 	gap: 2px;
 	font-family: var(--f-display);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	color: var(--milo-braise);
 	white-space: nowrap;
 }
@@ -1048,7 +1022,7 @@
 	padding: 0 6px;
 	border-radius: 6px;
 	background: rgba(0, 0, 0, 0.15);
-	font-size: 0.7rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 }
 
@@ -1400,7 +1374,7 @@
 	.qz-board { padding: 10px; border-radius: 24px; }
 	.qz-board-slate { padding: 20px 16px 26px; border-radius: 16px; }
 	.qz-answers { grid-template-columns: 1fr; gap: 14px; }
-	.qz-answer { min-height: 64px; font-size: 0.98rem; }
+	.qz-answer { min-height: 64px; font-size: 1.0625rem; }
 	.qz-answer-letter { width: 40px; height: 40px; font-size: 1.2rem; }
 	.qz-answer-key { display: none; }
 	.qz-ribbon { padding: 12px 22px 10px; }
@@ -1424,17 +1398,16 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.qz-board.is-on-fire,
-	.qz-streak,
-	.qz-streak-emoji,
-	.qz-pip.is-current::after,
-	.qz-eyebrow i,
-	.qz-loader-dots,
-	.qz-loader-sun,
-	.qz-loader-ring,
-	.qz-loader-orbit,
-	.qz-loader-orbiter img,
-	.qz-loader-mascot,
-	.qz-loader-shadow {
+.qz-streak,
+.qz-streak-emoji,
+.qz-pip.is-current::after,
+.qz-loader-dots,
+.qz-loader-sun,
+.qz-loader-ring,
+.qz-loader-orbit,
+.qz-loader-orbiter img,
+.qz-loader-mascot,
+.qz-loader-shadow {
 		animation: none !important;
 	}
 	.qz-loader-bar-fill { left: 0; width: 100%; animation: none !important; }

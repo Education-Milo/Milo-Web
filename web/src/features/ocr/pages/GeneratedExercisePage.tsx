@@ -225,7 +225,6 @@ const GeneratedExercisePage: React.FC = () => {
 					<article className="ocr-ex-sheet">
 						<header className="ocr-ex-sheet-header">
 							<div>
-								<p className="ocr-ex-eyebrow">Exercice similaire</p>
 								<h1>Travail à faire</h1>
 							</div>
 							<div className="ocr-ex-sheet-meta">

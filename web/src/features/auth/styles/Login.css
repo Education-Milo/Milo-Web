@@ -33,7 +33,7 @@
 
 .form-subtitle {
 	color: var(--text-2);
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	margin: 0;
 }
@@ -74,7 +74,7 @@
 
 .forgot-password-link {
 	color: var(--accent-text);
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 700;
 	text-decoration: none;
 	cursor: pointer;
@@ -103,7 +103,7 @@
 .divider-text {
 	padding: 0 1rem;
 	color: var(--text-3);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 }
 
@@ -113,7 +113,7 @@
 
 .signup-text {
 	color: var(--text-2);
-	font-size: 0.9rem;
+	font-size: 1rem;
 	font-weight: 600;
 	margin: 0;
 }
@@ -125,7 +125,7 @@
 	cursor: pointer;
 	background: none;
 	border: none;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	transition: color 0.2s;
 	font-family: inherit;
 }

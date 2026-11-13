@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { AlertCircle, AtSign, Check, Lock, LogOut, Plus, RotateCcw, X } from "lucide-react";
+import { AlertCircle, AtSign, Check, Lock, LogOut, RotateCcw } from "lucide-react";
 import { useAuthStore } from "@shared/store/auth/auth.store";
 import { ROUTES } from "@shared/constants/routes";
 import "@features/profile/styles/ProfilePage.css";
@@ -17,7 +17,6 @@ import SessionsPanel from "@features/security/components/SessionsPanel";
 import AccountLoginPanel from "@features/account/components/AccountLoginPanel";
 import AccountProfilesPanel from "@features/account/components/AccountProfilesPanel";
 import DeleteAccountPanel from "@features/account/components/DeleteAccountPanel";
-import { AI_LIMITS } from "@shared/lib/aiRequests";
 import { useStats } from "@features/stats/store/stats.queries";
 import type { StatsPeriodDays } from "@features/stats/store/stats.model";
 
@@ -40,15 +39,9 @@ const ProfilePage: React.FC = () => {
 		profile,
 		tempProfile,
 		user,
-		interests,
-		suggestions,
-		newInterest,
-		setNewInterest,
 		handleInputChange,
 		handleSave,
 		handleReset,
-		handleAdd,
-		handleDelete,
 		isDirty,
 		saveState,
 		formError,
@@ -202,73 +195,6 @@ const ProfilePage: React.FC = () => {
 										<LogOut size={16} aria-hidden="true" />
 										Se déconnecter de tous les appareils
 									</button>
-								</ProfileCard>
-
-								{/* Rangée 2 : centres d'intérêt, sur toute la largeur */}
-								<ProfileCard
-									icon="sparkles"
-									title="Centres d'intérêt"
-									subtitle="Milo s'en sert pour personnaliser tes exercices"
-									aside={<span className="pf-count">{interests.length}</span>}
-									className="pf-span-4"
-								>
-									<div className="pf-tags">
-										{interests.length > 0 ? (
-											interests.map((interest) => (
-												<span key={interest.id} className="pf-tag">
-													{interest.name}
-													<button
-														type="button"
-														className="pf-tag-remove"
-														onClick={() => handleDelete(interest.id)}
-														aria-label={`Retirer ${interest.name}`}
-													>
-														<X size={13} aria-hidden="true" />
-													</button>
-												</span>
-											))
-										) : (
-											<p className="pf-muted">
-												Aucun intérêt pour le moment. Ajoute-en pour des exercices plus personnalisés.
-											</p>
-										)}
-									</div>
-
-									<div className="pf-add-row">
-										<input
-											type="text"
-											className="pf-input"
-											placeholder="Ajouter un centre d'intérêt..."
-											aria-label="Nouveau centre d'intérêt"
-											value={newInterest}
-											maxLength={AI_LIMITS.INTEREST_NAME}
-											onChange={(e) => setNewInterest(e.target.value)}
-											onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-										/>
-										<button
-											type="button"
-											className="pf-btn pf-btn-primary pf-btn-square"
-											onClick={() => handleAdd()}
-											disabled={!newInterest.trim()}
-											aria-label="Ajouter"
-										>
-											<Plus size={20} aria-hidden="true" />
-										</button>
-									</div>
-
-									{suggestions.length > 0 && (
-										<div className="pf-suggestions">
-											<p className="pf-label">Suggestions</p>
-											<div className="pf-suggestions-list">
-												{suggestions.map((name) => (
-													<button key={name} type="button" className="pf-suggestion" onClick={() => handleAdd(name)}>
-														<Plus size={13} aria-hidden="true" />
-														{name}
-													</button>
-												))}
-											</div>
-										</div>
-									)}
 								</ProfileCard>
 
 								{/* Rangée 3 : profils du compte + suppression du compte */}

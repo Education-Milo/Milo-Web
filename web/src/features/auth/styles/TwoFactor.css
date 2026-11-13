@@ -36,7 +36,7 @@
 	background: transparent;
 	color: var(--text-2);
 	font-family: inherit;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 700;
 	cursor: pointer;
 	transition: 0.2s;
@@ -55,7 +55,7 @@
 .tf-hint {
 	margin: 0;
 	color: var(--text-2);
-	font-size: 0.9rem;
+	font-size: 1rem;
 	font-weight: 600;
 	text-align: center;
 	line-height: 1.45;
@@ -74,7 +74,7 @@
 	border-radius: 14px;
 	background: var(--ok-bg);
 	color: var(--ok);
-	font-size: 0.85rem;
+	font-size: 1rem;
 	font-weight: 600;
 	text-align: center;
 }
@@ -88,7 +88,7 @@
 	background: none;
 	color: var(--accent-text);
 	font-family: inherit;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	font-weight: 700;
 	cursor: pointer;
 }
@@ -112,7 +112,7 @@
 	background: rgba(255, 255, 255, 0.9);
 	color: var(--milo-encre);
 	font-family: inherit;
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	outline: none;
 	transition: 0.25s;
@@ -157,12 +157,12 @@
 
 .tf-trust strong {
 	color: var(--milo-encre);
-	font-size: 0.88rem;
+	font-size: 1rem;
 }
 
 .tf-trust small {
 	color: var(--text-2);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 600;
 	line-height: 1.4;
 }
@@ -176,7 +176,7 @@
 
 .tf-device-name span {
 	color: var(--text-2);
-	font-size: 0.78rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.4px;
@@ -192,7 +192,7 @@
 
 .tf-timer {
 	color: var(--text-3);
-	font-size: 0.8rem;
+	font-size: 1rem;
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
 }

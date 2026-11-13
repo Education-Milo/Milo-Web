@@ -1,13 +1,13 @@
 import React from "react";
-import { BarChart3, History, Sparkles, Trophy, Users } from "lucide-react";
 import { useDuelsScreen } from "@features/duels/hooks/useDuelsPage";
-import FriendList from "@features/duels/components/FriendList";
 import DuelGame from "@features/duels/components/DuelGame";
-import DuelStats from "@features/duels/components/DuelStats";
-import DuelHistory from "@features/duels/components/DuelHistory";
+import { FriendsTile, RankTile, RivalTile, ShelfTile } from "@features/duels/components/lobby/LobbyTiles";
+import DuelArena from "@features/duels/components/lobby/DuelArena";
+import { useUserStore } from "@shared/store/user/user.store";
+import { tileMotion } from "@features/duels/components/lobby/tileMotion";
 import LobbyToast from "@features/duels/components/LobbyToast";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
 import QuizLoader from "@shared/components/quiz/QuizLoader.component";
@@ -15,17 +15,14 @@ import { emojiSrc } from "@shared/components/quiz/quiz.assets";
 import "@shared/styles/Quiz.css";
 import "@features/duels/styles/DuelsScreen.css";
 import "@features/duels/styles/DuelGame.css";
-import miloMascot from "/buttonGo.webp";
-import duelsMilo from "/duels_milo.png";
+import "@features/duels/styles/DuelsLobby.css";
 
 const DuelsScreen: React.FC = () => {
 	const {
 		friends,
 		loadingFriends,
 		history,
-		loadingHistory,
 		stats,
-		loadingStats,
 		handleDuelRequest,
 		screen,
 		startMatchmaking,
@@ -33,6 +30,8 @@ const DuelsScreen: React.FC = () => {
 		goToLobby,
 	} = useDuelsScreen();
 	const { equippedMeshNames } = useEquippedMeshNames();
+	const reduceMotion = useReducedMotion();
+	const firstName = useUserStore((state) => state.user?.first_name);
 
 	// ── Game / End screens (full takeover) ────────────────────────────────────
 	// Plein écran, sans barre latérale : rien ne doit distraire du duel
@@ -46,7 +45,6 @@ const DuelsScreen: React.FC = () => {
 			<QuizLoader
 				variant="duel"
 				className="dg-search"
-				eyebrow="Arène de duels"
 				title="On te trouve un adversaire"
 				highlight="adversaire"
 				messages={[waitingMessage, "Échauffe tes neurones !", "Le plus rapide gagne la manche.", "Prépare ta plus belle émote…"]}
@@ -79,105 +77,40 @@ const DuelsScreen: React.FC = () => {
 		);
 	}
 
-	const onlineFriendsCount = friends.filter((f) => f.status !== "offline").length;
+	const onlineCount = friends.filter((f) => f.status === "online").length;
+	const wins = stats?.wins ?? 0;
 
-	// ── Lobby (bento) ─────────────────────────────────────────────────────────
+	// ── Lobby : le jeu d'abord ────────────────────────────────────────────────
 	return (
 		<ScreenLayout>
-			<div className="dl-page">
-				<div className="dl-toast-slot">
+			<div className="dz">
+				<div className="dz-toast-slot">
 					<LobbyToast />
 				</div>
 
-				<div className="dl-grid">
-					{/* =============== COLONNE PRINCIPALE =============== */}
-					<div className="dl-main-col">
-						{/* --- HERO --- */}
-						<section className="dl-hero">
-							<div className="dl-hero-halo" aria-hidden="true" />
-							<div className="dl-hero-left">
-								<img src={miloMascot} alt="Milo" className="dl-hero-mascot" />
-							</div>
-							<div className="dl-hero-center">
-								<div className="dl-hero-chip">
-									<Sparkles size={14} />
-									<span>Arène de duels</span>
-								</div>
-								<h1 className="dl-hero-title">Défie tes amis !</h1>
-								<p className="dl-hero-sub">
-									Affronte tes amis ou des adversaires aléatoires pour monter
-									dans le classement.
-								</p>
-							</div>
-							<div className="dl-hero-stats">
-								<div className="dl-hero-stat">
-									<Users size={16} />
-									<span>{onlineFriendsCount} ami(s) en ligne</span>
-								</div>
-								<div className="dl-hero-stat">
-									<Trophy size={16} />
-									<span>{stats?.wins ?? 0} victoires</span>
-								</div>
-							</div>
-						</section>
+				<div className="dz-bento">
+					<DuelArena
+						firstName={firstName}
+						equippedMeshNames={equippedMeshNames ?? []}
+						onlineCount={onlineCount}
+						onStart={startMatchmaking}
+					/>
 
-						{/* --- BANNIÈRE DUEL ALÉATOIRE --- */}
-						<button
-							type="button"
-							className="dl-duel-banner"
-							onClick={startMatchmaking}
-							aria-label="Lancer un duel aléatoire"
-						>
-							<img
-								src={duelsMilo}
-								alt="Lance un duel aléatoire"
-								className="dl-duel-banner-img"
-							/>
-							<div className="dl-duel-banner-shine" aria-hidden="true" />
-							<div className="dl-duel-banner-shine-2" aria-hidden="true" />
-						</button>
+					<motion.section className="dz-tile dz-rank" aria-label="Ton rang" {...tileMotion(1, reduceMotion)}>
+						<RankTile wins={wins} />
+					</motion.section>
 
-						{/* --- STATISTIQUES --- */}
-						<section className="dl-card dl-stats">
-							<header className="dl-section-header">
-								<div className="dl-section-title-wrap">
-									<BarChart3 size={20} className="dl-section-icon" />
-									<h2 className="dl-section-title">Mes statistiques</h2>
-								</div>
-							</header>
-							<DuelStats stats={stats} loading={loadingStats} />
-						</section>
-					</div>
+					<motion.section className="dz-tile dz-friends-tile" aria-label="Défie un ami" {...tileMotion(2, reduceMotion)}>
+						<FriendsTile friends={friends} loading={loadingFriends} onChallenge={handleDuelRequest} />
+					</motion.section>
 
-					{/* =============== COLONNE SECONDAIRE =============== */}
-					<div className="dl-side-col">
-						{/* --- AMIS --- */}
-						<section className="dl-card dl-friends">
-							<header className="dl-section-header">
-								<div className="dl-section-title-wrap">
-									<Users size={20} className="dl-section-icon" />
-									<h2 className="dl-section-title">Mes amis</h2>
-								</div>
-								<span className="dl-count-pill">{onlineFriendsCount}</span>
-							</header>
-							<FriendList
-								friends={friends}
-								onDuelRequest={handleDuelRequest}
-								loading={loadingFriends}
-							/>
-						</section>
+					<motion.section className="dz-tile dz-rival-tile" aria-label="Ton rival" {...tileMotion(3, reduceMotion)}>
+						<RivalTile stats={stats} friends={friends} onChallenge={handleDuelRequest} />
+					</motion.section>
 
-						{/* --- HISTORIQUE --- */}
-						<section className="dl-card dl-history">
-							<header className="dl-section-header">
-								<div className="dl-section-title-wrap">
-									<History size={20} className="dl-section-icon" />
-									<h2 className="dl-section-title">Historique</h2>
-								</div>
-							</header>
-							<DuelHistory history={history} loading={loadingHistory} />
-						</section>
-					</div>
+					<motion.section className="dz-tile dz-shelf-tile" aria-label="Tes derniers combats" {...tileMotion(4, reduceMotion)}>
+						<ShelfTile history={history} wins={wins} />
+					</motion.section>
 				</div>
 			</div>
 		</ScreenLayout>

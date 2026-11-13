@@ -1,11 +1,13 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { rememberPath } from "@shared/lib/exitPath";
 import ProtectedRoute from "@shared/components/ProtectedRoute.component";
 import RedirectScreen from "@features/auth/pages/Redirect.page";
 import { DuelProvider } from "@features/duels/context/DuelContext";
 import ChallengeNotification from "@features/duels/components/ChallengeNotification";
 import ToastContainer from "@shared/components/Toast.component";
 import DemoBanner from "@shared/components/DemoBanner.component";
+import WellbeingNudge from "@features/wellbeing/components/WellbeingNudge.component";
 
 // Pages communes
 import HomeScreen from "@features/home/pages/Home.page";
@@ -46,11 +48,24 @@ import SubscriptionPage from "@features/parent/pages/Subscription.page";
 // import AdminDashboard from '@screens/Admin/Dashboard';
 
 const AuthNavigator: React.FC = () => {
+	// Page d'où l'on entre en classe : « Quitter » y ramène (cf. exitPath.ts)
+	const location = useLocation();
+	useEffect(() => {
+		rememberPath(location.pathname, location.search);
+	}, [location.pathname, location.search]);
+
+	// Échelle de texte agrandie pour l'application (voir brand.css, html.milo-app)
+	useEffect(() => {
+		document.documentElement.classList.add("milo-app");
+		return () => document.documentElement.classList.remove("milo-app");
+	}, []);
+
 	return (
 		<DuelProvider>
 			<ChallengeNotification />
 			<ToastContainer />
 			<DemoBanner />
+			<WellbeingNudge />
 			<Routes>
 				{/* ==================== PAGE DE REDIRECTION ==================== */}
 
@@ -206,13 +221,15 @@ const AuthNavigator: React.FC = () => {
 					}
 				/>
 				<Route
-					path="/mon-milo"
+					path={ROUTES.PERSONALIZATION}
 					element={
 						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MyMiloPage />
 						</ProtectedRoute>
 					}
 				/>
+				{/* Ancienne adresse de la page, gardée pour les favoris */}
+				<Route path="/mon-milo" element={<Navigate to={ROUTES.PERSONALIZATION} replace />} />
 				<Route
 					path="/boutique"
 					element={

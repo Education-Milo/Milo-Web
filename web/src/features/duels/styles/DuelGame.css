@@ -16,7 +16,6 @@
 }
 
 /* Remplace les halos flous du lobby par la trame de la charte */
-.duel-game-container::after,
 .dg-end-wrap::after { display: none; }
 
 .dg-end-wrap > .dg-end-arena { position: relative; z-index: 2; }
@@ -111,7 +110,7 @@
 
 .dg-player-name {
 	font-weight: 700;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	color: var(--milo-encre);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -233,7 +232,7 @@
 .dg-timer--hot .dg-timer-value { color: var(--ko); }
 
 .dg-round-label {
-	font-size: 0.68rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -301,7 +300,7 @@
 .dg-status--wait .dg-status-title {
 	flex: 1;
 	font-family: var(--f-text);
-	font-size: 1rem;
+	font-size: 1.0625rem;
 	font-weight: 700;
 	color: var(--text-2);
 	letter-spacing: 0;
@@ -312,7 +311,7 @@
 
 .dg-status-sub {
 	margin: 2px 0 0;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	color: var(--st-edge);
 	overflow-wrap: anywhere;
@@ -356,7 +355,7 @@
 .dg-hint {
 	margin: 8px auto 0;
 	text-align: center;
-	font-size: 0.92rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	color: var(--text-2);
 }
@@ -381,7 +380,7 @@
 	color: var(--text-2);
 	font-family: var(--f-text);
 	font-weight: 700;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	cursor: pointer;
 	transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -494,7 +493,7 @@ h1.dg-end-title {
 .dg-end-name {
 	max-width: 100%;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--milo-encre);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -555,7 +554,7 @@ h1.dg-end-title {
 }
 
 .dg-table th {
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	font-weight: 700;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
@@ -567,7 +566,7 @@ h1.dg-end-title {
 	text-align: left;
 	text-transform: none;
 	letter-spacing: 0;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	padding: 0 8px 0 0;
 	max-width: 110px;
 	overflow: hidden;

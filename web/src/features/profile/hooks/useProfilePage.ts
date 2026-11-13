@@ -1,31 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useUserStore } from '@shared/store/user/user.store';
 import type { UserProfile } from '@shared/store/user/user.model';
-import { showToast } from '@shared/store/toast/toast.store';
-import { AI_LIMITS, INTERESTS_LIMIT_MESSAGE, getErrorStatus } from '@shared/lib/aiRequests';
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
-
-const INTEREST_SUGGESTIONS = [
-  'Jeux Vidéo',
-  'Football',
-  'Mangas',
-  'Histoire',
-  'Musique',
-  'Sciences',
-];
 
 export const useProfilePage = () => {
   const {
     user,
     getMe,
     updateUser,
-    addUserInterest,
-    deleteUserInterest,
     loading,
   } = useUserStore();
 
-  const [newInterest, setNewInterest] = useState('');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -124,48 +110,13 @@ export const useProfilePage = () => {
     setSaveState('idle');
   };
 
-  const handleAdd = async (interestName?: string) => {
-    const nameToProcess = (interestName || newInterest).trim().slice(0, AI_LIMITS.INTEREST_NAME);
-    if (!nameToProcess) return;
-
-    try {
-      await addUserInterest(nameToProcess);
-      if (!interestName) {
-        setNewInterest('');
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'ajout:", error);
-      // 409 : limite de 20 centres d'intérêt atteinte
-      showToast(
-        getErrorStatus(error) === 409
-          ? INTERESTS_LIMIT_MESSAGE
-          : "Impossible d'ajouter ce centre d'intérêt pour le moment.",
-        "error",
-      );
-    }
-  };
-
-  const interests = user?.Interests ?? [];
-
-  /** On ne propose que ce que l'utilisateur n'a pas déjà. */
-  const suggestions = useMemo(() => {
-    const owned = interests.map(i => i.name.trim().toLowerCase());
-    return INTEREST_SUGGESTIONS.filter(s => !owned.includes(s.toLowerCase()));
-  }, [interests]);
-
   return {
     profile,
     tempProfile,
     user,
-    interests,
-    suggestions,
-    newInterest,
-    setNewInterest,
     handleInputChange,
     handleSave,
     handleReset,
-    handleAdd,
-    handleDelete: deleteUserInterest,
     isDirty,
     saveState,
     formError,

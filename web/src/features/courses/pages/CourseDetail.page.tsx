@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
 	ArrowLeft,
-	BookOpen,
 	CheckCircle2,
 	ChevronRight,
 	GraduationCap,
@@ -71,12 +70,10 @@ const CourseDetailScreen: React.FC = () => {
 
 	/* --- Meta de l'étape courante (titre + chip) --- */
 	const stepMeta = {
-		courses:  { icon: <BookOpen size={16} />,       title: "Choisis ton cours",     sub: "Sélectionne un programme pour voir ses chapitres." },
-		chapters: { icon: <Layers size={16} />,         title: "Choisis un chapitre",   sub: "Explore les chapitres et leurs leçons." },
-		lessons:  { icon: <GraduationCap size={16} />,  title: "Choisis une leçon",     sub: "Démarre une leçon pour apprendre ou t'entraîner." },
+		courses:  { title: "Choisis ton cours",     sub: "Sélectionne un programme pour voir ses chapitres." },
+		chapters: { title: "Choisis un chapitre",   sub: "Explore les chapitres et leurs leçons." },
+		lessons:  { title: "Choisis une leçon",     sub: "Démarre une leçon pour apprendre ou t'entraîner." },
 	}[step];
-
-	const stepNumber = step === "courses" ? 2 : step === "chapters" ? 3 : 4;
 
 	return (
 		<ScreenLayout>
@@ -139,13 +136,8 @@ const CourseDetailScreen: React.FC = () => {
 
 				{/* --- HERO --- */}
 				<section className="cd-hero">
-					<div className="cd-hero-halo" aria-hidden="true" />
 					<img src={miloFoxImage} alt="Milo" className="cd-hero-mascot" />
 					<div className="cd-hero-text">
-						<div className="cd-hero-chip">
-							{stepMeta.icon}
-							<span>Étape {stepNumber} / 4</span>
-						</div>
 						<h1 className="cd-hero-title">{stepMeta.title}</h1>
 						<p className="cd-hero-sub">{stepMeta.sub}</p>
 					</div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { BookOpenCheck, FlaskConical, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
+import { BookOpenCheck, FlaskConical, HeartPulse, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
 import AuditLog from "@features/admin/components/AuditLog";
@@ -10,6 +10,7 @@ import AdminSupport from "@features/admin/components/AdminSupport";
 import DemoProfiles from "@features/admin/components/DemoProfiles";
 import AdminModeration from "@features/admin/components/AdminModeration";
 import AdminProgrammes from "@features/admin/components/programmes/AdminProgrammes";
+import WellbeingTester from "@features/admin/components/WellbeingTester";
 import "@features/admin/styles/Admin.css";
 
 const SECTIONS: { path: string; title: string; subtitle: string; icon: React.ReactNode }[] = [
@@ -50,6 +51,12 @@ const SECTIONS: { path: string; title: string; subtitle: string; icon: React.Rea
 		icon: <Shirt size={22} />,
 	},
 	{
+		path: ROUTES.ADMIN.WELLBEING,
+		title: "Bien-être",
+		subtitle: "Rappels de pause et de coucher : seuils et déclenchement pour les tester",
+		icon: <HeartPulse size={22} />,
+	},
+	{
 		path: ROUTES.ADMIN.DEMO,
 		title: "Profils de démo",
 		subtitle: "Comptes fictifs pour voir l'application avec un autre rôle",
@@ -86,6 +93,7 @@ const AdminPage: React.FC = () => {
 						<Route path={relative(ROUTES.ADMIN.PROGRAMMES)} element={<AdminProgrammes />} />
 						<Route path={relative(ROUTES.ADMIN.AUDIT)} element={<AuditLog />} />
 						<Route path={relative(ROUTES.ADMIN.COSMETICS)} element={<CosmeticsManager />} />
+						<Route path={relative(ROUTES.ADMIN.WELLBEING)} element={<WellbeingTester />} />
 						<Route path={relative(ROUTES.ADMIN.DEMO)} element={<DemoProfiles />} />
 						<Route path="*" element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
 					</Routes>

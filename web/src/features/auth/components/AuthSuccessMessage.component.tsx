@@ -24,7 +24,7 @@ export const AuthSuccessMessage: React.FC<AuthSuccessMessageProps> = ({ message 
 			}}
 		>
 			<CheckCircle2 size={18} />
-			<p style={{ fontSize: "0.875rem", margin: 0, fontWeight: 600 }}>{message}</p>
+			<p style={{ fontSize: "0.9375rem", margin: 0, fontWeight: 600 }}>{message}</p>
 		</div>
 	);
 };

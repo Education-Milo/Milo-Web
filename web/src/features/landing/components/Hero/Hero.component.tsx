@@ -206,8 +206,6 @@ const Hero: React.FC = () => {
 		<section className="lp-hero" id={SECTION_IDS.concept} ref={root}>
 			<div className="lp-hero__bg" aria-hidden="true">
 				<div className="lp-hero__dots" />
-				<div className="lp-hero__blob lp-hero__blob--1" />
-				<div className="lp-hero__blob lp-hero__blob--2" />
 				<div className="lp-hero__floats">
 					<div className="lp-hero__floaty lp-hero__floaty--bulb">
 						<Emoji3D name="light_bulb" />

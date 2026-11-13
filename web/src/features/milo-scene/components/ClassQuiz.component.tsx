@@ -200,7 +200,6 @@ const ClassQuiz: React.FC<ClassQuizProps> = ({ lessonId, lessonTitle, onClose, o
 				<div className="cls-quiz-title">
 					<img src={emojiSrc("bullseye")} alt="" aria-hidden="true" />
 					<div>
-						<span className="cls-eyebrow">Quiz de la leçon</span>
 						<strong>{lessonTitle}</strong>
 					</div>
 				</div>

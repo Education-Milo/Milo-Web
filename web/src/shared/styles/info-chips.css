@@ -1,0 +1,40 @@
+/* ============================================================
+   PASTILLES D'INFORMATION : JAMAIS L'AIR D'UN BOUTON
+   Charte : la tranche en relief et le soulèvement au survol sont
+   réservés à ce qui se clique. Les soldes, séries, compteurs et
+   scores ne sont que de l'information : bordure simple, aucun
+   mouvement, curseur normal.
+   Préfixe `html` : l'emporte sur les feuilles de chaque page.
+   ============================================================ */
+html :is(
+	.mm-wallet, .mm-stat,
+	.pf-wallet, .pf-streak,
+	.ms-wallet, .ms-tag--pill,
+	.friends-score-pimped,
+	.dl-hero-stat, .duel-score-box, .dl-end-score-box, .duel-stat-chip,
+	.stat-card, .stat-badge,
+	.qcm-score, .qcm-result-stat, .qz-streak, .cls-quiz-streak, .dg-status,
+	.wb-stat
+) {
+	box-shadow: none;
+	cursor: default;
+}
+
+/* Aucun mouvement au survol (pastille et icône) */
+html :is(
+	.mm-wallet, .mm-stat,
+	.pf-wallet, .pf-streak,
+	.ms-wallet,
+	.friends-score-pimped,
+	.dl-hero-stat, .duel-score-box, .dl-end-score-box, .duel-stat-chip,
+	.stat-card, .stat-badge
+):hover,
+html :is(.dl-hero-stat, .duel-stat-chip):hover :is(svg, .duel-stat-icon),
+html .sb-user-card:hover :is(.sb-streak, .sb-xp) {
+	transform: none;
+	box-shadow: none;
+}
+html .dl-hero-stat:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* La bulle de chiffre des rappels bien-être reste centrée (translateX) */
+html .wb-stat { transform: translateX(-50%); }

@@ -118,7 +118,7 @@ const UnauthorizedPage: React.FC = () => {
 				>
 					<p
 						style={{
-							fontSize: "0.875rem",
+							fontSize: "0.9375rem",
 							color: "var(--text-2)",
 							margin: 0,
 						}}

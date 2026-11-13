@@ -1,0 +1,145 @@
+/* ============================================================
+   CONFIRMATION AVEC MILO (même mise en scène que les rappels
+   bien-être : carte blanche à tranche sable, scène sur soleil feu,
+   boutons pilules en relief)
+   ============================================================ */
+.mc-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	overflow-y: auto;
+	background: rgba(42, 24, 16, 0.55);
+	backdrop-filter: blur(4px);
+}
+
+.mc-card {
+	--mc-sable: #F1D2B2;
+	position: relative;
+	width: min(720px, 100%);
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	overflow: hidden;
+	border: 2px solid var(--line);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--mc-sable), 0 40px 70px -30px rgba(42, 24, 16, 0.6);
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+
+.mc-close {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	cursor: pointer;
+	box-shadow: 0 4px 0 var(--mc-sable);
+	transition: transform 0.15s ease;
+}
+.mc-close:hover { transform: translateY(-2px); color: var(--milo-encre); }
+
+/* ---------- Scène ---------- */
+.mc-scene {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: center;
+	min-height: 320px;
+	padding: 28px 20px;
+	background: var(--milo-creme);
+	overflow: hidden;
+}
+.mc-scene::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -2;
+	background-image: radial-gradient(rgba(199, 58, 12, 0.14) 1.4px, transparent 1.4px);
+	background-size: 28px 28px;
+}
+.mc-scene__sun {
+	position: absolute;
+	z-index: -1;
+	width: 80%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+	box-shadow: inset 0 -14px 0 rgba(199, 58, 12, 0.35);
+}
+.mc-scene__milo {
+	position: relative;
+	width: min(100%, 300px);
+	height: auto;
+	filter: drop-shadow(0 16px 16px rgba(120, 50, 10, 0.3));
+	animation: mc-wobble 2.8s ease-in-out infinite;
+	transform-origin: 50% 90%;
+}
+.mc-scene__fallback { width: 120px; height: 120px; }
+
+/* ---------- Contenu ---------- */
+.mc-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 26px;
+	padding: 40px 34px 32px;
+}
+.mc-titles { display: grid; gap: 8px; }
+.mc-title {
+	margin: 0;
+	padding-right: 36px;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+	line-height: 0.95;
+	letter-spacing: 0.01em;
+	text-wrap: balance;
+}
+.mc-body { margin: 0; font-size: 1.0625rem; line-height: 1.55; color: var(--text-2); }
+.mc-body p { margin: 0; }
+.mc-body p + p { margin-top: 8px; }
+.mc-body b { color: var(--milo-encre); }
+
+/* ---------- Boutons pilules en relief ---------- */
+.mc-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.mc-btn {
+	flex: 1 1 auto;
+	min-height: 54px;
+	padding: 0 22px;
+	border-radius: 999px;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mc-btn--primary { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.mc-btn--ghost { border: 2px solid var(--line); background: #fff; color: var(--milo-encre); box-shadow: 0 6px 0 var(--mc-sable); }
+.mc-btn:hover { transform: translateY(-2px); }
+.mc-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--mc-sable); }
+.mc-btn--primary:active { box-shadow: 0 1px 0 var(--milo-braise); }
+
+@keyframes mc-wobble {
+	0%, 100% { transform: rotate(-2deg); }
+	50% { transform: rotate(2deg) translateY(-4px); }
+}
+
+@media (max-width: 640px) {
+	.mc-backdrop { place-items: start center; }
+	.mc-card { grid-template-columns: minmax(0, 1fr); border-radius: 32px; }
+	.mc-scene { min-height: 0; padding: 22px 20px 14px; }
+	.mc-scene__milo { width: min(54%, 200px); }
+	.mc-scene__sun { width: 58%; }
+	.mc-content { padding: 22px 22px 24px; gap: 20px; }
+	.mc-btn { flex-basis: 100%; }
+}

@@ -1,0 +1,61 @@
+/* ============================================================
+   LOI DE PROXIMITÉ (retour UI/UX)
+   Un titre et le paragraphe qui le suit forment un seul bloc :
+   4 px entre les deux, quel que soit le `gap` du conteneur.
+   La marge négative annule le gap du parent flex/grid.
+   Sélecteurs à 3 classes : ils l'emportent sur les feuilles de page.
+   ============================================================ */
+.ad-card > .ad-subtitle + .ad-muted { margin-top: calc(4px - 18px); } /* features/admin/components/AdminModeration.tsx:162 */
+.ad-card-title-wrap > .ad-card-title + .ad-card-subtitle { margin-top: calc(4px - 12px); } /* features/admin/components/AdminModeration.tsx:104 */
+.ad-role-form > .ad-subtitle + .ad-alert { margin-top: calc(4px - 12px); } /* features/admin/components/UserRoleForm.tsx:54 */
+.ad-role-form > .ad-subtitle + .ad-muted { margin-top: calc(4px - 12px); } /* features/admin/components/UserModerationSummary.tsx:26 */
+.ad-wellbeing-head > .ad-subtitle + .ad-muted { margin-top: calc(4px - 4px); } /* features/admin/components/WellbeingTester.tsx:43 */
+.cd-card-body > .cd-card-title + .cd-card-desc { margin-top: calc(4px - 6px); } /* features/courses/pages/CourseDetail.page.tsx:188 */
+.cd-hero-text > .cd-hero-title + .cd-hero-sub { margin-top: calc(4px - 6px); } /* features/courses/components/coursePicker/CoursePicker.component.tsx:158 */
+.challenge-notif-banner > .challenge-notif-title + .challenge-notif-msg { margin-top: calc(4px - 10px); } /* features/duels/components/ChallengeNotification.tsx:39 */
+.cls-quiz-center > .cls-quiz-display + .cls-quiz-lead { margin-top: calc(4px - 14px); } /* features/milo-scene/components/ClassQuiz.component.tsx:216 */
+.cls-quiz-play > .cls-quiz-question + .cls-quiz-reward { margin-top: calc(4px - 18px); } /* features/milo-scene/components/ClassQuiz.component.tsx:286 */
+.courrier-item-body > .courrier-item-title + .courrier-item-text { margin-top: calc(4px - 0px); } /* features/home/components/NewsLetterOverlay.component.tsx:127 */
+.cs-hero-center > .cs-hero-title + .cs-hero-sub { margin-top: calc(4px - 6px); } /* features/courses/pages/Courses.page.tsx:42 */
+.cs-tile-body > .cs-tile-title + .cd-card-desc { margin-top: calc(4px - 8px); } /* features/courses/components/coursePicker/CoursePicker.component.tsx:219 */
+.dl-hero-center > .dl-hero-title + .dl-hero-sub { margin-top: calc(4px - 8px); } /* features/duels/pages/Duels.page.tsx:106 */
+.ecl-hello > .ecl-hello-title + .ecl-hello-sub { margin-top: calc(4px - 0px); } /* features/home/components/miloSchool/MiloSchoolCard.component.tsx:379 */
+.fb-step__head > .fb-step__title + .fb-step__goal { margin-top: calc(4px - 0.9rem); } /* features/feedback/components/FeatureStep.component.tsx:30 */
+.form-header > .form-title + .form-subtitle { margin-top: calc(4px - 0px); } /* features/auth/pages/Register.page.tsx:65 */
+.header-left > .page-title + .page-subtitle { margin-top: calc(4px - 8px); } /* features/friends/pages/Friends.page.tsx:87 */
+.login-intro > .form-title + .form-subtitle { margin-top: calc(4px - 0px); } /* features/auth/components/TwoFactorStep.component.tsx:171 */
+.mm-head__copy > .mm-title + .mm-lead { margin-top: calc(4px - 0.4rem); } /* features/my-milo/pages/MyMilo.page.tsx:503 */
+.mm-sheet__titles > .mm-sheet__title + .mm-sheet__subtitle { margin-top: calc(4px - 0px); } /* features/my-milo/components/LockerPickerModal.tsx:104 */
+.mm-interests__head > .mm-h2 + .mm-interests__hint { margin-top: 0; } /* features/my-milo/pages/MyMilo.page.tsx (gap 4px) */
+.ms-challenge-content > .ms-challenge-title + .ms-challenge-text { margin-top: calc(4px - 12px); } /* features/missions/pages/Missions.page.tsx:198 */
+.ms-hero-center > .ms-hero-title + .ms-hero-sub { margin-top: calc(4px - 6px); } /* features/missions/pages/Missions.page.tsx:173 */
+.ms-hero__copy > .ms-hero__title + .ms-hero__lead { margin-top: calc(4px - 1rem); } /* features/milo-shop/pages/MiloShop.page.tsx:135 */
+.ocr-hero-center > .ocr-hero-title + .ocr-hero-sub { margin-top: calc(4px - 6px); } /* features/ocr/pages/OcrPage.tsx:62 */
+.ocr-tile-body > .ocr-tile-title + .ocr-tile-description { margin-top: calc(4px - 6px); } /* features/ocr/components/OcrTypeSelector/OcrTypeSelector.tsx:49 */
+.pf-card-titles > .pf-card-title + .pf-card-sub { margin-top: calc(4px - 0px); } /* features/profile/components/ProfileCard.component.tsx:24 */
+.pp-intro > .pp-title + .pp-subtitle { margin-top: calc(4px - 0.8rem); } /* features/account/pages/ProfilePicker.page.tsx:165 */
+.st-card-title-wrap > .st-card-title + .st-card-subtitle { margin-top: calc(4px - 12px); } /* features/stats/components/ActivityFeed.tsx:72 */
+.st-onboarding > .st-onboarding-title + .st-onboarding-text { margin-top: calc(4px - 14px); } /* features/stats/components/StatsEmptyState.tsx:33 */
+.wb-titles > .wb-title + .wb-body { margin-top: calc(4px - 6px); } /* features/wellbeing/components/WellbeingNudge.component.tsx */
+.welcome-content > .welcome-title + .welcome-subtitle { margin-top: calc(4px - 0px); } /* features/parent/pages/Subscription.page.tsx:25 */
+
+/* Titres suivis d'un paragraphe : pas de marge basse qui écarte le bloc */
+:is(.ad-card-title, .ad-subtitle, .cd-card-title, .cd-hero-title, .challenge-notif-title, .cls-quiz-display, .cls-quiz-question, .courrier-item-title, .cs-hero-title, .cs-tile-title, .dl-hero-title, .ecl-hello-title, .fb-step__title, .form-title, .mm-h2, .mm-sheet__title, .mm-title, .ms-challenge-title, .ms-hero-title, .ms-hero__title, .ocr-hero-title, .ocr-tile-title, .page-title, .pf-card-title, .pp-title, .st-card-title, .st-onboarding-title, .wb-title, .welcome-title):has(+ p) { margin-bottom: 0; }
+
+/* Chapeaux sous les titres de page (charte landing : clamp(1.05rem, 1.5vw, 1.2rem)) */
+.cd-hero-sub, .cs-hero-sub, .dl-hero-sub, .fb-step__goal, .form-subtitle, .mm-lead, .ms-hero-sub, .ms-hero__lead, .ocr-hero-sub, .page-subtitle, .pp-subtitle, .st-onboarding-text, .welcome-subtitle { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.45; }
+
+/* Icône ou étiquette au-dessus d'un titre : elle s'écarte du titre,
+le titre se colle à son texte (il appartient au paragraphe). */
+.tf-badge + .form-title { margin-top: 16px; }
+
+/* Titres display (Luckiest Guy, tout en capitales) : la police réserve
+   sous la ligne de base une zone de jambages vide (~25 % de la taille),
+   qui éloignait le texte du titre. On la reprend en em pour qu'elle suive
+   la taille du titre. Préfixe `html` : l'emporte sur `h1.mm-title`… des pages. */
+html :is(h1, h2):is(.mm-title, .ms-hero-title, .ocr-hero-title, .cd-hero-title, .cs-hero-title, .dl-hero-title, .st-header-title, .pf-hero-title, .ms-hero__title, .pp-title, .mm-h2, .wb-title) {
+	line-height: 0.95;
+}
+html :is(h1, h2):is(.mm-title, .ms-hero-title, .ocr-hero-title, .cd-hero-title, .cs-hero-title, .dl-hero-title, .st-header-title, .pf-hero-title, .ms-hero__title, .pp-title, .mm-h2, .wb-title):has(+ p) {
+	margin-bottom: -0.16em;
+}

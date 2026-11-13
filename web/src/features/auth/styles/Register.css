@@ -9,7 +9,7 @@
 	padding: 8px 16px;
 	border-radius: 100px;
 	font-weight: 700;
-	font-size: 0.8rem;
+	font-size: 1rem;
 	margin-bottom: 20px;
 }
 
@@ -27,7 +27,7 @@
 
 .form-subtitle {
 	color: var(--text-2);
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	font-weight: 600;
 	margin: 0;
 }
@@ -76,7 +76,7 @@
 .legal-text {
 	margin-top: 0.25rem;
 	text-align: center;
-	font-size: 0.8rem;
+	font-size: 1rem;
 	color: var(--text-2);
 	font-weight: 600;
 	line-height: 1.5;
@@ -94,7 +94,7 @@
 
 .signup-text {
 	color: var(--text-2);
-	font-size: 0.9rem;
+	font-size: 1rem;
 	font-weight: 600;
 	margin: 0;
 }
@@ -106,7 +106,7 @@
 	cursor: pointer;
 	background: none;
 	border: none;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	transition: color 0.2s;
 	font-family: inherit;
 }

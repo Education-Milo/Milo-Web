@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Check, Volume2, X } from "lucide-react";
+import { Check, ChevronDown, Volume2, X } from "lucide-react";
 import {
 	flattenSentences,
 	BOX_EMOJI,
@@ -73,6 +73,31 @@ const LessonBoard: React.FC<LessonBoardProps> = ({
 }) => {
 	const reduceMotion = useReducedMotion();
 	const contentRef = useRef<HTMLDivElement>(null);
+
+	/// Indication de défilement : visible tant qu'il reste du texte plus bas
+	const [moreBelow, setMoreBelow] = useState(false);
+	useEffect(() => {
+		const content = contentRef.current;
+		if (!content) return;
+		const update = () =>
+			setMoreBelow(content.scrollHeight - content.clientHeight - content.scrollTop > 24);
+		update();
+		content.addEventListener("scroll", update, { passive: true });
+		const resize = new ResizeObserver(update);
+		resize.observe(content);
+		// Le texte s'écrit à la craie : la hauteur change sans redimensionnement
+		const mutations = new MutationObserver(update);
+		mutations.observe(content, { childList: true, subtree: true, characterData: true });
+		return () => {
+			content.removeEventListener("scroll", update);
+			resize.disconnect();
+			mutations.disconnect();
+		};
+	}, []);
+	const scrollDown = () => {
+		const content = contentRef.current;
+		content?.scrollBy({ top: content.clientHeight * 0.75, behavior: "smooth" });
+	};
 	const toolbarRef = useRef<HTMLDivElement>(null);
 	const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const lastFocused = useRef<HTMLElement | null>(null);
@@ -340,6 +365,7 @@ const LessonBoard: React.FC<LessonBoardProps> = ({
 	};
 
 	return (
+		<div className={`cls-board-scroll${moreBelow ? " has-more" : ""}`}>
 		<div
 			className={`cls-board-content${isWriting ? " is-writing" : ""}${interactive ? " is-interactive" : ""}`}
 			ref={contentRef}
@@ -363,6 +389,18 @@ const LessonBoard: React.FC<LessonBoardProps> = ({
 			{compact
 				? createPortal(<AnimatePresence>{target && renderMenu(true)}</AnimatePresence>, document.body)
 				: <AnimatePresence>{target && renderMenu(false)}</AnimatePresence>}
+		</div>
+			{/* Il reste du texte plus bas : fondu + pastille « Fais défiler » */}
+			<button
+				type="button"
+				className="cls-board-more"
+				onClick={scrollDown}
+				tabIndex={moreBelow ? 0 : -1}
+				aria-hidden={!moreBelow}
+			>
+				Fais défiler
+				<ChevronDown size={18} aria-hidden="true" />
+			</button>
 		</div>
 	);
 };

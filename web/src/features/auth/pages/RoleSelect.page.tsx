@@ -18,7 +18,6 @@ const RoleSelectPage: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
 
 			<AuthHeader rightLinkTo="/login" rightLinkLabel="Déjà un compte ?" />
 

@@ -57,7 +57,6 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ profile, errors, onChange, on
 			<header className="fb-step__head">
 				<Emoji3D name="student" className="fb-step__icon" />
 				<div>
-					<p className="fb-step__eyebrow">Avant de commencer</p>
 					<h2 className="lp-display fb-step__title">Qui es-tu&nbsp;?</h2>
 					<p className="fb-step__goal">Ça nous aide à comprendre tes réponses. Rien n'est affiché publiquement.</p>
 				</div>

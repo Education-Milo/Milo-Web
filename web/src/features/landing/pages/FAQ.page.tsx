@@ -114,7 +114,6 @@ const FAQPage: React.FC = () => {
 			icon="speech_balloon"
 			milo="/landing/milo/milo-faq.webp"
 			floats={["light_bulb", "sparkles"]}
-			eyebrow="Aide & support"
 			title={
 				<>
 					Une question&nbsp;? On a les <span className="lp-hl">réponses</span>

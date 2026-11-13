@@ -38,7 +38,7 @@
 .textfield-input {
   flex: 1;
   margin-left: 10px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--milo-encre);
   height: 43px;
   border: none;
@@ -69,7 +69,7 @@
 
 .textfield-error-text {
   color: var(--ko);
-  font-size: 14px;
+  font-size: 16px;
   margin-top: 5px;
   margin-left: 15px;
 }

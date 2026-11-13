@@ -19,7 +19,7 @@ export const AuthErrorMessage: React.FC<AuthErrorMessageProps> = ({
 				marginBottom: "1rem",
 			}}
 		>
-			<p style={{ color: "var(--ko)", fontSize: "0.875rem", margin: 0 }}>
+			<p style={{ color: "var(--ko)", fontSize: "0.9375rem", margin: 0 }}>
 				{message}
 			</p>
 		</div>

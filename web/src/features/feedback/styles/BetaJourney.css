@@ -22,7 +22,7 @@
 	justify-content: space-between;
 	gap: 1rem;
 	font-weight: 700;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--lp-ink-2);
 }
 
@@ -150,15 +150,6 @@
 	background: var(--lp-creme);
 }
 
-.fb-step__eyebrow {
-	margin: 0;
-	font-weight: 700;
-	font-size: 0.82rem;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--lp-braise);
-}
-
 .fb-step__title {
 	margin: 0.15rem 0 0.3rem;
 	font-size: clamp(1.8rem, 3.4vw, 2.5rem);
@@ -172,14 +163,14 @@
 
 .fb-optional {
 	font-weight: 500;
-	font-size: 0.85rem;
+	font-size: 1rem;
 	color: var(--text-3);
 }
 
 .fb-error {
 	padding-left: 0.3rem;
 	font-weight: 600;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	color: var(--ko);
 }
 
@@ -212,7 +203,7 @@
 .fb-role__hint {
 	display: block;
 	font-weight: 500;
-	font-size: 0.88rem;
+	font-size: 1rem;
 	opacity: 0.85;
 }
 
@@ -436,7 +427,7 @@
 .fb-recap__score.is-muted {
 	color: var(--text-3);
 	letter-spacing: 0;
-	font-size: 0.9rem;
+	font-size: 1rem;
 }
 
 .fb-recap__edit {

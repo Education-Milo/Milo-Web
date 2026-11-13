@@ -21,14 +21,14 @@ body {
 
 /* Main container */
 .main-container {
-    margin-left: 280px;
+    margin-left: var(--sb-width, 304px);
     min-height: 100vh;
     background: var(--bg);
     animation: fadeIn 1s ease-out forwards;
 }
 
 @media (max-width: 1024px) {
-    .main-container { margin-left: 240px; }
+    .main-container { margin-left: var(--sb-width, 264px); }
 }
 
 @media (max-width: 768px) {
@@ -37,7 +37,6 @@ body {
        de Dashboard.css) l'emporterait sinon selon l'ordre de chargement. */
     .main-container { margin-left: 0; padding-top: 64px; }
 }
-
 
 .dashboard {
 	padding: 2rem;
@@ -70,21 +69,6 @@ body {
 	margin-bottom: 0.5rem;
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	box-shadow: 0 10px 30px rgba(255, 84, 29, 0.2);
-}
-
-.welcome-section::before {
-	content: "";
-	position: absolute;
-	top: -50%;
-	right: -50%;
-	width: 200%;
-	height: 200%;
-	background: radial-gradient(
-		circle,
-		rgba(255, 255, 255, 0.1) 0%,
-		transparent 70%
-	);
-	animation: rotate 20s linear infinite;
 }
 
 .quick-action-btn {
@@ -146,7 +130,7 @@ body {
 	color: var(--accent-text);
 	padding: 0.5rem 1rem;
 	border-radius: 20px;
-	font-size: 0.9rem;
+	font-size: 1rem;
 	font-weight: 600;
 }
 

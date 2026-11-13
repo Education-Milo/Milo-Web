@@ -19,8 +19,6 @@ const FLOATERS: { emoji: BrandEmoji; top: string; left: string; size: number; de
 
 interface QuizLoaderProps {
 	variant?: "qcm" | "duel";
-	/// Étiquette au-dessus du titre
-	eyebrow: string;
 	title: string;
 	/// Mot mis en avant dans le titre
 	highlight?: string;
@@ -39,7 +37,6 @@ interface QuizLoaderProps {
 /// flotte, objets 3D en orbite, bulle de dialogue et barre de progression.
 const QuizLoader: React.FC<QuizLoaderProps> = ({
 	variant = "qcm",
-	eyebrow,
 	title,
 	highlight,
 	messages,
@@ -132,15 +129,6 @@ const QuizLoader: React.FC<QuizLoaderProps> = ({
 
 				{/* Texte */}
 				<div className="qz-loader-copy">
-					<motion.span
-						className="qz-eyebrow"
-						initial={reduceMotion ? false : { y: 12, opacity: 0 }}
-						animate={{ y: 0, opacity: 1 }}
-						transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.1 }}
-					>
-						<i />
-						{eyebrow}
-					</motion.span>
 
 					<BrandTitle as="h1" text={title} highlight={highlight} delay={0.2} className="qz-loader-title" />
 

@@ -76,31 +76,6 @@
 	}
 }
 
-.ms-eyebrow {
-	justify-self: start;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5em;
-	font-weight: 600;
-	font-size: 0.82rem;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-	line-height: 1;
-	color: var(--milo-braise);
-	background: #fff;
-	border: 2px solid var(--ms-line);
-	padding: 0.55em 1em 0.5em;
-	border-radius: 999px;
-}
-
-.ms-eyebrow i {
-	width: 0.6em;
-	height: 0.6em;
-	border-radius: 50%;
-	background: var(--milo-vert);
-	animation: ms-pulse 1.8s infinite;
-}
-
 @keyframes ms-pulse {
 	0% { box-shadow: 0 0 0 0 rgba(43, 69, 32, 0.45); }
 	70% { box-shadow: 0 0 0 8px rgba(43, 69, 32, 0); }
@@ -149,7 +124,7 @@
 .ms-btn--sm {
 	height: 42px;
 	padding: 0 1.05rem;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	box-shadow: 0 4px 0 var(--edge);
 }
 .ms-btn--sm:hover:not(:disabled) { box-shadow: 0 6px 0 var(--edge); }
@@ -232,7 +207,7 @@
 	font-variant-numeric: tabular-nums;
 }
 
-.ms-wallet__unit { font-weight: 600; font-size: 0.95rem; color: var(--text-2); }
+.ms-wallet__unit { font-weight: 600; font-size: 1.0625rem; color: var(--text-2); }
 
 /* Soleil feu + Milo, comme le hero de la landing */
 .ms-hero__art {
@@ -351,7 +326,7 @@
 .ms-rarities__label {
 	margin-right: 4px;
 	font-weight: 600;
-	font-size: 0.78rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	color: var(--text-2);
@@ -423,7 +398,7 @@
 	align-items: center;
 	gap: 0.6rem;
 	font-weight: 700;
-	font-size: 0.78rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 	line-height: 1;
@@ -574,7 +549,7 @@
 	left: 8px;
 	z-index: 2;
 	white-space: nowrap;
-	font-size: 0.72rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--text-2);
 	background: rgba(255, 255, 255, 0.85);
@@ -591,7 +566,7 @@
 	align-items: center;
 	gap: 0.3rem;
 	font-weight: 700;
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	line-height: 1;
 	padding: 0.4rem 0.65rem;
 	border-radius: 999px;
@@ -604,7 +579,7 @@
 
 .ms-card__type {
 	font-weight: 600;
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 	letter-spacing: 0.06em;
 	text-transform: uppercase;
 	color: var(--milo-braise);
@@ -652,10 +627,9 @@
 	border-radius: 999px;
 	background: var(--ok-bg);
 	font-weight: 600;
-	font-size: 0.95rem;
+	font-size: 1.0625rem;
 	color: var(--ok);
 }
-
 
 /* Aperçu 3D d'une danse (DancePreview3D) : apparaît en fondu par-dessus
    le visuel, qui sert de repli le temps que le modèle charge */
@@ -831,7 +805,7 @@
 .ms-recap .is-short dt,
 .ms-recap .is-short dd { color: var(--ko); }
 
-.ms-modal__tip { font-size: 0.92rem; color: var(--text-2); }
+.ms-modal__tip { font-size: 1.0625rem; color: var(--text-2); }
 
 .ms-modal__error {
 	padding: 0.65rem 0.9rem;
@@ -839,7 +813,7 @@
 	background: var(--ko-bg);
 	color: var(--ko);
 	font-weight: 600;
-	font-size: 0.9rem;
+	font-size: 1rem;
 }
 
 .ms-modal__actions {
@@ -880,15 +854,15 @@
 	.ms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 	.ms-card { padding: 8px 8px 12px; border-radius: 24px; gap: 8px; }
 	.ms-card__stage { border-radius: 16px; padding-bottom: 26px; }
-	.ms-tag--band { font-size: 0.64rem; padding: 0.5rem 0.6rem 0.45rem; gap: 0.3rem; }
+	.ms-tag--band { font-size: 0.875rem; padding: 0.5rem 0.6rem 0.45rem; gap: 0.3rem; }
 	.ms-pips { gap: 2px; }
 	.ms-pips i { width: 5px; height: 5px; }
-	.ms-card__name { font-size: 0.98rem; }
+	.ms-card__name { font-size: 1.0625rem; }
 	.ms-card__hint { display: none; }
-	.ms-owned-tag { top: 6px; right: 6px; font-size: 0.65rem; }
+	.ms-owned-tag { top: 6px; right: 6px; font-size: 0.875rem; }
 	.ms-card__foot { padding: 0 2px; }
-	.ms-card__foot .ms-btn { padding: 0 0.6rem; font-size: 0.88rem; }
-	.ms-card__done { font-size: 0.88rem; }
+	.ms-card__foot .ms-btn { padding: 0 0.6rem; font-size: 1rem; }
+	.ms-card__done { font-size: 1rem; }
 	.ms-price { font-size: 1.15rem; }
 }
 

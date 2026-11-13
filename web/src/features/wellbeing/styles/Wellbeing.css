@@ -1,0 +1,245 @@
+/* ============================================================
+   RAPPELS BIEN-ÊTRE (pause, temps d'écran, coucher)
+   Charte landing : cartes blanches à tranche sable, scène 3D sur
+   soleil feu, boutons pilules en relief, icônes Fluent 3D.
+   ============================================================ */
+.wb-backdrop {
+	--wb-sable: #F1D2B2;
+	--wb-feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+	--wb-nuit: linear-gradient(160deg, #2E3A5C 0%, #1F2742 100%);
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	overflow-y: auto;
+	background: rgba(42, 24, 16, 0.55);
+	backdrop-filter: blur(4px);
+	animation: wb-fade 0.25s ease both;
+}
+
+.wb-card {
+	position: relative;
+	width: min(820px, 100%);
+	display: grid;
+	grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+	background: #fff;
+	border: 2px solid var(--line);
+	border-radius: 40px;
+	box-shadow: 0 10px 0 var(--wb-sable), 0 40px 70px -30px rgba(42, 24, 16, 0.6);
+	overflow: hidden;
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+	animation: wb-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.wb-close {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	cursor: pointer;
+	box-shadow: 0 4px 0 var(--wb-sable);
+	transition: transform 0.15s ease;
+}
+.wb-close:hover { transform: translateY(-2px); color: var(--milo-encre); }
+
+/* ---------- Scène ---------- */
+.wb-scene {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: center;
+	min-height: 380px;
+	padding: 32px 24px 96px;
+	background: var(--milo-creme);
+	overflow: hidden;
+}
+.wb-scene__sun {
+	position: absolute;
+	z-index: -1;
+	width: 78%;
+	aspect-ratio: 1;
+	top: 12%;
+	border-radius: 50%;
+	background: var(--wb-feu);
+	box-shadow: inset 0 -14px 0 rgba(199, 58, 12, 0.35);
+}
+.wb-scene__sun::after {
+	content: "";
+	position: absolute;
+	inset: 9%;
+	border-radius: 50%;
+	border: 2px dashed rgba(255, 244, 229, 0.6);
+}
+.wb-scene__dots {
+	position: absolute;
+	inset: 0;
+	z-index: -2;
+	background-image: radial-gradient(rgba(199, 58, 12, 0.14) 1.4px, transparent 1.4px);
+	background-size: 28px 28px;
+}
+.wb-scene__milo {
+	position: relative;
+	width: min(100%, 330px);
+	height: auto;
+	filter: drop-shadow(0 18px 18px rgba(120, 50, 10, 0.3));
+	animation: wb-float 4s ease-in-out infinite;
+}
+.wb-scene__badge {
+	position: absolute;
+	top: 26px;
+	left: 26px;
+	width: 58px;
+	height: 58px;
+	filter: drop-shadow(0 6px 6px rgba(120, 50, 10, 0.25));
+	animation: wb-bob 3s ease-in-out infinite;
+}
+
+/* Chiffre en pastille relief, en bas de la scène */
+.wb-stat {
+	position: absolute;
+	bottom: 26px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: grid;
+	justify-items: center;
+	padding: 10px 26px 12px;
+	border: 2px solid var(--line);
+	border-radius: 24px;
+	background: #fff;
+	box-shadow: 0 6px 0 var(--wb-sable);
+	white-space: nowrap;
+}
+.wb-stat__label { font-size: 0.875rem; font-weight: 600; color: var(--text-2); line-height: 1.2; }
+.wb-stat__value { font-family: var(--f-display); font-size: 1.9rem; line-height: 1; color: var(--milo-braise); }
+
+/* Fatigue : grand aplat feu, Milo à son bureau */
+.wb-card--daily .wb-scene { background: var(--wb-feu); }
+.wb-card--daily .wb-scene__sun { background: #FFF4E5; opacity: 0.18; box-shadow: none; }
+.wb-card--daily .wb-scene__dots { background-image: radial-gradient(rgba(255, 244, 229, 0.25) 1.4px, transparent 1.4px); }
+
+/* Nuit : ciel bleu nuit étoilé, halo chaud derrière Milo (la lune est dans l'illustration) */
+.wb-card--bedtime .wb-scene { background: var(--wb-nuit); }
+.wb-card--bedtime .wb-scene__sun {
+	width: 110%;
+	top: auto;
+	background: radial-gradient(circle, rgba(252, 178, 24, 0.28) 0%, rgba(252, 178, 24, 0.08) 40%, transparent 65%);
+	box-shadow: none;
+}
+.wb-card--bedtime .wb-scene__sun::after { display: none; }
+.wb-card--bedtime .wb-scene__dots { background-image: radial-gradient(rgba(255, 244, 229, 0.18) 1.2px, transparent 1.2px); }
+.wb-star {
+	position: absolute;
+	width: 14px;
+	height: 14px;
+	background: #FCB218;
+	clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+	animation: wb-twinkle 2.4s ease-in-out infinite;
+}
+.wb-star--1 { top: 18%; right: 16%; }
+.wb-star--2 { top: 42%; left: 10%; width: 10px; height: 10px; animation-delay: 0.8s; }
+.wb-star--3 { top: 10%; left: 38%; width: 8px; height: 8px; animation-delay: 1.5s; }
+
+/* ---------- Contenu ---------- */
+.wb-content {
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+	padding: 40px 36px 34px;
+}
+
+/* Étiquette éloignée du titre, titre collé à son texte */
+.wb-heading { display: grid; gap: 16px; justify-items: start; }
+.wb-titles { display: grid; gap: 6px; }
+
+.wb-test {
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: var(--pompon-bg);
+	color: var(--milo-encre);
+	font-size: 0.75rem;
+	letter-spacing: 0.02em;
+}
+
+.wb-title {
+	margin: 0;
+	padding-right: 40px;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+	line-height: 0.95;
+	letter-spacing: 0.01em;
+	text-wrap: balance;
+}
+.wb-body { margin: 0; font-size: 1.0625rem; line-height: 1.55; color: var(--text-2); }
+
+.wb-tips { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.wb-tip {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 14px 8px 8px;
+	border-radius: 18px;
+	background: var(--milo-creme);
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.3;
+}
+.wb-tip__icon {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 42px;
+	height: 42px;
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: 0 3px 0 var(--wb-sable);
+}
+.wb-tip__icon img { width: 28px; height: 28px; filter: drop-shadow(0 3px 3px rgba(120, 50, 10, 0.2)); }
+
+/* ---------- Boutons pilules en relief (charte) ---------- */
+.wb-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: auto; }
+.wb-btn {
+	flex: 1 1 auto;
+	min-height: 56px;
+	padding: 0 24px;
+	border-radius: 999px;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.wb-btn--primary { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.wb-btn--ghost { border: 2px solid var(--line); background: #fff; color: var(--milo-encre); box-shadow: 0 6px 0 var(--wb-sable); }
+.wb-btn:hover { transform: translateY(-2px); }
+.wb-btn--primary:hover { box-shadow: 0 8px 0 var(--milo-braise); }
+.wb-btn--ghost:hover { box-shadow: 0 8px 0 var(--wb-sable); }
+.wb-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--wb-sable); }
+.wb-btn--primary:active { box-shadow: 0 1px 0 var(--milo-braise); }
+
+@keyframes wb-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes wb-pop { from { opacity: 0; transform: translateY(24px) scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes wb-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes wb-bob { 0%, 100% { transform: rotate(-8deg) translateY(0); } 50% { transform: rotate(6deg) translateY(-6px); } }
+@keyframes wb-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+
+/* ---------- Mobile : scène au-dessus, plus compacte ---------- */
+@media (max-width: 720px) {
+	.wb-backdrop { place-items: start center; }
+	.wb-card { grid-template-columns: minmax(0, 1fr); border-radius: 32px; }
+	.wb-scene { min-height: 0; padding: 20px 20px 84px; }
+	.wb-scene__milo { width: min(62%, 240px); }
+	.wb-scene__badge { width: 44px; height: 44px; top: 16px; left: 16px; }
+	.wb-content { padding: 26px 22px 24px; gap: 18px; }
+	.wb-btn { flex-basis: 100%; }
+}

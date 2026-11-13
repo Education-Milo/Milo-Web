@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Bell, ChevronRight, Flame, LogOut, Menu, Users, X, Zap } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
@@ -61,23 +61,33 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isAdmin = userProfile?.role === "Admin";
 
 	const studentNavItems = [
-		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home") },
-		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), badge: 3 },
-		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import") },
-		{ label: "Missions", path: ROUTES.MISSIONS, icon: "✅", iconSrc: navIcon("mission"), badge: missionsRemaining },
-		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️", iconSrc: navIcon("duel") },
-		{ label: "Boutique", path: "/boutique", icon: "🛍️", iconSrc: navIcon("shop") },
-		{ label: "Mon Milo", path: "/mon-milo", icon: "🦊", iconSrc: navIcon("my_milo") },
+		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home"), hint: "Ton tableau de bord du jour" },
+		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), hint: "Révise tes leçons avec Milo" },
+		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import"), hint: "Photographie un cours ou un exercice" },
+		{
+			label: "Missions",
+			path: ROUTES.MISSIONS,
+			icon: "✅",
+			iconSrc: navIcon("mission"),
+			badge: missionsRemaining,
+			hint:
+				missionsRemaining > 0
+					? `Encore ${missionsRemaining} mission${missionsRemaining > 1 ? "s" : ""} du jour`
+					: "Tes missions du jour",
+		},
+		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️", iconSrc: navIcon("duel"), hint: "Affronte tes amis en quiz" },
+		{ label: "Boutique", path: "/boutique", icon: "🛍️", iconSrc: navIcon("shop"), hint: "Dépense tes miloros" },
+		{ label: "Personnalisation", path: ROUTES.PERSONALIZATION, icon: "🦊", iconSrc: navIcon("my_milo"), hint: "Tenue de Milo, roue de duel et centres d'intérêt" },
 	];
 
 	// Les statistiques vivent désormais dans le profil (ROUTES.STATS y redirige)
 	const progressItems = [
-		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true },
+		{ label: "Succès", path: "/achievements", icon: "🏆", iconSrc: navIcon("success"), disabled: true, hint: "Bientôt disponible" },
 	];
 
 	const socialItems = [
-		{ label: "Amis", path: "/friends", icon: "👥", iconSrc: navIcon("friend"), disabled: false },
-		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true },
+		{ label: "Amis", path: "/friends", icon: "👥", iconSrc: navIcon("friend"), disabled: false, hint: "Ajoute et retrouve tes amis" },
+		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true, hint: "Bientôt disponible" },
 	];
 
 	const parentNavItems = [
@@ -94,6 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Programmes", path: ROUTES.ADMIN.PROGRAMMES, icon: "📚" },
 		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜" },
 		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕" },
+		{ label: "Bien-être", path: ROUTES.ADMIN.WELLBEING, icon: "💤", hint: "Tester les rappels de pause et de coucher" },
 		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪" },
 	];
 
@@ -135,7 +146,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 		});
 	}, [location.pathname, isParent, isAdmin]);
 
-	/* Re-mesure si la fenêtre est redimensionnée */
+	/* Re-mesure si la fenêtre est redimensionnée, si la nav change de taille
+	   ou quand les polices finissent de charger (sinon l'indicateur restait
+	   calé sur la position mesurée avec la police de secours) */
 	useEffect(() => {
 		const onResize = () => {
 			const nav = navRef.current;
@@ -151,11 +164,48 @@ const Sidebar: React.FC<SidebarProps> = ({
 			});
 		};
 		window.addEventListener("resize", onResize);
-		return () => window.removeEventListener("resize", onResize);
+		const observer = new ResizeObserver(onResize);
+		// La nav garde sa hauteur : ce sont ses groupes qui changent de taille
+		navRef.current?.querySelectorAll(".sb-nav-group").forEach((group) => observer.observe(group));
+		void document.fonts?.ready.then(onResize);
+		return () => {
+			window.removeEventListener("resize", onResize);
+			observer.disconnect();
+		};
 	}, []);
+
+	/* =========================================================
+	   INFOBULLE AU SURVOL / FOCUS : rendue en position fixe pour
+	   ne pas être rognée par la zone scrollable de la navigation
+	   ========================================================= */
+	const tooltipId = useId();
+	const [tooltip, setTooltip] = useState<{ text: string; top: number; left: number } | null>(null);
+	const showTooltip = (el: HTMLElement, text?: string) => {
+		if (!text) return;
+		const rect = el.getBoundingClientRect();
+		setTooltip({ text, top: rect.top + rect.height / 2, left: rect.right + 10 });
+	};
+	const hideTooltip = () => setTooltip(null);
+
+	useEffect(() => {
+		hideTooltip();
+	}, [location.pathname]);
+
+	useEffect(() => {
+		if (!tooltip) return;
+		const onKey = (e: KeyboardEvent) => e.key === "Escape" && hideTooltip();
+		const nav = navRef.current;
+		window.addEventListener("keydown", onKey);
+		nav?.addEventListener("scroll", hideTooltip, { passive: true });
+		return () => {
+			window.removeEventListener("keydown", onKey);
+			nav?.removeEventListener("scroll", hideTooltip);
+		};
+	}, [tooltip]);
 
 	const renderNavItem = (item: any) => {
 		const isDisabled = item.disabled;
+		const isTooltipTarget = tooltip?.text === item.hint;
 		return (
 			<button
 				type="button"
@@ -166,7 +216,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 					navigate(item.path);
 					setIsMobileOpen(false);
 				}}
-				disabled={isDisabled}
+				onMouseEnter={(e) => showTooltip(e.currentTarget, item.hint)}
+				onMouseLeave={hideTooltip}
+				onFocus={(e) => showTooltip(e.currentTarget, item.hint)}
+				onBlur={hideTooltip}
+				aria-describedby={isTooltipTarget ? tooltipId : undefined}
+				aria-current={isActive(item.path) ? "page" : undefined}
+				// Les entrées « Bientôt » restent focusables pour lire l'infobulle
+				aria-disabled={isDisabled || undefined}
 			>
 				<span className="sb-nav-icon">
 					{item.iconSrc && !brokenIcons.has(item.iconSrc) ? (
@@ -183,7 +240,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				</span>
 				<span className="sb-nav-label">{item.label}</span>
 				{Boolean(item.badge) && !isDisabled && (
-					<span className="sb-nav-badge">{item.badge}</span>
+					<span className="sb-nav-badge" aria-hidden="true">{item.badge}</span>
 				)}
 				{isDisabled && <span className="sb-nav-tag">Bientôt</span>}
 			</button>
@@ -393,6 +450,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 						</div>
 					</div>
 				</aside>
+
+				{tooltip && (
+					<div
+						id={tooltipId}
+						role="tooltip"
+						className="sb-tooltip"
+						style={{ top: tooltip.top, left: tooltip.left }}
+					>
+						{tooltip.text}
+					</div>
+				)}
 			</>
 		);
 };

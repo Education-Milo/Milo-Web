@@ -33,7 +33,7 @@ const STORAGE_ROWS: { name: string; kind: string; purpose: string; duration: str
 	{
 		name: "milo-wheel-slots:<compte>",
 		kind: "Stockage local",
-		purpose: "Mémoriser ta roue de cosmétiques dans Mon Milo",
+		purpose: "Mémoriser ta roue de cosmétiques dans Personnalisation",
 		duration: "Jusqu'à ce que tu vides les données du site",
 	},
 	{

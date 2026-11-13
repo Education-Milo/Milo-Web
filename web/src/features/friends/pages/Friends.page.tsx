@@ -74,7 +74,6 @@ const FriendsPage: React.FC = () => {
 	return (
 		<ScreenLayout>
 			<div className="friends-viewport">
-				<div className="friends-bg-glow" />
 
 				<main className="friends-content-area">
 					{/* EN-TÊTE */}

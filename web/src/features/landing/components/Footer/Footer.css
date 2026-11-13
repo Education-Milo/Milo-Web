@@ -84,7 +84,7 @@
 	border-top: 2px solid var(--lp-line);
 	margin-top: 3rem;
 	padding: 1.4rem 0;
-	font-size: 0.92rem;
+	font-size: 1rem;
 	color: var(--lp-ink-2);
 }
 
@@ -116,6 +116,6 @@
 	}
 
 	.lp-footer__cols a {
-		font-size: 0.95rem;
+		font-size: 1rem;
 	}
 }

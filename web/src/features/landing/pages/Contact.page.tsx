@@ -105,7 +105,6 @@ const ContactPage: React.FC = () => {
 			icon="fox"
 			milo="/landing/milo/milo-contact.webp"
 			floats={["speech_balloon", "star"]}
-			eyebrow="On discute ?"
 			title={
 				<>
 					Une question pour <span className="lp-hl">Milo</span>&nbsp;?
@@ -211,7 +210,6 @@ const ContactPage: React.FC = () => {
 				<aside className="lp-contact-aside">
 					<div className="lp-contact-tip">
 						<Emoji3D name="light_bulb" className="lp-contact-tip__icon" />
-						<span className="lp-contact-tip__badge">Astuce</span>
 						<p>Une question pressante ? La réponse se trouve peut-être déjà dans notre FAQ.</p>
 						<Link to="/faq" className="lp-btn lp-btn--ghost lp-btn--sm">
 							Voir la FAQ <ArrowRight size={18} />

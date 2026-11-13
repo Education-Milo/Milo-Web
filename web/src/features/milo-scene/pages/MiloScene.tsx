@@ -110,7 +110,6 @@ const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
 	return (
 		<div className={`cls-loading${done ? " is-done" : ""}`}>
 			<QuizLoader
-				eyebrow="Salle de classe"
 				title="On entre en classe !"
 				highlight="classe"
 				messages={LOADING_LINES}
@@ -465,7 +464,6 @@ const MiloScene: React.FC = () => {
 					<header className="cls-board-head">
 						<div className="cls-board-titles">
 							<span className="cls-chalk-eyebrow">
-								<i />
 								Question de Milo
 							</span>
 							<h2 className="cls-board-title cls-board-title--question">{scene.openQuestionText}</h2>
@@ -475,7 +473,6 @@ const MiloScene: React.FC = () => {
 						{reply && (
 							<section className="cls-board-reply">
 								<span className="cls-chalk-eyebrow">
-									<i />
 									{reply.pending
 										? "Milo réfléchit…"
 										: reply.action === "openHelp"
@@ -570,7 +567,6 @@ const MiloScene: React.FC = () => {
 				<header className="cls-board-head">
 					<div className="cls-board-titles">
 						<span className="cls-chalk-eyebrow">
-							<i />
 							{eyebrow}
 						</span>
 						<ChalkTitle text={currentPart?.title ?? lessonTitle} />

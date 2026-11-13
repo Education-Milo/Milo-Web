@@ -1,0 +1,343 @@
+/* ============================================================
+   LOBBY DES DUELS : BENTO (charte landing)
+   Tuiles blanches à tranche sable, arène sur l'aplat feu,
+   Luckiest Guy pour les titres, icônes 3D, pilules en relief.
+   Pas d'étiquettes à pastille ni de halos.
+   ============================================================ */
+.dz {
+	--dz-sable: #F1D2B2;
+	--dz-line: var(--line);
+	--dz-feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+	--dz-dots-creme: radial-gradient(rgba(255, 244, 229, 0.25) 1.4px, transparent 1.4px);
+	position: relative;
+	min-height: 100vh;
+	padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 36px) 64px;
+	background: var(--bg);
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+
+.dz-toast-slot { position: fixed; top: 20px; left: 50%; z-index: 60; transform: translateX(-50%); width: min(460px, calc(100% - 32px)); }
+
+/* ---------- Grille : l'arène en grand, puis 3 tuiles, puis la vitrine ---------- */
+.dz-bento {
+	display: grid;
+	grid-template-columns: repeat(12, minmax(0, 1fr));
+	grid-template-areas:
+		"arena arena arena arena arena arena arena arena arena arena arena arena"
+		"rank rank rank rank friends friends friends friends rival rival rival rival"
+		"shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf";
+	gap: 20px;
+	max-width: 1280px;
+	margin: 0 auto;
+}
+.dz-arena { grid-area: arena; }
+.dz-rank { grid-area: rank; }
+.dz-friends-tile { grid-area: friends; }
+.dz-rival-tile { grid-area: rival; }
+.dz-shelf-tile { grid-area: shelf; }
+
+.dz-tile {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: 0;
+	padding: 22px;
+	border: 2px solid var(--dz-line);
+	border-radius: 32px;
+	background: #fff;
+	box-shadow: 0 8px 0 var(--dz-sable);
+}
+.dz-tile__head { display: grid; gap: 4px; }
+.dz-tile__head--row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dz-tile__titles { display: grid; gap: 4px; }
+.dz-tile__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.55rem; line-height: 0.95; letter-spacing: 0.01em; }
+.dz-tile__sub { margin: 0; font-size: 1rem; color: var(--text-2); }
+.dz-hl { color: #FFF4E5; text-shadow: 0 0.06em 0 var(--milo-braise); }
+
+/* ---------- ARÈNE ---------- */
+.dz-arena {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	justify-items: center;
+	gap: 6px;
+	padding: 30px 24px 34px;
+	overflow: hidden;
+	border-radius: 40px;
+	background: var(--dz-feu);
+	color: #fff;
+	text-align: center;
+	box-shadow: 0 10px 0 var(--milo-braise);
+}
+.dz-arena__dots { position: absolute; inset: 0; z-index: -2; background-image: var(--dz-dots-creme); background-size: 28px 28px; }
+/* Sol de l'arène : un grand ovale crème sous les combattants */
+.dz-arena__floor {
+	position: absolute;
+	z-index: -1;
+	left: 8%;
+	right: 8%;
+	bottom: 108px;
+	height: 120px;
+	border-radius: 50%;
+	background: rgba(255, 244, 229, 0.16);
+	border: 3px dashed rgba(255, 244, 229, 0.35);
+}
+.dz-arena__titles { display: grid; gap: 6px; }
+.dz-arena__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem, 4.2vw, 3.6rem); line-height: 0.92; letter-spacing: 0.01em; }
+.dz-arena__lead { margin: 0; font-size: 1.125rem; color: #FFF4E5; }
+
+.dz-arena__stage {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+	align-items: end;
+	gap: 8px;
+	width: min(100%, 980px);
+	margin-top: 4px;
+}
+.dz-fighter { display: grid; justify-items: center; gap: 8px; }
+.dz-fighter__milo {
+	position: relative;
+	width: min(100%, 300px);
+	height: 300px;
+	padding: 0;
+	border: 0;
+	border-radius: 28px;
+	background: none;
+	cursor: pointer;
+}
+.dz-fighter__milo .duel-milo-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dz-fighter__milo:focus-visible { outline: 3px solid #FFF4E5; outline-offset: 4px; }
+.dz-fighter__tag {
+	padding: 7px 16px;
+	border-radius: 999px;
+	background: #FFF4E5;
+	color: var(--milo-braise);
+	font-size: 1.0625rem;
+	font-weight: 700;
+	box-shadow: 0 4px 0 var(--milo-braise);
+}
+
+.dz-versus { position: relative; display: grid; place-items: center; align-self: center; padding: 0 8px; }
+.dz-versus__text {
+	font-family: var(--f-display);
+	font-size: clamp(4rem, 8vw, 6.5rem);
+	line-height: 1;
+	color: #FFF4E5;
+	text-shadow: 0 0.06em 0 var(--milo-braise), 0 0.12em 0 rgba(90, 20, 0, 0.25);
+}
+.dz-versus__swords { width: 64px; height: 64px; margin-top: -8px; }
+.dz-versus__swords img { width: 100%; height: 100%; filter: drop-shadow(0 6px 6px rgba(90, 20, 0, 0.3)); }
+
+.dz-mystery {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: min(100%, 260px);
+	height: 300px;
+	cursor: default;
+}
+.dz-mystery__knight { width: 92%; height: auto; filter: brightness(0) opacity(0.28); }
+.dz-mystery__mark {
+	position: absolute;
+	top: 34%;
+	font-family: var(--f-display);
+	font-size: 6rem;
+	line-height: 1;
+	color: #FFF4E5;
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+
+.dz-arena__cta { display: grid; justify-items: center; gap: 10px; margin-top: 8px; }
+.dz-arena__hint { margin: 0; font-size: 1rem; font-weight: 600; color: #FFF4E5; }
+
+/* ---------- Boutons ---------- */
+.dz-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 52px;
+	padding: 0 22px;
+	border: 0;
+	border-radius: 999px;
+	font: 700 1.0625rem/1 var(--f-text);
+	white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.dz-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.dz-btn--sm { min-height: 44px; padding: 0 16px; font-size: 1rem; }
+/* Appel principal sur l'aplat feu : crème, texte braise, tranche braise */
+.dz-btn--cta {
+	min-height: 64px;
+	padding: 0 32px;
+	background: #FFF4E5;
+	color: var(--milo-braise);
+	font-size: 1.25rem;
+	box-shadow: 0 7px 0 var(--milo-braise);
+}
+.dz-btn--cta:focus-visible { outline-color: #FFF4E5; }
+.dz-btn--primary { background: var(--milo-orange); color: #fff; box-shadow: 0 5px 0 var(--milo-braise); }
+.dz-btn--ghost { border: 2px solid var(--dz-line); background: #fff; color: var(--milo-encre); box-shadow: 0 5px 0 var(--dz-sable); }
+.dz-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.dz-btn--cta:hover { box-shadow: 0 9px 0 var(--milo-braise); }
+.dz-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--milo-braise); }
+.dz-btn--ghost:active:not(:disabled) { box-shadow: 0 1px 0 var(--dz-sable); }
+.dz-btn:disabled { background: var(--milo-creme); color: var(--text-3); box-shadow: none; cursor: not-allowed; }
+
+.dz-link-btn {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--dz-line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	box-shadow: 0 4px 0 var(--dz-sable);
+	transition: transform 0.15s ease, color 0.15s ease;
+}
+.dz-link-btn:hover { transform: translateY(-2px); color: var(--milo-encre); }
+.dz-link-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+
+/* ---------- Rang ---------- */
+.dz-rank { flex-direction: row; align-items: center; gap: 14px; overflow: hidden; }
+.dz-rank__knight { flex: none; width: 112px; height: auto; margin: -6px -6px -26px -10px; align-self: flex-end; filter: drop-shadow(0 8px 8px rgba(120, 50, 10, 0.25)); }
+.dz-rank__copy { display: grid; flex: 1; gap: 12px; min-width: 0; }
+.dz-rank__name { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2rem; line-height: 0.95; color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--milo-braise); }
+.dz-rank__track { display: flex; gap: 6px; }
+.dz-rank__step { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: var(--milo-creme); }
+.dz-rank__step img { width: 26px; height: 26px; filter: grayscale(1) opacity(0.4); }
+.dz-rank__step.is-reached img { filter: none; }
+.dz-rank__step.is-current { background: var(--pompon-bg); box-shadow: inset 0 0 0 3px var(--milo-pompon); }
+.dz-rank__progress { display: grid; gap: 6px; }
+.dz-bar { height: 12px; border-radius: 999px; background: var(--milo-creme); overflow: hidden; }
+.dz-bar__fill { display: block; height: 100%; border-radius: inherit; background: var(--dz-feu); }
+.dz-rank__next { margin: 0; font-size: 0.9375rem; color: var(--text-2); }
+.dz-rank__next b { color: var(--milo-encre); }
+
+/* ---------- Défie un ami ---------- */
+.dz-challengers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.dz-challenger__btn {
+	display: grid;
+	justify-items: center;
+	gap: 2px;
+	width: 100%;
+	padding: 10px 4px 8px;
+	border: 0;
+	border-radius: 22px;
+	background: var(--milo-creme);
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+}
+.dz-challenger__btn:hover:not(:disabled) { transform: translateY(-4px) rotate(-2deg); background: var(--pompon-bg); }
+.dz-challenger__btn:active:not(:disabled) { transform: translateY(2px); }
+.dz-challenger__btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 2px; }
+.dz-challenger__btn:disabled { cursor: not-allowed; }
+.dz-challenger__avatar { position: relative; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: #fff; border: 3px solid var(--dz-line); }
+.dz-challenger__avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.dz-challenger__avatar > span:first-child { font-weight: 700; color: var(--milo-braise); }
+.dz-challenger.is-online .dz-challenger__avatar { border-color: var(--ok); }
+.dz-challenger.is-offline .dz-challenger__avatar { filter: grayscale(1); opacity: 0.6; }
+.dz-challenger__sword {
+	position: absolute;
+	right: -6px;
+	bottom: -4px;
+	display: grid;
+	place-items: center;
+	width: 26px;
+	height: 26px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	background: var(--milo-orange);
+	color: #fff;
+}
+.dz-challenger__name { max-width: 100%; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 700; }
+.dz-challenger__status { font-size: 0.8125rem; font-weight: 600; color: var(--text-2); }
+.dz-challenger.is-online .dz-challenger__status { color: var(--ok); }
+
+/* ---------- Rival ---------- */
+.dz-rival { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 14px 10px; border-radius: 22px; background: var(--milo-creme); }
+.dz-rival__side { display: grid; justify-items: center; gap: 2px; min-width: 0; }
+.dz-rival__score { font-family: var(--f-display); font-size: 2.6rem; line-height: 1; }
+.dz-rival__who { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9375rem; font-weight: 600; color: var(--text-2); }
+.dz-rival__swords { width: 40px; height: 40px; }
+.dz-rival__verdict { margin: 0; font-size: 1rem; font-weight: 600; text-align: center; color: var(--text-2); }
+.dz-rival-tile .dz-btn { margin-top: auto; }
+
+/* ---------- Vitrine ---------- */
+.dz-total-wins {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-family: var(--f-display);
+	font-size: 2.2rem;
+	line-height: 1;
+	color: var(--milo-orange);
+	text-shadow: 0 0.06em 0 var(--milo-braise);
+}
+.dz-total-wins img { width: 40px; height: 40px; }
+.dz-shelf {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 14px;
+	margin: 0;
+	padding: 18px 16px 0;
+	list-style: none;
+	/* L'étagère : une planche sable sous les médailles */
+	background: linear-gradient(transparent calc(100% - 14px), var(--dz-sable) calc(100% - 14px));
+	border-radius: 0 0 14px 14px;
+}
+.dz-medal { display: grid; justify-items: center; gap: 4px; padding-bottom: 22px; text-align: center; }
+.dz-medal__disc {
+	display: grid;
+	place-items: center;
+	width: 76px;
+	height: 76px;
+	border-radius: 50%;
+	background: var(--milo-creme);
+	border: 4px solid #fff;
+	box-shadow: 0 5px 0 var(--dz-sable);
+	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.dz-medal:hover .dz-medal__disc { transform: translateY(-4px) rotate(-8deg); }
+.dz-medal__disc img { width: 44px; height: 44px; }
+.dz-medal.is-win .dz-medal__disc { background: var(--pompon-bg); border-color: var(--milo-pompon); }
+.dz-medal.is-loss .dz-medal__disc img { filter: grayscale(0.6); }
+.dz-medal__score { font-family: var(--f-display); font-size: 1.4rem; line-height: 1; }
+.dz-medal__vs { font-size: 0.875rem; font-weight: 600; line-height: 1.3; color: var(--text-2); }
+.dz-medal.is-win .dz-medal__vs { color: var(--ok); }
+.dz-empty--row { grid-auto-flow: column; justify-content: start; text-align: left; }
+
+/* ---------- États ---------- */
+.dz-empty { display: grid; flex: 1; justify-items: center; align-content: center; gap: 10px; padding: 12px; text-align: center; color: var(--text-2); }
+.dz-empty img { width: 56px; height: 56px; }
+.dz-empty p { margin: 0; max-width: 28ch; font-size: 1rem; }
+.dz-state { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; padding: 20px; color: var(--text-2); }
+.dz-spinner { width: 26px; height: 26px; border: 3px solid var(--milo-creme); border-top-color: var(--milo-orange); border-radius: 50%; animation: dz-spin 0.9s linear infinite; }
+@keyframes dz-spin { to { transform: rotate(360deg); } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+	.dz-bento {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-areas: "arena arena" "rank rank" "friends rival" "shelf shelf";
+	}
+}
+@media (max-width: 760px) {
+	.dz-bento { grid-template-columns: minmax(0, 1fr); grid-template-areas: "arena" "rank" "friends" "rival" "shelf"; }
+	.dz-arena { padding: 24px 14px 28px; }
+	.dz-arena__floor { bottom: 120px; height: 70px; }
+	.dz-fighter__milo, .dz-mystery { height: 190px; }
+	.dz-mystery__mark { font-size: 3.6rem; }
+	.dz-versus__swords { width: 40px; height: 40px; }
+	.dz-fighter__tag { font-size: 0.875rem; padding: 5px 10px; }
+	.dz-btn--cta { width: 100%; }
+	.dz-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.dz-empty--row { grid-auto-flow: row; justify-content: center; text-align: center; }
+}

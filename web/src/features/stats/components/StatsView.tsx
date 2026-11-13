@@ -11,7 +11,6 @@ import {
 	Lock,
 	Medal,
 	Percent,
-	Sparkles,
 	Swords,
 	Trophy,
 	Users,
@@ -79,10 +78,6 @@ const StatsView: React.FC = () => {
 		<div className={`st-page ${isOtherUser ? "st-page--embedded" : ""}`}>
 				<header className="st-header">
 					<div className="st-header-text">
-						<div className="st-header-chip">
-							<Sparkles size={13} />
-							<span>{ownerLabel ? `Compte ${ownerLabel}` : "Tes statistiques"}</span>
-						</div>
 						<h1 className="st-header-title">{ownerLabel ? `Statistiques de ${ownerLabel}` : "Statistiques"}</h1>
 					</div>
 				</header>
@@ -141,7 +136,6 @@ const StatsView: React.FC = () => {
 					<div className={`st-bento ${isFetching ? "is-fetching" : ""}`}>
 						{/* NIVEAU & XP */}
 						<section className="st-cell st-c-span2 st-theme-amber">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<div className="st-cell-icon">
 								<Zap size={20} />
 							</div>
@@ -165,7 +159,6 @@ const StatsView: React.FC = () => {
 
 						{/* TEMPS & ASSIDUITE */}
 						<section className="st-cell st-c-span2 st-theme-teal">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<header className="st-card-header">
 								<div className="st-card-title-wrap">
 									<div className="st-cell-icon">
@@ -191,7 +184,6 @@ const StatsView: React.FC = () => {
 
 						{/* QCM */}
 						<section className="st-cell st-c-span2 st-theme-violet">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<header className="st-card-header">
 								<div className="st-card-title-wrap">
 									<div className="st-cell-icon">
@@ -223,7 +215,6 @@ const StatsView: React.FC = () => {
 
 						{/* DUELS */}
 						<section className="st-cell st-c-span2 st-theme-rose">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<header className="st-card-header">
 								<div className="st-card-title-wrap">
 									<div className="st-cell-icon">
@@ -292,7 +283,6 @@ const StatsView: React.FC = () => {
 
 						{/* RIVALITES */}
 						<section className="st-cell st-c-span2 st-c-row2 st-theme-rose">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<header className="st-card-header">
 								<div className="st-card-title-wrap">
 									<div className="st-cell-icon">
@@ -370,7 +360,6 @@ const StatsView: React.FC = () => {
 						{/* SUCCES - TEASER (élève uniquement) */}
 						{!isOtherUser && (
 						<section className="st-cell st-c-span4 st-theme-teal">
-							<span className="st-cell-glow" aria-hidden="true" />
 							<header className="st-card-header">
 								<div className="st-card-title-wrap">
 									<div className="st-cell-icon">

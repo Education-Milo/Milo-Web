@@ -50,7 +50,6 @@ const Login: React.FC = () => {
 
 	return (
 		<div className="auth-page-root">
-			<div className="auth-mesh"></div>
 
 			<AuthHeader rightLinkTo="/register" rightLinkLabel="Pas de compte ?" />
 

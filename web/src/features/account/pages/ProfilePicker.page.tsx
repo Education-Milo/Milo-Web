@@ -158,10 +158,6 @@ const ProfilePickerPage: React.FC = () => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ type: "spring", stiffness: 120, damping: 16 }}
 				>
-					<span className="pp-eyebrow">
-						<i aria-hidden="true" />
-						{managing ? "Mode gestion" : "Compte famille"}
-					</span>
 					<h1 className="pp-title">
 						{managing ? (
 							<>

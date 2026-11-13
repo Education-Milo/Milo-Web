@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ArrowDown, SendHorizontal } from "lucide-react";
+import { ArrowDown, MousePointerClick, SendHorizontal } from "lucide-react";
 import type { OpenQuestionInputMode } from "@features/milo-scene/hooks/useMiloScene";
 
 export type SheetMode =
@@ -64,7 +64,10 @@ const SheetPaper: React.FC<SheetPaperProps> = ({
 					<p className="cls-paper-idle-title">
 						Une <span className="cls-hl">question</span> ?
 					</p>
-					<p className="cls-paper-idle-sub">Clique ici pour écrire à Milo</p>
+					<p className="cls-paper-idle-sub cls-idle-hint">
+						<MousePointerClick size={22} aria-hidden="true" />
+						Clique pour écrire à Milo
+					</p>
 				</div>
 			</div>
 		);

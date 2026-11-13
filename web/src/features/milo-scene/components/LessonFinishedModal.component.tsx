@@ -35,7 +35,7 @@ const LessonFinishedModal: React.FC<LessonFinishedModalProps> = ({
 	];
 
 	return (
-		<ClassSheet isOpen={isOpen} onClose={onClose} variant="center" eyebrow="Leçon terminée" title="C'est gagné !">
+		<ClassSheet isOpen={isOpen} onClose={onClose} variant="center" title="C'est gagné !">
 			<div className="cls-finish">
 				<ConfettiBurst count={46} spread={240} originX={50} originY={10} />
 				<motion.img

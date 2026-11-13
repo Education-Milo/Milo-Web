@@ -76,7 +76,6 @@ const MiloAnswer: React.FC<MiloAnswerProps> = ({
 			<header className="cls-board-head">
 				<div className="cls-board-titles">
 					<span className="cls-chalk-eyebrow">
-						<i />
 						{answer.pending ? "Milo réfléchit…" : answer.action === "exercise" ? "Exercice de Milo" : "Milo au tableau"}
 					</span>
 					<ChalkTitle
