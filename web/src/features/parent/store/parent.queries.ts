@@ -15,17 +15,16 @@ import type { LinkedChild, ParentData, WeeklyReport } from "@features/parent/sto
  *   mot de passe du compte exigé, refusé sur un profil de démonstration) ;
  * - GET /parent/children/{id}/stats et /activity : statistiques et journal
  *   d'un enfant du compte famille, même forme que /tracking/stats/me et
- *   /tracking/activity/me (profil Parent uniquement).
+ *   /tracking/activity/me (profil Parent uniquement) ;
+ * - GET /parent/children/{id}/reports : bilans hebdomadaires rédigés par l'IA,
+ *   générés à la demande pour la dernière semaine terminée.
  *
- * Absent de l'API au 13/11/2026. Les écrans affichent un état vide explicite :
- * - liaison d'un compte élève par un code généré côté élève (F-26) ;
- * - bilans hebdomadaires rédigés par l'IA (F-28).
+ * Absent de l'API au 13/11/2026 : la liaison d'un compte élève par un code
+ * généré côté élève (F-26). Le formulaire reste désactivé.
  *
  * Les composants lisent `data`, `isLoading`, `isError` et `isUnavailable` :
  * brancher une nouvelle route revient à remplacer le hook par un useQuery.
  */
-
-const UNAVAILABLE = { data: undefined, isLoading: false, isError: false, isUnavailable: true } as const;
 
 /** Période des cartes du tableau de bord : la semaine écoulée */
 const WEEK_DAYS = 7;
@@ -94,8 +93,22 @@ export const useChildActivity = (childId: number | null): ParentData<ActivityIte
 		}),
 	);
 
-/** Bilans hebdomadaires d'un enfant, du plus récent au plus ancien. Route absente. */
-export const useWeeklyReports = (_childId: number | null): ParentData<WeeklyReport[]> => UNAVAILABLE;
+/**
+ * Bilans hebdomadaires d'un enfant, du plus récent au plus ancien. La première
+ * visite après la fin d'une semaine déclenche sa rédaction côté back (quelques
+ * secondes) ; ensuite le bilan est resservi tel quel.
+ */
+export const useWeeklyReports = (childId: number | null): ParentData<WeeklyReport[]> =>
+	toParentData(
+		useQuery({
+			queryKey: [...PARENT_QUERY_KEY, childId, "reports"],
+			queryFn: async () =>
+				(await APIAxios.get<WeeklyReport[]>(APIRoutes.GET_Parent_Child_Reports(childId as number))).data,
+			enabled: childId !== null,
+			// Un bilan par semaine : inutile de redemander à chaque retour sur l'onglet
+			staleTime: 30 * 60 * 1000,
+		}),
+	);
 
 /** Liaison d'un compte élève par code. Route absente : le formulaire reste désactivé. */
 export const LINK_BY_CODE_AVAILABLE = false;

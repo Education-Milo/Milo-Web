@@ -216,6 +216,8 @@ export const APIRoutes = {
   // Suivi d'un enfant par son parent : profil Parent, enfant du même compte famille
   GET_Parent_Child_Stats: (childId: number) => `/parent/children/${childId}/stats`,
   GET_Parent_Child_Activity: (childId: number) => `/parent/children/${childId}/activity`,
+  // Bilans hebdomadaires : rédige celui de la semaine écoulée à la première visite
+  GET_Parent_Child_Reports: (childId: number) => `/parent/children/${childId}/reports`,
   GET_Tracking_Performance_Me: '/tracking/performance/me',
   GET_Tracking_Activity_Me: '/tracking/activity/me',
 

@@ -284,7 +284,14 @@ export const LatestReportCard: React.FC<CardProps & { reports: ParentData<Weekly
 		>
 			{(items) => {
 				const latest = items[0];
-				if (!latest) return <p className="pa-muted">Aucun bilan pour l'instant.</p>;
+				if (!latest) {
+					return (
+						<p className="pa-muted">
+							Aucun bilan pour l'instant : le premier sera rédigé le lundi qui suit la première semaine de{" "}
+							{childName} sur Milo.
+						</p>
+					);
+				}
 				return (
 					<div className="pa-report-preview">
 						<p className="pa-report-week">{formatReportWeek(latest)}</p>

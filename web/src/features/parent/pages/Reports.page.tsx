@@ -84,7 +84,8 @@ const ReportsPage: React.FC = () => {
 						{(items) =>
 							items.length === 0 ? (
 								<ParentEmptyState icon={FileText} title="Aucun bilan pour le moment">
-									Le premier bilan de {childName} sera rédigé à la fin de sa première semaine d'activité.
+									Chaque lundi, Milo rédige le bilan de la semaine écoulée. Le premier bilan de{" "}
+									{childName} sera disponible le lundi qui suit sa première semaine sur Milo.
 								</ParentEmptyState>
 							) : (
 								<ul className="pa-report-list">
