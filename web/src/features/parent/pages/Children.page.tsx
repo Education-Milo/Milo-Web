@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { AlertCircle, Info, Link2, UserPlus, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertCircle, CheckCircle2, Info, Link2, UserPlus, Users } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
+import { useUserStore } from "@shared/store/user/user.store";
+import type { ProfileSummary } from "@shared/store/auth/auth.model";
 import { profileRoleLabel } from "@features/account/utils/profile.format";
+import { MAX_PROFILES_PER_ACCOUNT } from "@features/account/store/account.model";
 import ParentPageHeader from "@features/parent/components/ParentPageHeader";
 import ParentEmptyState from "@features/parent/components/ParentEmptyState";
+import AddChildDialog from "@features/parent/components/AddChildDialog";
 import { ChildAvatar, childFullName } from "@features/parent/components/ChildSwitcher";
 import { LINK_BY_CODE_AVAILABLE, useLinkedChildren } from "@features/parent/store/parent.queries";
 import { useParentStore } from "@features/parent/store/parent.store";
@@ -13,14 +17,43 @@ import "@features/parent/styles/Parent.css";
 
 const ChildrenPage: React.FC = () => {
 	const navigate = useNavigate();
-	const { children, isLoading, isError, refetch } = useLinkedChildren();
+	const { children, profileCount, isLoading, isError, refetch } = useLinkedChildren();
 	const selectChild = useParentStore((state) => state.selectChild);
+	const isDemo = useUserStore((state) => Boolean(state.user?.is_demo));
 	const [code, setCode] = useState("");
+	const [adding, setAdding] = useState(false);
+	const [createdName, setCreatedName] = useState<string | null>(null);
+
+	const isFull = profileCount >= MAX_PROFILES_PER_ACCOUNT;
+	const canAdd = !isDemo && !isFull && !isLoading && !isError;
 
 	const openFollowUp = (childId: number) => {
 		selectChild(childId);
 		navigate(ROUTES.PARENT.DASHBOARD);
 	};
+
+	const handleCreated = (profile: ProfileSummary) => {
+		setAdding(false);
+		// Le nouvel enfant devient l'enfant suivi dans le bandeau des autres pages
+		selectChild(profile.id);
+		setCreatedName(profile.first_name);
+	};
+
+	const addButton = (
+		<button
+			type="button"
+			className="pa-btn pa-btn--primary"
+			onClick={() => {
+				setCreatedName(null);
+				setAdding(true);
+			}}
+			disabled={!canAdd}
+			aria-describedby={!canAdd && (isDemo || isFull) ? "pa-add-child-note" : undefined}
+		>
+			<UserPlus size={18} aria-hidden="true" />
+			Ajouter un profil enfant
+		</button>
+	);
 
 	const renderLinked = () => {
 		if (isLoading) {
@@ -47,7 +80,7 @@ const ChildrenPage: React.FC = () => {
 		if (children.length === 0) {
 			return (
 				<ParentEmptyState compact icon={Users} title="Aucun enfant lié pour l'instant">
-					Les comptes que vous liez apparaissent ici, avec leur classe.
+					Les profils enfants de votre compte apparaissent ici, avec leur classe.
 				</ParentEmptyState>
 			);
 		}
@@ -97,6 +130,18 @@ const ChildrenPage: React.FC = () => {
 								</span>
 							)}
 						</div>
+						{/* Annonce de la création, présente dès le départ pour être lue */}
+						<div role="status" aria-live="polite">
+							{createdName && (
+								<p className="pa-success">
+									<CheckCircle2 size={18} aria-hidden="true" />
+									<span>
+										Le profil de {createdName} est créé. Votre enfant peut l'ouvrir depuis l'écran
+										« Qui est-ce ? ».
+									</span>
+								</p>
+							)}
+						</div>
 						{renderLinked()}
 					</section>
 
@@ -136,8 +181,8 @@ const ChildrenPage: React.FC = () => {
 							<p id="pa-link-code-note" className="pa-field-note">
 								<Info size={16} aria-hidden="true" />
 								<span>
-									La liaison par code n'est pas encore ouverte. En attendant, ajoutez votre enfant comme
-									profil de votre compte famille.
+									La liaison par code n'est pas encore ouverte. En attendant, créez le profil de votre
+									enfant dans votre compte famille, ci-dessous.
 								</span>
 							</p>
 						</form>
@@ -146,16 +191,29 @@ const ChildrenPage: React.FC = () => {
 
 						<h3 className="pa-subtitle">Créer le profil de votre enfant</h3>
 						<p className="pa-text">
-							Votre compte peut réunir plusieurs profils : chaque enfant y garde sa propre progression, et
-							vous pouvez protéger chaque profil par un code PIN.
+							Votre compte peut réunir jusqu'à {MAX_PROFILES_PER_ACCOUNT} profils : chaque enfant y garde
+							sa propre progression, et vous pouvez protéger chaque profil par un code PIN.
 						</p>
-						<Link to={ROUTES.PROFILE_MANAGE} className="pa-btn pa-btn--primary">
-							<UserPlus size={18} aria-hidden="true" />
-							Ajouter un profil enfant
-						</Link>
+						{addButton}
+						{isDemo && (
+							<p id="pa-add-child-note" className="pa-field-note">
+								<Info size={16} aria-hidden="true" />
+								<span>Indisponible sur un profil de démonstration.</span>
+							</p>
+						)}
+						{!isDemo && isFull && (
+							<p id="pa-add-child-note" className="pa-field-note">
+								<Info size={16} aria-hidden="true" />
+								<span>
+									Votre compte compte déjà {MAX_PROFILES_PER_ACCOUNT} profils, le maximum. Supprimez-en un
+									depuis « Gérer les profils » pour en ajouter un autre.
+								</span>
+							</p>
+						)}
 					</section>
 				</div>
 			</div>
+			{adding && <AddChildDialog onClose={() => setAdding(false)} onCreated={handleCreated} />}
 		</ScreenLayout>
 	);
 };

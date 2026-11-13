@@ -908,6 +908,158 @@ h1.pa-title {
 	color: var(--ok);
 }
 
+/* ---------- Formulaire : ajout d'un profil enfant ---------- */
+/* Le dialogue peut être rendu hors de .pa-page : même boîte qu'elle */
+.pa-dialog-backdrop,
+.pa-dialog-backdrop *,
+.pa-dialog-backdrop *::before,
+.pa-dialog-backdrop *::after {
+	box-sizing: border-box;
+}
+
+.pa-dialog-backdrop {
+	font-family: var(--f-text);
+	color: var(--text);
+}
+
+.pa-form--dialog {
+	gap: 16px;
+}
+
+.pa-form-row {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.pa-field {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.pa-optional {
+	font-weight: 500;
+	color: var(--text-3);
+}
+
+.pa-dialog .pa-input {
+	width: 100%;
+	min-height: 48px;
+	padding: 10px 16px;
+	border: 2px solid var(--line);
+	border-radius: var(--r-m);
+	background: var(--surface);
+	font: 500 1rem var(--f-text);
+	color: var(--text);
+}
+
+.pa-dialog .pa-input--pin {
+	max-width: 180px;
+	letter-spacing: 0.3em;
+}
+
+.pa-dialog .pa-input:disabled {
+	background: var(--bg);
+	cursor: not-allowed;
+}
+
+.pa-dialog .pa-input[aria-invalid="true"] {
+	border-color: var(--ko);
+}
+
+.pa-select {
+	cursor: pointer;
+}
+
+.pa-field-hint {
+	margin: 0;
+	font-size: 0.85rem;
+	line-height: 1.45;
+	color: var(--text-2);
+}
+
+.pa-field-error {
+	margin: 0;
+	font-size: 0.88rem;
+	font-weight: 600;
+	color: var(--ko);
+}
+
+.pa-form-error,
+.pa-success {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	padding: 12px 14px;
+	border-radius: var(--r-m);
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.pa-form-error svg,
+.pa-success svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+.pa-form-error {
+	background: var(--ko-bg);
+	color: var(--ko);
+}
+
+.pa-success {
+	background: var(--ok-bg);
+	color: var(--ok);
+}
+
+.pa-dialog-desc {
+	margin-top: 8px;
+	font-size: 0.95rem;
+}
+
+.pa-dialog :focus-visible {
+	outline: 3px solid var(--milo-vert);
+	outline-offset: 3px;
+}
+
+.pa-dialog-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 4px;
+}
+
+.pa-spin {
+	animation: pa-spin 1s linear infinite;
+}
+
+@keyframes pa-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (max-width: 520px) {
+	.pa-form-row {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.pa-dialog-actions .pa-btn {
+		flex: 1 1 100%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pa-spin {
+		animation: none;
+	}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
 	.pa-grid,

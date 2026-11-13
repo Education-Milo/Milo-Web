@@ -8,7 +8,9 @@ import type { LinkedChild, ParentData, WeeklyReport } from "@features/parent/sto
  *
  * Disponible dans l'API :
  * - GET /profiles : les profils élèves du compte famille, c'est-à-dire les
- *   enfants que le parent suit (accepte le jeton du profil Parent).
+ *   enfants que le parent suit (accepte le jeton du profil Parent) ;
+ * - POST /profiles : ajout d'un profil élève au compte (useCreateProfile,
+ *   mot de passe du compte exigé, refusé sur un profil de démonstration).
  *
  * Absent de l'API au 13/11/2026 (aucune route, vérifié sur le back et en
  * production). Les écrans affichent un état vide explicite en attendant :
@@ -34,6 +36,8 @@ export const useLinkedChildren = () => {
 	);
 	return {
 		children,
+		/** Tous les profils du compte (parents compris), pour la limite de profils */
+		profileCount: query.data?.length ?? 0,
 		isLoading: query.isLoading,
 		isError: query.isError,
 		refetch: query.refetch,
