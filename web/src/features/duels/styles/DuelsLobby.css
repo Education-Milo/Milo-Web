@@ -1,25 +1,45 @@
 /* ============================================================
-   LOBBY DES DUELS : BENTO (charte landing)
-   Tuiles blanches à tranche sable, arène sur l'aplat feu,
-   Luckiest Guy pour les titres, icônes 3D, pilules en relief.
-   Pas d'étiquettes à pastille ni de halos.
+   LOBBY DES DUELS : charte graphique de la landing, version jeu.
+   Fond crème, cartes blanches (bordure ligne 2 px, rayon 32 px,
+   tranche sable), carte mise en avant en dégradé feu avec tranche
+   braise, boutons pilule en relief, titres Luckiest Guy avec un mot
+   en orange, icônes 3D. Orange dominant, crème en secondaire, vert
+   en accent de quelques pixels. Pas d'étiquettes à pastille, pas de halos.
    ============================================================ */
 .dz {
-	--dz-sable: #F1D2B2;
-	--dz-line: var(--line);
-	--dz-feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
-	--dz-dots-creme: radial-gradient(rgba(255, 244, 229, 0.25) 1.4px, transparent 1.4px);
+	--creme: #F6EBDF;
+	--sable: #F1D2B2;
+	--ligne: #EBD3BC;
+	--surface: #FFFBF6;
+	--encre: #2A1810;
+	--texte-2: #6E5546;
+	--braise: #C73A0C;
+	--feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
 	position: relative;
+	isolation: isolate;
+	container: dz / inline-size;
 	min-height: 100vh;
-	padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 36px) 64px;
-	background: var(--bg);
+	padding: clamp(18px, 2.6vw, 32px) clamp(16px, 3vw, 36px) 64px;
+	background: var(--creme);
 	font-family: var(--f-text);
-	color: var(--milo-encre);
+	color: var(--encre);
 }
-
+/* Trame de points de la couverture de la charte */
+.dz::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background-image: radial-gradient(rgba(185, 51, 15, 0.12) 1.4px, transparent 1.6px);
+	background-size: 28px 28px;
+	mask-image: linear-gradient(180deg, #000 0%, transparent 60%);
+	-webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 60%);
+	pointer-events: none;
+}
+.dz-hl { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--braise); }
 .dz-toast-slot { position: fixed; top: 20px; left: 50%; z-index: 60; transform: translateX(-50%); width: min(460px, calc(100% - 32px)); }
 
-/* ---------- Grille : l'arène en grand, puis 3 tuiles, puis la vitrine ---------- */
+/* ---------- Grille ---------- */
 .dz-bento {
 	display: grid;
 	grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -27,7 +47,7 @@
 		"arena arena arena arena arena arena arena arena arena arena arena arena"
 		"rank rank rank rank friends friends friends friends rival rival rival rival"
 		"shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf shelf";
-	gap: 20px;
+	gap: 24px;
 	max-width: 1280px;
 	margin: 0 auto;
 }
@@ -37,307 +57,471 @@
 .dz-rival-tile { grid-area: rival; }
 .dz-shelf-tile { grid-area: shelf; }
 
-.dz-tile {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	min-width: 0;
-	padding: 22px;
-	border: 2px solid var(--dz-line);
-	border-radius: 32px;
-	background: #fff;
-	box-shadow: 0 8px 0 var(--dz-sable);
-}
-.dz-tile__head { display: grid; gap: 4px; }
-.dz-tile__head--row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.dz-tile__titles { display: grid; gap: 4px; }
-.dz-tile__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.55rem; line-height: 0.95; letter-spacing: 0.01em; }
-.dz-tile__sub { margin: 0; font-size: 1rem; color: var(--text-2); }
-.dz-hl { color: #FFF4E5; text-shadow: 0 0.06em 0 var(--milo-braise); }
-
-/* ---------- ARÈNE ---------- */
+/* ================= ARÈNE (aplat feu de la charte) ================= */
 .dz-arena {
 	position: relative;
 	isolation: isolate;
 	display: grid;
 	justify-items: center;
-	gap: 6px;
-	padding: 30px 24px 34px;
+	gap: 18px;
+	padding: 60px 28px 34px;
 	overflow: hidden;
 	border-radius: 40px;
-	background: var(--dz-feu);
-	color: #fff;
+	background: var(--feu);
+	color: var(--creme);
 	text-align: center;
-	box-shadow: 0 10px 0 var(--milo-braise);
+	box-shadow: 0 10px 0 var(--braise), 0 40px 60px -40px rgba(120, 50, 10, 0.55);
 }
-.dz-arena__dots { position: absolute; inset: 0; z-index: -2; background-image: var(--dz-dots-creme); background-size: 28px 28px; }
-/* Sol de l'arène : un grand ovale crème sous les combattants */
-.dz-arena__floor {
+.dz-arena__dots { position: absolute; inset: 0; z-index: -2; background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.7px); background-size: 26px 26px; }
+
+/* Guirlande de fanions accrochée en haut */
+.dz-pennants {
 	position: absolute;
+	top: 0;
+	left: -2%;
+	right: -2%;
 	z-index: -1;
-	left: 8%;
-	right: 8%;
-	bottom: 108px;
-	height: 120px;
-	border-radius: 50%;
-	background: rgba(255, 244, 229, 0.16);
-	border: 3px dashed rgba(255, 244, 229, 0.35);
+	display: flex;
+	justify-content: space-between;
+	margin: 0;
+	padding: 6px 0 0;
+	list-style: none;
+	border-top: 3px solid rgba(255, 251, 246, 0.7);
 }
+.dz-pennants li { width: 34px; height: 40px; clip-path: polygon(0 0, 100% 0, 50% 100%); transform-origin: 50% 0; }
+
+/* Objets 3D qui flottent */
+.dz-float { position: absolute; z-index: -1; width: 64px; height: 64px; filter: drop-shadow(0 10px 12px rgba(120, 30, 5, 0.3)); }
+.dz-float img { width: 100%; height: 100%; }
+.dz-float--1 { top: 64px; left: 4%; width: 76px; height: 76px; }
+.dz-float--2 { top: 150px; right: 5%; }
+.dz-float--3 { bottom: 120px; left: 7%; width: 54px; height: 54px; }
+.dz-float--4 { top: 70px; right: 14%; width: 50px; height: 50px; }
+.dz-float--5 { bottom: 150px; right: 10%; width: 56px; height: 56px; }
+
 .dz-arena__titles { display: grid; gap: 6px; }
-.dz-arena__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem, 4.2vw, 3.6rem); line-height: 0.92; letter-spacing: 0.01em; }
-.dz-arena__lead { margin: 0; font-size: 1.125rem; color: #FFF4E5; }
+.dz-arena__title {
+	margin: 0;
+	font-family: var(--f-display);
+	font-weight: 400;
+	font-size: clamp(2.4rem, 4.6vw, 3.8rem);
+	line-height: 0.95;
+	letter-spacing: 0.01em;
+	color: var(--creme);
+	text-shadow: 0 0.06em 0 var(--braise);
+}
+/* Sur le feu, le mot mis en avant passe en sable (comme le manifeste) */
+.dz-arena__title .dz-hl { color: var(--sable); text-shadow: 0 0.06em 0 var(--braise); }
+.dz-arena__lead { margin: 0; font-size: 1.15rem; font-weight: 600; color: #FFE9D9; }
 
 .dz-arena__stage {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-	align-items: end;
-	gap: 8px;
-	width: min(100%, 980px);
-	margin-top: 4px;
-}
-.dz-fighter { display: grid; justify-items: center; gap: 8px; }
-.dz-fighter__milo {
 	position: relative;
-	width: min(100%, 300px);
-	height: 300px;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: minmax(0, 300px) auto minmax(0, 300px);
+	justify-content: center;
+	align-items: center;
+	gap: clamp(14px, 3vw, 44px);
+	width: 100%;
+	margin-top: 10px;
+}
+/* Socle crème sous les cartes, à la place du sol */
+.dz-arena__floor {
+	position: absolute;
+	left: 50%;
+	bottom: -120px;
+	z-index: -1;
+	width: 130%;
+	height: 260px;
+	border-radius: 50%;
+	background: rgba(255, 251, 246, 0.16);
+	transform: translateX(-50%);
+}
+
+/* Cartes de joueurs : cartes blanches de la charte */
+.dz-card {
+	position: relative;
+	display: grid;
+	gap: 12px;
+	padding: 12px 12px 16px;
+	border: 2px solid var(--ligne);
+	border-radius: 32px;
+	background: #fff;
+	color: var(--encre);
+	box-shadow: 0 9px 0 var(--sable), 0 30px 40px -24px rgba(120, 30, 5, 0.55);
+}
+/* Étiquette en ruban, comme la carte mise en avant de la charte */
+.dz-card__tag {
+	position: absolute;
+	top: -16px;
+	left: 50%;
+	z-index: 2;
+	padding: 6px 16px 5px;
+	border-radius: 999px;
+	background: #fff;
+	color: var(--braise);
+	font-family: var(--f-display);
+	font-size: 1rem;
+	line-height: 1;
+	letter-spacing: 0.03em;
+	white-space: nowrap;
+	box-shadow: 0 4px 0 var(--braise);
+	transform: translateX(-50%);
+}
+.dz-card__art {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: end center;
+	height: 260px;
+	overflow: hidden;
 	padding: 0;
 	border: 0;
-	border-radius: 28px;
-	background: none;
+	border-radius: 24px;
+	background:
+		radial-gradient(rgba(185, 51, 15, 0.12) 1.4px, transparent 1.6px) 0 0 / 22px 22px,
+		var(--creme);
 	cursor: pointer;
 }
-.dz-fighter__milo .duel-milo-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
-.dz-fighter__milo:focus-visible { outline: 3px solid #FFF4E5; outline-offset: 4px; }
-.dz-fighter__tag {
-	padding: 7px 16px;
-	border-radius: 999px;
-	background: #FFF4E5;
-	color: var(--milo-braise);
-	font-size: 1.0625rem;
-	font-weight: 700;
-	box-shadow: 0 4px 0 var(--milo-braise);
+.dz-card__art:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+/* Soleil feu derrière Milo (couverture de la charte) */
+.dz-card__sun {
+	position: absolute;
+	left: 50%;
+	bottom: -36%;
+	z-index: -1;
+	width: 92%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: var(--feu);
+	box-shadow: inset 0 -16px 30px rgba(150, 30, 10, 0.28);
+	transform: translateX(-50%);
 }
+.dz-card__sun::after { content: ""; position: absolute; inset: 9%; border: 2px dashed rgba(246, 235, 223, 0.5); border-radius: 50%; }
+.dz-card__fallback { position: absolute; bottom: -4px; width: 82%; height: auto; filter: drop-shadow(0 14px 14px rgba(120, 30, 5, 0.35)); }
+.dz-card__art .duel-milo-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dz-card__art:has(.duel-milo-3d.is-ready) .dz-card__fallback { opacity: 0; transition: opacity 0.3s ease; }
+.dz-card__plate { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; padding: 0 4px; }
+.dz-card__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--f-display); font-size: 1.7rem; line-height: 1; letter-spacing: 0.01em; padding-top: 3px; }
+/* Logo du rang, à côté du prénom */
+.dz-card__logo { flex: none; width: 54px; height: 54px; object-fit: contain; margin: -10px 0 -8px; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.25)); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.dz-card__logo:hover { transform: scale(1.12) rotate(-6deg); }
+.dz-card__logo--mystery { display: grid; place-items: center; width: 42px; height: 42px; margin: -4px 0; border-radius: 50%; background: var(--creme); color: var(--braise); font-family: var(--f-display); font-size: 1.4rem; box-shadow: 0 3px 0 var(--sable); filter: none; }
 
-.dz-versus { position: relative; display: grid; place-items: center; align-self: center; padding: 0 8px; }
-.dz-versus__text {
-	font-family: var(--f-display);
-	font-size: clamp(4rem, 8vw, 6.5rem);
-	line-height: 1;
-	color: #FFF4E5;
-	text-shadow: 0 0.06em 0 var(--milo-braise), 0 0.12em 0 rgba(90, 20, 0, 0.25);
-}
-.dz-versus__swords { width: 64px; height: 64px; margin-top: -8px; }
-.dz-versus__swords img { width: 100%; height: 100%; filter: drop-shadow(0 6px 6px rgba(90, 20, 0, 0.3)); }
-
-.dz-mystery {
-	position: relative;
-	display: grid;
+/* Adversaire : un gros point d'interrogation sur fond sable */
+.dz-card__art--mystery {
 	place-items: center;
-	width: min(100%, 260px);
-	height: 300px;
+	background:
+		radial-gradient(rgba(185, 51, 15, 0.14) 1.4px, transparent 1.6px) 0 0 / 22px 22px,
+		var(--sable);
 	cursor: default;
 }
-.dz-mystery__knight { width: 92%; height: auto; filter: brightness(0) opacity(0.28); }
-.dz-mystery__mark {
-	position: absolute;
-	top: 34%;
+.dz-mystery__mark { font-family: var(--f-display); font-size: 9rem; line-height: 1; color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--braise); }
+
+/* Médaillon VS */
+.dz-versus { display: grid; justify-items: center; }
+.dz-versus__medal {
+	display: grid;
+	place-items: center;
+	width: 104px;
+	aspect-ratio: 1;
+	border: 2px solid var(--ligne);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--milo-orange);
 	font-family: var(--f-display);
-	font-size: 6rem;
+	font-size: 2.6rem;
 	line-height: 1;
-	color: #FFF4E5;
-	text-shadow: 0 0.06em 0 var(--milo-braise);
+	text-shadow: 0 0.06em 0 var(--braise);
+	box-shadow: 0 8px 0 var(--sable), 0 20px 26px -14px rgba(120, 30, 5, 0.55);
 }
+.dz-versus__swords { width: 72px; height: 72px; margin-top: -24px; }
+.dz-versus__swords img { width: 100%; height: 100%; filter: drop-shadow(0 6px 6px rgba(120, 30, 5, 0.35)); }
 
-.dz-arena__cta { display: grid; justify-items: center; gap: 10px; margin-top: 8px; }
-.dz-arena__hint { margin: 0; font-size: 1rem; font-weight: 600; color: #FFF4E5; }
+.dz-arena__cta { position: relative; z-index: 1; display: grid; justify-items: center; gap: 10px; margin-top: 8px; }
+.dz-arena__hint { margin: 0; font-size: 1.0625rem; font-weight: 600; color: #FFE9D9; }
 
-/* ---------- Boutons ---------- */
+/* ================= BOUTONS (pilules en relief de la charte) ================= */
 .dz-btn {
+	--edge: var(--braise);
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	gap: 0.55em;
 	min-height: 52px;
-	padding: 0 22px;
+	padding: 0 1.5rem;
 	border: 0;
 	border-radius: 999px;
 	font: 700 1.0625rem/1 var(--f-text);
 	white-space: nowrap;
 	text-decoration: none;
 	cursor: pointer;
+	box-shadow: 0 5px 0 var(--edge);
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+.dz-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 var(--edge); }
+.dz-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--edge); }
 .dz-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
-.dz-btn--sm { min-height: 44px; padding: 0 16px; font-size: 1rem; }
-/* Appel principal sur l'aplat feu : crème, texte braise, tranche braise */
-.dz-btn--cta {
-	min-height: 64px;
-	padding: 0 32px;
-	background: #FFF4E5;
-	color: var(--milo-braise);
-	font-size: 1.25rem;
-	box-shadow: 0 7px 0 var(--milo-braise);
-}
-.dz-btn--cta:focus-visible { outline-color: #FFF4E5; }
-.dz-btn--primary { background: var(--milo-orange); color: #fff; box-shadow: 0 5px 0 var(--milo-braise); }
-.dz-btn--ghost { border: 2px solid var(--dz-line); background: #fff; color: var(--milo-encre); box-shadow: 0 5px 0 var(--dz-sable); }
-.dz-btn:hover:not(:disabled) { transform: translateY(-2px); }
-.dz-btn--cta:hover { box-shadow: 0 9px 0 var(--milo-braise); }
-.dz-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--milo-braise); }
-.dz-btn--ghost:active:not(:disabled) { box-shadow: 0 1px 0 var(--dz-sable); }
-.dz-btn:disabled { background: var(--milo-creme); color: var(--text-3); box-shadow: none; cursor: not-allowed; }
+.dz-btn--sm { min-height: 46px; padding: 0 1.2rem; font-size: 1rem; box-shadow: 0 4px 0 var(--edge); }
+/* Gros bouton sur le feu : crème, texte braise (bouton « crème » de la charte) */
+.dz-btn--cta { --edge: #C99A70; min-height: 68px; padding: 0 2.4rem; background: var(--creme); color: var(--braise); font-size: 1.35rem; box-shadow: 0 7px 0 var(--edge), 0 20px 30px -14px rgba(120, 30, 5, 0.6); }
+.dz-btn--cream { --edge: #C99A70; background: var(--creme); color: var(--braise); }
+.dz-btn--ghost { --edge: var(--sable); background: #fff; color: var(--encre); box-shadow: inset 0 0 0 2px var(--sable), 0 5px 0 var(--edge); }
+/* Défier : bouton principal orange, tranche braise */
+.dz-btn--duel { flex: none; min-height: 46px; padding: 0 1.1rem; background: var(--milo-orange); color: #fff; box-shadow: 0 4px 0 var(--braise); }
+.dz-btn--duel.dz-btn--wide { min-height: 54px; margin-top: auto; font-size: 1.125rem; box-shadow: 0 5px 0 var(--braise); }
+.dz-btn--wide { width: 100%; }
+.dz-btn:disabled { background: var(--creme); color: var(--texte-2); box-shadow: none; cursor: not-allowed; }
 
-.dz-link-btn {
+.dz-icon-btn {
 	display: grid;
 	place-items: center;
 	flex: none;
-	width: 44px;
-	height: 44px;
-	border: 2px solid var(--dz-line);
+	width: 46px;
+	height: 46px;
+	border: 2px solid var(--ligne);
 	border-radius: 50%;
 	background: #fff;
-	color: var(--text-2);
-	box-shadow: 0 4px 0 var(--dz-sable);
-	transition: transform 0.15s ease, color 0.15s ease;
+	color: var(--braise);
+	cursor: pointer;
+	box-shadow: 0 4px 0 var(--sable);
+	transition: transform 0.15s ease;
 }
-.dz-link-btn:hover { transform: translateY(-2px); color: var(--milo-encre); }
+.dz-icon-btn:hover { transform: translateY(-2px); }
+.dz-icon-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.dz-link-btn { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 2px solid var(--ligne); border-radius: 50%; background: #fff; color: var(--texte-2); cursor: pointer; }
+.dz-link-btn:hover { color: var(--encre); }
 .dz-link-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
 
-/* ---------- Rang ---------- */
-.dz-rank { flex-direction: row; align-items: center; gap: 14px; overflow: hidden; }
-.dz-rank__knight { flex: none; width: 112px; height: auto; margin: -6px -6px -26px -10px; align-self: flex-end; filter: drop-shadow(0 8px 8px rgba(120, 50, 10, 0.25)); }
-.dz-rank__copy { display: grid; flex: 1; gap: 12px; min-width: 0; }
-.dz-rank__name { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2rem; line-height: 0.95; color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--milo-braise); }
-.dz-rank__track { display: flex; gap: 6px; }
-.dz-rank__step { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 14px; background: var(--milo-creme); }
-.dz-rank__step img { width: 26px; height: 26px; filter: grayscale(1) opacity(0.4); }
-.dz-rank__step.is-reached img { filter: none; }
-.dz-rank__step.is-current { background: var(--pompon-bg); box-shadow: inset 0 0 0 3px var(--milo-pompon); }
-.dz-rank__progress { display: grid; gap: 6px; }
-.dz-bar { height: 12px; border-radius: 999px; background: var(--milo-creme); overflow: hidden; }
-.dz-bar__fill { display: block; height: 100%; border-radius: inherit; background: var(--dz-feu); }
-.dz-rank__next { margin: 0; font-size: 0.9375rem; color: var(--text-2); }
-.dz-rank__next b { color: var(--milo-encre); }
-
-/* ---------- Défie un ami ---------- */
-.dz-challengers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.dz-challenger__btn {
-	display: grid;
-	justify-items: center;
-	gap: 2px;
-	width: 100%;
-	padding: 10px 4px 8px;
-	border: 0;
-	border-radius: 22px;
-	background: var(--milo-creme);
-	color: inherit;
-	font: inherit;
-	cursor: pointer;
-	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
-}
-.dz-challenger__btn:hover:not(:disabled) { transform: translateY(-4px) rotate(-2deg); background: var(--pompon-bg); }
-.dz-challenger__btn:active:not(:disabled) { transform: translateY(2px); }
-.dz-challenger__btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 2px; }
-.dz-challenger__btn:disabled { cursor: not-allowed; }
-.dz-challenger__avatar { position: relative; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: #fff; border: 3px solid var(--dz-line); }
-.dz-challenger__avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-.dz-challenger__avatar > span:first-child { font-weight: 700; color: var(--milo-braise); }
-.dz-challenger.is-online .dz-challenger__avatar { border-color: var(--ok); }
-.dz-challenger.is-offline .dz-challenger__avatar { filter: grayscale(1); opacity: 0.6; }
-.dz-challenger__sword {
-	position: absolute;
-	right: -6px;
-	bottom: -4px;
-	display: grid;
-	place-items: center;
-	width: 26px;
-	height: 26px;
-	border: 2px solid #fff;
-	border-radius: 50%;
-	background: var(--milo-orange);
-	color: #fff;
-}
-.dz-challenger__name { max-width: 100%; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 700; }
-.dz-challenger__status { font-size: 0.8125rem; font-weight: 600; color: var(--text-2); }
-.dz-challenger.is-online .dz-challenger__status { color: var(--ok); }
-
-/* ---------- Rival ---------- */
-.dz-rival { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; padding: 14px 10px; border-radius: 22px; background: var(--milo-creme); }
-.dz-rival__side { display: grid; justify-items: center; gap: 2px; min-width: 0; }
-.dz-rival__score { font-family: var(--f-display); font-size: 2.6rem; line-height: 1; }
-.dz-rival__who { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9375rem; font-weight: 600; color: var(--text-2); }
-.dz-rival__swords { width: 40px; height: 40px; }
-.dz-rival__verdict { margin: 0; font-size: 1rem; font-weight: 600; text-align: center; color: var(--text-2); }
-.dz-rival-tile .dz-btn { margin-top: auto; }
-
-/* ---------- Vitrine ---------- */
-.dz-total-wins {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	font-family: var(--f-display);
-	font-size: 2.2rem;
-	line-height: 1;
-	color: var(--milo-orange);
-	text-shadow: 0 0.06em 0 var(--milo-braise);
-}
-.dz-total-wins img { width: 40px; height: 40px; }
-.dz-shelf {
-	display: grid;
-	grid-template-columns: repeat(5, minmax(0, 1fr));
+/* ================= TUILES (cartes blanches de la charte) ================= */
+.dz-tile { display: flex; min-width: 0; }
+.dz-panel {
+	position: relative;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	gap: 14px;
-	margin: 0;
-	padding: 18px 16px 0;
-	list-style: none;
-	/* L'étagère : une planche sable sous les médailles */
-	background: linear-gradient(transparent calc(100% - 14px), var(--dz-sable) calc(100% - 14px));
-	border-radius: 0 0 14px 14px;
+	min-width: 0;
+	padding: 22px 22px 24px;
+	border: 2px solid var(--ligne);
+	border-radius: 32px;
+	background: #fff;
+	color: var(--encre);
+	box-shadow: 0 8px 0 var(--sable), 0 30px 50px -36px rgba(120, 50, 10, 0.45);
 }
-.dz-medal { display: grid; justify-items: center; gap: 4px; padding-bottom: 22px; text-align: center; }
+.dz-head { display: flex; align-items: center; gap: 10px; }
+.dz-head__icon { width: 40px; height: 40px; flex: none; filter: drop-shadow(0 4px 5px rgba(120, 50, 10, 0.22)); }
+.dz-head__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 1.65rem; line-height: 1; letter-spacing: 0.01em; padding-top: 4px; }
+.dz-panel__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: -6px; }
+.dz-panel__sub { margin: 0; font-size: 1rem; line-height: 1.4; color: var(--texte-2); }
+.dz-online-count { display: inline-block; margin-right: 6px; padding: 2px 10px; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-weight: 700; }
+
+/* ================= RANG : la carte mise en avant (dégradé feu) ================= */
+.dz-rank__inner {
+	align-items: center;
+	text-align: center;
+	border: 0;
+	background:
+		radial-gradient(rgba(255, 255, 255, 0.2) 1.5px, transparent 1.7px) 0 0 / 24px 24px,
+		var(--feu);
+	color: var(--creme);
+	box-shadow: 0 10px 0 var(--braise), 0 30px 50px -30px rgba(120, 30, 5, 0.6);
+}
+.dz-rank__inner .dz-head { align-self: stretch; }
+.dz-rank__inner .dz-head__title { color: var(--creme); text-shadow: 0 0.06em 0 var(--braise); }
+.dz-rank__inner .dz-hl { color: var(--sable); }
+.dz-rank__badge { position: relative; display: grid; place-items: center; width: 168px; height: 168px; padding: 0; border: 0; background: none; cursor: pointer; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.dz-rank__badge:hover { transform: scale(1.06) rotate(-4deg); }
+.dz-rank__badge:focus-visible { outline: 3px solid var(--creme); outline-offset: 4px; border-radius: 50%; }
+.dz-rank__badge img { position: relative; width: 84%; height: auto; filter: drop-shadow(0 12px 10px rgba(120, 30, 5, 0.45)); }
+/* Soleil crème derrière le badge, avec l'anneau pointillé de la charte */
+.dz-rank__rays { position: absolute; inset: 6%; border-radius: 50%; background: rgba(255, 251, 246, 0.2); }
+.dz-rank__rays::after { content: ""; position: absolute; inset: 8%; border: 2px dashed rgba(255, 251, 246, 0.6); border-radius: 50%; animation: dz-spin 40s linear infinite; }
+.dz-rank__titles { display: grid; gap: 4px; }
+.dz-rank__name { margin: 0; font-family: var(--f-display); font-size: 2.6rem; line-height: 0.95; letter-spacing: 0.01em; color: var(--creme); text-shadow: 0 0.06em 0 var(--braise); }
+.dz-rank__sub { margin: 0; font-size: 1rem; font-weight: 600; color: #FFE9D9; }
+.dz-rank__progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 10px; width: 100%; }
+.dz-rank__bar { position: relative; height: 18px; overflow: hidden; border-radius: 999px; background: rgba(120, 30, 5, 0.25); }
+.dz-rank__fill { display: block; height: 100%; border-radius: inherit; background: var(--creme); box-shadow: inset 0 -3px 0 var(--sable); }
+.dz-rank__bar.has-steps::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: repeating-linear-gradient(90deg, transparent 0 calc(100% / var(--steps) - 3px), rgba(237, 60, 29, 0.6) calc(100% / var(--steps) - 3px) calc(100% / var(--steps)));
+}
+.dz-rank__next-badge { width: 50px; height: auto; filter: grayscale(0.5) drop-shadow(0 4px 3px rgba(120, 30, 5, 0.4)); }
+.dz-rank__next { grid-column: 1 / -1; margin: 0; font-size: 1rem; color: #FFE9D9; text-align: left; }
+.dz-rank__next b { color: #fff; }
+
+/* Pop-up : les 10 rangs */
+.dz-modal-backdrop { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(42, 24, 16, 0.55); }
+.dz-ranks {
+	display: grid;
+	gap: 20px;
+	width: min(980px, 100%);
+	max-height: calc(100dvh - 32px);
+	padding: 26px 26px 28px;
+	overflow-y: auto;
+	border: 2px solid var(--ligne);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--sable);
+}
+.dz-ranks__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dz-ranks__head .dz-tile__titles { display: grid; gap: 4px; }
+.dz-ranks__head .dz-tile__sub { margin: 0; font-size: 1rem; color: var(--texte-2); }
+.dz-ranks__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2.2rem; line-height: 0.95; }
+.dz-ranks__list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px 14px; margin: 0; padding: 0; list-style: none; }
+.dz-ranks__item { display: grid; justify-items: center; gap: 4px; padding: 14px 8px 12px; border: 2px solid var(--ligne); border-radius: 26px; background: var(--surface); text-align: center; }
+.dz-ranks__item img { width: 100%; max-width: 140px; height: auto; filter: drop-shadow(0 8px 8px rgba(120, 50, 10, 0.22)); }
+.dz-ranks__name { font-family: var(--f-display); font-size: 1.3rem; line-height: 1; }
+.dz-ranks__req { font-size: 0.875rem; font-weight: 600; color: var(--texte-2); }
+.dz-ranks__item.is-current { border: 0; background: var(--feu); color: var(--creme); box-shadow: 0 6px 0 var(--braise); }
+.dz-ranks__item.is-current .dz-ranks__req { color: #FFE9D9; }
+.dz-ranks__item.is-locked { background: var(--creme); }
+.dz-ranks__item.is-locked img { filter: grayscale(1) opacity(0.4); }
+.dz-ranks__item.is-locked .dz-ranks__name { color: var(--texte-2); }
+
+/* ================= DÉFIE UN AMI ================= */
+.dz-friends { display: grid; align-content: start; gap: 10px; margin: 0 -6px 0 0; padding: 0 6px 6px 0; list-style: none; max-height: 340px; overflow-y: auto; scrollbar-color: var(--sable) transparent; scrollbar-width: thin; }
+.dz-friend {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px;
+	border: 2px solid transparent;
+	border-radius: 22px;
+	background: var(--creme);
+	transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.dz-friend.is-online { border-color: var(--ligne); background: #fff; box-shadow: 0 4px 0 var(--sable); }
+.dz-friend.is-sent { border-color: var(--ok); background: var(--ok-bg); box-shadow: none; }
+.dz-friend__avatar { position: relative; display: grid; place-items: center; flex: none; width: 52px; height: 52px; border: 2px solid var(--ligne); border-radius: 50%; background: #fff; }
+.dz-friend__avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.dz-friend__avatar > span { font-weight: 700; color: var(--braise); }
+.dz-friend__dot { position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border: 3px solid #fff; border-radius: 50%; background: #B9A99B; }
+.dz-friend.is-online .dz-friend__dot { background: #2FB463; }
+.dz-friend.is-in-game .dz-friend__dot { background: var(--milo-pompon); }
+.dz-friend.is-offline .dz-friend__avatar { filter: grayscale(1); opacity: 0.6; }
+.dz-friend__info { display: grid; flex: 1; min-width: 0; }
+.dz-friend__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1.0625rem; font-weight: 700; }
+.dz-friend.is-offline .dz-friend__name { color: var(--texte-2); }
+.dz-friend__status { font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); }
+.dz-friend.is-online .dz-friend__status,
+.dz-friend.is-sent .dz-friend__status { color: var(--ok); }
+.dz-friend.is-in-game .dz-friend__status { color: var(--braise); }
+.dz-friend__off { flex: none; padding: 0 12px; font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); }
+.dz-friend__sent { display: inline-flex; flex: none; align-items: center; gap: 6px; min-height: 46px; padding: 0 14px; border-radius: 999px; background: #fff; color: var(--ok); font-weight: 700; }
+
+/* ================= RIVAL ================= */
+.dz-rival { display: grid; gap: 12px; padding: 16px 14px 14px; border-radius: 24px; background: var(--creme); }
+.dz-rival__fighters { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.dz-rival__fighter { display: grid; justify-items: center; gap: 6px; min-width: 0; }
+.dz-rival__avatar { position: relative; display: grid; place-items: center; width: 70px; height: 70px; border: 2px solid var(--ligne); border-radius: 50%; background: #fff; box-shadow: 0 4px 0 var(--sable); }
+.dz-rival__avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.dz-rival__avatar > span { font-weight: 700; color: var(--braise); }
+/* Pastille au-dessus de celui qui mène */
+.dz-rival__fighter.is-leading .dz-rival__avatar::before { content: "En tête"; position: absolute; top: -14px; padding: 3px 9px; border-radius: 999px; background: var(--milo-orange); color: #fff; font-size: 0.75rem; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 0 var(--braise); }
+.dz-rival__who { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); }
+.dz-rival__board { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-display); font-size: 3rem; line-height: 1; }
+.dz-rival__score.is-me { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--braise); }
+.dz-rival__score.is-foe { color: var(--encre); }
+.dz-rival__dash { color: var(--sable); }
+.dz-rival__tug { display: flex; height: 14px; overflow: hidden; border-radius: 999px; background: var(--sable); }
+.dz-rival__tug-me { display: block; height: 100%; border-radius: inherit; background: var(--feu); }
+.dz-rival__draws { margin: -4px 0 0; font-size: 0.875rem; font-weight: 600; text-align: center; color: var(--texte-2); }
+.dz-rival__verdict { margin: 0; font-size: 1.0625rem; font-weight: 600; text-align: center; }
+.dz-rival__off { margin: auto 0 0; padding: 14px; border-radius: 999px; background: var(--creme); font-weight: 600; text-align: center; color: var(--texte-2); }
+
+/* ================= DERNIERS COMBATS ================= */
+.dz-total-wins { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 8px; border: 2px solid var(--ligne); border-radius: 18px; background: #fff; font-family: var(--f-display); font-size: 1.9rem; line-height: 1; color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--braise); box-shadow: 0 5px 0 var(--sable); }
+.dz-total-wins img { width: 36px; height: 36px; }
+.dz-total-wins small { font-family: var(--f-text); font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); text-shadow: none; }
+.dz-shelf { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 18px 8px 4px; list-style: none; }
+/* Frise qui relie les jetons */
+.dz-shelf::before { content: ""; position: absolute; top: 60px; left: 10%; right: 10%; height: 4px; border-radius: 999px; background: repeating-linear-gradient(90deg, var(--sable) 0 12px, transparent 12px 22px); }
+.dz-medal { position: relative; display: grid; justify-items: center; gap: 4px; text-align: center; }
+.dz-medal__new { position: absolute; top: -16px; z-index: 1; padding: 3px 10px; border-radius: 999px; background: #fff; color: var(--braise); font-size: 0.8125rem; font-weight: 700; box-shadow: 0 3px 0 var(--braise); }
 .dz-medal__disc {
+	position: relative;
 	display: grid;
 	place-items: center;
-	width: 76px;
-	height: 76px;
+	width: 84px;
+	height: 84px;
+	border: 2px solid var(--ligne);
 	border-radius: 50%;
-	background: var(--milo-creme);
-	border: 4px solid #fff;
-	box-shadow: 0 5px 0 var(--dz-sable);
+	background: #fff;
+	box-shadow: 0 6px 0 var(--sable);
 	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.dz-medal:hover .dz-medal__disc { transform: translateY(-4px) rotate(-8deg); }
-.dz-medal__disc img { width: 44px; height: 44px; }
-.dz-medal.is-win .dz-medal__disc { background: var(--pompon-bg); border-color: var(--milo-pompon); }
-.dz-medal.is-loss .dz-medal__disc img { filter: grayscale(0.6); }
-.dz-medal__score { font-family: var(--f-display); font-size: 1.4rem; line-height: 1; }
-.dz-medal__vs { font-size: 0.875rem; font-weight: 600; line-height: 1.3; color: var(--text-2); }
-.dz-medal.is-win .dz-medal__vs { color: var(--ok); }
+.dz-medal:hover .dz-medal__disc { transform: translateY(-5px) rotate(-10deg); }
+.dz-medal__disc img { width: 46px; height: 46px; filter: drop-shadow(0 4px 4px rgba(120, 50, 10, 0.25)); }
+.dz-medal.is-win .dz-medal__disc { border: 0; background: var(--feu); box-shadow: 0 6px 0 var(--braise); }
+.dz-medal.is-draw .dz-medal__disc { background: var(--creme); }
+.dz-medal.is-loss .dz-medal__disc img { filter: grayscale(0.7); opacity: 0.75; }
+.dz-medal__score { margin-top: 6px; font-family: var(--f-display); font-size: 1.6rem; line-height: 1; }
+.dz-medal__label { font-size: 0.9375rem; font-weight: 700; color: var(--texte-2); }
+.dz-medal.is-win .dz-medal__label { color: var(--braise); }
+.dz-medal__vs { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; color: var(--texte-2); }
 .dz-empty--row { grid-auto-flow: column; justify-content: start; text-align: left; }
 
-/* ---------- États ---------- */
-.dz-empty { display: grid; flex: 1; justify-items: center; align-content: center; gap: 10px; padding: 12px; text-align: center; color: var(--text-2); }
+/* ================= ÉTATS ================= */
+.dz-empty { display: grid; flex: 1; justify-items: center; align-content: center; gap: 10px; padding: 12px; text-align: center; color: var(--texte-2); }
 .dz-empty img { width: 56px; height: 56px; }
 .dz-empty p { margin: 0; max-width: 28ch; font-size: 1rem; }
-.dz-state { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; padding: 20px; color: var(--text-2); }
-.dz-spinner { width: 26px; height: 26px; border: 3px solid var(--milo-creme); border-top-color: var(--milo-orange); border-radius: 50%; animation: dz-spin 0.9s linear infinite; }
+.dz-state { display: flex; flex: 1; align-items: center; justify-content: center; gap: 10px; padding: 20px; color: var(--texte-2); }
+.dz-spinner { width: 26px; height: 26px; border: 3px solid var(--creme); border-top-color: var(--milo-orange); border-radius: 50%; animation: dz-spin 0.9s linear infinite; }
 @keyframes dz-spin { to { transform: rotate(360deg); } }
 
-/* ---------- Responsive ---------- */
+@media (prefers-reduced-motion: reduce) {
+	.dz-rank__rays::after { animation: none; }
+}
+
+/* ================= RESPONSIVE ================= */
+/* Trois tuiles côte à côte sont trop serrées quand la zone de contenu
+   (barre latérale déduite) passe sous 1240 px : rang et rival à gauche,
+   liste d'amis à droite */
+@container dz (max-width: 1240px) {
+	.dz-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "arena arena" "rank friends" "rival friends" "shelf shelf"; }
+	.dz-friends { max-height: 520px; }
+}
 @media (max-width: 1180px) {
-	.dz-bento {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		grid-template-areas: "arena arena" "rank rank" "friends rival" "shelf shelf";
-	}
+	.dz-ranks__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
 	.dz-bento { grid-template-columns: minmax(0, 1fr); grid-template-areas: "arena" "rank" "friends" "rival" "shelf"; }
-	.dz-arena { padding: 24px 14px 28px; }
-	.dz-arena__floor { bottom: 120px; height: 70px; }
-	.dz-fighter__milo, .dz-mystery { height: 190px; }
-	.dz-mystery__mark { font-size: 3.6rem; }
-	.dz-versus__swords { width: 40px; height: 40px; }
-	.dz-fighter__tag { font-size: 0.875rem; padding: 5px 10px; }
-	.dz-btn--cta { width: 100%; }
-	.dz-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.dz-arena { padding: 52px 12px 26px; border-radius: 32px; }
+	.dz-float { display: none; }
+	/* Sur téléphone, le médaillon VS se pose par-dessus les cartes pour leur laisser toute la largeur */
+	.dz-arena__stage { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+	.dz-versus { position: absolute; top: 42%; left: 50%; z-index: 2; transform: translate(-50%, -50%); }
+	.dz-card { padding: 8px 8px 12px; border-radius: 24px; }
+	.dz-card__art { width: 100%; height: 170px; border-radius: 18px; }
+	.dz-card__plate { flex-direction: column; gap: 4px; }
+	.dz-card__name { max-width: 100%; font-size: 1.15rem; }
+	.dz-card__logo { width: 40px; height: 40px; margin: 0; }
+	.dz-card__logo--mystery { width: 32px; height: 32px; font-size: 1.1rem; }
+	.dz-card__tag { font-size: 0.8125rem; padding: 5px 10px 4px; }
+	.dz-mystery__mark { font-size: 5.5rem; }
+	.dz-versus__medal { width: 58px; font-size: 1.4rem; }
+	.dz-versus__swords { width: 40px; height: 40px; margin-top: -14px; }
+	.dz-btn--cta { width: 100%; padding: 0 20px; }
+	.dz-panel { padding: 18px 16px 20px; border-radius: 28px; }
+	.dz-rank__badge { width: 140px; height: 140px; }
+	.dz-ranks__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.dz-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 26px; }
+	.dz-shelf::before { display: none; }
+	.dz-shelf-tile .dz-panel__bar { flex-wrap: wrap; }
+	.dz-medal__disc { width: 66px; height: 66px; }
+	.dz-medal__disc img { width: 36px; height: 36px; }
+	.dz-medal__score { font-size: 1.35rem; }
+	.dz-rival__avatar { width: 58px; height: 58px; }
+	.dz-rival__board { font-size: 2.3rem; }
+	.dz-friend { gap: 10px; padding: 6px; }
+	.dz-friend__avatar { width: 44px; height: 44px; }
+	.dz-friend__status { white-space: nowrap; }
+	.dz-friend .dz-btn--duel { min-height: 42px; padding: 0 12px; font-size: 1rem; }
+	.dz-friend .dz-btn--duel svg { display: none; }
+	.dz-friend__off { padding: 0 6px; }
 	.dz-empty--row { grid-auto-flow: row; justify-content: center; text-align: center; }
 }

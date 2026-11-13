@@ -6,8 +6,10 @@ import MiloAvatar from "@shared/components/MiloAvatar.component";
 import { ROUTES } from "@shared/constants/routes";
 import "@shared/styles/SideBar.css";
 
-/// Icônes 3D de la navigation, servies depuis /public/icons
-const navIcon = (name: string) => `/icons/${name}_icon.png`;
+/// Icônes 3D de la navigation, servies depuis /public/icons/nav
+/// (« stats », réservé aux parents, garde l'ancienne icône)
+const NAV_ICONS = new Set(["home", "lesson", "import", "mission", "duel", "shop", "my_milo", "success", "leaderboard", "friend"]);
+const navIcon = (name: string) => (NAV_ICONS.has(name) ? `/icons/nav/${name}.webp` : `/icons/${name}_icon.png`);
 
 interface SidebarProps {
 	onLogout: () => void;

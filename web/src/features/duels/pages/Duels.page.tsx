@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDuelsScreen } from "@features/duels/hooks/useDuelsPage";
 import DuelGame from "@features/duels/components/DuelGame";
-import { FriendsTile, RankTile, RivalTile, ShelfTile } from "@features/duels/components/lobby/LobbyTiles";
+import { FriendsTile, RankTile, RanksModal, RivalTile, ShelfTile } from "@features/duels/components/lobby/LobbyTiles";
 import DuelArena from "@features/duels/components/lobby/DuelArena";
+import { rankFor } from "@features/duels/components/lobby/duelRanks";
 import { useUserStore } from "@shared/store/user/user.store";
 import { tileMotion } from "@features/duels/components/lobby/tileMotion";
 import LobbyToast from "@features/duels/components/LobbyToast";
@@ -32,6 +33,7 @@ const DuelsScreen: React.FC = () => {
 	const { equippedMeshNames } = useEquippedMeshNames();
 	const reduceMotion = useReducedMotion();
 	const firstName = useUserStore((state) => state.user?.first_name);
+	const [showRanks, setShowRanks] = useState(false);
 
 	// ── Game / End screens (full takeover) ────────────────────────────────────
 	// Plein écran, sans barre latérale : rien ne doit distraire du duel
@@ -91,13 +93,14 @@ const DuelsScreen: React.FC = () => {
 				<div className="dz-bento">
 					<DuelArena
 						firstName={firstName}
+						rank={rankFor(wins).current}
 						equippedMeshNames={equippedMeshNames ?? []}
 						onlineCount={onlineCount}
 						onStart={startMatchmaking}
 					/>
 
 					<motion.section className="dz-tile dz-rank" aria-label="Ton rang" {...tileMotion(1, reduceMotion)}>
-						<RankTile wins={wins} />
+						<RankTile wins={wins} onShowAll={() => setShowRanks(true)} />
 					</motion.section>
 
 					<motion.section className="dz-tile dz-friends-tile" aria-label="Défie un ami" {...tileMotion(2, reduceMotion)}>
@@ -112,6 +115,8 @@ const DuelsScreen: React.FC = () => {
 						<ShelfTile history={history} wins={wins} />
 					</motion.section>
 				</div>
+
+				<RanksModal isOpen={showRanks} wins={wins} onClose={() => setShowRanks(false)} />
 			</div>
 		</ScreenLayout>
 	);

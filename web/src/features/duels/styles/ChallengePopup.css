@@ -1,0 +1,155 @@
+/* ============================================================
+   DÉFI REÇU — même langage que les rappels bien-être, version jeu :
+   aplat feu de la charte avec le Milo 3D de l'adversaire,
+   fanions, compte à rebours en anneau, bouton orange en relief.
+   ============================================================ */
+.cp-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+	display: grid;
+	place-items: center;
+	padding: 16px;
+	overflow-y: auto;
+	background: rgba(42, 24, 16, 0.55);
+	backdrop-filter: blur(4px);
+}
+.cp-card {
+	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+	width: min(800px, 100%);
+	overflow: hidden;
+	border: 2px solid #EBD3BC;
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 #F1D2B2, 0 40px 70px -30px rgba(120, 50, 10, 0.55);
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+.cp-close {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 44px;
+	height: 44px;
+	border: 2px solid var(--line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--text-2);
+	cursor: pointer;
+	box-shadow: 0 4px 0 #F1D2B2;
+	transition: transform 0.15s ease;
+}
+.cp-close:hover { transform: translateY(-2px); color: var(--milo-encre); }
+.cp-close:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+
+/* ---------- Scène ---------- */
+.cp-scene {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: end center;
+	min-height: 380px;
+	overflow: hidden;
+	background: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+}
+.cp-scene__dots { position: absolute; inset: 0; z-index: -2; background-image: radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.4px); background-size: 26px 26px; }
+.cp-pennants {
+	position: absolute;
+	top: 0;
+	left: -4%;
+	right: -4%;
+	z-index: -1;
+	display: flex;
+	justify-content: space-between;
+	margin: 0;
+	padding: 4px 0 0;
+	list-style: none;
+	border-top: 3px solid rgba(255, 244, 229, 0.55);
+}
+.cp-pennants li { width: 30px; height: 36px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+/* Soleil crème sous Milo, avec l'anneau pointillé de la charte */
+.cp-scene__floor { position: absolute; left: 50%; bottom: -46%; z-index: -1; width: 96%; aspect-ratio: 1; border-radius: 50%; background: rgba(255, 251, 246, 0.2); transform: translateX(-50%); }
+.cp-scene__floor::after { content: ""; position: absolute; inset: 8%; border: 2px dashed rgba(255, 251, 246, 0.55); border-radius: 50%; }
+.cp-scene__fallback { position: absolute; bottom: 24px; width: 68%; height: auto; filter: drop-shadow(0 14px 14px rgba(120, 30, 5, 0.35)); }
+.cp-scene__milo.duel-milo-3d { position: absolute; inset: 30px 0 30px; width: 100%; height: auto; }
+.cp-scene:has(.duel-milo-3d.is-ready) .cp-scene__fallback { opacity: 0; transition: opacity 0.3s ease; }
+.cp-scene__swords { position: absolute; top: 54px; left: 22px; width: 62px; height: 62px; }
+.cp-scene__swords img { width: 100%; height: 100%; filter: drop-shadow(0 6px 6px rgba(120, 30, 5, 0.35)); }
+.cp-scene__name {
+	position: absolute;
+	bottom: 22px;
+	left: 50%;
+	transform: translateX(-50%);
+	max-width: 86%;
+	overflow: hidden;
+	padding: 8px 18px;
+	border-radius: 999px;
+	background: #FFF4E5;
+	color: #C73A0C;
+	font-family: var(--f-display);
+	font-size: 1.25rem;
+	line-height: 1;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	box-shadow: 0 5px 0 #C73A0C;
+}
+
+/* ---------- Contenu ---------- */
+.cp-content { display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 40px 34px 32px; }
+.cp-titles { display: grid; gap: 8px; }
+.cp-title { margin: 0; padding-right: 40px; font-family: var(--f-display); font-weight: 400; font-size: clamp(2.2rem, 4vw, 3rem); line-height: 0.92; letter-spacing: 0.01em; }
+.cp-hl { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--milo-braise); }
+.cp-body { margin: 0; font-size: 1.125rem; line-height: 1.5; color: var(--text-2); }
+.cp-body b { color: var(--milo-encre); }
+
+.cp-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.cp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px 6px 8px; border-radius: 999px; background: #F6EBDF; color: #C73A0C; font-size: 0.9375rem; font-weight: 700; }
+.cp-chip img { width: 22px; height: 22px; }
+.cp-timer { position: relative; display: grid; place-items: center; width: 64px; height: 64px; margin-left: auto; color: var(--ok); }
+.cp-timer svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cp-timer__value { font-family: var(--f-display); font-size: 1.4rem; line-height: 1; color: var(--milo-encre); }
+.cp-timer.is-urgent { color: var(--ko); animation: cp-pulse 1s ease-in-out infinite; }
+.cp-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.cp-actions { display: grid; gap: 10px; }
+.cp-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-height: 56px;
+	padding: 0 24px;
+	border-radius: 999px;
+	font: 700 1.125rem/1 var(--f-text);
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.cp-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.cp-btn--accept {
+	min-height: 64px;
+	border: 0;
+	background: var(--milo-orange);
+	color: #fff;
+	font-size: 1.25rem;
+	box-shadow: 0 7px 0 #C73A0C;
+}
+.cp-btn--accept:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 9px 0 #C73A0C; }
+.cp-btn--accept:active { transform: translateY(5px); box-shadow: 0 2px 0 #C73A0C; }
+.cp-btn--decline { border: 2px solid var(--line); background: #fff; color: var(--text-2); box-shadow: 0 5px 0 #F1D2B2; }
+.cp-btn--decline:hover { transform: translateY(-2px); color: var(--milo-encre); }
+.cp-btn--decline:active { transform: translateY(4px); box-shadow: 0 1px 0 #F1D2B2; }
+
+@keyframes cp-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+@media (max-width: 680px) {
+	.cp-backdrop { place-items: start center; }
+	.cp-card { grid-template-columns: minmax(0, 1fr); border-radius: 32px; }
+	.cp-scene { min-height: 250px; }
+	.cp-scene__fallback { width: 44%; }
+	.cp-content { padding: 24px 20px 22px; gap: 18px; }
+}

@@ -1,0 +1,295 @@
+/* ============================================================
+   IMPORTE TES DOCUMENTS : charte graphique de la landing.
+   Fond crème, cartes blanches (bordure ligne 2 px, rayon 32 à 40 px,
+   tranche sable), aplat feu à pois et soleil pour la zone mise en
+   avant, boutons pilule en relief, titres Luckiest Guy avec un mot en
+   orange, icônes 3D. Pas d'étiquettes à pastille, pas de halos.
+   (OcrScreen.css reste utilisé par la page d'exercice généré.)
+   ============================================================ */
+/* Variables de la charte, aussi posées sur la pop-up (qui peut être rendue hors de .oi) */
+.oi,
+.oi-modal-backdrop {
+	--creme: #F6EBDF;
+	--sable: #F1D2B2;
+	--ligne: #EBD3BC;
+	--surface: #FFFBF6;
+	--encre: #2A1810;
+	--texte-2: #6E5546;
+	--braise: #C73A0C;
+	--feu: linear-gradient(135deg, #F4922A 0%, #F36B16 38%, #EF4F1A 70%, #ED3C1D 100%);
+}
+.oi {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 30px;
+	align-content: start;
+	max-width: 1180px;
+	min-height: 100vh;
+	margin: 0 auto;
+	padding: clamp(18px, 2.6vw, 32px) clamp(16px, 3vw, 36px) 64px;
+	font-family: var(--f-text);
+	color: var(--encre);
+}
+.oi-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.oi-hl { color: var(--milo-orange); text-shadow: 0 0.06em 0 var(--braise); }
+
+/* ---------- Boutons (pilules en relief de la charte) ---------- */
+.oi-btn {
+	--edge: var(--braise);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55em;
+	min-height: 56px;
+	padding: 0 1.6rem;
+	border: 0;
+	border-radius: 999px;
+	font: 700 1.125rem/1 var(--f-text);
+	white-space: nowrap;
+	cursor: pointer;
+	box-shadow: 0 6px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, 0.6);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.oi-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, 0.65); }
+.oi-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
+.oi-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.oi-btn:disabled { cursor: progress; opacity: 0.85; }
+.oi-btn--primary { background: var(--milo-orange); color: #fff; }
+.oi-btn--big { min-height: 62px; padding: 0 2rem; font-size: 1.2rem; }
+.oi-btn--ghost { --edge: var(--sable); background: #fff; color: var(--encre); box-shadow: inset 0 0 0 2px var(--sable), 0 6px 0 var(--edge); }
+.oi-btn--ghost:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--sable), 0 8px 0 var(--edge); }
+.oi-btn--ghost:active:not(:disabled) { box-shadow: inset 0 0 0 2px var(--sable), 0 1px 0 var(--edge); }
+.oi-btn--sm { min-height: 46px; padding: 0 1.2rem; font-size: 1rem; box-shadow: inset 0 0 0 2px var(--sable), 0 4px 0 var(--edge); }
+.oi-spinner { width: 22px; height: 22px; border: 3px solid rgba(255, 255, 255, 0.4); border-top-color: #fff; border-radius: 50%; animation: oi-spin 0.8s linear infinite; }
+@keyframes oi-spin { to { transform: rotate(360deg); } }
+
+/* ---------- En-tête : grande carte blanche, aplat feu avec Milo ---------- */
+.oi-hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 240px;
+	align-items: center;
+	gap: 20px;
+	padding: 16px;
+	border: 2px solid var(--ligne);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--sable), 0 40px 60px -40px rgba(120, 50, 10, 0.45);
+}
+.oi-hero__copy { display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 8px 6px 8px 14px; }
+.oi-hero__titles { display: grid; gap: 6px; }
+.oi-hero__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(1.9rem, 2.8vw, 2.4rem); line-height: 1.04; letter-spacing: 0.01em; }
+.oi-hero__lead { margin: 0; max-width: 52ch; font-size: 1.0625rem; line-height: 1.5; color: var(--texte-2); }
+
+/* Fil des étapes : pastilles numérotées, l'étape en cours en orange */
+.oi-steps { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.oi-step { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 6px; border: 2px solid var(--ligne); border-radius: 999px; background: #fff; font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); }
+.oi-step__num { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--creme); color: var(--braise); font-family: var(--f-display); font-size: 1rem; line-height: 1; padding-top: 2px; }
+.oi-step.is-current { border-color: transparent; background: var(--milo-orange); color: #fff; box-shadow: 0 4px 0 var(--braise); }
+.oi-step.is-current .oi-step__num { background: #fff; color: var(--braise); }
+.oi-step.is-done { color: var(--encre); }
+.oi-step.is-done .oi-step__num { background: var(--ok-bg); color: var(--ok); }
+
+.oi-hero__art {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: end center;
+	height: 210px;
+	overflow: hidden;
+	padding: 0;
+	border: 0;
+	border-radius: 30px;
+	background: var(--feu);
+	cursor: pointer;
+}
+.oi-hero__art:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.oi-hero__art::before { content: ""; position: absolute; inset: 0; z-index: -2; background-image: radial-gradient(rgba(255, 255, 255, 0.25) 1.5px, transparent 1.7px); background-size: 24px 24px; }
+/* Soleil crème et son anneau pointillé, derrière Milo */
+.oi-hero__sun { position: absolute; left: 50%; bottom: -30%; z-index: -1; width: 88%; aspect-ratio: 1; border-radius: 50%; background: rgba(255, 251, 246, 0.2); transform: translateX(-50%); }
+.oi-hero__sun::after { content: ""; position: absolute; inset: 8%; border: 2px dashed rgba(255, 251, 246, 0.55); border-radius: 50%; }
+/* Milo en 3D : remplit l'aplat, au-dessus du soleil */
+.oi-hero__milo3d.duel-milo-3d { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Petit soleil qui tourne le temps que le modèle charge */
+.oi-hero__loader { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 4px solid rgba(255, 251, 246, 0.35); border-top-color: var(--creme); border-radius: 50%; animation: oi-spin 0.9s linear infinite; }
+.oi-hero__art:has(.duel-milo-3d.is-ready) .oi-hero__loader { display: none; }
+.oi-hero__float { position: absolute; z-index: 1; pointer-events: none; width: 40px; height: 40px; filter: drop-shadow(0 10px 12px rgba(120, 30, 5, 0.3)); }
+.oi-hero__float--1 { top: 14px; left: 14px; transform: rotate(-12deg); }
+.oi-hero__float--2 { top: 16px; right: 16px; width: 34px; height: 34px; transform: rotate(10deg); }
+.oi-hero__float--3 { bottom: 40px; left: 18px; width: 28px; height: 28px; }
+
+/* Plus d'air entre l'en-tête et ce qu'on peut faire */
+.oi-hero { margin-bottom: 26px; }
+
+/* ---------- Sections ---------- */
+.oi-section { display: grid; align-content: start; gap: 20px; }
+.oi-section__head { display: grid; gap: 6px; }
+.oi-section__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(1.6rem, 2.4vw, 2rem); line-height: 1.04; letter-spacing: 0.01em; }
+.oi-section__sub { margin: 0; font-size: 1.0625rem; color: var(--texte-2); }
+
+/* Étape 1 : trois cartes de type */
+.oi-types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.oi-type {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 18px 22px 22px;
+	border: 2px solid var(--ligne);
+	border-radius: 32px;
+	background: #fff;
+	color: var(--encre);
+	font-family: var(--f-text);
+	text-align: left;
+	cursor: pointer;
+	box-shadow: 0 8px 0 var(--sable), 0 30px 50px -36px rgba(120, 50, 10, 0.45);
+	transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.oi-type:hover { transform: translateY(-5px); box-shadow: 0 12px 0 var(--sable), 0 34px 50px -30px rgba(120, 50, 10, 0.5); }
+.oi-type:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--sable); }
+.oi-type:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 4px; }
+.oi-type__art {
+	position: relative;
+	isolation: isolate;
+	display: grid;
+	place-items: center;
+	align-self: stretch;
+	height: 140px;
+	margin-bottom: 6px;
+	overflow: hidden;
+	border-radius: 24px;
+	background:
+		radial-gradient(rgba(185, 51, 15, 0.12) 1.4px, transparent 1.6px) 0 0 / 20px 20px,
+		var(--creme);
+}
+.oi-type__art::before { content: ""; position: absolute; left: 50%; top: 50%; z-index: -1; width: 112px; aspect-ratio: 1; border-radius: 50%; background: var(--feu); transform: translate(-50%, -50%); transition: transform 0.3s ease; }
+.oi-type__icon { width: 76px; height: 76px; filter: drop-shadow(0 10px 10px rgba(120, 30, 5, 0.3)); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.oi-type:hover .oi-type__icon { transform: scale(1.12) rotate(-8deg); }
+.oi-type:hover .oi-type__art::before { transform: translate(-50%, -50%) scale(1.08); }
+.oi-type__title { font-family: var(--f-display); font-size: 1.7rem; line-height: 1; letter-spacing: 0.01em; padding-top: 3px; }
+.oi-type__desc { flex: 1; font-size: 1rem; line-height: 1.45; color: var(--texte-2); }
+.oi-type__cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 6px; padding: 10px 18px; border-radius: 999px; background: var(--milo-orange); color: #fff; font-weight: 700; box-shadow: 0 4px 0 var(--braise); }
+
+/* ---------- Étape 2 : dépôt et aperçu ---------- */
+.oi-upload {
+	display: grid;
+	gap: 20px;
+	padding: 24px 26px 28px;
+	border: 2px solid var(--ligne);
+	border-radius: 40px;
+	background: #fff;
+	box-shadow: 0 10px 0 var(--sable), 0 40px 60px -40px rgba(120, 50, 10, 0.45);
+}
+.oi-upload__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.oi-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 8px; border: 2px solid var(--ligne); border-radius: 18px; background: #fff; font-weight: 600; box-shadow: 0 4px 0 var(--sable); }
+.oi-chip img { width: 32px; height: 32px; }
+
+/* Zone de dépôt : pointillés orange (zone de protection de la charte) */
+.oi-drop {
+	display: grid;
+	justify-items: center;
+	gap: 10px;
+	padding: 36px 20px 30px;
+	border: 3px dashed #F4922A;
+	border-radius: 28px;
+	background: repeating-linear-gradient(45deg, rgba(255, 84, 29, 0.05) 0 10px, transparent 10px 20px), var(--surface);
+	text-align: center;
+	transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.oi-drop.is-dragging { border-color: var(--milo-orange); background: repeating-linear-gradient(45deg, rgba(255, 84, 29, 0.12) 0 10px, transparent 10px 20px), #FFF1E3; transform: scale(1.01); }
+.oi-drop__icon { display: grid; place-items: center; width: 108px; height: 108px; border-radius: 50%; background: var(--feu); box-shadow: 0 6px 0 var(--braise); }
+.oi-drop__icon img { width: 64px; height: 64px; filter: drop-shadow(0 6px 6px rgba(120, 30, 5, 0.3)); }
+.oi-drop__text { margin: 6px 0 0; font-family: var(--f-display); font-size: 1.6rem; line-height: 1.05; }
+.oi-drop__or { font-size: 0.9375rem; font-weight: 600; color: var(--texte-2); }
+.oi-drop__formats { margin: 6px 0 0; font-size: 0.9375rem; color: var(--texte-2); }
+
+.oi-preview { display: grid; gap: 12px; }
+.oi-preview__frame { display: grid; place-items: center; max-height: 460px; overflow: hidden; padding: 12px; border-radius: 26px; background: var(--creme); }
+.oi-preview__img { max-width: 100%; max-height: 436px; object-fit: contain; border-radius: 16px; box-shadow: 0 10px 24px -12px rgba(120, 50, 10, 0.45); }
+.oi-preview__pdf { width: 100%; height: 436px; border: 0; border-radius: 16px; background: #fff; }
+.oi-preview__meta { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 16px; border: 2px solid var(--ligne); border-radius: 18px; color: var(--braise); }
+.oi-preview__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--encre); }
+.oi-preview__size { flex: none; padding: 3px 10px; border-radius: 999px; background: var(--creme); font-size: 0.875rem; font-weight: 600; color: var(--texte-2); }
+.oi-file-error { margin: 0; padding: 12px 16px; border-radius: 18px; background: var(--ko-bg); color: var(--ko); font-weight: 600; }
+.oi-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 14px; }
+
+/* ---------- Erreur globale : Milo inquiet ---------- */
+.oi-error { display: flex; align-items: center; gap: 14px; padding: 14px 20px 14px 14px; border: 2px solid #F3C2CB; border-radius: 26px; background: var(--ko-bg); color: var(--ko); font-weight: 600; }
+.oi-error__milo { width: 64px; height: auto; flex: none; }
+.oi-error p { margin: 0; line-height: 1.4; }
+
+/* ---------- Pop-up de choix d'action ---------- */
+.oi-modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 16px; overflow-y: auto; background: rgba(42, 24, 16, 0.55); }
+.oi-modal {
+	position: relative;
+	display: grid;
+	justify-items: center;
+	gap: 18px;
+	width: min(640px, 100%);
+	padding: 26px 26px 28px;
+	border: 2px solid var(--ligne);
+	border-radius: 40px;
+	background: #fff;
+	text-align: center;
+	box-shadow: 0 10px 0 var(--sable), 0 40px 70px -30px rgba(120, 50, 10, 0.55);
+}
+.oi-modal__close { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 44px; height: 44px; border: 2px solid var(--ligne); border-radius: 50%; background: #fff; color: var(--texte-2); cursor: pointer; box-shadow: 0 4px 0 var(--sable); }
+.oi-modal__close:hover { color: var(--encre); }
+.oi-modal__close:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
+.oi-modal__milo { width: 150px; height: auto; margin-top: -4px; filter: drop-shadow(0 12px 14px rgba(120, 50, 10, 0.28)); }
+.oi-modal__titles { display: grid; gap: 6px; }
+.oi-modal__title { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 2.3rem; line-height: 1; }
+.oi-modal__sub { margin: 0; font-size: 1.125rem; color: var(--texte-2); }
+.oi-modal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; width: 100%; }
+.oi-action {
+	display: grid;
+	justify-items: center;
+	align-content: start;
+	gap: 8px;
+	padding: 20px 16px 22px;
+	border: 2px solid var(--ligne);
+	border-radius: 28px;
+	background: #fff;
+	color: var(--encre);
+	font-family: var(--f-text);
+	cursor: pointer;
+	box-shadow: 0 6px 0 var(--sable);
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.oi-action:hover { transform: translateY(-4px); box-shadow: 0 10px 0 var(--sable); }
+.oi-action:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--sable); }
+.oi-action:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 4px; }
+/* La première action est la carte mise en avant : dégradé feu, tranche braise */
+.oi-action.is-featured { border-color: transparent; background: var(--feu); color: var(--creme); box-shadow: 0 6px 0 var(--braise); }
+.oi-action.is-featured:hover { box-shadow: 0 10px 0 var(--braise); }
+.oi-action.is-featured:active { box-shadow: 0 1px 0 var(--braise); }
+.oi-action__icon { width: 64px; height: 64px; filter: drop-shadow(0 8px 8px rgba(120, 30, 5, 0.3)); }
+.oi-action__label { font-family: var(--f-display); font-size: 1.35rem; line-height: 1.05; }
+.oi-action__desc { font-size: 0.9375rem; line-height: 1.4; color: var(--texte-2); }
+.oi-action.is-featured .oi-action__desc { color: #FFE9D9; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+	.oi-types { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+@media (max-width: 760px) {
+	.oi-hero { margin-bottom: 14px; }
+	.oi-hero { grid-template-columns: minmax(0, 1fr); padding: 14px; border-radius: 32px; }
+	.oi-hero__copy { padding: 8px 6px; }
+	.oi-hero__art { height: 160px; order: -1; }
+	.oi-steps { gap: 6px; }
+	.oi-step { padding: 4px 10px 4px 4px; font-size: 0.8125rem; }
+	.oi-step__num { width: 24px; height: 24px; font-size: 0.875rem; }
+	.oi-types { grid-template-columns: minmax(0, 1fr); }
+	.oi-upload { padding: 18px 16px 22px; border-radius: 32px; }
+	.oi-actions { flex-direction: column-reverse; }
+	.oi-actions .oi-btn { width: 100%; }
+	.oi-modal { padding: 22px 16px 22px; border-radius: 32px; }
+	.oi-modal__milo { width: 110px; }
+	.oi-modal__title { font-size: 1.9rem; }
+	.oi-modal__grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.oi-type, .oi-type__icon, .oi-type__art::before, .oi-action, .oi-drop { transition: none; }
+}
