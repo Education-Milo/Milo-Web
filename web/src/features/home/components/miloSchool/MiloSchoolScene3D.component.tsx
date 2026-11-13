@@ -87,6 +87,18 @@ const FOCUS_FOV = 30;
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 const MAIL_DIR = new THREE.Vector3();
 
+/// Entrée en classe : la caméra s'approche peu à peu de la porte, derrière
+/// Milo, jusqu'à s'y engouffrer quand la lumière de la classe envahit
+/// l'écran (même durée que la marche, plus le temps du fondu : la page
+/// change à ce moment-là)
+const DOOR_SECONDS = (ENTRY_MS + 200) / 1000;
+const DOOR_FOV = 26;
+/// Face à la porte, assez près pour que l'embrasure remplisse presque l'écran
+const DOOR_TARGET = new THREE.Vector3(SCHOOL.door.x, SCHOOL.door.height * 0.5, 0);
+const DOOR_CAMERA = new THREE.Vector3(SCHOOL.door.x, SCHOOL.door.height * 0.6, 3.4);
+/// Démarrage tout en douceur, puis la caméra prend de la vitesse
+const doorEase = (x: number) => x * x * (2.2 - 1.2 * x);
+
 /**
  * Pose de la caméra devant ce qu'on regarde de près : face à la pancarte
  * (assez près pour la lire), ou un peu devant la boîte aux lettres.
@@ -115,12 +127,49 @@ function focusPose(focus: MiloSchoolFocus, aspect: number, basePos: THREE.Vector
 	pos.y = 1.45;
 }
 
+/**
+ * Projection de la caméra. D'ordinaire, le cadrage occupe toute la toile. À
+ * l'entrée en classe, la toile vient de s'élargir (à gauche : le menu ; en
+ * haut sur mobile : la barre) : le centre de l'image reste d'abord celui de
+ * l'ancien cadre, à la même échelle, et revient au centre de la toile à mesure
+ * que la caméra s'approche de la porte (`settle` de 0 à 1).
+ */
+function applyProjection(
+	cam: THREE.PerspectiveCamera,
+	fov: number,
+	size: { width: number; height: number },
+	frameWidth: number,
+	frameHeight: number,
+	settle: number,
+) {
+	const keep = 1 - settle;
+	const dx = ((size.width - frameWidth) / 2) * keep;
+	const dy = ((size.height - frameHeight) / 2) * keep;
+	if (dx < 0.5 && dy < 0.5) {
+		const aspect = size.width / Math.max(size.height, 1);
+		if (cam.view?.enabled) cam.clearViewOffset();
+		else if (Math.abs(cam.fov - fov) < 0.01 && Math.abs(cam.aspect - aspect) < 1e-4) return;
+		cam.fov = fov;
+		cam.aspect = aspect;
+		cam.updateProjectionMatrix();
+		return;
+	}
+	/// Image virtuelle plus grande, centrée sur l'ancien cadre ; la toile en
+	/// montre la partie gauche (et haute). `fov` vaut pour la hauteur du cadre
+	/// d'avant, puis pour celle de la toile une fois recentré.
+	const fullWidth = size.width + 2 * dx;
+	const fullHeight = size.height + 2 * dy;
+	const reference = THREE.MathUtils.lerp(frameHeight, size.height, settle);
+	const halfTan = Math.tan(THREE.MathUtils.degToRad(fov / 2)) * (fullHeight / reference);
+	cam.fov = THREE.MathUtils.radToDeg(2 * Math.atan(halfTan));
+	cam.aspect = fullWidth / fullHeight;
+	/// (met aussi à jour la matrice de projection)
+	cam.setViewOffset(fullWidth, fullHeight, 0, 0, size.width, size.height);
+}
+
 /** Caméra : cadrage selon la taille de l'écran, et gros plans à la demande */
 const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> = ({ bridge, reducedMotion }) => {
-	const { camera, size } = useThree();
-	const door = useMemo(() => new THREE.Vector3(), []);
-	const doorKey = useRef("");
-	const doorStage = useRef<HTMLElement | null>(null);
+	const camera = useThree((state) => state.camera);
 	const pose = useMemo(
 		() => ({
 			basePos: new THREE.Vector3(),
@@ -130,6 +179,8 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 			target: new THREE.Vector3(),
 			anchor: new THREE.Vector3(),
 			t: 0,
+			/// Secondes depuis le clic sur la porte (0 : on n'entre pas)
+			enter: 0,
 			last: null as MiloSchoolFocus | null,
 			mailKey: "",
 			mailRoot: null as HTMLElement | null,
@@ -141,12 +192,20 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 	/// la boîte aux lettres à l'écran une fois la caméra arrivée
 	const probe = useMemo(() => new THREE.PerspectiveCamera(FOCUS_FOV, 1, 0.1, 80), []);
 
-	useFrame((_, delta) => {
+	useFrame((frame, delta) => {
 		const cam = camera as THREE.PerspectiveCamera;
-		const height = Math.max(size.height, 1);
+		/// Taille lue dans l'état de l'image, pas dans le rendu React : juste après
+		/// un redimensionnement, la toile est redessinée aussitôt, avant que React
+		/// ne rende à nouveau ce composant (sinon une image déformée s'affiche)
+		const size = frame.size;
+		/// Entrée en classe : la toile s'élargit sous le menu qui s'efface, mais
+		/// le cadrage reste celui d'avant (la scène occupe la même place à l'écran)
+		const cover = bridge.phase === "entering" ? bridge.cover : null;
+		const frameWidth = Math.max(cover ? Math.min(cover.width, size.width) : size.width, 1);
+		const height = Math.max(cover ? Math.min(cover.height, size.height) : size.height, 1);
 		const reserved = THREE.MathUtils.clamp(bridge.bottomPx, 0, height * 0.4);
 		const visibleShare = (height - reserved) / height;
-		const aspect = size.width / height;
+		const aspect = frameWidth / height;
 		const centerX = bridge.wide
 			? (WIDE_FRAME.left + WIDE_FRAME.right) / 2
 			: aspect < 1
@@ -186,10 +245,16 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 			cam.position.copy(pose.basePos);
 			pose.target.copy(pose.baseTarget);
 		}
-		if (Math.abs(cam.fov - fov) > 0.01) {
-			cam.fov = fov;
-			cam.updateProjectionMatrix();
+
+		/// Entrée en classe : de la vue d'ensemble jusque dans l'embrasure
+		pose.enter = bridge.phase === "entering" ? pose.enter + (reducedMotion ? DOOR_SECONDS : frameStep(delta)) : 0;
+		const doorE = pose.enter > 0 ? doorEase(Math.min(pose.enter / DOOR_SECONDS, 1)) : 0;
+		if (doorE > 0) {
+			cam.position.lerp(DOOR_CAMERA, doorE);
+			pose.target.lerp(DOOR_TARGET, doorE);
+			fov = THREE.MathUtils.lerp(fov, DOOR_FOV, doorE);
 		}
+		applyProjection(cam, fov, size, frameWidth, height, doorE);
 		cam.lookAt(pose.target);
 
 		/// Où sera la boîte aux lettres à l'écran, une fois en gros plan
@@ -215,21 +280,6 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 				root.style.setProperty("--mail-y", `${my}px`);
 				if (zoomed) root.dataset.zoomed = "";
 				else delete root.dataset.zoomed;
-			}
-		}
-
-		/// Position de la porte à l'écran : le zoom d'entrée en classe part d'elle
-		const stage = bridge.stage;
-		if (stage) {
-			cam.updateMatrixWorld();
-			door.set(SCHOOL.door.x, SCHOOL.door.height * 0.5, 0).project(cam);
-			const key = `${door.x.toFixed(3)},${door.y.toFixed(3)}`;
-			/// (nouvelle page d'accueil = nouvel élément : on réécrit)
-			if (key !== doorKey.current || stage !== doorStage.current) {
-				doorKey.current = key;
-				doorStage.current = stage;
-				stage.style.setProperty("--door-x", `${((door.x + 1) / 2) * 100}%`);
-				stage.style.setProperty("--door-y", `${((1 - door.y) / 2) * 100}%`);
 			}
 		}
 	});
@@ -376,7 +426,7 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, ni
 	const { scene, animations } = useMiloInstance(MILO_MODEL_PATH);
 	const { actions, mixer } = useAnimations(animations, body);
 	const { equippedMeshNames } = useEquippedMeshNames();
-	const { camera, size, invalidate } = useThree();
+	const { camera, invalidate, get } = useThree();
 	/// Taille d'une unité du modèle dans la scène (mesurée une fois Milo cadré)
 	const modelUnit = useRef(FIT_HEIGHT / 7.8);
 
@@ -522,7 +572,9 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, ni
 		[],
 	);
 
+	/// (taille actuelle de la toile : voir CameraRig)
 	const project = (offset: THREE.Vector3) => {
+		const { size } = get();
 		anchor.v.copy(anchor.head).add(offset).project(camera);
 		return [Math.round(((anchor.v.x + 1) / 2) * size.width), Math.round(((1 - anchor.v.y) / 2) * size.height)];
 	};

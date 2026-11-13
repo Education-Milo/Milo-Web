@@ -86,6 +86,52 @@
 		height: calc(100dvh - 64px);
 	}
 }
+/* La scène est l'écran entier : la page ne défile pas. (Le reset global des
+   marges n'est chargé qu'avec certaines pages : sans lui, la marge par défaut
+   du body dépassait de l'écran et laissait défiler.) */
+html:has(.hp-world),
+body:has(.hp-world) {
+	overflow: hidden;
+	overscroll-behavior: none;
+}
+body:has(.hp-world) {
+	margin: 0;
+}
+/* (sur mobile, la barre du haut s'ajoutait à la hauteur minimale de la page) */
+html:has(.hp-world) .main-container {
+	min-height: 0;
+}
+
+/* Entrée en classe (classe posée sur <html> par la carte) : la scène s'élargit
+   d'un coup sous le menu, qui glisse hors de l'écran par-dessus elle pendant que
+   la caméra s'approche de la porte. Un seul redimensionnement de la toile 3D
+   (pas une transition de largeur : la redessiner à chaque image la ralentissait),
+   et la caméra garde son cadrage d'avant : l'image ne saute pas. La salle de
+   classe s'affiche ensuite sans menu. */
+html.hp-entering-class :is(.sb-sidebar, .sb-mobile-topbar) {
+	transition: transform 0.7s cubic-bezier(0.55, 0, 0.3, 1);
+}
+/* (sans le flou d'arrière-plan, recalculé à chaque image tant qu'il bouge) */
+html.hp-entering-class .sb-sidebar {
+	transform: translateX(-105%);
+	background: rgba(255, 255, 255, 0.96);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+}
+html.hp-entering-class .sb-mobile-topbar {
+	transform: translateY(-105%);
+}
+html.hp-entering-class .hp-world {
+	margin-left: calc(-1 * var(--sb-width));
+}
+@media (max-width: 768px) {
+	html.hp-entering-class .hp-world {
+		margin-left: 0;
+		margin-top: -64px;
+		height: 100vh;
+		height: 100dvh;
+	}
+}
 /* ============================================================ PANNEAUX (pancarte des missions, boîte aux lettres) ============================================================ */
 .hp-sheet-layer {
 	position: fixed;

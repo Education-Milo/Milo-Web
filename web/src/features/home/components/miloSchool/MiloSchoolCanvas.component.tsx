@@ -120,8 +120,16 @@ const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, onDetach
 		const measure = () => {
 			const rect = element.getBoundingClientRect();
 			if (rect.width < 1 || rect.height < 1) return;
+			const resized = rect.width !== p.size.width || rect.height !== p.size.height;
 			p.size = { width: rect.width, height: rect.height, top: rect.top, left: rect.left };
-			void update();
+			void update().then(() => {
+				/// Redimensionnée, la toile est effacée : on la redessine aussitôt,
+				/// sans attendre l'image suivante, sinon le fond apparaîtrait un
+				/// instant (le menu qui s'efface à l'entrée en classe l'élargit à
+				/// chaque image)
+				const state = p.store?.getState();
+				if (resized && state && state.frameloop !== "never") advance(state.clock.elapsedTime, false, state);
+			});
 		};
 		const observer = new ResizeObserver(measure);
 		observer.observe(element);
