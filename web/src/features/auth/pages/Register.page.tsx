@@ -16,6 +16,12 @@ const STEPS = [
 	{ id: "infos", label: "Tes informations" },
 ];
 
+/** On tutoie l'élève, on vouvoie le parent (charte, « Deux voix, un ton ») */
+const PARENT_STEPS = [
+	{ id: "role", label: "Votre rôle" },
+	{ id: "infos", label: "Vos informations" },
+];
+
 const Register: React.FC = () => {
 	const {
 		formData,
@@ -37,6 +43,7 @@ const Register: React.FC = () => {
 	if (!roleDef) return null;
 
 	const RoleIcon = roleDef.icon;
+	const isParent = roleDef.slug === "parent";
 
 	return (
 		<div className="auth-page-root">
@@ -47,7 +54,7 @@ const Register: React.FC = () => {
 			/>
 
 			<main className="auth-main">
-				<StepProgress steps={STEPS} currentStep={1} />
+				<StepProgress steps={isParent ? PARENT_STEPS : STEPS} currentStep={1} />
 
 				<motion.div
 					className="auth-glass-card"
@@ -61,9 +68,11 @@ const Register: React.FC = () => {
 					</div>
 
 					<div className="form-header">
-						<h2 className="form-title">Créer ton compte</h2>
+						<h2 className="form-title">{isParent ? "Créer votre compte parent" : "Créer ton compte"}</h2>
 						<p className="form-subtitle">
-							Rejoins Milo et découvre une nouvelle façon d'apprendre
+							{isParent
+								? "Suivez le travail de votre enfant sur Milo, semaine après semaine."
+								: "Rejoins Milo et découvre une nouvelle façon d'apprendre"}
 						</p>
 					</div>
 
@@ -143,7 +152,9 @@ const Register: React.FC = () => {
 						)}
 
 						<p className="legal-text">
-							En rejoignant Milo, tu confirmes avoir lu et accepté les{" "}
+							{isParent
+								? "En créant votre compte, vous confirmez avoir lu et accepté les"
+								: "En rejoignant Milo, tu confirmes avoir lu et accepté les"}{" "}
 							<a href="#">conditions générales d'utilisation</a> et la{" "}
 							<a href="#">politique de confidentialité</a>.
 						</p>

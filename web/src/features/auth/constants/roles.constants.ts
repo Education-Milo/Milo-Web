@@ -30,7 +30,7 @@ export const ROLES: RoleDefinition[] = [
 		title: "Je suis parent",
 		tagline: "Suivi & sérénité",
 		description:
-			"Suis les progrès de tes enfants et accompagne-les en toute sérénité.",
+			"Suivez les progrès de vos enfants et accompagnez-les en toute sérénité.",
 		icon: Users,
 		active: true,
 	},

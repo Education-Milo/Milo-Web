@@ -34,6 +34,8 @@ export const ROUTES = {
 	PARENT: {
 		DASHBOARD: "/parent/dashboard",
 		CHILDREN: "/parent/children",
+		REPORTS: "/parent/bilans",
+		SUBSCRIPTION: "/parent/subscription",
 		PROGRESS: "/parent/progress",
 		CONTROLS: "/parent/controls",
 	},
