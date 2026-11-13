@@ -9,6 +9,7 @@ import ChallengeNotification from "@features/duels/components/ChallengeNotificat
 import ToastContainer from "@shared/components/Toast.component";
 import DemoBanner from "@shared/components/DemoBanner.component";
 import WellbeingNudge from "@features/wellbeing/components/WellbeingNudge.component";
+import OnboardingTour from "@features/onboarding/components/OnboardingTour.component";
 
 // Pages communes
 const HomeScreen = lazy(() => import("@features/home/pages/Home.page"));
@@ -29,6 +30,7 @@ const FriendsPage = lazy(() => import("@features/friends/pages/Friends.page"));
 const AdminPage = lazy(() => import("@features/admin/pages/Admin.page"));
 const OcrPage = lazy(() => import("@features/ocr/pages/OcrPage"));
 const GeneratedExercisePage = lazy(() => import("@features/ocr/pages/GeneratedExercisePage"));
+const OnboardingClassroomPage = lazy(() => import("@features/onboarding/pages/OnboardingClassroom.page"));
 const ProfilePickerPage = lazy(() => import("@features/account/pages/ProfilePicker.page"));
 import { ROUTES } from "@shared/constants/routes";
 import { PLAYER_ROLES } from "@shared/constants/roles";
@@ -67,6 +69,7 @@ const AuthNavigator: React.FC = () => {
 			<ToastContainer />
 			<DemoBanner />
 			<WellbeingNudge />
+			<OnboardingTour />
 			{/* Pages chargées à la demande : Three.js et les scènes 3D ne sont
 			    téléchargés que sur les pages qui en ont besoin */}
 			<Suspense fallback={<LoadingScreen label="Chargement…" />}>
@@ -110,6 +113,16 @@ const AuthNavigator: React.FC = () => {
 					element={
 						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
 							<MiloScene />
+						</ProtectedRoute>
+					}
+				/>
+
+				{/* Onboarding : Milo accueille le nouvel élève en classe */}
+				<Route
+					path={ROUTES.ONBOARDING}
+					element={
+						<ProtectedRoute allowedRoles={PLAYER_ROLES}>
+							<OnboardingClassroomPage />
 						</ProtectedRoute>
 					}
 				/>

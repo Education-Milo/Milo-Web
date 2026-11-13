@@ -8,6 +8,7 @@ import type {
 import type { ClassType } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
 import { getRoleBySlug } from "@features/auth/constants/roles.constants";
+import { useOnboardingStore } from "@features/onboarding/store/onboarding.store";
 
 const CLASS_VALUES: readonly ClassType[] = ["6eme", "5eme", "4eme", "3eme"];
 const isClassType = (value: string): value is ClassType =>
@@ -132,7 +133,9 @@ export const useRegisterForm = () => {
 						...common,
 						class_: formData.classe as ClassType,
 					});
-					navigate(ROUTES.HOME, { replace: true });
+					// Nouvel élève : Milo l'accueille en classe (onboarding)
+					useOnboardingStore.getState().markPending();
+					navigate(ROUTES.ONBOARDING, { replace: true });
 				} else {
 					await registerParent(common);
 					navigate(ROUTES.PARENT.DASHBOARD, { replace: true });
