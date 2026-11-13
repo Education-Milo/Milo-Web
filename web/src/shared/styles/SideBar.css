@@ -25,7 +25,9 @@
 /* ============================================================
    SIDEBAR CONTAINER
    ============================================================ */
-.sb-sidebar { position: fixed; top: 0; left: 0; width: var(--sb-width); height: 100vh; display: flex; flex-direction: column; padding: 24px 18px 20px; gap: 16px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-right: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 8px 0 40px rgba(120, 50, 10, 0.06); font-family: var(--sb-font); color: var(--sb-text-main); z-index: 110; animation: sb-slideIn 0.5s var(--sb-spring) both; }
+/* border-box : la largeur réservée par .main-container inclut le padding (le reset
+   global n'est pas chargé sur toutes les pages : la barre débordait sur la page) */
+.sb-sidebar { box-sizing: border-box; position: fixed; top: 0; left: 0; width: var(--sb-width); height: 100vh; display: flex; flex-direction: column; padding: 24px 18px 20px; gap: 16px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-right: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 8px 0 40px rgba(120, 50, 10, 0.06); font-family: var(--sb-font); color: var(--sb-text-main); z-index: 110; animation: sb-slideIn 0.5s var(--sb-spring) both; }
 
 .sb-header-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 

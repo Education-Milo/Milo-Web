@@ -26,16 +26,8 @@
 	position: absolute;
 	inset: 0;
 	z-index: 0;
-	/* Le zoom d'entrée part de la porte de la classe (position écrite par la scène) */
-	transform-origin: var(--door-x, 50%) var(--door-y, 50%);
-	transition: transform 1.7s cubic-bezier(0.55, 0, 0.35, 1);
 }
-/* Pendant que Milo marche jusqu'à la porte (durée écrite par la carte) */
-.ecl-card.is-entering .ecl-stage {
-	transform: scale(1.14);
-	transition-duration: var(--ecl-entry, 1.7s);
-	transition-timing-function: cubic-bezier(0.45, 0, 0.4, 1);
-}
+/* (en entrant en classe, c'est la caméra 3D qui s'approche de la porte) */
 .ecl-canvas-host {
 	position: absolute;
 	inset: 0;
@@ -360,13 +352,16 @@
 .ecl-card.is-focused .ecl-hello,
 .ecl-card.is-focused .ecl-quick,
 .ecl-card[data-zoomed] .ecl-hello,
-.ecl-card[data-zoomed] .ecl-quick {
+.ecl-card[data-zoomed] .ecl-quick,
+.ecl-card.is-entering .ecl-hello,
+.ecl-card.is-entering .ecl-quick {
 	animation: ecl-lift 0.3s ease forwards;
 	pointer-events: none;
 }
 /* (l'arrivée du titre reste dans la liste : elle n'est pas rejouée au retour) */
 .ecl-card.is-focused .ecl-hello,
-.ecl-card[data-zoomed] .ecl-hello {
+.ecl-card[data-zoomed] .ecl-hello,
+.ecl-card.is-entering .ecl-hello {
 	animation: var(--ecl-arrive), ecl-lift 0.3s ease forwards;
 }
 .ecl-card.is-focused .ecl-bubble,
@@ -462,7 +457,6 @@
 	.ecl-card.is-loaded .ecl-bubble.is-loud {
 		animation: none;
 	}
-	.ecl-stage,
 	.ecl-bubble {
 		transition: none;
 	}

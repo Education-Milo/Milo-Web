@@ -28,8 +28,6 @@ export interface MiloSchoolBridge {
 	reactions: string[];
 	/** Bulle : la scène y écrit la position de la tête de Milo (variables CSS) */
 	bubble: HTMLElement | null;
-	/** Scène : la scène y écrit la position de la porte à l'écran (zoom d'entrée) */
-	stage: HTMLElement | null;
 	/** Carte : la scène y écrit la position de la boîte aux lettres à
 	 *  l'écran (--mail-x / --mail-y, px), d'où s'envole l'enveloppe */
 	root: HTMLElement | null;
@@ -47,6 +45,10 @@ export interface MiloSchoolBridge {
 	/** Milo est arrivé à sa place : la bulle peut s'afficher */
 	arrived: boolean;
 	onArrived: (() => void) | null;
+	/** Entrée en classe : taille de la scène (px) avant qu'elle ne s'élargisse
+	 *  sous le menu qui s'efface. La caméra garde ce cadrage, puis se recentre
+	 *  sur la porte : l'image ne saute pas quand la toile grandit. */
+	cover: { width: number; height: number } | null;
 	/** Écran large : la pancarte des missions et la boîte aux lettres sont dans le cadre */
 	wide: boolean;
 	/** Élément survolé dans la scène (la scène l'écrit aussi pour ses animations) */
@@ -62,7 +64,6 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	phase: "idle",
 	reactions: [],
 	bubble: null,
-	stage: null,
 	root: null,
 	focus: null,
 	zoom: 0,
@@ -71,6 +72,7 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	arrival: 0,
 	arrived: false,
 	onArrived: null,
+	cover: null,
 	wide: true,
 	hovered: null,
 	onHover: null,

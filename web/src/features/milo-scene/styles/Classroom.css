@@ -66,12 +66,19 @@
 
 .cls-ui > * { pointer-events: auto; }
 
-/* Passer l'entrée de Milo, en bas à droite pendant qu'il arrive */
-.cls-skip {
+/* Passer l'entrée de Milo : un petit bouton en bas à droite pendant qu'il
+   arrive. (.cls-btn, plus bas, le remet en position relative : sans la
+   double classe, il s'étirait sur toute la largeur de l'écran) */
+.cls-btn.cls-skip {
 	position: absolute;
 	right: 24px;
 	bottom: 22px;
 	gap: 8px;
+	width: auto;
+}
+.is-narrow .cls-btn.cls-skip {
+	right: 16px;
+	bottom: 16px;
 }
 
 /* ============================================================

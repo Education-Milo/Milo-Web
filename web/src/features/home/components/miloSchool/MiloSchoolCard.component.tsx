@@ -53,11 +53,14 @@ const BOTTOM_MARGIN_PX = 28;
 /// Milo ressort de la classe : la scène prévient quand il est arrivé ; au cas
 /// où elle ne tournerait pas (onglet en arrière-plan…), on n'attend pas plus
 const EXIT_FALLBACK_MS = EXIT_MS * 2.5;
-/// Le zoom vers la porte et la lumière de la classe durent le temps de la marche
+/// La lumière de la classe monte le temps de la marche (la caméra, elle,
+/// s'approche de la porte : voir la scène)
 const ENTRY_TIMING = {
-	"--ecl-entry": `${ENTRY_MS}ms`,
 	"--ecl-flash": `${NAVIGATE_AFTER_MS}ms`,
 } as React.CSSProperties;
+/// Posée sur <html> pendant l'entrée en classe : le menu s'efface et la scène
+/// prend tout l'écran (voir Home.css)
+const ENTERING_CLASS = "hp-entering-class";
 
 type Mode = "idle" | "invite" | "poke" | "enter" | "exit";
 type DoorSource = "button" | "door";
@@ -190,6 +193,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 		() => () => {
 			window.clearTimeout(closeTimer.current);
 			timers.current.forEach((id) => window.clearTimeout(id));
+			document.documentElement.classList.remove(ENTERING_CLASS);
 		},
 		[],
 	);
@@ -239,12 +243,6 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 	const setBubble = useCallback(
 		(el: HTMLDivElement | null) => {
 			bridge.bubble = el;
-		},
-		[bridge],
-	);
-	const setStage = useCallback(
-		(el: HTMLDivElement | null) => {
-			bridge.stage = el;
 		},
 		[bridge],
 	);
@@ -311,11 +309,14 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 			return;
 		}
 		window.clearTimeout(closeTimer.current);
+		/// La porte reste ouverte : la caméra s'y engouffre derrière Milo
+		const rect = cardRef.current?.getBoundingClientRect();
+		bridge.cover = rect ? { width: rect.width, height: rect.height } : null;
 		bridge.phase = "entering";
 		bridge.doorOpen = true;
+		document.documentElement.classList.add(ENTERING_CLASS);
 		setLine(ENTER_LINE);
 		setMode("enter");
-		later(() => (bridge.doorOpen = false), ENTRY_MS + 60);
 		later(() => navigate(ROUTES.MILO), NAVIGATE_AFTER_MS);
 	}, [bridge, loaded, navigate, reducedMotion]);
 
@@ -376,7 +377,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 				.join(" ")}
 			aria-label="Accueil : Milo devant sa salle de classe"
 		>
-			<div ref={setStage} className="ecl-stage" aria-hidden="true">
+			<div className="ecl-stage" aria-hidden="true">
 				<MiloSchoolScene3D
 					bridge={bridge}
 					active={visible}
