@@ -3,6 +3,14 @@ import type {
 	OcrActionOption,
 	OcrDocumentType,
 } from "../types/ocr.types";
+import type { Emoji3DName } from "@features/landing/data/landing.data";
+
+/** Icône 3D de chaque type de document (la charte bannit les pictogrammes plats) */
+export const OCR_TYPE_ICON: Record<OcrDocumentType, Emoji3DName> = {
+	cours: "books",
+	bulletin: "bar_chart",
+	exercice: "light_bulb",
+};
 
 // ─── Options de type de document ──────────────────────────────────────────────
 

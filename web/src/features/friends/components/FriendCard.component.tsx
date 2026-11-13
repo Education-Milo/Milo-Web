@@ -1,156 +1,156 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { Pin, UserCheck, UserX, Flame, Clock, Zap } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Pin, UserCheck, UserX, Clock } from "lucide-react";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import type { FriendEnriched } from "@features/friends/store/friend.model";
 import { getFriendDisplayName, getFriendInitials, getOtherUserId } from "@features/friends/store/friend.model";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
+import Emoji3D from "@features/landing/ui/Emoji3D.component";
 
 interface FriendCardProps {
 	friend: FriendWithDetails | FriendEnriched;
+	index?: number;
+	/** Place sur le podium XP de la bande (1, 2 ou 3), sinon absent */
+	podiumRank?: number;
 	onTogglePin: (id: number) => void;
 	onAccept: (id: number) => void;
 	onDelete: (id: number) => void;
 	isPending?: boolean;
-	variants?: any;
 }
 
+const MAX_INTERESTS = 3;
+const MEDAL_LABEL = ["", "1er", "2e", "3e"];
+
+/**
+ * Carte de joueur : bandeau coloré, Milo de l'ami en médaillon, série et XP
+ * en tuiles, centres d'intérêt en pastilles. Épingler et retirer restent
+ * discrets ; accepter une invitation est l'action mise en avant.
+ */
 const FriendCard: React.FC<FriendCardProps> = ({
 	friend,
+	index = 0,
+	podiumRank,
 	onTogglePin,
 	onAccept,
 	onDelete,
 	isPending = false,
-	variants,
 }) => {
-	const details = "classe" in friend ? friend as FriendWithDetails : null;
+	const reduceMotion = useReducedMotion();
+	const details = "classe" in friend || "username" in friend ? (friend as FriendWithDetails) : null;
 	const nameSource = { ...friend, username: details?.username };
 	const initials = getFriendInitials(nameSource);
 	const displayName = getFriendDisplayName(nameSource);
-	// Demande envoyée en attente : le back ne partage pas encore les intérêts
-	const isSentRequest = isPending && friend.direction === "sent";
-
+	const isReceived = isPending && friend.direction === "received";
+	const isSent = isPending && friend.direction === "sent";
 	const isPinned = friend.is_pinned;
 	const otherUserId = getOtherUserId(friend);
+	const interests = details?.interests ?? [];
+	const classe = details?.classe ? `${details.classe[0]}ème` : null;
 
 	return (
-		<motion.div
+		<motion.article
 			layout
-			variants={variants}
-			className={`friend-card ${isPending ? "friend-card--pending" : ""}`}
-			whileHover={{ y: -5, scale: 1.02 }}
+			className={`fr-card${isPinned && !isPending ? " is-pinned" : ""}${isReceived ? " is-invite" : ""}${isSent ? " is-sent" : ""}`}
+			initial={reduceMotion ? false : { opacity: 0, y: 24, scale: 0.94 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			exit={{ opacity: 0, scale: 0.9 }}
+			transition={{ type: "spring", stiffness: 220, damping: 18, delay: Math.min(index, 8) * 0.04 }}
 		>
-			<div className="friend-card-bg" />
+			<div className="fr-card__band" aria-hidden="true" />
 
-			{/* ÉPINGLER (masqué pour les demandes en attente) */}
 			{!isPending && (
 				<button
-					className={`friend-pin-btn ${isPinned ? "active" : ""}`}
+					type="button"
+					className={`fr-card__pin${isPinned ? " is-on" : ""}`}
 					onClick={() => onTogglePin(otherUserId)}
-					title={isPinned ? "Désépingler" : "Épingler cet ami"}
+					aria-pressed={isPinned}
+					aria-label={isPinned ? `Désépingler ${displayName}` : `Épingler ${displayName} en haut de la liste`}
+					title={isPinned ? "Désépingler" : "Épingler"}
 				>
-					<Pin size={16} fill={isPinned ? "currentColor" : "none"} />
+					<Pin size={17} fill={isPinned ? "currentColor" : "none"} aria-hidden="true" />
 				</button>
 			)}
 
-			{/* AVATAR */}
-			<div className="friend-avatar-wrap">
-				<MiloAvatar
-					equippedMeshNames={details?.equipped_meshes}
-					initials={initials}
-					className="friend-card-avatar-text"
-				/>
+			{podiumRank && !isPending && (
+				<span className={`fr-card__medal is-${podiumRank}`} title={`${MEDAL_LABEL[podiumRank]} du classement XP`}>
+					{MEDAL_LABEL[podiumRank]}
+				</span>
+			)}
+
+			<div className="fr-card__avatar">
+				<MiloAvatar equippedMeshNames={details?.equipped_meshes} initials={initials} />
 			</div>
 
-			{/* INFOS */}
-			<div className="friend-info">
-				<h3 className="friend-name">{displayName}</h3>
-
-				{details?.classe && (
-					<span className="friend-level">Classe : {details.classe[0]}ème</span>
-				)}
+			<div className="fr-card__id">
+				<h3 className="fr-card__name">{displayName}</h3>
+				{isReceived ? (
+					<span className="fr-card__tag fr-card__tag--invite">Veut rejoindre ta bande</span>
+				) : isSent ? (
+					<span className="fr-card__tag">Invitation envoyée</span>
+				) : classe ? (
+					<span className="fr-card__tag">{classe}</span>
+				) : null}
 			</div>
 
-				{(details?.streak !== undefined || details?.xp !== undefined) && (
-					<div className="friend-stats">
-						{details?.streak !== undefined && (
-							<div
-								className="friend-streak"
-								title={`${details.streak} jour${details.streak > 1 ? "s" : ""} de suite`}
-							>
-								<Flame size={14} className={details.streak > 0 ? "hot" : ""} />
-								<span>{details.streak}</span>
-							</div>
-						)}
-						{details?.xp !== undefined && (
-							<div className="friend-xp" title={`${details.xp} XP`}>
-								<Zap size={14} />
-								<span>{details.xp} XP</span>
-							</div>
-						)}
-					</div>
-				)}
-
-				{isSentRequest ? null : details?.interests && details.interests.length > 0 ? (
-					<div className="friend-interests">
-						{details.interests.map((interest) => (
-							<span key={interest.id} className="friend-interest-chip">
-								{interest.name}
-							</span>
-						))}
-					</div>
-				) : (
-					<div className="friend-interests friend-interests--empty">
-						Aucun intérêt renseigné
-					</div>
-				)}
-
-			{/* ACTIONS selon état */}
-			{isPending && friend.direction === "received" ? (
-				<div className="friend-actions friend-actions--pending">
-					<button
-						className="friend-btn-accept"
-						onClick={() => onAccept(friend.id)}
-						title="Accepter"
-					>
-						<UserCheck size={18} />
-						<span>Accepter</span>
-					</button>
-					<button
-						className="friend-btn-decline"
-						onClick={() => onDelete(otherUserId)}
-						title="Refuser"
-					>
-						<UserX size={18} />
-					</button>
-				</div>
-			) : isPending && friend.direction === "sent" ? (
-				<div className="friend-actions friend-actions--pending">
-					<div className="friend-btn-accept" style={{ background: 'var(--milo-creme)', color: 'var(--text-2)', boxShadow: 'none', cursor: 'default' }}>
-						<Clock size={18} />
-						<span>En attente</span>
-					</div>
-					<button
-						className="friend-btn-decline"
-						onClick={() => onDelete(otherUserId)}
-						title="Annuler la demande"
-					>
-						<UserX size={18} />
-					</button>
-				</div>
-			) : (
-				<div className="friend-actions">
-					<button
-						className="friend-btn-decline friend-btn-decline--full"
-						onClick={() => onDelete(otherUserId)}
-						title="Supprimer l'ami"
-					>
-						<UserX size={18} />
-						<span>Supprimer</span>
-					</button>
+			{!isPending && (details?.streak !== undefined || details?.xp !== undefined) && (
+				<div className="fr-card__stats">
+					<span className={`fr-stat fr-stat--fire${(details?.streak ?? 0) > 0 ? " is-hot" : ""}`}>
+						<Emoji3D name="fire" />
+						<span className="fr-stat__value">{details?.streak ?? 0}</span>
+						<span className="fr-stat__label">jour{(details?.streak ?? 0) > 1 ? "s" : ""}</span>
+					</span>
+					<span className="fr-stat fr-stat--xp">
+						<Emoji3D name="high_voltage" />
+						<span className="fr-stat__value">{(details?.xp ?? 0).toLocaleString("fr-FR")}</span>
+						<span className="fr-stat__label">XP</span>
+					</span>
 				</div>
 			)}
-		</motion.div>
+
+			{!isSent && (
+				interests.length > 0 ? (
+					<ul className="fr-card__interests" aria-label="Centres d'intérêt">
+						{interests.slice(0, MAX_INTERESTS).map((interest) => (
+							<li key={interest.id}>{interest.name}</li>
+						))}
+						{interests.length > MAX_INTERESTS && (
+							<li className="is-more" title={interests.slice(MAX_INTERESTS).map((i) => i.name).join(", ")}>
+								+{interests.length - MAX_INTERESTS}
+							</li>
+						)}
+					</ul>
+				) : (
+					<p className="fr-card__no-interest">Pas encore de centres d'intérêt</p>
+				)
+			)}
+
+			<div className="fr-card__foot">
+				{isReceived ? (
+					<>
+						<button type="button" className="fr-btn fr-btn--primary fr-btn--grow" onClick={() => onAccept(friend.id)}>
+							<UserCheck size={19} strokeWidth={2.6} aria-hidden="true" />
+							Accepter
+						</button>
+						<button type="button" className="fr-icon-btn" onClick={() => onDelete(otherUserId)} aria-label={`Refuser l'invitation de ${displayName}`} title="Refuser">
+							<UserX size={19} aria-hidden="true" />
+						</button>
+					</>
+				) : isSent ? (
+					<>
+						<span className="fr-card__waiting">
+							<Clock size={18} aria-hidden="true" /> En attente de réponse
+						</span>
+						<button type="button" className="fr-icon-btn" onClick={() => onDelete(otherUserId)} aria-label={`Annuler la demande à ${displayName}`} title="Annuler la demande">
+							<UserX size={19} aria-hidden="true" />
+						</button>
+					</>
+				) : (
+					<button type="button" className="fr-card__remove" onClick={() => onDelete(otherUserId)} aria-label={`Retirer ${displayName} de mes amis`}>
+						<UserX size={16} aria-hidden="true" /> Retirer
+					</button>
+				)}
+			</div>
+		</motion.article>
 	);
 };
 

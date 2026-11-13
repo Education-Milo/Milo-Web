@@ -6,9 +6,11 @@ import MiloAvatar from "@shared/components/MiloAvatar.component";
 import { ROUTES } from "@shared/constants/routes";
 import "@shared/styles/SideBar.css";
 
-/// Icônes 3D de la navigation, servies depuis /public/icons
-/// (WebP 80 px : affichées à 30 px, ×2 pour les écrans rétina)
-const navIcon = (name: string) => `/icons/${name}_icon.webp`;
+/// Icônes 3D de la navigation, servies depuis /public/icons/nav
+/// (WebP 80 px : affichées à 34 px, ×2 pour les écrans rétina).
+/// « stats », réservé aux parents, garde l'ancienne icône.
+const NAV_ICONS = new Set(["home", "lesson", "import", "mission", "duel", "shop", "my_milo", "success", "leaderboard", "friend"]);
+const navIcon = (name: string) => (NAV_ICONS.has(name) ? `/icons/nav/${name}.webp` : `/icons/${name}_icon.webp`);
 
 interface SidebarProps {
 	onLogout: () => void;
@@ -268,8 +270,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 							src={item.iconSrc}
 							alt=""
 							className="sb-nav-icon-img"
-							width={30}
-							height={30}
+							width={34}
+							height={34}
 							decoding="async"
 							draggable={false}
 							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc))}
