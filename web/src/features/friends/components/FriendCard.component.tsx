@@ -10,8 +10,6 @@ import Emoji3D from "@features/landing/ui/Emoji3D.component";
 interface FriendCardProps {
 	friend: FriendWithDetails | FriendEnriched;
 	index?: number;
-	/** Place sur le podium XP de la bande (1, 2 ou 3), sinon absent */
-	podiumRank?: number;
 	onTogglePin: (id: number) => void;
 	onAccept: (id: number) => void;
 	onDelete: (id: number) => void;
@@ -19,7 +17,6 @@ interface FriendCardProps {
 }
 
 const MAX_INTERESTS = 3;
-const MEDAL_LABEL = ["", "1er", "2e", "3e"];
 
 /**
  * Carte de joueur : bandeau coloré, Milo de l'ami en médaillon, série et XP
@@ -29,7 +26,6 @@ const MEDAL_LABEL = ["", "1er", "2e", "3e"];
 const FriendCard: React.FC<FriendCardProps> = ({
 	friend,
 	index = 0,
-	podiumRank,
 	onTogglePin,
 	onAccept,
 	onDelete,
@@ -71,11 +67,6 @@ const FriendCard: React.FC<FriendCardProps> = ({
 				</button>
 			)}
 
-			{podiumRank && !isPending && (
-				<span className={`fr-card__medal is-${podiumRank}`} title={`${MEDAL_LABEL[podiumRank]} du classement XP`}>
-					{MEDAL_LABEL[podiumRank]}
-				</span>
-			)}
 
 			<div className="fr-card__avatar">
 				<MiloAvatar equippedMeshNames={details?.equipped_meshes} initials={initials} />
