@@ -204,7 +204,7 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 									style={{ animationDelay: `${0.05 * i}s` }}
 								>
 									<div className="cs-tile-shine" aria-hidden="true" />
-									<div className="cs-tile-emoji-wrap">
+									<div className="cs-tile-emoji-wrap" aria-hidden="true">
 										<span className="cs-tile-emoji">{config.emoji}</span>
 									</div>
 									<div className="cs-tile-body">
@@ -235,7 +235,7 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 								}}
 								style={{ animationDelay: `${0.05 * i}s` }}
 							>
-								<div className="cd-card-emoji">{COURSE_EMOJIS[i % COURSE_EMOJIS.length]}</div>
+								<div className="cd-card-emoji" aria-hidden="true">{COURSE_EMOJIS[i % COURSE_EMOJIS.length]}</div>
 								<div className="cd-card-body">
 									<h3 className="cd-card-title">{c.title}</h3>
 									{c.description && <p className="cd-card-desc">{c.description}</p>}
@@ -269,7 +269,7 @@ const CoursePicker: React.FC<CoursePickerProps> = ({ currentLessonId }) => {
 								style={{ animationDelay: `${0.05 * i}s` }}
 							>
 								<div className="cd-card-index">Ch. {i + 1}</div>
-								<div className="cd-card-emoji cd-card-emoji-sm">{CHAPTER_EMOJIS[i % CHAPTER_EMOJIS.length]}</div>
+								<div className="cd-card-emoji cd-card-emoji-sm" aria-hidden="true">{CHAPTER_EMOJIS[i % CHAPTER_EMOJIS.length]}</div>
 								<div className="cd-card-body">
 									<h3 className="cd-card-title">{ch.title}</h3>
 									<div className="cd-card-meta">

@@ -53,7 +53,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
 				missionsRemaining={missionsRemaining}
 				avatarMeshNames={equippedMeshNames}
 			/>
-			<main className="main-container">{children}</main>
+			<main id="contenu" className="main-container">{children}</main>
 		</>
 	);
 };

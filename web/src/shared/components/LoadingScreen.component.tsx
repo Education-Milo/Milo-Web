@@ -1,8 +1,14 @@
 import React from "react";
 
-const LoadingScreen: React.FC = () => {
+interface LoadingScreenProps {
+	/** Texte affiché (et annoncé) sous la roue */
+	label?: string;
+}
+
+const LoadingScreen: React.FC<LoadingScreenProps> = ({ label = "Vérification de l'authentification..." }) => {
 	return (
 		<div
+			role="status"
 			style={{
 				display: "flex",
 				justifyContent: "center",
@@ -30,7 +36,7 @@ const LoadingScreen: React.FC = () => {
 					margin: 0,
 				}}
 			>
-				Vérification de l'authentification...
+				{label}
 			</p>
 			<style>{`\n        @keyframes spin {\n          0% { transform: rotate(0deg); }\n          100% { transform: rotate(360deg); }\n        }\n      `}</style>
 		</div>

@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
@@ -277,7 +278,7 @@ const DuelMilo3D: React.FC<DuelMilo3DProps> = ({ className = "", ...modelProps }
 	return (
 		<div className={`duel-milo-3d ${isReady ? "is-ready" : ""} ${className}`} aria-hidden="true">
 			{canMount && (
-				<Canvas
+				<Canvas aria-hidden="true"
 					dpr={[1, 2]}
 					camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}
 					gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://milo-education.fr/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://milo-education.fr/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milo-education.fr/contact</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://milo-education.fr/register</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milo-education.fr/login</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://milo-education.fr/charte</loc><changefreq>yearly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://milo-education.fr/mentions</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://milo-education.fr/confidentialite</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://milo-education.fr/cookies</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://milo-education.fr/cgu</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://milo-education.fr/cgv</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

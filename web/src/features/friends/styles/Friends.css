@@ -52,7 +52,7 @@
 .fr-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, 0.65); }
 .fr-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
 .fr-btn:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
-.fr-btn--primary { background: var(--milo-orange); color: #fff; }
+.fr-btn--primary { --edge: var(--milo-action-edge); background: var(--milo-action); color: #fff; }
 .fr-btn--ghost { --edge: var(--sable); background: #fff; color: var(--encre); box-shadow: inset 0 0 0 2px var(--sable), 0 6px 0 var(--edge); }
 .fr-btn--ghost:hover { box-shadow: inset 0 0 0 2px var(--sable), 0 8px 0 var(--edge); }
 .fr-btn--ghost:active { box-shadow: inset 0 0 0 2px var(--sable), 0 1px 0 var(--edge); }
@@ -202,7 +202,7 @@
 }
 .fr-tab:hover:not(.is-active) { color: var(--braise); background: var(--creme); }
 .fr-tab:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 2px; }
-.fr-tab__bg { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: var(--milo-orange); box-shadow: inset 0 -4px 0 var(--braise); }
+.fr-tab__bg { position: absolute; inset: 0; z-index: 0; border-radius: inherit; background: var(--milo-action); box-shadow: inset 0 -4px 0 var(--milo-action-edge); }
 .fr-tab__label, .fr-tab__count { position: relative; z-index: 1; }
 .fr-tab.is-active { color: #fff; font-weight: 700; }
 .fr-tab__count { display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 999px; background: var(--creme); font-size: 0.875rem; font-weight: 700; color: var(--braise); }

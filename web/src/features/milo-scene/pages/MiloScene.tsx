@@ -22,6 +22,8 @@ import {
 	X,
 } from "lucide-react";
 import ClassroomScene3D from "@features/milo-scene/components/ClassroomScene3D.component";
+import ClassroomFlat from "@features/milo-scene/components/ClassroomFlat.component";
+import { isWebGLAvailable } from "@shared/utils/webgl";
 import LessonBoard, { type PassageAction } from "@features/milo-scene/components/LessonBoard.component";
 import MiloAnswer from "@features/milo-scene/components/MiloAnswer.component";
 import SheetPaper, { type SheetMode } from "@features/milo-scene/components/SheetPaper.component";
@@ -60,7 +62,7 @@ const HINT_STORAGE_KEY = "milo-class-hint-seen";
 
 /// TEMPORAIRE : bouton de test de l'ambiance jour / nuit (à retirer)
 const DAY_NIGHT_BUTTON: Record<DayNightMode, { icon: typeof Sun; label: string; title: string }> = {
-	auto: { icon: Clock, label: "Auto", title: "Ambiance selon l'heure (test : passer en nuit)" },
+	auto: { icon: Clock, label: "Auto", title: "Ambiance automatique selon l'heure" },
 	night: { icon: Moon, label: "Nuit", title: "Nuit forcée (test : passer en jour)" },
 	day: { icon: Sun, label: "Jour", title: "Jour forcé (test : revenir à l'heure)" },
 };
@@ -115,7 +117,7 @@ const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
 				messages={LOADING_LINES}
 				progress={value}
 			>
-				<span className="cls-loading-pct" aria-live="polite">
+				<span className="cls-loading-pct">
 					{value < 100 ? `Chargement de la salle · ${value} %` : "C'est prêt !"}
 				</span>
 			</QuizLoader>
@@ -209,6 +211,15 @@ const MiloScene: React.FC = () => {
 	const [hintSeen, setHintSeen] = useState(() => readFlag(HINT_STORAGE_KEY));
 	const [dismissedDistressId, setDismissedDistressId] = useState<string | null>(null);
 	const [isOverlayGone, setIsOverlayGone] = useState(false);
+	/// Sans WebGL : salle de classe à plat (tableau, feuille, notes en HTML),
+	/// prête tout de suite, sans écran de chargement ni introduction 3D
+	const [hasWebGL] = useState(isWebGLAvailable);
+	const { markSceneReady, handleIntroDone } = scene;
+	useEffect(() => {
+		if (hasWebGL) return;
+		markSceneReady();
+		handleIntroDone();
+	}, [hasWebGL, markSceneReady, handleIntroDone]);
 
 	// L'écran de chargement reste monté le temps de son fondu de sortie
 	useEffect(() => {
@@ -609,8 +620,7 @@ const MiloScene: React.FC = () => {
 				/>
 				<p id="cls-board-hint" className={`cls-board-hint${showHint ? "" : " cls-sr-only"}`}>
 					<MousePointerClick size={18} aria-hidden="true" />
-					{narrow ? "Touche" : "Passe ta souris sur"} une phrase : Milo peut la ré-expliquer, te donner un exemple ou
-					un exercice.
+					Choisis une phrase : Milo peut la ré-expliquer, te donner un exemple ou un exercice.
 				</p>
 
 				{/* Sur ordinateur, la navigation est écrite en bas du tableau : le
@@ -724,6 +734,7 @@ const MiloScene: React.FC = () => {
 			openInputMode={scene.openQuestionInputMode}
 			onOpenInputModeChange={scene.setOpenQuestionInputMode}
 			hideIdle={narrow}
+			onOpen={() => openSheet()}
 		/>
 	);
 
@@ -762,8 +773,18 @@ const MiloScene: React.FC = () => {
 
 	return (
 		<div className={`cls-root${narrow ? " is-narrow" : ""}`}>
-			{!isOverlayGone && <LoadingOverlay done={scene.sceneReady} />}
+			{hasWebGL && !isOverlayGone && <LoadingOverlay done={scene.sceneReady} />}
 
+			{!hasWebGL ? (
+				<ClassroomFlat
+					board={boardNode}
+					sheet={sheetNode}
+					notes={notesNode}
+					isEditing={isEditing}
+					isNotesOpen={notesOpen}
+					onNotesClick={toggleNotes}
+				/>
+			) : (
 			<ClassroomScene3D
 				activeAnimation={scene.activeAnimation}
 				introRunning={scene.sceneReady}
@@ -781,6 +802,7 @@ const MiloScene: React.FC = () => {
 				notes={notesNode}
 				nightTarget={dayNight.nightTarget}
 			/>
+			)}
 
 			<div className="cls-ui">
 				{/* ── Barre du haut ── */}

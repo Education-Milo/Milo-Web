@@ -325,7 +325,7 @@
 	text-shadow: none;
 }
 .pp-avatar--add::before { background-image: var(--pp-dots); }
-.pp-tile:not(:disabled):hover .pp-avatar--add { background: var(--milo-orange); color: #fff; transform: rotate(90deg) scale(1.04); }
+.pp-tile:not(:disabled):hover .pp-avatar--add { background: var(--milo-action); color: #fff; transform: rotate(90deg) scale(1.04); }
 .pp-card--add .pp-name { color: var(--text-2); }
 .pp-card--add .pp-role { background: transparent; color: var(--text-2); font-weight: 500; }
 
@@ -408,7 +408,7 @@
 .pp-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .pp-btn--primary {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	box-shadow: 0 4px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, 0.7);
 }

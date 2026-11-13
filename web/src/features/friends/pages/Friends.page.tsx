@@ -285,6 +285,7 @@ const FriendsPage: React.FC = () => {
 					</div>
 				) : (
 					<LayoutGroup>
+						<h2 className="sr-only">Liste de tes amis</h2>
 						<motion.div className="fr-grid" layout>
 							<AnimatePresence mode="popLayout">
 								{filteredFriends.map((friend, i) => (

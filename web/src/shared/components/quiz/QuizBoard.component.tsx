@@ -42,6 +42,8 @@ const QuizBoard: React.FC<QuizBoardProps> = ({
 				<motion.h2
 					key={`question-${questionKey}`}
 					className="qz-question"
+					tabIndex={-1}
+					data-route-focus
 					aria-live="polite"
 					initial="hidden"
 					animate="visible"

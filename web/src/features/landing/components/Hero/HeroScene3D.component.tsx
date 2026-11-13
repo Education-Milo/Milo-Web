@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { cameraDistanceFor } from "@features/my-milo/utils/miloModel";
@@ -67,7 +68,7 @@ const HeroScene3D: React.FC<HeroScene3DProps> = ({ reducedMotion, onReady }) => 
 
 	return (
 		<div ref={wrapper} className="lp-hero__canvas" aria-hidden="true">
-			<Canvas
+			<Canvas aria-hidden="true"
 				frameloop={visible ? "always" : "never"}
 				dpr={[1, 1.75]}
 				// Pas de nouvelle mesure à chaque scroll : la mesure inclut les

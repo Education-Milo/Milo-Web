@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import {
@@ -9,6 +9,7 @@ import {
 import CosmeticVisual from "@features/milo-shop/components/CosmeticVisual.component";
 import RarityTag from "@features/milo-shop/components/RarityTag.component";
 import { formatMiloros } from "@features/milo-shop/utils/format";
+import { useDialogFocus } from "@shared/hooks/useDialogFocus";
 
 interface PurchaseModalProps {
 	item: Cosmetic;
@@ -29,21 +30,19 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 	onConfirm,
 	onClose,
 }) => {
-	const confirmRef = useRef<HTMLButtonElement>(null);
-	const closeRef = useRef<HTMLButtonElement>(null);
+	const modalRef = useRef<HTMLDivElement>(null);
+	const laterRef = useRef<HTMLButtonElement>(null);
 	const canAfford = balance >= item.price;
 
-	useEffect(() => {
-		(canAfford ? confirmRef.current : closeRef.current)?.focus();
-	}, [canAfford]);
-
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === "Escape" && !isPending) onClose();
-		};
-		window.addEventListener("keydown", onKey);
-		return () => window.removeEventListener("keydown", onKey);
-	}, [isPending, onClose]);
+	// Focus initial sur « Plus tard » (l'action sans conséquence : un Entrée
+	// trop rapide ne dépense rien, WCAG 3.3.4), Tab piégé, Échap ferme et
+	// le focus revient au bouton « Acheter » d'origine
+	useDialogFocus({
+		open: true,
+		containerRef: modalRef,
+		initialFocusRef: laterRef,
+		onEscape: () => !isPending && onClose(),
+	});
 
 	return (
 		<motion.div
@@ -54,6 +53,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 			onClick={() => !isPending && onClose()}
 		>
 			<motion.div
+				ref={modalRef}
 				className={`ms-modal ms-r-${raritySlug(item.rarity)}`}
 				role="dialog"
 				aria-modal="true"
@@ -64,14 +64,13 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 				onClick={(e) => e.stopPropagation()}
 			>
 				<button
-					ref={closeRef}
 					type="button"
 					className="ms-modal__close"
 					onClick={onClose}
 					disabled={isPending}
 					aria-label="Fermer"
 				>
-					<X size={20} strokeWidth={2.6} />
+					<X size={20} strokeWidth={2.6} aria-hidden="true" />
 				</button>
 
 				<div className="ms-modal__stage">
@@ -116,6 +115,7 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 
 				<div className="ms-modal__actions">
 					<button
+						ref={laterRef}
 						type="button"
 						className="ms-btn ms-btn--ghost"
 						onClick={onClose}
@@ -124,7 +124,6 @@ const PurchaseModal: React.FC<PurchaseModalProps> = ({
 						Plus tard
 					</button>
 					<button
-						ref={confirmRef}
 						type="button"
 						className="ms-btn ms-btn--primary"
 						onClick={onConfirm}

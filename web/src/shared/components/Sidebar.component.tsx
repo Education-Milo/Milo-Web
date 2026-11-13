@@ -7,9 +7,10 @@ import { ROUTES } from "@shared/constants/routes";
 import "@shared/styles/SideBar.css";
 
 /// Icônes 3D de la navigation, servies depuis /public/icons/nav
-/// (« stats », réservé aux parents, garde l'ancienne icône)
+/// (WebP 80 px : affichées à 34 px, ×2 pour les écrans rétina).
+/// « stats », réservé aux parents, garde l'ancienne icône.
 const NAV_ICONS = new Set(["home", "lesson", "import", "mission", "duel", "shop", "my_milo", "success", "leaderboard", "friend"]);
-const navIcon = (name: string) => (NAV_ICONS.has(name) ? `/icons/nav/${name}.webp` : `/icons/${name}_icon.png`);
+const navIcon = (name: string) => (NAV_ICONS.has(name) ? `/icons/nav/${name}.webp` : `/icons/${name}_icon.webp`);
 
 interface SidebarProps {
 	onLogout: () => void;
@@ -41,6 +42,42 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
+	const toggleRef = useRef<HTMLButtonElement>(null);
+	const closeRef = useRef<HTMLButtonElement>(null);
+	const wasOpen = useRef(false);
+
+	/// Format tiroir (≤ 768 px) : menu fermé = hors écran, donc `inert`
+	/// pour le sortir de l'ordre de tabulation (WCAG 2.4.7, 2.4.11)
+	const [isDrawer, setIsDrawer] = useState(
+		() => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches,
+	);
+	useEffect(() => {
+		const mq = window.matchMedia("(max-width: 768px)");
+		const onChange = () => setIsDrawer(mq.matches);
+		mq.addEventListener("change", onChange);
+		return () => mq.removeEventListener("change", onChange);
+	}, []);
+
+	// Ouverture : focus sur « Fermer » ; fermeture : retour au bouton menu.
+	// Échap ferme le tiroir.
+	useEffect(() => {
+		if (!isDrawer) return;
+		if (isMobileOpen) {
+			wasOpen.current = true;
+			closeRef.current?.focus();
+			const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsMobileOpen(false);
+			window.addEventListener("keydown", onKey);
+			return () => window.removeEventListener("keydown", onKey);
+		}
+		if (wasOpen.current) {
+			wasOpen.current = false;
+			// Focus resté dans le tiroir (qui devient inert) ou perdu : retour au
+			// bouton menu. Après une navigation, le titre de la page le garde.
+			const active = document.activeElement;
+			const drawer = document.getElementById("sb-drawer");
+			if (!active || active === document.body || drawer?.contains(active)) toggleRef.current?.focus();
+		}
+	}, [isMobileOpen, isDrawer]);
 
 	// Ferme le tiroir mobile à chaque changement de page.
 	useEffect(() => {
@@ -227,12 +264,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 				// Les entrées « Bientôt » restent focusables pour lire l'infobulle
 				aria-disabled={isDisabled || undefined}
 			>
-				<span className="sb-nav-icon">
+				<span className="sb-nav-icon" aria-hidden="true">
 					{item.iconSrc && !brokenIcons.has(item.iconSrc) ? (
 						<img
 							src={item.iconSrc}
 							alt=""
 							className="sb-nav-icon-img"
+							width={34}
+							height={34}
+							decoding="async"
 							draggable={false}
 							onError={() => setBrokenIcons((prev) => new Set(prev).add(item.iconSrc))}
 						/>
@@ -241,6 +281,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 					)}
 				</span>
 				<span className="sb-nav-label">{item.label}</span>
+				{Boolean(item.badge) && !isDisabled && (
+					<span className="sr-only">, {item.badge} à faire</span>
+				)}
 				{Boolean(item.badge) && !isDisabled && (
 					<span className="sb-nav-badge" aria-hidden="true">{item.badge}</span>
 				)}
@@ -253,21 +296,24 @@ const Sidebar: React.FC<SidebarProps> = ({
 		<>
 			{/* --- BARRE MOBILE : logo + bouton hamburger --- */}
 			<div className="sb-mobile-topbar">
-				<img
-					src="/milo-logo.webp"
-					alt="Milo, accueil"
-					className="sb-mobile-logo"
-					onClick={() => navigate(ROUTES.HOME)}
-					style={{ cursor: "pointer" }}
-				/>
 				<button
+					type="button"
+					className="sb-mobile-logo-btn"
+					onClick={() => navigate(ROUTES.HOME)}
+					aria-label="Milo, retour à l'accueil"
+				>
+					<img src="/milo-logo.webp" alt="" className="sb-mobile-logo" width={120} height={40} />
+				</button>
+				<button
+					ref={toggleRef}
 					type="button"
 					className="sb-mobile-toggle"
 					onClick={() => setIsMobileOpen(true)}
 					aria-label="Ouvrir le menu"
 					aria-expanded={isMobileOpen}
+					aria-controls="sb-drawer"
 				>
-					<Menu size={22} />
+					<Menu size={22} aria-hidden="true" />
 				</button>
 			</div>
 
@@ -280,43 +326,49 @@ const Sidebar: React.FC<SidebarProps> = ({
 				/>
 			)}
 
-			<aside className={`sb-sidebar ${isMobileOpen ? "open" : ""}`}>
+			<aside
+				id="sb-drawer"
+				className={`sb-sidebar ${isMobileOpen ? "open" : ""}`}
+				aria-label="Menu principal"
+				inert={isDrawer && !isMobileOpen}
+			>
 				{/* --- HEADER : Logo + bouton notifications --- */}
 				<div className="sb-header">
-					<div
+					<button
+						type="button"
 						className="sb-logo"
-						role="link"
-						tabIndex={0}
-						aria-label="Retour à l'accueil"
+						aria-label="Milo, retour à l'accueil"
 						onClick={() => navigate(ROUTES.HOME)}
-						onKeyDown={(e) => {
-							if (e.key === "Enter") navigate(ROUTES.HOME);
-						}}
 					>
-						<img src="/milo-logo.webp" alt="Milo" className="sb-logo-img" />
-					</div>
+						<img src="/milo-logo.webp" alt="" className="sb-logo-img" />
+					</button>
 
 					<div className="sb-header-actions">
 						<button
+							ref={closeRef}
 							type="button"
 							className="sb-icon-btn sb-mobile-close"
 							onClick={() => setIsMobileOpen(false)}
 							aria-label="Fermer le menu"
 						>
-							<X size={18} />
-							<span className="sb-mobile-btn-label">Fermer</span>
+							<X size={18} aria-hidden="true" />
+							<span className="sb-mobile-btn-label" aria-hidden="true">Fermer</span>
 						</button>
 
 						<button
 							type="button"
 							className="sb-icon-btn"
 							onClick={onNotificationClick}
-							aria-label="Notifications"
+							aria-label={
+								notificationCount > 0
+									? `Notifications, ${notificationCount} non lue${notificationCount > 1 ? "s" : ""}`
+									: "Notifications"
+							}
 						>
-							<Bell size={18} />
-							<span className="sb-mobile-btn-label">Notifications</span>
+							<Bell size={18} aria-hidden="true" />
+							<span className="sb-mobile-btn-label" aria-hidden="true">Notifications</span>
 							{notificationCount > 0 && (
-								<span className="sb-icon-btn-dot">
+								<span className="sb-icon-btn-dot" aria-hidden="true">
 									{notificationCount > 9 ? "9+" : notificationCount}
 								</span>
 							)}
@@ -400,16 +452,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 						/>
 					</div>
 							<div className="sb-user-info">
-								<h4 className="sb-user-name">
+								<span className="sb-user-name">
 									{userProfile?.first_name || "Utilisateur"}
-								</h4>
-								<p className="sb-user-sub">
+								</span>
+								<span className="sb-user-sub">
 									{isParent
 										? "Parent"
 										: isAdmin && !userProfile?.classe
 											? "Administrateur"
 											: `Classe ${userProfile?.classe || "1"}`}
-								</p>
+								</span>
 							</div>
 							<div className="sb-user-stats">
 								<div

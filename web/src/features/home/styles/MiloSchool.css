@@ -220,7 +220,7 @@
 }
 /* « Discuter » : le bouton principal (la porte, sur écran étroit) */
 .ecl-quick-btn.is-main {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	border-color: var(--milo-orange);
 	color: #fff;
 	box-shadow: 0 4px 0 var(--milo-relief), 0 10px 22px -12px rgba(120, 40, 5, 0.6);
@@ -247,7 +247,7 @@
 	height: 22px;
 	padding: 0 6px;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	border: 2px solid #fff;
 	color: #fff;
 	font-size: 1.0625rem;
@@ -307,7 +307,7 @@
 }
 /* « Allons en classe ! » : la bulle passe à l'orange et grossit un peu */
 .ecl-bubble.is-loud {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	border-color: var(--milo-relief);
 	color: #fff;
 	font-family: var(--f-display);

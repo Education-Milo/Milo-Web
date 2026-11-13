@@ -202,7 +202,7 @@
 	cursor: pointer;
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.mp-btn--primary { border: 0; background: var(--milo-orange); color: #fff; box-shadow: 0 6px 0 var(--milo-braise); }
+.mp-btn--primary { border: 0; background: var(--milo-action); color: #fff; box-shadow: 0 6px 0 var(--milo-action-edge); }
 .mp-btn--primary:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--milo-braise); }
 .mp-btn--primary:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--milo-braise); }
 .mp-btn svg { transition: transform 0.2s ease; }

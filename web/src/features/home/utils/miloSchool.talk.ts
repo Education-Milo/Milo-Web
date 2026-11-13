@@ -1,3 +1,5 @@
+import { isWebGLAvailable } from "@shared/utils/webgl";
+
 /// Ce que dit Milo devant sa salle de classe, sur l'accueil. Tout est calculé à
 /// partir de ce que l'accueil connaît déjà de l'élève (prénom, série, matière
 /// fragile du bulletin, missions du jour) : aucune requête en plus.
@@ -29,7 +31,11 @@ export function greetingLine({ firstName }: MiloSchoolContext, date = new Date()
 export function idleLines(context: MiloSchoolContext, date = new Date()): string[] {
 	const { weakSubject, pendingMissions = 0, streak = 0, unreadNews = 0 } = context;
 	/// Juste après le bonjour : comment venir discuter (la porte est le seul accès)
-	const lines = [greetingLine(context, date), "Clique sur la porte et viens discuter avec moi en classe ! 🚪"];
+	/// Sans WebGL la cour 3D (et sa porte) n'est pas affichée : seul le bouton reste
+	const invite = isWebGLAvailable()
+		? "Clique sur la porte, ou sur « Discuter », et viens parler avec moi en classe ! 🚪"
+		: "Clique sur « Discuter » et viens parler avec moi en classe ! 🚪";
+	const lines = [greetingLine(context, date), invite];
 	if (weakSubject) lines.push(`On s'entraîne un peu en ${weakSubject} ? Je t'explique à ma façon 😉`);
 	if (pendingMissions > 0) {
 		lines.push(`Encore ${plural(pendingMissions, "mission")} aujourd'hui, on s'y met ? 🎯`);

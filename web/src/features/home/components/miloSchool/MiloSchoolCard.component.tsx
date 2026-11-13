@@ -28,6 +28,7 @@ import {
 } from "@features/home/utils/miloSchool.talk";
 import MiloSchoolScene3D from "@features/home/components/miloSchool/MiloSchoolScene3D.component";
 import "@features/home/styles/MiloSchool.css";
+import { isWebGLAvailable } from "@shared/utils/webgl";
 
 /// L'accueil de l'élève, en grand : Milo devant sa salle de classe. La porte
 /// mène à la discussion, la pancarte aux missions du jour, la boîte aux
@@ -130,7 +131,8 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 	const cardRef = useRef<HTMLElement>(null);
 
 	/// Retour sur l'accueil : la scène 3D est restée prête, elle s'affiche aussitôt
-	const [loaded, setLoaded] = useState(() => schoolScene.ready);
+	// Sans WebGL la scène ne se signalera jamais prête : l'accueil s'affiche tout de suite
+	const [loaded, setLoaded] = useState(() => schoolScene.ready || !isWebGLAvailable());
 	const [visible, setVisible] = useState(true);
 	const [wide, setWide] = useState(true);
 	const [night, setNight] = useState(() => nightMixAt(new Date()));

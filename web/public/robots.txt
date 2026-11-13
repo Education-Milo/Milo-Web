@@ -1,0 +1,28 @@
+# Milo — https://milo-education.fr
+# Les pages publiques sont indexables ; l'espace élève, parent et
+# administrateur est privé (contenu personnel de mineurs).
+User-agent: *
+Allow: /
+Disallow: /home
+Disallow: /milo
+Disallow: /courses
+Disallow: /course-milo
+Disallow: /qcm
+Disallow: /exercise-result
+Disallow: /exercice-genere
+Disallow: /ocr
+Disallow: /missions
+Disallow: /stats
+Disallow: /duels
+Disallow: /boutique
+Disallow: /personnalisation
+Disallow: /mon-milo
+Disallow: /friends
+Disallow: /profile
+Disallow: /profiles
+Disallow: /parent/
+Disallow: /admin
+Disallow: /unauthorized
+Disallow: /feedback/
+
+Sitemap: https://milo-education.fr/sitemap.xml

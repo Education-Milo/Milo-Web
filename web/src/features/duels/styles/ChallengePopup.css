@@ -133,13 +133,13 @@
 .cp-btn--accept {
 	min-height: 64px;
 	border: 0;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
 	font-size: 1.25rem;
-	box-shadow: 0 7px 0 #C73A0C;
+	box-shadow: 0 7px 0 var(--milo-action-edge);
 }
-.cp-btn--accept:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 9px 0 #C73A0C; }
-.cp-btn--accept:active { transform: translateY(5px); box-shadow: 0 2px 0 #C73A0C; }
+.cp-btn--accept:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 9px 0 var(--milo-action-edge); }
+.cp-btn--accept:active { transform: translateY(5px); box-shadow: 0 2px 0 var(--milo-action-edge); }
 .cp-btn--decline { border: 2px solid var(--line); background: #fff; color: var(--text-2); box-shadow: 0 5px 0 #F1D2B2; }
 .cp-btn--decline:hover { transform: translateY(-2px); color: var(--milo-encre); }
 .cp-btn--decline:active { transform: translateY(4px); box-shadow: 0 1px 0 #F1D2B2; }

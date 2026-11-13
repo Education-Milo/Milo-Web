@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
@@ -55,6 +55,21 @@ const ExerciseScreen: React.FC = () => {
     selectAnswer,
     nextQuestion,
   } = useExerciseScreen();
+
+  // À chaque nouvelle question, le focus va sur l'énoncé : au clavier on
+  // n'a plus à retabuler depuis le haut de la page (WCAG 2.4.3)
+  const pageRef = useRef<HTMLElement>(null);
+  const firstQuestion = useRef(true);
+  useEffect(() => {
+    if (firstQuestion.current) {
+      firstQuestion.current = false;
+      return;
+    }
+    const id = window.setTimeout(() => {
+      pageRef.current?.querySelector<HTMLElement>('.qz-question')?.focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [currentQuestionIndex]);
 
   /// Clavier : 1-4 / A-D pour répondre, Entrée ou Espace pour continuer
   useEffect(() => {
@@ -131,7 +146,8 @@ const ExerciseScreen: React.FC = () => {
     : OOPS[currentQuestionIndex % OOPS.length];
 
   return (
-    <div className="qcm-page">
+    <main className="qcm-page" ref={pageRef}>
+      <h1 className="sr-only">QCM</h1>
       <QuizBackdrop variant="qcm" />
       <MiloQcm3D state={miloState} />
       <StreakBurst streak={burstStreak} onDismiss={dismissStreakBurst} />
@@ -274,7 +290,7 @@ const ExerciseScreen: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

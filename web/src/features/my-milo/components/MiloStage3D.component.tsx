@@ -7,7 +7,8 @@ import React, {
 	useRef,
 	useState,
 } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { ContactShadows, Sparkles, useAnimations, useGLTF } from "@react-three/drei";
 import { useReducedMotion } from "framer-motion";
 import { Loader } from "lucide-react";
@@ -278,7 +279,7 @@ const MiloStage3D: React.FC<MiloStage3DProps> = ({ reaction }) => {
 
 	return (
 		<div className={`milo-stage${isReady ? " is-ready" : ""}`}>
-			<Canvas
+			<Canvas aria-hidden="true"
 				className="milo-stage-canvas"
 				dpr={[1, 2]}
 				camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}

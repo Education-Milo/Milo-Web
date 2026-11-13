@@ -82,7 +82,7 @@
 .mm-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--edge); }
 .mm-btn:disabled { cursor: not-allowed; opacity: 0.55; }
 
-.mm-btn--primary { background: var(--milo-orange); color: #fff; }
+.mm-btn--primary { --edge: var(--milo-action-edge); background: var(--milo-action); color: #fff; }
 .mm-btn--primary:not(:disabled) { box-shadow: 0 4px 0 var(--edge), 0 16px 26px -14px rgba(185, 51, 15, 0.7); }
 .mm-btn--primary:hover:not(:disabled) { box-shadow: 0 6px 0 var(--edge), 0 20px 30px -14px rgba(185, 51, 15, 0.75); }
 
@@ -593,9 +593,9 @@ h1.mm-title {
 	height: 24px;
 	padding: 3px;
 	border-radius: 50%;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #fff;
-	box-shadow: 0 3px 0 var(--milo-braise);
+	box-shadow: 0 3px 0 var(--milo-action-edge);
 	transition: transform 0.25s var(--mm-spring);
 }
 .mm-slot:hover:not(:disabled) .mm-slot__plus { transform: rotate(90deg) scale(1.1); }

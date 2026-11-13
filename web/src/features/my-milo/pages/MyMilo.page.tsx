@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import * as THREE from "three";
 import { Environment, useAnimations } from "@react-three/drei";
 import { Plus, ShoppingBag, Undo2 } from "lucide-react";
@@ -538,7 +539,7 @@ const MyMiloPage: React.FC = () => {
 						</div>
 					</motion.header>
 
-					<main className="mm-main">
+					<div className="mm-main">
 						{/* ---------- Loge : Milo et sa tenue ---------- */}
 						<motion.section
 							className={`mm-stage${isBusy ? " is-busy" : ""}`}
@@ -561,7 +562,7 @@ const MyMiloPage: React.FC = () => {
 									    boîte, sans les transformations des parents. Sinon, mesuré
 									    pendant une animation d'entrée, il restait trop petit (et Milo
 									    décalé de son socle) jusqu'au premier scroll. */}
-									<Canvas camera={{ position: [0, 0, 5], fov: 45 }} resize={{ offsetSize: true }}>
+									<Canvas aria-hidden="true" camera={{ position: [0, 0, 5], fov: 45 }} resize={{ offsetSize: true }}>
 										<Environment preset="sunset" environmentIntensity={1.2} />
 										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#fff1e0" castShadow />
 										<ambientLight intensity={0.2} />
@@ -710,7 +711,7 @@ const MyMiloPage: React.FC = () => {
 							)}
 							</div>
 						</motion.section>
-					</main>
+					</div>
 
 					{/* ---------- Centres d'intérêt : Milo s'en sert pour personnaliser les exercices ---------- */}
 					<motion.section

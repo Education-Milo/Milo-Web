@@ -1,5 +1,6 @@
 import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import Canvas from "@shared/components/SafeCanvas.component";
 import { Environment, Html, useAnimations, useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";

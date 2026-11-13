@@ -244,6 +244,8 @@ const BoutiquePage: React.FC = () => {
 
 						{!isLoading && !isError && catalogue.length > 0 && (
 							<LayoutGroup>
+								{/* Titre de section : les articles (h3) ne suivent pas directement le h1 */}
+								<h2 className="sr-only">Articles disponibles</h2>
 								<motion.div
 									key={`${activeType}|${activeRarity}`}
 									className="ms-grid"

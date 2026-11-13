@@ -25,6 +25,8 @@ interface SheetPaperProps {
 	onOpenInputModeChange?: (mode: OpenQuestionInputMode) => void;
 	/** Écran étroit : la feuille est loin, l'invitation passerait sur le décor */
 	hideIdle?: boolean;
+	/** Ouvre la feuille depuis le clavier (la feuille 3D ne s'ouvre qu'au clic) */
+	onOpen?: () => void;
 }
 
 /** Le compteur n'apparaît qu'en approchant de la limite, pour ne pas distraire. */
@@ -46,8 +48,28 @@ const SheetPaper: React.FC<SheetPaperProps> = ({
 	openInputMode = "answer",
 	onOpenInputModeChange,
 	hideIdle = false,
+	onOpen,
 }) => {
 	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const idleRef = useRef<HTMLButtonElement>(null);
+	const wasEditing = useRef(false);
+
+	// Feuille reposée (Échap, « Reposer ») : le focus revient sur la feuille
+	// au repos plutôt que sur <body>. Après « Envoyer », la réponse de Milo
+	// prend le focus la première : on ne le lui reprend pas.
+	useEffect(() => {
+		if (isEditing) {
+			wasEditing.current = true;
+			return;
+		}
+		if (!wasEditing.current) return;
+		wasEditing.current = false;
+		const id = window.setTimeout(() => {
+			const active = document.activeElement;
+			if (!active || active === document.body) idleRef.current?.focus({ preventScroll: true });
+		}, 0);
+		return () => window.clearTimeout(id);
+	}, [isEditing]);
 
 	useEffect(() => {
 		if (!isEditing) return;
@@ -58,18 +80,26 @@ const SheetPaper: React.FC<SheetPaperProps> = ({
 	if (!isEditing) {
 		if (hideIdle) return null;
 		return (
-			<div className="cls-paper-idle">
+			<button
+				ref={idleRef}
+				type="button"
+				className="cls-paper-idle cls-paper-idle--btn"
+				onClick={(e) => {
+					e.stopPropagation();
+					onOpen?.();
+				}}
+			>
 				<img className="cls-paper-idle-emoji" src="/landing/emoji/fox.webp" alt="" aria-hidden="true" />
-				<div>
-					<p className="cls-paper-idle-title">
+				<span>
+					<span className="cls-paper-idle-title">
 						Une <span className="cls-hl">question</span> ?
-					</p>
-					<p className="cls-paper-idle-sub cls-idle-hint">
+					</span>
+					<span className="cls-paper-idle-sub cls-idle-hint">
 						<MousePointerClick size={22} aria-hidden="true" />
 						Clique pour écrire à Milo
-					</p>
-				</div>
-			</div>
+					</span>
+				</span>
+			</button>
 		);
 	}
 

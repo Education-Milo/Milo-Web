@@ -136,12 +136,12 @@
 	height: 24px;
 	padding: 0 7px;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
 	font-size: 1.0625rem;
 	font-weight: 700;
 	line-height: 1;
-	box-shadow: 0 2px 0 var(--milo-braise);
+	box-shadow: 0 2px 0 var(--milo-action-edge);
 }
 
 .cls-tag {
@@ -158,7 +158,7 @@
 	white-space: nowrap;
 }
 
-.cls-tag--orange { background: var(--milo-orange); color: #FFFFFF; box-shadow: 0 2px 0 var(--milo-braise); }
+.cls-tag--orange { background: var(--milo-action); color: #FFFFFF; box-shadow: 0 2px 0 var(--milo-action-edge); }
 
 .cls-root kbd {
 	display: inline-grid;
@@ -825,9 +825,9 @@
 	height: 26px;
 	flex-shrink: 0;
 	border-radius: 50%;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
-	box-shadow: 0 2px 0 var(--milo-braise);
+	box-shadow: 0 2px 0 var(--milo-action-edge);
 }
 
 .cls-passage-icon.is-done { background: var(--ok); box-shadow: 0 2px 0 #17603A; }
@@ -884,9 +884,9 @@
 }
 
 .cls-passage-sheet .cls-passage-action--explain {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
-	box-shadow: 0 4px 0 var(--milo-braise);
+	box-shadow: 0 4px 0 var(--milo-action-edge);
 }
 
 /* ── États du tableau ── */
@@ -1167,6 +1167,7 @@
 }
 
 .cls-paper-idle-title {
+	display: block;
 	margin: 0;
 	font-family: var(--f-display);
 	font-weight: 400;
@@ -1177,6 +1178,7 @@
 }
 
 .cls-paper-idle-sub {
+	display: flex;
 	margin: 4px 0 0;
 	font-size: 22px;
 	font-weight: 500;
@@ -1277,9 +1279,9 @@
 .cls-paper-toggle img { width: 22px; height: 22px; }
 
 .cls-paper-toggle button.is-on {
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
-	box-shadow: 0 3px 0 var(--milo-braise);
+	box-shadow: 0 3px 0 var(--milo-action-edge);
 }
 
 .cls-paper-input {
@@ -1875,7 +1877,7 @@
 	color: var(--milo-braise);
 }
 
-.cls-lesson.is-current .cls-lesson-icon { background: var(--milo-orange); color: #FFFFFF; box-shadow: 0 2px 0 var(--milo-braise); }
+.cls-lesson.is-current .cls-lesson-icon { background: var(--milo-action); color: #FFFFFF; box-shadow: 0 2px 0 var(--milo-action-edge); }
 .cls-lesson:disabled .cls-lesson-icon { color: #B79C88; }
 .cls-lesson-title { flex: 1; min-width: 0; }
 
@@ -2110,13 +2112,13 @@
 .cls-postit-idle-count {
 	padding: 8px 20px 6px;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
 	font-family: var(--f-display);
 	font-weight: 400;
 	font-size: 32px;
 	line-height: 1;
-	box-shadow: 0 4px 0 var(--milo-braise);
+	box-shadow: 0 4px 0 var(--milo-action-edge);
 }
 
 .cls-postit-held {
@@ -2251,9 +2253,9 @@
 	height: 38px;
 	border: 0;
 	border-radius: 50%;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
-	box-shadow: 0 3px 0 var(--milo-braise);
+	box-shadow: 0 3px 0 var(--milo-action-edge);
 	cursor: pointer;
 }
 
@@ -2315,11 +2317,11 @@
 .cls-picker-here {
 	padding: 5px 12px;
 	border-radius: 999px;
-	background: var(--milo-orange);
+	background: var(--milo-action);
 	color: #FFFFFF;
 	font-size: 1.0625rem;
 	font-weight: 700;
-	box-shadow: 0 2px 0 var(--milo-braise);
+	box-shadow: 0 2px 0 var(--milo-action-edge);
 }
 
 /* ============================================================
@@ -2759,3 +2761,100 @@ html .cls-chalk-eyebrow {
 }
 html .cls-eyebrow::before,
 html .cls-chalk-eyebrow i { display: none; }
+
+/* ============================================================
+   FOCUS CLAVIER SUR LE TABLEAU
+   L'anneau vert de la charte disparaît sur le tableau vert :
+   sur l'ardoise, il passe à la craie (WCAG 2.4.7).
+   ============================================================ */
+.cls-board-anim :focus-visible,
+.cls-board-view :focus-visible,
+.cls-board-nav :focus-visible,
+.cls-sentence:focus-visible {
+	outline: 3px solid var(--milo-craie);
+	outline-offset: 2px;
+}
+
+/* Feuille « Une question ? » au repos : vrai bouton (WCAG 2.1.1) */
+.cls-paper-idle--btn {
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	border-radius: 14px;
+}
+.cls-paper-idle--btn:focus-visible {
+	outline: 3px solid var(--milo-vert);
+	outline-offset: 4px;
+}
+
+/* ============================================================
+   SALLE DE CLASSE SANS 3D (WebGL indisponible)
+   Tableau à gauche, feuille et post-it sur le « bureau » à droite ;
+   empilés sur écran étroit. Même habillage que dans la scène.
+   ============================================================ */
+.cls-flat {
+	position: absolute;
+	/* Sous la barre du haut (≈ 105 px) avec une marge */
+	inset: 122px 24px 24px;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+	gap: 20px;
+	min-height: 0;
+	background: var(--milo-vert-edge);
+}
+.cls-flat-board {
+	min-height: 0;
+	overflow: auto;
+}
+/* Écriture ou notes ouvertes : le bureau prend plus de place */
+.cls-flat.is-editing,
+.cls-flat.is-notes-open { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+.cls-flat-desk {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	min-height: 0;
+	overflow: auto;
+}
+.cls-flat-paper,
+.cls-flat-postit {
+	border-radius: 18px;
+	box-shadow: 0 10px 0 rgba(0, 0, 0, 0.18);
+}
+.cls-flat-paper { padding: 46px 20px 22px 54px; }
+.cls-flat-postit { padding: 28px 22px 26px; min-height: 160px; }
+.cls-flat .cls-paper-idle { margin-left: 0; justify-content: flex-start; width: 100%; }
+.cls-flat .cls-paper-idle-emoji { width: 40px; }
+.cls-flat .cls-paper-idle-title { font-size: 24px; white-space: nowrap; }
+.cls-flat .cls-paper-idle-sub,
+.cls-flat .cls-postit-idle .cls-idle-hint { font-size: 18px; }
+.cls-flat-cover {
+	position: absolute;
+	inset: 0;
+	border: 0;
+	border-radius: inherit;
+	background: transparent;
+	cursor: pointer;
+}
+.cls-flat-cover:focus-visible { outline: 3px solid var(--milo-craie); outline-offset: 3px; }
+
+@media (max-width: 900px) {
+	.cls-flat {
+		inset: 100px 10px 96px;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr) auto;
+	}
+	/* Sur petit écran la barre du bas ouvre feuille et notes : le bureau
+	   n'apparaît que pendant l'écriture ou la lecture des notes */
+	.cls-flat-desk { display: none; }
+	.cls-flat.is-editing,
+	.cls-flat.is-notes-open { grid-template-rows: minmax(0, 0.8fr) auto; }
+	.cls-flat.is-editing .cls-flat-desk,
+	.cls-flat.is-notes-open .cls-flat-desk { display: flex; }
+	.cls-flat.is-editing .cls-flat-postit,
+	.cls-flat.is-notes-open .cls-flat-paper { display: none; }
+}
