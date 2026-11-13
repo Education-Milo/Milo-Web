@@ -113,9 +113,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	const isAdmin = userProfile?.role === "Admin";
 
 	const studentNavItems = [
-		{ label: "Accueil", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home"), hint: "Ton tableau de bord du jour" },
-		{ label: "Cours", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), hint: "Révise tes leçons avec Milo" },
-		{ label: "Import document", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import"), hint: "Photographie un cours ou un exercice" },
+		{ label: "Accueil", tour: "home", path: ROUTES.HOME, icon: "🏠", iconSrc: navIcon("home"), hint: "Ton tableau de bord du jour" },
+		{ label: "Cours", tour: "courses", path: ROUTES.COURSES, icon: "📚", iconSrc: navIcon("lesson"), hint: "Révise tes leçons avec Milo" },
+		{ label: "Import document", tour: "ocr", path: ROUTES.OCR, icon: "📄", iconSrc: navIcon("import"), hint: "Photographie un cours ou un exercice" },
 		{
 			label: "Missions",
 			path: ROUTES.MISSIONS,
@@ -127,9 +127,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 					? `Encore ${missionsRemaining} mission${missionsRemaining > 1 ? "s" : ""} du jour`
 					: "Tes missions du jour",
 		},
-		{ label: "Duels", path: ROUTES.DUELS, icon: "⚔️", iconSrc: navIcon("duel"), hint: "Affronte tes amis en quiz" },
-		{ label: "Boutique", path: "/boutique", icon: "🛍️", iconSrc: navIcon("shop"), hint: "Dépense tes miloros" },
-		{ label: "Personnalisation", path: ROUTES.PERSONALIZATION, icon: "🦊", iconSrc: navIcon("my_milo"), hint: "Tenue de Milo, roue de duel et centres d'intérêt" },
+		{ label: "Duels", tour: "duels", path: ROUTES.DUELS, icon: "⚔️", iconSrc: navIcon("duel"), hint: "Affronte tes amis en quiz" },
+		{ label: "Boutique", tour: "shop", path: "/boutique", icon: "🛍️", iconSrc: navIcon("shop"), hint: "Dépense tes miloros" },
+		{ label: "Personnalisation", tour: "personalization", path: ROUTES.PERSONALIZATION, icon: "🦊", iconSrc: navIcon("my_milo"), hint: "Tenue de Milo, roue de duel et centres d'intérêt" },
 	];
 
 	// Les statistiques vivent désormais dans le profil (ROUTES.STATS y redirige)
@@ -161,6 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Journal", path: ROUTES.ADMIN.AUDIT, icon: "📜" },
 		{ label: "Cosmétiques", path: ROUTES.ADMIN.COSMETICS, icon: "👕" },
 		{ label: "Bien-être", path: ROUTES.ADMIN.WELLBEING, icon: "💤", hint: "Tester les rappels de pause et de coucher" },
+		{ label: "Onboarding", path: ROUTES.ADMIN.ONBOARDING, icon: "✨", hint: "Simuler l'accueil d'un nouvel élève" },
 		{ label: "Profils de démo", path: ROUTES.ADMIN.DEMO, icon: "🧪" },
 	];
 
@@ -267,6 +268,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 			<button
 				type="button"
 				key={item.path}
+				// Repère de la visite guidée (onboarding)
+				data-tour={item.tour}
 				className={`sb-nav-item ${isActive(item.path) ? "active" : ""} ${isDisabled ? "disabled" : ""}`}
 				onClick={() => {
 					if (isDisabled) return;

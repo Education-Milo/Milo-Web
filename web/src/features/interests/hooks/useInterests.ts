@@ -3,7 +3,7 @@ import { useUserStore } from "@shared/store/user/user.store";
 import { showToast } from "@shared/store/toast/toast.store";
 import { AI_LIMITS, INTERESTS_LIMIT_MESSAGE, getErrorStatus } from "@shared/lib/aiRequests";
 
-const INTEREST_SUGGESTIONS = ["Jeux Vidéo", "Football", "Mangas", "Histoire", "Musique", "Sciences"];
+export const INTEREST_SUGGESTIONS = ["Jeux Vidéo", "Football", "Mangas", "Histoire", "Musique", "Sciences"];
 
 /**
  * Centres d'intérêt de l'élève : Milo s'en sert pour personnaliser les

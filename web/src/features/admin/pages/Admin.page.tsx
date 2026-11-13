@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { BookOpenCheck, FlaskConical, HeartPulse, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt } from "lucide-react";
+import { BookOpenCheck, FlaskConical, HeartPulse, LayoutDashboard, LifeBuoy, ScrollText, ShieldAlert, Shirt, Sparkles } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
 import { ROUTES } from "@shared/constants/routes";
 import AuditLog from "@features/admin/components/AuditLog";
@@ -11,6 +11,7 @@ import DemoProfiles from "@features/admin/components/DemoProfiles";
 import AdminModeration from "@features/admin/components/AdminModeration";
 import AdminProgrammes from "@features/admin/components/programmes/AdminProgrammes";
 import WellbeingTester from "@features/admin/components/WellbeingTester";
+import OnboardingTester from "@features/admin/components/OnboardingTester";
 import "@features/admin/styles/Admin.css";
 
 const SECTIONS: { path: string; title: string; subtitle: string; icon: React.ReactNode }[] = [
@@ -57,6 +58,12 @@ const SECTIONS: { path: string; title: string; subtitle: string; icon: React.Rea
 		icon: <HeartPulse size={22} />,
 	},
 	{
+		path: ROUTES.ADMIN.ONBOARDING,
+		title: "Onboarding",
+		subtitle: "Simuler l'accueil d'un nouvel élève : la classe de Milo puis la visite guidée",
+		icon: <Sparkles size={22} />,
+	},
+	{
 		path: ROUTES.ADMIN.DEMO,
 		title: "Profils de démo",
 		subtitle: "Comptes fictifs pour voir l'application avec un autre rôle",
@@ -94,6 +101,7 @@ const AdminPage: React.FC = () => {
 						<Route path={relative(ROUTES.ADMIN.AUDIT)} element={<AuditLog />} />
 						<Route path={relative(ROUTES.ADMIN.COSMETICS)} element={<CosmeticsManager />} />
 						<Route path={relative(ROUTES.ADMIN.WELLBEING)} element={<WellbeingTester />} />
+						<Route path={relative(ROUTES.ADMIN.ONBOARDING)} element={<OnboardingTester />} />
 						<Route path={relative(ROUTES.ADMIN.DEMO)} element={<DemoProfiles />} />
 						<Route path="*" element={<Navigate to={ROUTES.ADMIN.DASHBOARD} replace />} />
 					</Routes>

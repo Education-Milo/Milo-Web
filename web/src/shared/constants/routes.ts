@@ -30,6 +30,8 @@ export const ROUTES = {
 	OCR: "/ocr",
 	/** Ex-« Mon Milo » : tenue, roue de duel et centres d'intérêt (/mon-milo y redirige) */
 	PERSONALIZATION: "/personnalisation",
+	/** Onboarding : Milo accueille l'élève en classe puis lui fait visiter l'école */
+	ONBOARDING: "/bienvenue",
 
 	PARENT: {
 		DASHBOARD: "/parent/dashboard",
@@ -55,5 +57,6 @@ export const ROUTES = {
 		MODERATION: "/admin/moderation",
 		PROGRAMMES: "/admin/programmes",
 		WELLBEING: "/admin/bien-etre",
+		ONBOARDING: "/admin/onboarding",
 	},
 } as const;

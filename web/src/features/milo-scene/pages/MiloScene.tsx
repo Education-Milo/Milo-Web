@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useProgress } from "@react-three/drei";
-import QuizLoader from "@shared/components/quiz/QuizLoader.component";
 import { useLocation, useParams } from "react-router-dom";
 import {
 	ArrowLeft,
@@ -23,6 +21,7 @@ import {
 } from "lucide-react";
 import ClassroomScene3D from "@features/milo-scene/components/ClassroomScene3D.component";
 import ClassroomFlat from "@features/milo-scene/components/ClassroomFlat.component";
+import ClassroomLoading from "@features/milo-scene/components/ClassroomLoading.component";
 import { isWebGLAvailable } from "@shared/utils/webgl";
 import LessonBoard, { type PassageAction } from "@features/milo-scene/components/LessonBoard.component";
 import MiloAnswer from "@features/milo-scene/components/MiloAnswer.component";
@@ -38,11 +37,9 @@ import ClassSheet from "@features/milo-scene/components/ClassSheet.component";
 import { useMiloScene } from "@features/milo-scene/hooks/useMiloScene";
 import { useSpeech } from "@features/milo-scene/hooks/useSpeech";
 import { useDayNight, type DayNightMode } from "@features/milo-scene/hooks/useDayNight";
-import { useDownloadProgress } from "@features/milo-scene/hooks/useDownloadProgress";
 import { useMemoStore, type MemoItem } from "@features/milo-scene/store/memo.store";
 import { useMiloFreeChatStore, type MiloFreeChatSession } from "@features/milo-scene/store/freeChat.store";
 import { flattenSentences, parseBoardText, plainText } from "@features/milo-scene/utils/lessonText";
-import { CLASSROOM_DOWNLOADS } from "@features/milo-scene/utils/classroomAssets";
 import { useCourseStore } from "@features/courses/store/course.store";
 import { useUserStore } from "@shared/store/user/user.store";
 import { getSubjectVisuals } from "@shared/constants/courses";
@@ -52,12 +49,6 @@ import { AI_LIMITS } from "@shared/lib/aiRequests";
 import "@features/milo-scene/styles/Classroom.css";
 
 const NARROW_QUERY = "(max-width: 899px)";
-const LOADING_LINES = [
-	"Milo range ses craies…",
-	"Il efface le tableau…",
-	"Il installe ton bureau…",
-	"Presque prêt !",
-]
 const HINT_STORAGE_KEY = "milo-class-hint-seen";
 /// Si l'entrée de Milo ne se termine jamais (scène 3D en panne, onglet en
 /// arrière-plan…), l'interface apparaît quand même
@@ -105,36 +96,6 @@ const useMediaQuery = (query: string) => {
 		return () => list.removeEventListener("change", onChange);
 	}, [query]);
 	return matches;
-};
-
-/// Écran d'attente de la charte : soleil feu, Milo, objets 3D en orbite
-const LoadingOverlay: React.FC<{ done: boolean }> = ({ done }) => {
-	/// L'essentiel : les octets des deux .glb. Le reste (textures de nuit,
-	/// environnement, décodage) se lit dans le décompte de fichiers de drei.
-	const downloaded = useDownloadProgress(CLASSROOM_DOWNLOADS);
-	const { progress: filesDone } = useProgress();
-	const progress = downloaded * 92 + (filesDone / 100) * 8;
-	/// La progression peut repartir en arrière quand un nouveau fichier démarre :
-	/// on n'affiche que la valeur la plus haute atteinte. 100 % : la scène est
-	/// vraiment affichée, pas seulement téléchargée.
-	const [shown, setShown] = useState(0);
-	useEffect(() => setShown((current) => Math.max(current, progress)), [progress]);
-	const value = done ? 100 : Math.min(Math.round(shown), 99);
-
-	return (
-		<div className={`cls-loading${done ? " is-done" : ""}`}>
-			<QuizLoader
-				title="On entre en classe !"
-				highlight="classe"
-				messages={LOADING_LINES}
-				progress={value}
-			>
-				<span className="cls-loading-pct">
-					{value < 100 ? `Chargement de la salle · ${value} %` : "C'est prêt !"}
-				</span>
-			</QuizLoader>
-		</div>
-	);
 };
 
 const MiloScene: React.FC = () => {
@@ -824,7 +785,7 @@ const MiloScene: React.FC = () => {
 
 	return (
 		<div className={`cls-root${narrow ? " is-narrow" : ""}`}>
-			{hasWebGL && !isOverlayGone && <LoadingOverlay done={scene.sceneReady} />}
+			{hasWebGL && !isOverlayGone && <ClassroomLoading done={scene.sceneReady} />}
 
 			{!hasWebGL ? (
 				<ClassroomFlat
