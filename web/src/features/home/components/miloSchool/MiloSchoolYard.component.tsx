@@ -9,6 +9,7 @@ import {
 	type MissionsSummary,
 } from "@features/home/components/miloSchool/miloSchool.bridge";
 import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
+import { ARRIVAL, Arrive } from "@features/home/components/miloSchool/miloSchool.arrival";
 import {
 	cloudsTexture,
 	countBadgeTexture,
@@ -1409,6 +1410,11 @@ export interface MiloSchoolYardProps {
 /// qui l'éclaire (sa lumière part un peu en avant du mur, vers lui)
 const MILO_LAMP_X = SCHOOL.door.x - SCHOOL.door.width / 2 - 0.42;
 
+/// Plantés dans l'herbe : en arrivant, ils se balancent autour de leur pied
+const BOARD_SWAY = [SCHOOL.board.x, SCHOOL.board.z] as const;
+const MAILBOX_SWAY = [SCHOOL.mailbox.x, SCHOOL.mailbox.z] as const;
+const LAMP_SWAY = [SCHOOL.gardenLamp.x, SCHOOL.gardenLamp.z] as const;
+
 const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 	bridge,
 	night,
@@ -1418,24 +1424,48 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 	unreadNews,
 }) => (
 	<group>
-		<Sky night={night} animate={animate} />
-		<TreeLine night={night} />
+		{/* À chaque visite, tout entre par la droite (voir miloSchool.arrival) ;
+		    seule la pelouse reste en place, c'est le sol de la scène */}
+		<Arrive bridge={bridge} timing={ARRIVAL.sky}>
+			<Sky night={night} animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.treeLine}>
+			<TreeLine night={night} />
+		</Arrive>
 		<Lawn />
-		<Path />
-		<River night={night} animate={animate} />
-		<Trees animate={animate} />
-		<Garden />
-		<Walls />
-		<Roof />
-		<Windows night={night} />
-		<Sign />
-		<Lantern x={SCHOOL.door.x + SCHOOL.door.width / 2 + 0.42} night={night} animate={animate} />
-		<Lantern x={MILO_LAMP_X} y={2.02} night={night} animate={animate} strength={6.5} reach={0.9} phase={2.1} />
-		<Door bridge={bridge} night={night} reducedMotion={reducedMotion} />
-		<MissionsBoard bridge={bridge} missions={missions} night={night} animate={animate} />
-		<Mailbox bridge={bridge} unread={unreadNews} night={night} animate={animate} />
-		<GardenLamp night={night} animate={animate} />
-		<Critters night={night} animate={animate} />
+		<Arrive bridge={bridge} timing={ARRIVAL.path}>
+			<Path />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.river}>
+			<River night={night} animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.trees}>
+			<Trees animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.garden}>
+			<Garden />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.house}>
+			<Walls />
+			<Roof />
+			<Windows night={night} />
+			<Sign />
+			<Lantern x={SCHOOL.door.x + SCHOOL.door.width / 2 + 0.42} night={night} animate={animate} />
+			<Lantern x={MILO_LAMP_X} y={2.02} night={night} animate={animate} strength={6.5} reach={0.9} phase={2.1} />
+			<Door bridge={bridge} night={night} reducedMotion={reducedMotion} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.board} sway={BOARD_SWAY}>
+			<MissionsBoard bridge={bridge} missions={missions} night={night} animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.mailbox} sway={MAILBOX_SWAY}>
+			<Mailbox bridge={bridge} unread={unreadNews} night={night} animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.lamp} sway={LAMP_SWAY}>
+			<GardenLamp night={night} animate={animate} />
+		</Arrive>
+		<Arrive bridge={bridge} timing={ARRIVAL.critters}>
+			<Critters night={night} animate={animate} />
+		</Arrive>
 	</group>
 );
 

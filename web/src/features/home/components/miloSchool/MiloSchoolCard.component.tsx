@@ -116,8 +116,16 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 			created.phase = "exiting";
 			created.doorOpen = true;
 		}
+		/// Mouvements réduits : la scène est déjà en place, rien n'arrive par la droite
+		if (reducedMotion) {
+			created.arrival = Number.POSITIVE_INFINITY;
+			created.arrived = true;
+		}
 		return created;
 	});
+	/// Milo est arrivé à sa place (la scène entre par la droite à chaque visite) :
+	/// sa bulle s'affiche et ses phrases commencent
+	const [landed, setLanded] = useState(() => bridge.arrived);
 
 	const cardRef = useRef<HTMLElement>(null);
 
@@ -145,7 +153,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 	/// sinon la bulle suit son fil
 	const hinting = mode === "idle" && (hovered === "missions" || hovered === "mail");
 	const bubbleText = hinting ? (hovered === "missions" ? missionsHint(talk) : mailHint(talk)) : line;
-	const shown = useTypewriter(bubbleText, reducedMotion);
+	const shown = useTypewriter(landed ? bubbleText : "", reducedMotion);
 
 	/* ------------------------------------------------ taille, visibilité, ambiance */
 
@@ -184,10 +192,15 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 		[],
 	);
 
-	/// Milo salue l'élève qui revient (s'il sort de la classe, il saluera dehors)
+	/// Milo arrive par la droite avec son école ; il salue (la scène s'en
+	/// charge) et prend la parole une fois posé
 	useEffect(() => {
-		if (schoolScene.ready && !reducedMotion && !comingBack) bridge.reactions.push("Hello");
-	}, [bridge, reducedMotion, comingBack]);
+		bridge.onArrived = () => setLanded(true);
+		if (bridge.arrived) setLanded(true);
+		return () => {
+			bridge.onArrived = null;
+		};
+	}, [bridge]);
 
 	/// Retour de la classe : une fois la scène affichée, Milo ressort en
 	/// marchant ; la scène referme la porte et le ramène à sa place
@@ -238,14 +251,14 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 
 	/// Au repos, Milo fait la conversation
 	useEffect(() => {
-		if (mode !== "idle" || hinting || !loaded || reducedMotion) return;
+		if (mode !== "idle" || hinting || !loaded || !landed || reducedMotion) return;
 		let index = 0;
 		const id = window.setInterval(() => {
 			index = (index + 1) % lines.length;
 			setLine(lines[index]);
 		}, LINE_EVERY_MS);
 		return () => window.clearInterval(id);
-	}, [mode, hinting, loaded, lines, reducedMotion]);
+	}, [mode, hinting, loaded, landed, lines, reducedMotion]);
 
 	/// Minuteries annulées au démontage (`later` ne lit que des refs)
 	const later = (fn: () => void, ms: number) => {
@@ -321,8 +334,9 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 			hoverDoor("door", part === "door");
 		};
 		bridge.onPick = (part: MiloSchoolPart) => {
-			/// Pendant un gros plan, la scène attend qu'on recule
-			if (bridge.focus) return;
+			/// Pendant un gros plan, la scène attend qu'on recule ; pendant
+			/// l'arrivée, que tout soit en place
+			if (bridge.focus || !bridge.arrived) return;
 			if (part === "door") enterClassroom();
 			else if (part === "milo") poke();
 			else if (part === "missions") onOpenMissions();
@@ -349,6 +363,7 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 				"ecl-card",
 				focus && "is-focused",
 				loaded && "is-loaded",
+				loaded && landed && "is-landed",
 				wide ? "is-wide" : "is-narrow",
 				night > 0.5 && "is-night",
 				mode === "invite" && "is-open",

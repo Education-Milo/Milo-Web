@@ -39,6 +39,14 @@ export interface MiloSchoolBridge {
 	zoom: number;
 	/** Marge (px) gardée en bas d'écran : la scène se cadre au-dessus */
 	bottomPx: number;
+	/** Largeur vue par la caméra (unités monde, dans le plan de la façade), écrite par la scène */
+	span: number;
+	/** Arrivée de la scène par la droite : secondes écoulées depuis le début
+	 *  (la scène l'avance ; une nouvelle page d'accueil repart de zéro) */
+	arrival: number;
+	/** Milo est arrivé à sa place : la bulle peut s'afficher */
+	arrived: boolean;
+	onArrived: (() => void) | null;
 	/** Écran large : la pancarte des missions et la boîte aux lettres sont dans le cadre */
 	wide: boolean;
 	/** Élément survolé dans la scène (la scène l'écrit aussi pour ses animations) */
@@ -59,6 +67,10 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 	focus: null,
 	zoom: 0,
 	bottomPx: 0,
+	span: 0,
+	arrival: 0,
+	arrived: false,
+	onArrived: null,
 	wide: true,
 	hovered: null,
 	onHover: null,
@@ -69,6 +81,15 @@ export const createMiloSchoolBridge = (): MiloSchoolBridge => ({
 /// La scène 3D de l'accueil survit à la navigation (voir MiloSchoolCanvas) :
 /// une fois Milo et l'école affichés, un retour sur l'accueil est immédiat
 export const schoolScene = { ready: false };
+
+/// En quittant l'accueil, tout repart hors champ pour une dernière image (voir
+/// miloSchool.arrival) : la toile la garde affichée et la montre au retour, le
+/// temps de dessiner la première image de l'arrivée suivante. Sans cela, on
+/// reverrait un instant la scène en place avant qu'elle ne disparaisse pour arriver.
+export const arrivalParking = { epoch: 0 };
+export const parkArrivals = () => {
+	arrivalParking.epoch++;
+};
 
 /// Entrée en classe : Milo marche de sa place jusqu'un pas après la porte en
 /// ENTRY_MS (la scène règle sa vitesse et la cadence de ses pas sur cette

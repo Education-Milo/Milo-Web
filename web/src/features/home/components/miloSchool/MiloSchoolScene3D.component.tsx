@@ -18,11 +18,13 @@ import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import MiloSchoolYard, { SCHOOL } from "@features/home/components/miloSchool/MiloSchoolYard.component";
 import MiloSchoolCanvas from "@features/home/components/miloSchool/MiloSchoolCanvas.component";
+import { ARRIVAL, ArrivalClock, Arrive } from "@features/home/components/miloSchool/miloSchool.arrival";
 import { MiloFootsteps, type FootGround } from "@features/home/components/miloSchool/miloSchool.footsteps";
 import {
 	ENTRY_MS,
 	EXIT_MS,
 	frameStep,
+	parkArrivals,
 	partHandlers,
 	schoolScene,
 	type MiloSchoolBridge,
@@ -42,6 +44,8 @@ useGLTF.preload(MILO_MODEL_PATH);
 const FIT_HEIGHT = 1.85;
 /// Milo, sur la pelouse, à gauche de la porte
 const MILO_SPOT = new THREE.Vector3(-0.78, 0, 1.45);
+/// En arrivant, il se balance autour de ses pieds
+const MILO_SWAY = [MILO_SPOT.x, MILO_SPOT.z] as const;
 /// Cadrage (unités monde, mesurées dans le plan de la façade z = 0) : du bas du
 /// toit aux pieds de Milo (plus près de la caméra, ils tombent sous le sol de la façade)
 const FRAME_TOP = 4.1;
@@ -157,6 +161,8 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 		/// Hauteur totale du cadre (à z = 0) pour que le contenu tienne au-dessus
 		/// de la marge du bas, et assez large pour ce qui doit rester visible
 		const frameH = Math.max(content / visibleShare, minWidth / aspect);
+		/// (les éléments qui arrivent par la droite partent juste hors de ce cadre)
+		bridge.span = frameH * aspect;
 		const spare = frameH * visibleShare - content;
 		const spareAbove = bridge.wide ? SPARE_ABOVE_WIDE : SPARE_ABOVE_NARROW;
 		const centerY = FRAME_TOP + spare * spareAbove - frameH / 2;
@@ -453,13 +459,11 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, ni
 		return current && isIdleAction(current) ? current : idleAction();
 	}, [idleAction]);
 
-	/// Arrivée : un salut de la main, puis l'attente
+	/// L'attente ; il saluera une fois arrivé à sa place (voir `land`)
 	useLayoutEffect(() => {
 		if (!actions || Object.keys(actions).length === 0) return;
 		const s = state.current;
-		const hello = findAction(actions, "Hello");
-		if (hello && !reducedMotion) playOnce(hello);
-		else playLoop(idleAction());
+		playLoop(idleAction());
 		mixer.update(0);
 		/// Pieds sur l'herbe : le cadrage du modèle centre sa boîte englobante,
 		/// pas ses semelles. On mesure le point le plus bas de la pose de départ
@@ -670,18 +674,32 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, ni
 		}
 	});
 
+	/// Il arrive par la droite après l'école, se balance en freinant et salue.
+	/// S'il ressort de la classe, il est encore dedans : il arrive avec elle.
+	const returning = useMemo(() => bridge.phase === "exiting", [bridge]);
+	const land = useCallback(() => {
+		if (!returning && !reducedMotion) bridge.reactions.push("Hello");
+	}, [bridge, returning, reducedMotion]);
+
 	return (
 		<>
-			<group ref={root} position={[MILO_SPOT.x, FIT_HEIGHT / 2, MILO_SPOT.z]}>
-				<group ref={body}>
-					<primitive object={scene} />
+			<Arrive
+				bridge={bridge}
+				timing={returning ? ARRIVAL.house : ARRIVAL.milo}
+				sway={returning ? undefined : MILO_SWAY}
+				onLand={land}
+			>
+				<group ref={root} position={[MILO_SPOT.x, FIT_HEIGHT / 2, MILO_SPOT.z]}>
+					<group ref={body}>
+						<primitive object={scene} />
+					</group>
+					{/* Zone de clic : une capsule invisible autour de Milo, au lieu de
+					    tester les ~50 000 triangles animés du modèle */}
+					<mesh visible={false} {...partHandlers(bridge, "milo")}>
+						<capsuleGeometry args={[0.48, 0.8, 6, 12]} />
+					</mesh>
 				</group>
-				{/* Zone de clic : une capsule invisible autour de Milo, au lieu de
-				    tester les ~50 000 triangles animés du modèle */}
-				<mesh visible={false} {...partHandlers(bridge, "milo")}>
-					<capsuleGeometry args={[0.48, 0.8, 6, 12]} />
-				</mesh>
-			</group>
+			</Arrive>
 			{/* Herbe et poussière sous ses pas (coordonnées du monde) */}
 			<primitive object={footsteps.points} />
 		</>
@@ -758,13 +776,16 @@ const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
 	return (
 		<MiloSchoolCanvas
 			frameloop={reducedMotion ? "demand" : active ? "always" : "never"}
+			onDetach={reducedMotion ? undefined : parkArrivals}
 			config={ENGINE}
 			onCreated={onEngineCreated}
 		>
 			<CameraRig bridge={bridge} reducedMotion={reducedMotion} />
 			<Lights night={night} />
-			{/* Un seul Suspense : l'école et Milo apparaissent ensemble */}
+			{/* Un seul Suspense : l'école et Milo apparaissent ensemble, et
+			    l'horloge de leur arrivée par la droite démarre avec eux */}
 			<Suspense fallback={null}>
+				<ArrivalClock bridge={bridge} reducedMotion={reducedMotion} />
 				<MiloSchoolYard
 					bridge={bridge}
 					night={night}

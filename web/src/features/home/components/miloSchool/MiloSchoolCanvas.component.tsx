@@ -1,5 +1,6 @@
 import React, { Suspense, useLayoutEffect, useRef } from "react";
 import {
+	advance,
 	createRoot,
 	events as createPointerEvents,
 	extend,
@@ -63,17 +64,20 @@ class SceneBoundary extends React.Component<{ children: React.ReactNode }, { fai
 
 export interface MiloSchoolCanvasProps {
 	frameloop: Frameloop;
+	/** Juste avant de décrocher la toile : la scène se prépare pour une
+	 *  dernière image, que la toile montrera au retour */
+	onDetach?: () => void;
 	/** Réglages du moteur : lus à la création seulement (objets constants) */
 	config: Omit<RenderProps<HTMLCanvasElement>, "size" | "frameloop" | "events" | "onCreated">;
 	onCreated?: (state: Parameters<NonNullable<RenderProps<HTMLCanvasElement>["onCreated"]>>[0]) => void;
 	children: React.ReactNode;
 }
 
-const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, config, onCreated, children }) => {
+const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, onDetach, config, onCreated, children }) => {
 	const host = useRef<HTMLDivElement>(null);
-	const latest = useRef({ frameloop, config, onCreated, children });
+	const latest = useRef({ frameloop, onDetach, config, onCreated, children });
 	useLayoutEffect(() => {
-		latest.current = { frameloop, config, onCreated, children };
+		latest.current = { frameloop, onDetach, config, onCreated, children };
 	});
 
 	/// Configure (taille, boucle de rendu) puis rend le contenu dans la scène persistante
@@ -120,6 +124,14 @@ const MiloSchoolCanvas: React.FC<MiloSchoolCanvasProps> = ({ frameloop, config, 
 		measure();
 		return () => {
 			observer.disconnect();
+			/// Dernière image, dessinée tout de suite : c'est elle que la toile
+			/// affichera au retour, avant que la scène ne reprenne
+			const state = p.store?.getState();
+			const detach = latest.current.onDetach;
+			if (state && detach) {
+				detach();
+				advance(state.clock.elapsedTime, false, state);
+			}
 			p.wrapper.remove();
 			void update(true);
 		};
