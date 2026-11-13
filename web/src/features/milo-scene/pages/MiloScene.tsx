@@ -62,6 +62,15 @@ const HINT_STORAGE_KEY = "milo-class-hint-seen";
 /// Si l'entrée de Milo ne se termine jamais (scène 3D en panne, onglet en
 /// arrière-plan…), l'interface apparaît quand même
 const ENTRANCE_FALLBACK_MS = 8000;
+/// Ce qu'un clic peut toucher sans reposer la feuille ou le post-it en main :
+/// l'objet lui-même, la barre du haut, les fenêtres (aide, confirmation…)
+const HELD_OR_UI = [
+	".cls-paper.is-held",
+	".cls-postit.is-held",
+	".cls-top",
+	"[role='dialog']",
+	"[role='alertdialog']",
+].join(", ");
 
 /// TEMPORAIRE : bouton de test de l'ambiance jour / nuit (à retirer)
 const DAY_NIGHT_BUTTON: Record<DayNightMode, { icon: typeof Sun; label: string; title: string }> = {
@@ -417,6 +426,24 @@ const MiloScene: React.FC = () => {
 		return () => window.removeEventListener("keydown", onKey);
 	}, [isEditing, zoomed, notesOpen]);
 
+	// Un clic à côté de la feuille ou du post-it en main le repose sur le bureau
+	// (le clic fait ensuite son effet : un clic sur l'autre objet du bureau le
+	// prend en main). La barre du haut et les fenêtres gardent leur rôle : le
+	// bouton « Mes notes » ouvre et ferme lui-même le post-it.
+	useEffect(() => {
+		if (!isEditing && !notesOpen) return;
+		const onPointerDown = (event: PointerEvent) => {
+			if (event.button !== 0) return;
+			const target = event.target as Element | null;
+			if (!target?.closest) return;
+			if (target.closest(HELD_OR_UI)) return;
+			setIsEditing(false);
+			setNotesOpen(false);
+		};
+		document.addEventListener("pointerdown", onPointerDown, true);
+		return () => document.removeEventListener("pointerdown", onPointerDown, true);
+	}, [isEditing, notesOpen]);
+
 	const toggleNotes = () => {
 		setIsEditing(false);
 		setZoomed(false);
@@ -625,7 +652,8 @@ const MiloScene: React.FC = () => {
 								aria-label="Lire le tableau en grand"
 								title="Lire le tableau en grand"
 							>
-								<Maximize2 size={20} />
+								{/* (le tableau 3D est vu de loin : une icône franche, qui remplit le bouton) */}
+								<Maximize2 size={30} strokeWidth={2.6} aria-hidden="true" />
 							</button>
 						)}
 					</div>

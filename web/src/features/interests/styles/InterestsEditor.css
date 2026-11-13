@@ -96,3 +96,92 @@
 	.ie-add-row { flex-direction: column; }
 	.ie-add-btn { justify-content: center; }
 }
+
+/* ------------------------------------------------------------------
+   Aperçu (à droite de l'éditeur, écran large) : Milo cite les centres
+   d'intérêt de l'élève et montre où il les glisse. Crème à pois de la
+   charte, Milo qui salue en bas à droite.
+   ------------------------------------------------------------------ */
+.ip {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	min-height: 100%;
+	padding: 22px 22px 22px 24px;
+	overflow: hidden;
+	border-radius: 28px;
+	background:
+		radial-gradient(rgba(185, 51, 15, 0.13) 1.4px, transparent 1.6px) 0 0 / 26px 26px,
+		var(--milo-creme, #f6ebdf);
+	font-family: var(--f-text);
+	color: var(--milo-encre);
+}
+
+/* Bulle de Milo, la pointe vers lui (en bas à droite) */
+.ip-bubble {
+	position: relative;
+	z-index: 1;
+	max-width: 30ch;
+	padding: 14px 18px;
+	border: 2px solid var(--line);
+	border-radius: 22px 22px 6px 22px;
+	background: #fff;
+	box-shadow: 0 5px 0 #f1d2b2;
+}
+.ip-bubble-text {
+	margin: 0;
+	font-size: 1.0625rem;
+	font-weight: 600;
+	line-height: 1.4;
+}
+.ip-hl {
+	color: var(--accent-text, var(--milo-orange));
+	text-transform: capitalize;
+}
+
+.ip-uses {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	gap: 8px;
+	margin: auto 0 0;
+	padding: 0;
+	list-style: none;
+	max-width: 54%;
+}
+.ip-use {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 14px 8px 10px;
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.82);
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--text-2);
+}
+.ip-use img {
+	width: 26px;
+	height: 26px;
+	flex-shrink: 0;
+}
+
+.ip-milo {
+	position: absolute;
+	right: -6%;
+	bottom: -14%;
+	height: 92%;
+	max-height: 320px;
+	width: auto;
+	pointer-events: none;
+	filter: drop-shadow(0 16px 18px rgba(120, 30, 5, 0.28));
+	animation: ip-bob 3.4s ease-in-out infinite;
+}
+@keyframes ip-bob {
+	0%, 100% { translate: 0 0; rotate: 0deg; }
+	50% { translate: 0 -8px; rotate: -2deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.ip-milo { animation: none; }
+}

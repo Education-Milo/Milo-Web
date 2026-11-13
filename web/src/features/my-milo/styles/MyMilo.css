@@ -1430,5 +1430,15 @@ h1.mm-title {
 	box-shadow: 0 10px 0 var(--mm-sable), 0 40px 60px -40px rgba(120, 50, 10, 0.45);
 }
 .mm-interests__head { display: grid; gap: 4px; }
+/* Écran large : l'éditeur à gauche, Milo qui explique à droite (sinon la
+   moitié droite de la carte restait vide). Étroit : l'éditeur seul. */
+.mm-interests { container-type: inline-size; }
+.mm-interests__layout { display: grid; gap: 22px; }
+.mm-interests__main { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.mm-interests__layout > .ip { display: none; }
+@container (min-width: 760px) {
+	.mm-interests__layout { grid-template-columns: minmax(0, 1.35fr) minmax(280px, 1fr); gap: clamp(22px, 3cqw, 40px); }
+	.mm-interests__layout > .ip { display: flex; }
+}
 .mm-interests__hint { margin: 0; color: var(--text-2); font-size: 1.0625rem; max-width: 40em; }
 @media (max-width: 600px) { .mm-interests { border-radius: 28px; } }

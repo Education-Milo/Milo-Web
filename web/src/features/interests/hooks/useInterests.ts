@@ -46,12 +46,21 @@ export const useInterests = () => {
 		}
 	};
 
+	/** Retrait immédiat ; si le serveur refuse, l'étiquette revient (voir le store) */
+	const handleDelete = async (interestId: string) => {
+		try {
+			await deleteUserInterest(interestId);
+		} catch {
+			showToast("Impossible de retirer ce centre d'intérêt pour le moment.", "error");
+		}
+	};
+
 	return {
 		interests,
 		suggestions,
 		newInterest,
 		setNewInterest,
 		handleAdd,
-		handleDelete: deleteUserInterest,
+		handleDelete,
 	};
 };

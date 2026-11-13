@@ -86,6 +86,31 @@ const POSTIT: DeskItemConfig = {
 	className: "cls-postit",
 };
 
+/// Halo des objets du bureau : un rayonnement doux qui déborde de leurs bords
+/// (côté du halo / côté de l'objet). Au survol, il s'allume franchement et
+/// l'objet se soulève un peu : on comprend qu'on peut le prendre.
+const GLOW_SPREAD = 1.75;
+const GLOW_IDLE = { base: 0.3, swing: 0.16 };
+
+/** Texture du halo : un carré flou de la couleur voulue, transparent autour */
+function makeGlowTexture(color: string) {
+	const size = 256;
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = size;
+	const ctx = canvas.getContext("2d");
+	if (ctx) {
+		const inset = (size * (1 - 1 / GLOW_SPREAD)) / 2;
+		ctx.shadowColor = color;
+		ctx.shadowBlur = inset * 0.95;
+		ctx.fillStyle = color;
+		/// (deux passes : un halo plus dense près du bord de l'objet)
+		for (let i = 0; i < 2; i++) ctx.fillRect(inset, inset, size - 2 * inset, size - 2 * inset);
+	}
+	const texture = new THREE.CanvasTexture(canvas);
+	texture.colorSpace = THREE.SRGBColorSpace;
+	return texture;
+}
+
 /// Pendant l'écriture, la caméra descend un peu : le tableau remonte à l'écran
 const EDIT_CAMERA_DROP = 0.12;
 
@@ -540,7 +565,11 @@ const DeskItem: React.FC<{
 	const { camera, size } = useThree();
 	const progress = useRef(0);
 	const bump = useRef(0);
+	/// Survol amorti (0 : posé, 1 : survolé)
+	const hover = useRef(0);
 	const px = config.size * PX_PER_UNIT;
+	const glowTexture = useMemo(() => makeGlowTexture(config.glowColor), [config.glowColor]);
+	useEffect(() => () => glowTexture.dispose(), [glowTexture]);
 
 	useEffect(() => {
 		if (bumpKey) bump.current = 1;
@@ -566,6 +595,8 @@ const DeskItem: React.FC<{
 		bump.current = THREE.MathUtils.damp(bump.current, 0, 6, delta);
 		const p = progress.current;
 		const t = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+		hover.current = THREE.MathUtils.damp(hover.current, isHovered && !isHeld && !locked ? 1 : 0, 10, delta);
+		const h = hover.current;
 
 		// Pose « tenue » : devant la caméra, en bas du champ, assez loin pour
 		// tenir en largeur sur un écran étroit
@@ -587,9 +618,9 @@ const DeskItem: React.FC<{
 		// Petit arc : l'objet se soulève avant de venir vers l'élève ; un bond
 		// quand on vient d'y ajouter quelque chose
 		const hop = Math.sin(bump.current * Math.PI);
-		group.position.y += Math.sin(p * Math.PI) * 0.22 + hop * 0.08;
+		group.position.y += Math.sin(p * Math.PI) * 0.22 + hop * 0.08 + h * 0.035;
 		group.quaternion.slerpQuaternions(pose.deskQuat, pose.heldQuat, t);
-		group.scale.setScalar(THREE.MathUtils.lerp(config.desk.scale, config.hold.scale, t) * (1 + hop * 0.12));
+		group.scale.setScalar(THREE.MathUtils.lerp(config.desk.scale, config.hold.scale, t) * (1 + hop * 0.12 + h * 0.04));
 
 		// Soulevé, il passe devant le décor (sinon il traverse les bureaux)
 		const lifted = p > 0.02;
@@ -599,13 +630,16 @@ const DeskItem: React.FC<{
 			mesh.renderOrder = lifted ? 10 : 0;
 		}
 
-		// Posé, un halo respire doucement pour inviter à cliquer
-		if (glowRef.current) {
-			const material = glowRef.current.material as THREE.MeshBasicMaterial;
-			// Plus marqué qu'avant (0,16 ± 0,12) : on comprenait mal qu'on pouvait cliquer
-			const idle = 0.34 + 0.2 * Math.sin(state.clock.elapsedTime * 2.2);
-			const goal = isHeld || locked ? 0 : isHovered ? 0.7 : Math.max(idle, bump.current);
+		// Posé, un halo respire doucement pour inviter à cliquer ; au survol, il
+		// s'allume, s'élargit et pulse
+		const glow = glowRef.current;
+		if (glow) {
+			const material = glow.material as THREE.MeshBasicMaterial;
+			const clock = state.clock.elapsedTime;
+			const idle = GLOW_IDLE.base + GLOW_IDLE.swing * Math.sin(clock * 2.2);
+			const goal = isHeld || locked ? 0 : isHovered ? 1 : Math.max(idle, bump.current);
 			material.opacity = THREE.MathUtils.damp(material.opacity, goal, 8, delta);
+			glow.scale.setScalar(1 + h * (0.08 + 0.035 * Math.sin(clock * 5)));
 		}
 	});
 
@@ -617,8 +651,16 @@ const DeskItem: React.FC<{
 			scale={config.desk.scale}
 		>
 			<mesh ref={glowRef} position={[0, 0, -0.006]} raycast={noRaycast}>
-				<planeGeometry args={[config.size + 0.26, config.size + 0.26]} />
-				<meshBasicMaterial color={config.glowColor} transparent opacity={0} side={THREE.DoubleSide} />
+				<planeGeometry args={[config.size * GLOW_SPREAD, config.size * GLOW_SPREAD]} />
+				<meshBasicMaterial
+					map={glowTexture}
+					transparent
+					opacity={0}
+					depthWrite={false}
+					blending={THREE.AdditiveBlending}
+					toneMapped={false}
+					side={THREE.DoubleSide}
+				/>
 			</mesh>
 			<mesh
 				ref={paperRef}

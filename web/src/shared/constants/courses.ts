@@ -92,12 +92,20 @@ const SUBJECT_MATCHERS: { key: keyof typeof SUBJECTS_CONFIG; keywords: string[] 
 	{ key: "Anglais", keywords: ["anglais"] },
 ];
 
-export function getSubjectVisuals(title: string | undefined | null): CourseVisuals {
-	if (!title) return DEFAULT_VISUALS;
+export type SubjectKey = (typeof SUBJECT_MATCHERS)[number]["key"];
+
+/** Famille de la matière (« Mathématiques », « Anglais »…), quel que soit l'intitulé exact */
+export function getSubjectKey(title: string | undefined | null): SubjectKey | null {
+	if (!title) return null;
 	const normalized = normalizeSubjectText(title);
 	const matcher = SUBJECT_MATCHERS.find(({ keywords }) =>
 		keywords.some((keyword) => normalized.includes(keyword)),
 	);
-	if (!matcher) return DEFAULT_VISUALS;
-	return SUBJECTS_CONFIG[matcher.key] ?? DEFAULT_VISUALS;
+	return matcher?.key ?? null;
+}
+
+export function getSubjectVisuals(title: string | undefined | null): CourseVisuals {
+	const key = getSubjectKey(title);
+	if (!key) return DEFAULT_VISUALS;
+	return SUBJECTS_CONFIG[key] ?? DEFAULT_VISUALS;
 }

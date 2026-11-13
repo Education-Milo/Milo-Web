@@ -147,19 +147,26 @@ export const useUserStore = create<UserStore>((set, get) => ({
     if (!currentUser) {
       throw new Error('No user logged in');
     }
+    // Retrait immédiat, sans `loading` : ce drapeau fait afficher le
+    // LoadingScreen par ProtectedRoute, qui démontait la page (effet de
+    // rechargement). En cas d'échec, l'étiquette revient à sa place.
+    const previous = currentUser.Interests || [];
+    const index = previous.findIndex(i => i.id === interestId);
+    if (index < 0) return;
+    const removed = previous[index];
+    set({
+      user: { ...currentUser, Interests: previous.filter(i => i.id !== interestId) },
+    });
     try {
-      set({ loading: true });
-        await APIAxios.delete(`${APIRoutes.DELETE_User_Interest(currentUser.id, interestId)}`);
-      set({
-        user: {
-          ...currentUser,
-          Interests: currentUser.Interests?.filter(i => i.id !== interestId)
-          },
-        loading: false,
-      });
+      await APIAxios.delete(`${APIRoutes.DELETE_User_Interest(currentUser.id, interestId)}`);
     }
     catch (error) {
-      set({ loading: false });
+      const latest = get().user;
+      if (latest && !(latest.Interests || []).some(i => i.id === interestId)) {
+        const restored = [...(latest.Interests || [])];
+        restored.splice(Math.min(index, restored.length), 0, removed);
+        set({ user: { ...latest, Interests: restored } });
+      }
       throw error;
     }
   },

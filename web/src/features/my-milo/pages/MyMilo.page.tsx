@@ -40,6 +40,7 @@ import { formatMiloros } from "@features/milo-shop/utils/format";
 import LockerPickerModal from "@features/my-milo/components/LockerPickerModal";
 import DuelWheel from "@features/my-milo/components/DuelWheel.component";
 import InterestsEditor from "@features/interests/components/InterestsEditor.component";
+import InterestsPreview from "@features/interests/components/InterestsPreview.component";
 import MiloConfirm from "@shared/components/MiloConfirm.component";
 import MiloBubble from "@features/my-milo/components/MiloBubble.component";
 import { PoofSmoke } from "@features/my-milo/components/MiloPoof.component";
@@ -721,13 +722,18 @@ const MyMiloPage: React.FC = () => {
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.25 }}
 					>
-						<header className="mm-interests__head">
-							<h2 id="mm-interests-title" className="mm-h2">Centres d'intérêt</h2>
-							<p className="mm-interests__hint">
-								Milo s'en sert pour créer des exercices qui parlent de ce que tu aimes.
-							</p>
-						</header>
-						<InterestsEditor />
+						<div className="mm-interests__layout">
+							<div className="mm-interests__main">
+								<header className="mm-interests__head">
+									<h2 id="mm-interests-title" className="mm-h2">Centres d'intérêt</h2>
+									<p className="mm-interests__hint">
+										Milo s'en sert pour créer des exercices qui parlent de ce que tu aimes.
+									</p>
+								</header>
+								<InterestsEditor />
+							</div>
+							<InterestsPreview />
+						</div>
 					</motion.section>
 				</div>
 

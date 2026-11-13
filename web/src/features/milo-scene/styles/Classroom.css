@@ -1002,6 +1002,10 @@
 
 /* Les boutons écrits sur le tableau sont vus de loin : un cran plus grands */
 .cls-chalkboard:not(.is-flat) .cls-btn--sm { height: 52px; font-size: 18px; padding: 0 1.3rem; }
+/* Bouton icône du tableau (« Lire en grand ») : carré, sans la marge des boutons
+   texte ci-dessus, qui écrasait l'icône à quelques pixels */
+.cls-chalkboard:not(.is-flat) .cls-btn--icon { width: 52px; padding: 0; justify-content: center; }
+.cls-btn--icon svg { flex-shrink: 0; }
 
 /* ── Tableau en grand (entre les deux barres) ── */
 .cls-zoom {
