@@ -1,5 +1,18 @@
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { Bell, ChevronRight, Flame, LogOut, Menu, Users, X, Zap } from "lucide-react";
+import {
+	Bell,
+	ChevronRight,
+	CreditCard,
+	FileText,
+	Flame,
+	LayoutDashboard,
+	Link2,
+	LogOut,
+	Menu,
+	Users,
+	X,
+	Zap,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { UserProfile } from "@shared/store/user/user.model";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
@@ -129,11 +142,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 		{ label: "Classements", path: "/leaderboard", icon: "🌟", iconSrc: navIcon("leaderboard"), disabled: true, hint: "Bientôt disponible" },
 	];
 
+	// Espace parent : icônes au trait plutôt que les icônes 3D de l'espace élève
 	const parentNavItems = [
-		{ label: "Tableau de bord", path: "/parent/dashboard", icon: "📊", iconSrc: navIcon("stats") },
-		{ label: "Abonnement", path: "/parent/subscription", icon: "💳" },
-		{ label: "Comptes liés", path: "/parent/children", icon: "👨‍👩‍👧‍👦", disabled: true },
-		{ label: "Paramètres", path: "/settings", icon: "⚙️", disabled: true },
+		{ label: "Tableau de bord", path: ROUTES.PARENT.DASHBOARD, iconNode: <LayoutDashboard size={20} /> },
+		{ label: "Bilans", path: ROUTES.PARENT.REPORTS, iconNode: <FileText size={20} /> },
+	];
+
+	const parentAccountItems = [
+		{ label: "Comptes liés", path: ROUTES.PARENT.CHILDREN, iconNode: <Link2 size={20} /> },
+		{ label: "Abonnement", path: ROUTES.PARENT.SUBSCRIPTION, iconNode: <CreditCard size={20} /> },
 	];
 
 	const adminItems = [
@@ -149,6 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 	];
 
 	const activeNavItems = isParent ? parentNavItems : studentNavItems;
+	const homePath = isParent ? ROUTES.PARENT.DASHBOARD : ROUTES.HOME;
 	const isActive = (path: string) => location.pathname === path;
 
 	/* =========================================================
@@ -268,7 +286,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 				aria-disabled={isDisabled || undefined}
 			>
 				<span className="sb-nav-icon" aria-hidden="true">
-					{item.iconSrc && !brokenIcons.has(item.iconSrc) ? (
+					{item.iconNode ? (
+						item.iconNode
+					) : item.iconSrc && !brokenIcons.has(item.iconSrc) ? (
 						<img
 							src={item.iconSrc}
 							alt=""
@@ -302,7 +322,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 				<button
 					type="button"
 					className="sb-mobile-logo-btn"
-					onClick={() => navigate(ROUTES.HOME)}
+					onClick={() => navigate(homePath)}
 					aria-label="Milo, retour à l'accueil"
 				>
 					<img src="/milo-logo.webp" alt="" className="sb-mobile-logo" width={120} height={40} />
@@ -331,7 +351,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
 			<aside
 				id="sb-drawer"
-				className={`sb-sidebar ${isMobileOpen ? "open" : ""}`}
+				className={`sb-sidebar ${isMobileOpen ? "open" : ""} ${isParent ? "is-parent" : ""}`}
 				aria-label="Menu principal"
 				inert={isDrawer && !isMobileOpen}
 			>
@@ -341,7 +361,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 						type="button"
 						className="sb-logo"
 						aria-label="Milo, retour à l'accueil"
-						onClick={() => navigate(ROUTES.HOME)}
+						onClick={() => navigate(homePath)}
 					>
 						<img src="/milo-logo.webp" alt="" className="sb-logo-img" />
 					</button>
@@ -392,9 +412,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 						/>
 
 						<div className="sb-nav-group">
-							<div className="sb-nav-group-title">Principal</div>
+							<div className="sb-nav-group-title">{isParent ? "Suivi" : "Principal"}</div>
 							{activeNavItems.map(renderNavItem)}
 						</div>
+
+						{isParent && (
+							<div className="sb-nav-group">
+								<div className="sb-nav-group-title">Compte</div>
+								{parentAccountItems.map(renderNavItem)}
+							</div>
+						)}
 
 						{!isParent && (
 							<>
@@ -466,6 +493,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 											: `Classe ${userProfile?.classe || "1"}`}
 								</span>
 							</div>
+							{!isParent && (
 							<div className="sb-user-stats">
 								<div
 									className="sb-streak"
@@ -479,6 +507,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 									<span>{xpPoints}</span>
 								</div>
 							</div>
+							)}
 						</button>
 
 						<div className="sb-footer-actions">

@@ -34,6 +34,8 @@ const TITLES: [match: string | RegExp, title: string][] = [
 	["/friends", "Amis"],
 	["/profile", "Mon profil"],
 	["/parent/dashboard", "Tableau de bord parent"],
+	["/parent/children", "Comptes liés"],
+	["/parent/bilans", "Bilans hebdomadaires"],
 	["/parent/subscription", "Abonnement"],
 	[/^\/admin/, "Administration"],
 	["/unauthorized", "Accès refusé"],

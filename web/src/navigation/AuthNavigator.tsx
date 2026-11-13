@@ -38,9 +38,8 @@ import { PLAYER_ROLES } from "@shared/constants/roles";
 // Pages Parent
 const ParentDashboard = lazy(() => import("@features/parent/pages/Dashboard.page"));
 const SubscriptionPage = lazy(() => import("@features/parent/pages/Subscription.page"));
-// import ChildrenManagement from '@screens/Parent/ChildrenManagement';
-// import ProgressTracking from '@screens/Parent/ProgressTracking';
-// import ParentalControls from '@screens/Parent/ParentalControls';
+const ParentChildrenPage = lazy(() => import("@features/parent/pages/Children.page"));
+const ParentReportsPage = lazy(() => import("@features/parent/pages/Reports.page"));
 
 // // Pages Prof
 // import ProfDashboard from '@screens/Prof/Dashboard';
@@ -267,7 +266,7 @@ const AuthNavigator: React.FC = () => {
 
 				{/* ==================== ROUTES PARENT ==================== */}
 				<Route
-					path="/parent/dashboard"
+					path={ROUTES.PARENT.DASHBOARD}
 					element={
 						<ProtectedRoute allowedRoles={["Parent"]}>
 							<ParentDashboard />
@@ -276,7 +275,25 @@ const AuthNavigator: React.FC = () => {
 				/>
 
 				<Route
-					path="/parent/subscription"
+					path={ROUTES.PARENT.CHILDREN}
+					element={
+						<ProtectedRoute allowedRoles={["Parent"]}>
+							<ParentChildrenPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path={ROUTES.PARENT.REPORTS}
+					element={
+						<ProtectedRoute allowedRoles={["Parent"]}>
+							<ParentReportsPage />
+						</ProtectedRoute>
+					}
+				/>
+
+				<Route
+					path={ROUTES.PARENT.SUBSCRIPTION}
 					element={
 						<ProtectedRoute allowedRoles={["Parent"]}>
 							<SubscriptionPage />
@@ -284,26 +301,7 @@ const AuthNavigator: React.FC = () => {
 					}
 				/>
 
-				{/*
-      <Route path="/parent/children" element={
-        <ProtectedRoute allowedRoles={['Parent']}>
-          <ChildrenManagement />
-        </ProtectedRoute>
-      } />
-
-      <Route path="/parent/progress" element={
-        <ProtectedRoute allowedRoles={['Parent']}>
-          <ProgressTracking />
-        </ProtectedRoute>
-      } />
-
-      <Route path="/parent/controls" element={
-        <ProtectedRoute allowedRoles={['Parent']}>
-          <ParentalControls />
-        </ProtectedRoute>
-      } />
-
-      {/* ==================== ROUTES PROF ==================== */}
+				{/* ==================== ROUTES PROF ==================== */}
 				{/* <Route path="/prof/dashboard" element={
         <ProtectedRoute allowedRoles={['Prof']}>
           <ProfDashboard />
