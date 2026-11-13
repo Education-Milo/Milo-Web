@@ -66,6 +66,14 @@
 
 .cls-ui > * { pointer-events: auto; }
 
+/* Passer l'entrée de Milo, en bas à droite pendant qu'il arrive */
+.cls-skip {
+	position: absolute;
+	right: 24px;
+	bottom: 22px;
+	gap: 8px;
+}
+
 /* ============================================================
    UTILITAIRES
    ============================================================ */

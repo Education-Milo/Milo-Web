@@ -59,6 +59,9 @@ const LOADING_LINES = [
 	"Presque prêt !",
 ]
 const HINT_STORAGE_KEY = "milo-class-hint-seen";
+/// Si l'entrée de Milo ne se termine jamais (scène 3D en panne, onglet en
+/// arrière-plan…), l'interface apparaît quand même
+const ENTRANCE_FALLBACK_MS = 8000;
 
 /// TEMPORAIRE : bouton de test de l'ambiance jour / nuit (à retirer)
 const DAY_NIGHT_BUTTON: Record<DayNightMode, { icon: typeof Sun; label: string; title: string }> = {
@@ -227,6 +230,26 @@ const MiloScene: React.FC = () => {
 		const t = setTimeout(() => setIsOverlayGone(true), 700);
 		return () => clearTimeout(t);
 	}, [scene.sceneReady]);
+
+	// ── Entrée de Milo : il arrive par la porte et bondit à sa place ; le
+	// tableau et l'interface apparaissent quand il atterrit ──
+	const [entered, setEntered] = useState(false);
+	const [skipSignal, setSkipSignal] = useState(0);
+	const introPlaying = scene.sceneReady && !entered;
+	const markEntered = useCallback(() => setEntered(true), []);
+	const skipIntro = useCallback(() => setSkipSignal((n) => n + 1), []);
+	useEffect(() => {
+		if (!introPlaying) return;
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === "Escape") skipIntro();
+		};
+		window.addEventListener("keydown", onKey);
+		const fallback = setTimeout(markEntered, ENTRANCE_FALLBACK_MS);
+		return () => {
+			window.removeEventListener("keydown", onKey);
+			clearTimeout(fallback);
+		};
+	}, [introPlaying, skipIntro, markEntered]);
 
 	// Nouvelle leçon (changement de leçon) : tableau et feuille propres
 	useEffect(() => {
@@ -738,7 +761,7 @@ const MiloScene: React.FC = () => {
 		/>
 	);
 
-	const uiIn = scene.sceneReady;
+	const uiIn = scene.sceneReady && entered;
 	const enter = (delay: number) =>
 		reduceMotion
 			? { initial: { opacity: 0 }, animate: { opacity: uiIn ? 1 : 0 }, transition: { duration: 0.3 } }
@@ -790,6 +813,9 @@ const MiloScene: React.FC = () => {
 				introRunning={scene.sceneReady}
 				introDone={!scene.introActive}
 				onIntroDone={scene.handleIntroDone}
+				onLanded={markEntered}
+				skipSignal={skipSignal}
+				reducedMotion={Boolean(reduceMotion)}
 				onReady={scene.markSceneReady}
 				isEditing={isEditing}
 				onSheetClick={() => openSheet()}
@@ -887,6 +913,24 @@ const MiloScene: React.FC = () => {
 						</button>
 					</nav>
 				</motion.header>
+
+				{/* ── Entrée de Milo : on peut la passer (ou Échap) ── */}
+				<AnimatePresence>
+					{introPlaying && (
+						<motion.button
+							key="skip-intro"
+							type="button"
+							className="cls-btn cls-btn--secondary cls-btn--sm cls-skip"
+							onClick={skipIntro}
+							initial={{ opacity: 0, y: 12 }}
+							animate={{ opacity: 1, y: 0, transition: { delay: 0.8, duration: 0.35 } }}
+							exit={{ opacity: 0, y: 12, transition: { duration: 0.2 } }}
+						>
+							<FastForward size={16} aria-hidden="true" />
+							<span>Passer</span>
+						</motion.button>
+					)}
+				</AnimatePresence>
 
 				{/* ── Barre du bas : les gestes de la classe ── */}
 				<AnimatePresence>

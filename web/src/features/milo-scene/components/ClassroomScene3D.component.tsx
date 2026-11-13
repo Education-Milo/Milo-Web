@@ -15,6 +15,21 @@ import {
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
 import { CLASSROOM_MODEL } from "@features/milo-scene/utils/classroomAssets";
+import {
+	MILO_REST_YAW,
+	MILO_SCALE,
+	MILO_SPOT,
+	NATURAL_WALK_SPEED,
+	createEntrance,
+	isEntering,
+	type Entrance,
+	type EntrancePhase,
+} from "@features/milo-scene/utils/classroomEntrance";
+import {
+	ClassroomDoorway,
+	EntranceDirector,
+	LandingDust,
+} from "@features/milo-scene/components/ClassroomEntrance.component";
 
 /// Décor 3D de la salle : la classe, Milo, le tableau et la feuille. Le texte
 /// du tableau et de la feuille est du HTML projeté sur leur surface 3D (drei
@@ -80,13 +95,25 @@ const HTML_Z_RANGE: [number, number] = [4, 0];
 interface MiloModelProps {
 	modelPath: string;
 	activeAnimation: string;
+	/** Entrée en classe : Milo arrive par la porte et bondit à sa place */
+	entrance: Entrance;
 }
 
 /// Réactions jouées par l'easter egg (clic sur Milo)
 const EASTER_EGG_CLIPS = ["67", "HatLook", "Hello"];
+/// Pose « ta-da » jouée quand Milo atterrit à sa place
+const ENTRANCE_CLIP = "Arrival";
+const MILO_SPOT_ARRAY = MILO_SPOT.toArray();
+const MILO_UNSPOT_ARRAY = MILO_SPOT.clone().negate().toArray();
+const MILO_REST_ROTATION: [number, number, number] = [0, MILO_REST_YAW, 0];
+/// Quand Milo atterrit, la poussière de craie tombe du haut du tableau (juste
+/// sous le cadre, devant l'ardoise)
+const BOARD_DUST = { left: -4.4, right: 3.7, y: 1.95, z: 0.66 };
 
-function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation, entrance }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
+	/// Déplace Milo pendant l'entrée ; à sa place, il ne change rien
+	const mover = useRef<THREE.Group>(null);
 	/// Copie dédiée à la salle de classe : la scène du .glb est partagée avec
 	/// les autres écrans, on ne doit pas y laisser la pose posée ici.
 	const { scene, animations } = useMiloInstance(modelPath);
@@ -113,25 +140,18 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	}, [scene]);
 
 	/// Lance une animation en boucle, en fondu depuis celle qui joue
-	const loopTo = useCallback((nextAction: THREE.AnimationAction) => {
-		const CROSSFADE_DURATION = 0.5;
+	const loopTo = useCallback((nextAction: THREE.AnimationAction, fade = 0.5) => {
 		const prevAction = currentAction.current;
 		nextAction.reset();
 		nextAction.setLoop(THREE.LoopRepeat, Infinity);
 		nextAction.play();
 		if (prevAction && prevAction !== nextAction) {
-			prevAction.crossFadeTo(nextAction, CROSSFADE_DURATION, true);
+			prevAction.crossFadeTo(nextAction, fade, true);
 		} else {
-			nextAction.fadeIn(CROSSFADE_DURATION);
+			nextAction.fadeIn(fade);
 		}
 		currentAction.current = nextAction;
 	}, []);
-
-	useEffect(() => {
-		if (!actions || !activeAnimation) return;
-		const nextAction = actions[activeAnimation];
-		if (nextAction) loopTo(nextAction);
-	}, [actions, activeAnimation, loopTo]);
 
 	/// Easter egg : un clic sur Milo joue une réaction au hasard, puis il
 	/// reprend ce qu'il faisait. Volontairement discret : pas de curseur
@@ -139,6 +159,18 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	const activeRef = useRef(activeAnimation);
 	activeRef.current = activeAnimation;
 	const reacting = useRef<THREE.AnimationAction | null>(null);
+	/// Pose d'atterrissage de l'entrée, en cours
+	const entranceClip = useRef<THREE.AnimationAction | null>(null);
+
+	useEffect(() => {
+		if (!actions || !activeAnimation) return;
+		/// Pendant l'entrée, c'est elle qui choisit les clips (marche, bond, pose) :
+		/// Milo reprendra l'animation demandée une fois posé
+		if (entrance.phase === "walking" || entrance.phase === "leaping") return;
+		if (entranceClip.current && reacting.current === entranceClip.current) return;
+		const nextAction = actions[activeAnimation];
+		if (nextAction) loopTo(nextAction);
+	}, [actions, activeAnimation, loopTo, entrance]);
 
 	useEffect(() => {
 		const onFinished = (event: { action: THREE.AnimationAction }) => {
@@ -152,7 +184,7 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	}, [mixer, actions, loopTo]);
 
 	const playEasterEgg = useCallback(() => {
-		if (reacting.current) return;
+		if (reacting.current || isEntering(entrance.phase)) return;
 		const pool = EASTER_EGG_CLIPS.map((name) => findAction(actions, name)).filter(
 			(action): action is THREE.AnimationAction => Boolean(action),
 		);
@@ -166,7 +198,59 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 		if (prev && prev !== action) prev.crossFadeTo(action, 0.3, true);
 		currentAction.current = action;
 		reacting.current = action;
-	}, [actions]);
+	}, [actions, entrance]);
+
+	/// Atterrissage : la pose « ta-da », puis l'animation demandée (cf. « finished »)
+	const playEntranceClip = useCallback(() => {
+		const arrival = findAction(actions, ENTRANCE_CLIP);
+		if (!arrival) {
+			const back = actions[activeRef.current];
+			if (back) loopTo(back, 0.25);
+			return;
+		}
+		const prev = currentAction.current;
+		arrival.reset();
+		arrival.setLoop(THREE.LoopOnce, 1);
+		arrival.clampWhenFinished = true;
+		arrival.setEffectiveTimeScale(1);
+		arrival.setEffectiveWeight(1);
+		arrival.play();
+		if (prev && prev !== arrival) arrival.crossFadeFrom(prev, 0.18, false);
+		currentAction.current = arrival;
+		reacting.current = arrival;
+		entranceClip.current = arrival;
+	}, [actions, loopTo]);
+
+	/// L'entrée déplace Milo et change ses clips au fil des étapes
+	const entrancePhase = useRef<EntrancePhase | null>(null);
+	useFrame(() => {
+		const m = mover.current;
+		if (m) {
+			m.position.copy(entrance.position);
+			m.rotation.y = entrance.yaw - MILO_REST_YAW;
+			const k = entrance.squash;
+			m.scale.set(1 + k * 0.5, 1 - k, 1 + k * 0.5);
+		}
+		const phase = entrance.phase;
+		const previous = entrancePhase.current;
+		if (phase !== previous) {
+			entrancePhase.current = phase;
+			if (phase === "walking") {
+				const walk = findAction(actions, "Walk");
+				if (walk) {
+					reacting.current = null;
+					loopTo(walk, 0.25);
+				}
+			} else if (phase === "leaping" || (phase === "landed" && previous !== null && previous !== "leaping")) {
+				/// (intro passée : il est aussitôt à sa place, la pose aussi)
+				playEntranceClip();
+			}
+		}
+		/// La cadence des pas suit sa vitesse : il court sans glisser
+		if (phase === "walking" && currentAction.current) {
+			currentAction.current.setEffectiveTimeScale(Math.max(entrance.speed / NATURAL_WALK_SPEED, 0.3));
+		}
+	});
 
 	/// À chaque fin de boucle d'attente, Milo passe à une autre (Idle, Idle2…)
 	useEffect(
@@ -189,14 +273,18 @@ function MiloModel({ modelPath, activeAnimation }: MiloModelProps) {
 	});
 
 	return (
-		<group
-			ref={group}
-			onClick={(e) => {
-				e.stopPropagation();
-				playEasterEgg();
-			}}
-		>
-			<primitive object={scene} scale={[0.45, 0.45, 0.45]} position={[2.2, -2.3, 1.4]} rotation={[0, -0.4, 0]} />
+		<group ref={mover} position={MILO_SPOT_ARRAY}>
+			<group position={MILO_UNSPOT_ARRAY}>
+				<group
+					ref={group}
+					onClick={(e) => {
+						e.stopPropagation();
+						playEasterEgg();
+					}}
+				>
+					<primitive object={scene} scale={MILO_SCALE} position={MILO_SPOT_ARRAY} rotation={MILO_REST_ROTATION} />
+				</group>
+			</group>
 		</group>
 	);
 }
@@ -574,25 +662,29 @@ const DeskItem: React.FC<{
 /// Caméra : face au tableau (reculée si l'écran est étroit, pour qu'il tienne
 /// en largeur). Pendant l'écriture, elle descend un peu pour garder le
 /// tableau visible au-dessus de la feuille.
-const CameraRig: React.FC<{ isEditing: boolean }> = ({ isEditing }) => {
+/** Cadrage face au tableau, reculé si l'écran est étroit pour qu'il tienne en largeur */
+function boardFraming(width: number, height: number, position: THREE.Vector3, look: THREE.Vector3, drop = 0) {
+	const aspect = width / Math.max(height, 1);
+	const halfTan = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
+	// Le bord gauche de la zone d'écriture (x ≈ -3.6) doit rester dans le champ
+	const fitZ = BOARD_CENTER[2] + 3.9 / (halfTan * aspect);
+	// Au-delà, la caméra sortirait de la salle : on se décale plutôt vers le tableau
+	const boardZ = Math.min(Math.max(BASE_CAMERA_Z, fitZ), MAX_CAMERA_Z);
+	const halfWidth = halfTan * (boardZ - BOARD_CENTER[2]) * aspect;
+	const boardX = Math.min(0, Math.max(BOARD_CENTER[0], BOARD_LEFT_EDGE + halfWidth));
+	position.set(boardX, -drop, boardZ);
+	look.set(boardX, -drop, 0);
+}
+
+/// (la caméra repart du point que visait l'entrée en classe)
+const CameraRig: React.FC<{ isEditing: boolean; from: THREE.Vector3 }> = ({ isEditing, from }) => {
 	const { camera, size } = useThree();
-	const lookAt = useRef(new THREE.Vector3(0, 0, 0));
+	const lookAt = useRef(from.clone());
 	const goalPos = useMemo(() => new THREE.Vector3(), []);
 	const goalLook = useMemo(() => new THREE.Vector3(), []);
 
 	useFrame((_, delta) => {
-		const aspect = size.width / Math.max(size.height, 1);
-		const halfTan = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
-		// Le bord gauche de la zone d'écriture (x ≈ -3.6) doit rester dans le champ
-		const fitZ = BOARD_CENTER[2] + 3.9 / (halfTan * aspect);
-		// Au-delà, la caméra sortirait de la salle : on se décale plutôt vers le tableau
-		const boardZ = Math.min(Math.max(BASE_CAMERA_Z, fitZ), MAX_CAMERA_Z);
-		const halfWidth = halfTan * (boardZ - BOARD_CENTER[2]) * aspect;
-		const boardX = Math.min(0, Math.max(BOARD_CENTER[0], BOARD_LEFT_EDGE + halfWidth));
-		const drop = isEditing ? EDIT_CAMERA_DROP : 0;
-
-		goalPos.set(boardX, -drop, boardZ);
-		goalLook.set(boardX, -drop, 0);
+		boardFraming(size.width, size.height, goalPos, goalLook, isEditing ? EDIT_CAMERA_DROP : 0);
 		camera.position.x = THREE.MathUtils.damp(camera.position.x, goalPos.x, 4, delta);
 		camera.position.y = THREE.MathUtils.damp(camera.position.y, goalPos.y, 4, delta);
 		camera.position.z = THREE.MathUtils.damp(camera.position.z, goalPos.z, 4, delta);
@@ -600,32 +692,6 @@ const CameraRig: React.FC<{ isEditing: boolean }> = ({ isEditing }) => {
 		lookAt.current.y = THREE.MathUtils.damp(lookAt.current.y, goalLook.y, 4, delta);
 		lookAt.current.z = THREE.MathUtils.damp(lookAt.current.z, goalLook.z, 4, delta);
 		camera.lookAt(lookAt.current);
-	});
-	return null;
-};
-
-/// Travelling d'entrée : la caméra avance du fond de la classe vers le tableau.
-const IntroCamera: React.FC<{ running: boolean; onDone: () => void }> = ({ running, onDone }) => {
-	const { camera } = useThree();
-	const progress = useRef(0);
-	const done = useRef(false);
-	const start = useMemo(() => new THREE.Vector3(0, 2, 12), []);
-	const end = useMemo(() => new THREE.Vector3(0, 0, BASE_CAMERA_Z), []);
-	const lookStart = useMemo(() => new THREE.Vector3(0, 1, 0), []);
-	const lookEnd = useMemo(() => new THREE.Vector3(0, 0, 0), []);
-	const look = useMemo(() => new THREE.Vector3(), []);
-
-	useFrame((_, delta) => {
-		if (done.current) return;
-		if (running) progress.current = Math.min(progress.current + delta * 0.45, 1);
-		const p = progress.current;
-		const t = p < 0.5 ? 4 * p ** 3 : 1 - Math.pow(-2 * p + 2, 3) / 2;
-		camera.position.lerpVectors(start, end, t);
-		camera.lookAt(look.lerpVectors(lookStart, lookEnd, t));
-		if (p >= 1) {
-			done.current = true;
-			onDone();
-		}
 	});
 	return null;
 };
@@ -644,10 +710,16 @@ const SceneReadySignal: React.FC<{ onReady: () => void }> = ({ onReady }) => {
 
 interface ClassroomScene3DProps {
 	activeAnimation: string;
-	/** L'intro démarre quand l'écran de chargement s'efface */
+	/** L'entrée de Milo démarre quand l'écran de chargement s'efface */
 	introRunning: boolean;
 	introDone: boolean;
 	onIntroDone: () => void;
+	/** Milo est arrivé à sa place : le tableau et l'interface apparaissent */
+	onLanded: () => void;
+	/** Change quand l'élève passe l'intro */
+	skipSignal: number;
+	/** Mouvements réduits : Milo est déjà à sa place, la caméra au bureau */
+	reducedMotion: boolean;
 	onReady: () => void;
 	isEditing: boolean;
 	onSheetClick: () => void;
@@ -670,6 +742,9 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	introRunning,
 	introDone,
 	onIntroDone,
+	onLanded,
+	skipSignal,
+	reducedMotion,
 	onReady,
 	isEditing,
 	onSheetClick,
@@ -687,18 +762,33 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	/// derrière l'écran de chargement. Chargées à la volée, elles figeaient le
 	/// site ~2 s au premier passage en nuit.
 	const [mix] = useState<NightMix>(() => ({ value: nightTarget, ready: false }));
+	/// Entrée de Milo par la porte (lue par Milo, la porte et la caméra)
+	const [entrance] = useState<Entrance>(() => createEntrance(reducedMotion));
 
 	return (
 		<Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 2, 12], fov: CAMERA_FOV }} className="cls-canvas">
 			<NightMixDriver mix={mix} target={nightTarget} />
 			<Suspense fallback={null}>
+				{/* En premier : chaque image, l'entrée avance avant que Milo et la porte ne la lisent */}
+				{!introDone && (
+					<EntranceDirector
+						entrance={entrance}
+						running={introRunning}
+						skipSignal={skipSignal}
+						framing={boardFraming}
+						onLanded={onLanded}
+						onDone={onIntroDone}
+					/>
+				)}
 				<ClassroomLighting mix={mix} />
 				<Environment preset="park" />
 				<Classroom modelPath={CLASSROOM_MODEL} />
 				<NightBakeBoundary>
 					<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
 				</NightBakeBoundary>
-				<MiloModel modelPath={MILO_MODEL_PATH} activeAnimation={activeAnimation} />
+				<ClassroomDoorway entrance={entrance} mix={mix} />
+				<MiloModel modelPath={MILO_MODEL_PATH} activeAnimation={activeAnimation} entrance={entrance} />
+				<LandingDust entrance={entrance} line={BOARD_DUST} />
 				<Board visible={boardVisible}>{board}</Board>
 				<DeskItem config={SHEET} isHeld={isEditing} locked={isNotesOpen} onPick={onSheetClick} label="feuille">
 					{sheet}
@@ -713,11 +803,7 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 				>
 					{notes}
 				</DeskItem>
-				{introDone ? (
-					<CameraRig isEditing={isEditing || isNotesOpen} />
-				) : (
-					<IntroCamera running={introRunning} onDone={onIntroDone} />
-				)}
+				{introDone && <CameraRig isEditing={isEditing || isNotesOpen} from={entrance.look} />}
 				<SceneReadySignal onReady={onReady} />
 			</Suspense>
 		</Canvas>
