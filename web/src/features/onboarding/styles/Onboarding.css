@@ -370,23 +370,28 @@
 	border-radius: 0 0 0 4px;
 }
 
-.ob-card-close {
+/* « Passer » : quitter la visite à tout moment, libellé visible */
+.ob-card-skip {
 	position: absolute;
 	top: 12px;
 	right: 12px;
-	width: 36px;
 	height: 36px;
-	display: grid;
-	place-items: center;
-	border: 0;
-	border-radius: 50%;
-	background: transparent;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 10px 0 14px;
+	border: 2px solid var(--ob-sable);
+	border-radius: 999px;
+	background: var(--milo-blanc);
+	font: 600 0.95rem/1 var(--f-text);
 	color: var(--text-2);
 	cursor: pointer;
+	transition: background-color 0.15s, color 0.15s;
 }
-.ob-card-close:hover { background: var(--ob-creme); color: var(--milo-encre); }
+.ob-card-skip:hover { background: var(--ob-creme); color: var(--milo-encre); }
+.ob-card-skip:focus-visible { outline: 3px solid var(--milo-vert); outline-offset: 3px; }
 
-.ob-card-head { display: flex; align-items: center; min-height: 36px; padding-right: 40px; }
+.ob-card-head { display: flex; align-items: center; min-height: 36px; padding-right: 110px; }
 
 .ob-stars { display: inline-flex; gap: 4px; }
 .ob-star { display: grid; place-items: center; color: var(--ob-line); transition: color 0.3s, transform 0.4s var(--ob-back); }

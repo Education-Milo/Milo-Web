@@ -187,8 +187,10 @@ const OnboardingTour: React.FC = () => {
 					transition={{ type: "spring", stiffness: 340, damping: 24 }}
 				>
 					{cardPos && <span className="ob-card-arrow" style={{ top: cardPos.arrow }} aria-hidden="true" />}
-					<button type="button" className="ob-card-close" onClick={skip} aria-label="Passer la visite">
-						<X size={18} aria-hidden="true" />
+					{/* Toujours visible : on peut quitter la visite à n'importe quelle étape (ou Échap) */}
+					<button type="button" className="ob-card-skip" onClick={skip}>
+						Passer<span className="sr-only"> la visite</span>
+						<X size={16} aria-hidden="true" />
 					</button>
 
 					<div className="ob-card-head">

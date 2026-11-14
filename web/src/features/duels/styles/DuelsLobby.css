@@ -196,6 +196,8 @@
 	background: var(--feu);
 	box-shadow: inset 0 -16px 30px rgba(150, 30, 10, 0.28);
 	transform: translateX(-50%);
+	/* Atténué : la mascotte doit rester le point focal de la carte */
+	opacity: 0.4;
 }
 .dz-card__sun::after { content: ""; position: absolute; inset: 9%; border: 2px dashed rgba(246, 235, 223, 0.5); border-radius: 50%; }
 .dz-card__fallback { position: absolute; bottom: -4px; width: 82%; height: auto; filter: drop-shadow(0 14px 14px rgba(120, 30, 5, 0.35)); }

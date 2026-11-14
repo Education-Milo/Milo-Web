@@ -513,14 +513,18 @@ const MyMiloPage: React.FC = () => {
 								{locker && (
 									<div className="mm-wallet" title="Ton solde de miloros">
 										<img src="/landing/emoji/coin.webp" alt="" className="mm-wallet__coin" draggable={false} />
-										<span className="mm-wallet__amount">{formatMiloros(locker.miloro_coin)}</span>
-										<span className="mm-wallet__unit">miloros</span>
+										<span className="mm-wallet__text">
+											<span className="mm-wallet__amount">{formatMiloros(locker.miloro_coin)}</span>
+											<span className="mm-wallet__unit">miloros</span>
+										</span>
 									</div>
 								)}
 								<div className="mm-stat" title="Objets dans ton casier">
 									<img src="/landing/emoji/t_shirt.webp" alt="" className="mm-stat__icon" draggable={false} />
-									<span className="mm-stat__value">{items.length}</span>
-									<span className="mm-stat__unit">{items.length > 1 ? "objets" : "objet"}</span>
+									<span className="mm-stat__text">
+										<span className="mm-stat__value">{items.length}</span>
+										<span className="mm-stat__unit">{items.length > 1 ? "objets" : "objet"}</span>
+									</span>
 								</div>
 							</div>
 							<div className="mm-head__actions">
