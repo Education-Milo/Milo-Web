@@ -191,13 +191,20 @@ h1.mm-title {
 }
 .mm-wallet__unit { line-height: 1; font-weight: 600; font-size: 1.0625rem; color: var(--text-2); }
 
-/* Chiffre (Luckiest Guy) et unité (Fredoka) sur la même ligne de base,
-   le groupe centré dans la puce : sans ça le chiffre flottait au-dessus du mot */
+/* Chiffre (Luckiest Guy) et unité (Fredoka) centrés optiquement dans la
+   puce : Luckiest Guy dessine ses chiffres dans le haut de sa ligne, on les
+   redescend de 0,15 em (mesuré : 4 px à 1.5rem) pour que leur milieu tombe
+   sur celui du mot et de l'icône */
 .mm-wallet__text,
 .mm-stat__text {
 	display: inline-flex;
-	align-items: baseline;
+	align-items: center;
 	gap: 0.4rem;
+}
+.mm-wallet__amount,
+.mm-stat__value {
+	position: relative;
+	top: 0.15em;
 }
 
 /* Casier : combien d'objets l'élève possède */
