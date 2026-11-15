@@ -8,7 +8,6 @@ import {
 	MILO_MODEL_PATH,
 	alternateIdlesOnLoop,
 	applyEquippedAccessories,
-	cameraDistanceFor,
 	findAction,
 	findFirstAction,
 	fitMiloToHeight,
@@ -16,18 +15,22 @@ import {
 	warnClipFallbackOnce,
 } from "@features/my-milo/utils/miloModel";
 import {
+	DUEL_MILO_CAMERA_DISTANCE,
+	DUEL_MILO_FIT_HEIGHT,
+	DUEL_MILO_FOCUS_Y,
+	DUEL_MILO_FOV,
+} from "@features/duels/utils/duelMiloFrame";
+import {
 	MILO_QCM_CLIPS,
 	MILO_QCM_CROSSFADE,
 	type MiloQcmState,
 } from "@features/exercices/data/miloQcm.animations";
 
 /// Même cadrage que le Milo du QCM : haut du corps, focale longue
-const FIT_HEIGHT = 2.1;
-const FRAME_TOP = 1.3;
-const FRAME_HEIGHT = 1.9;
-const CAMERA_FOV = 20;
-const FOCUS_Y = FRAME_TOP - FRAME_HEIGHT / 2;
-const CAMERA_DISTANCE = cameraDistanceFor(FRAME_HEIGHT, CAMERA_FOV);
+const FIT_HEIGHT = DUEL_MILO_FIT_HEIGHT;
+const CAMERA_FOV = DUEL_MILO_FOV;
+const FOCUS_Y = DUEL_MILO_FOCUS_Y;
+const CAMERA_DISTANCE = DUEL_MILO_CAMERA_DISTANCE;
 
 export interface DuelDance {
 	/// Nom du clip d'animation (champ `mesh_name` d'un cosmétique de type "dance")
@@ -48,22 +51,30 @@ interface DuelMilo3DProps {
 	/// Orientation : Milo tourné vers la carte de question
 	facing?: "right" | "left";
 	className?: string;
+	/// Milo est chargé et cadré : ses animations peuvent être jouées
+	onReady?: () => void;
+	/// Attente (ms) avant de lancer la 3D : le démarrage (contexte WebGL, copie
+	/// du modèle, shaders) fige l'écran un instant, mieux vaut qu'il tombe une
+	/// fois l'animation d'arrivée terminée
+	mountDelayMs?: number;
+	/// Résolution maximale du rendu (×2 par défaut)
+	maxDpr?: number;
 }
 
-function MiloModel({
+export function MiloModel({
 	equippedMeshNames,
 	state,
 	dance,
 	onBusyChange,
 	facing,
 	onReady,
-}: Omit<DuelMilo3DProps, "className"> & { onReady: () => void }) {
+}: Omit<DuelMilo3DProps, "className" | "onReady" | "mountDelayMs" | "maxDpr"> & { onReady: () => void }) {
 	const group = useRef<THREE.Group>(null);
 	/// Deux Milo sont à l'écran : chacun travaille sur sa propre copie, sinon
 	/// les deux modèles partageraient os et visibilité des accessoires.
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
-	const { invalidate } = useThree();
+	const { invalidate, gl, camera, scene: root } = useThree();
 
 	const currentRef = useRef<THREE.AnimationAction | null>(null);
 	/// Action "one-shot" en cours (réaction ou danse)
@@ -220,13 +231,27 @@ function MiloModel({
 		[mixer, actions, fadeTo],
 	);
 
+	/// Milo n'apparaît qu'une fois ses shaders compilés : en parallèle quand le
+	/// navigateur le permet, au lieu de figer l'écran à la première image
 	useEffect(() => {
 		if (!scene) return;
 		fitMiloToHeight(scene, FIT_HEIGHT);
+		let cancelled = false;
+		const show = () => {
+			if (cancelled) return;
+			scene.visible = true;
+			invalidate();
+			onReady();
+		};
+		/// (compile() ne parcourt que les objets visibles : Milo l'est le temps de l'appel)
 		scene.visible = true;
-		invalidate();
-		onReady();
-	}, [scene, invalidate, onReady]);
+		const compiling = gl.compileAsync(root, camera);
+		scene.visible = false;
+		compiling.then(show, show);
+		return () => {
+			cancelled = true;
+		};
+	}, [scene, invalidate, onReady, gl, camera, root]);
 
 	useFrame(() => {
 		/// Garde-fou : plus aucune animation active veut dire Milo figé sur sa
@@ -252,42 +277,62 @@ function MiloModel({
 	);
 }
 
-const DuelMilo3D: React.FC<DuelMilo3DProps> = ({ className = "", ...modelProps }) => {
+/** Éclairage du Milo des duels (partagé avec la carte des amis) */
+export const DuelMiloLights: React.FC = () => (
+	<>
+		<ambientLight intensity={1.5} color="#fff1e2" />
+		<hemisphereLight args={["#ffffff", "#c4693a", 0.7]} />
+		<directionalLight position={[3, 5, 4]} intensity={2.2} color="#fffaf3" />
+		<directionalLight position={[-4, 2, 2]} intensity={0.7} color="#ffd9b8" />
+	</>
+);
+
+const DuelMilo3D: React.FC<DuelMilo3DProps> = ({ className = "", onReady, mountDelayMs = 0, maxDpr = 2, ...modelProps }) => {
 	const [canMount, setCanMount] = useState(false);
 	const [isReady, setIsReady] = useState(false);
-	const handleReady = useCallback(() => setIsReady(true), []);
+	const onReadyRef = useRef(onReady);
+	useEffect(() => {
+		onReadyRef.current = onReady;
+	});
+	const handleReady = useCallback(() => {
+		setIsReady(true);
+		onReadyRef.current?.();
+	}, []);
 
 	/// Comme pour le QCM : on monte le canvas après le premier affichage
 	useEffect(() => {
 		let idleId = 0;
 		let rafId = 0;
 		const start = () => setCanMount(true);
-		if (typeof requestIdleCallback === "function") {
-			idleId = requestIdleCallback(start, { timeout: 600 });
-		} else {
-			rafId = requestAnimationFrame(() => {
-				rafId = requestAnimationFrame(start);
-			});
-		}
+		const schedule = () => {
+			if (typeof requestIdleCallback === "function") {
+				idleId = requestIdleCallback(start, { timeout: 600 });
+			} else {
+				rafId = requestAnimationFrame(() => {
+					rafId = requestAnimationFrame(start);
+				});
+			}
+		};
+		/// (démonté avant la fin de l'attente : la 3D n'est jamais lancée)
+		const delayId = mountDelayMs > 0 ? window.setTimeout(schedule, mountDelayMs) : 0;
+		if (!delayId) schedule();
 		return () => {
+			window.clearTimeout(delayId);
 			if (idleId && typeof cancelIdleCallback === "function") cancelIdleCallback(idleId);
 			if (rafId) cancelAnimationFrame(rafId);
 		};
-	}, []);
+	}, [mountDelayMs]);
 
 	return (
 		<div className={`duel-milo-3d ${isReady ? "is-ready" : ""} ${className}`} aria-hidden="true">
 			{canMount && (
 				<Canvas aria-hidden="true"
-					dpr={[1, 2]}
+					dpr={[1, maxDpr]}
 					camera={{ position: [0, 0, CAMERA_DISTANCE], fov: CAMERA_FOV }}
 					gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
 					style={{ background: "transparent" }}
 				>
-					<ambientLight intensity={1.5} color="#fff1e2" />
-					<hemisphereLight args={["#ffffff", "#c4693a", 0.7]} />
-					<directionalLight position={[3, 5, 4]} intensity={2.2} color="#fffaf3" />
-					<directionalLight position={[-4, 2, 2]} intensity={0.7} color="#ffd9b8" />
+					<DuelMiloLights />
 					<Suspense fallback={null}>
 						<MiloModel {...modelProps} onReady={handleReady} />
 					</Suspense>

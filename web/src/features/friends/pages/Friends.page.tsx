@@ -6,6 +6,7 @@ import { UserPlus, Search, Swords } from "lucide-react";
 import FriendCard from "@features/friends/components/FriendCard.component";
 import AddFriendModal from "@features/friends/components/AddFriendModal.component";
 import ConfirmDeleteFriendModal from "@features/friends/components/ConfirmDeleteFriendModal.component";
+import FriendFlashcard from "@features/friends/components/FriendFlashcard.component";
 import { getFriendDisplayName, getFriendInitials, getOtherUserId, type Friend } from "@features/friends/store/friend.model";
 import type { FriendWithDetails } from "@features/friends/hooks/useFriendDetails";
 import { useFriends, type FriendsTab } from "@features/friends/hooks/useFriends";
@@ -42,6 +43,9 @@ const FriendsPage: React.FC = () => {
 
 	const isPendingTab = activeTab === "En attente" || activeTab === "Invitations";
 	const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+	/// Carte de joueur ouverte : position dans la liste affichée (les flèches la parcourent)
+	const [cardIndex, setCardIndex] = useState<number | null>(null);
+	const cardFriends = isPendingTab ? [] : (filteredFriends as FriendWithDetails[]);
 
 	const bestStreak = [...friends].sort((a, b) => (b.streak ?? 0) - (a.streak ?? 0))[0];
 
@@ -188,6 +192,7 @@ const FriendsPage: React.FC = () => {
 										onAccept={acceptFriend}
 										onDelete={handleDeleteRequest}
 										isPending={isPendingTab}
+										onOpen={isPendingTab ? undefined : () => setCardIndex(i)}
 									/>
 								))}
 							</AnimatePresence>
@@ -223,6 +228,18 @@ const FriendsPage: React.FC = () => {
 						)}
 					</LayoutGroup>
 				)}
+
+				<AnimatePresence>
+					{cardIndex !== null && cardFriends[cardIndex] && (
+						<FriendFlashcard
+							key="friend-card"
+							friends={cardFriends}
+							index={cardIndex}
+							onIndexChange={setCardIndex}
+							onClose={() => setCardIndex(null)}
+						/>
+					)}
+				</AnimatePresence>
 
 				<AnimatePresence>
 					{isAddModalOpen && <AddFriendModal onClose={() => setIsAddModalOpen(false)} />}
