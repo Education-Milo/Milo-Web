@@ -6,7 +6,10 @@ export interface Friend {
     user_id: number;
     friend_id: number;
     status: FriendStatus;
-    createdAt: string;
+    /** @deprecated jamais renvoyé par l'API : lire `created_at` */
+    createdAt?: string;
+    /** Date de la demande d'amitié (ISO), telle que renvoyée par /friends */
+    created_at?: string;
     /**
      * Nom et prénom : `null` pour une demande envoyée encore en attente (le
      * back ne révèle l'identité qu'aux amis acceptés). Ne jamais les lire sans

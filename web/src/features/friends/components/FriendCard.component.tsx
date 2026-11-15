@@ -14,6 +14,8 @@ interface FriendCardProps {
 	onAccept: (id: number) => void;
 	onDelete: (id: number) => void;
 	isPending?: boolean;
+	/** Ouvre la carte de joueur de l'ami (amis acceptés seulement) */
+	onOpen?: () => void;
 }
 
 const MAX_INTERESTS = 3;
@@ -30,6 +32,7 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	onAccept,
 	onDelete,
 	isPending = false,
+	onOpen,
 }) => {
 	const reduceMotion = useReducedMotion();
 	const details = "classe" in friend || "username" in friend ? (friend as FriendWithDetails) : null;
@@ -46,7 +49,11 @@ const FriendCard: React.FC<FriendCardProps> = ({
 	return (
 		<motion.article
 			layout
-			className={`fr-card${isPinned && !isPending ? " is-pinned" : ""}${isReceived ? " is-invite" : ""}${isSent ? " is-sent" : ""}`}
+			className={`fr-card${isPinned && !isPending ? " is-pinned" : ""}${isReceived ? " is-invite" : ""}${isSent ? " is-sent" : ""}${onOpen ? " is-openable" : ""}`}
+			/// Un clic n'importe où sur la carte (hors de ses boutons) ouvre la carte de joueur
+			onClick={(e) => {
+				if (onOpen && !(e.target as Element).closest("button, a")) onOpen();
+			}}
 			initial={reduceMotion ? false : { opacity: 0, y: 24, scale: 0.94 }}
 			animate={{ opacity: 1, y: 0, scale: 1 }}
 			exit={{ opacity: 0, scale: 0.9 }}
@@ -68,9 +75,17 @@ const FriendCard: React.FC<FriendCardProps> = ({
 			)}
 
 
-			<div className="fr-card__avatar">
-				<MiloAvatar equippedMeshNames={details?.equipped_meshes} initials={initials} />
-			</div>
+			{onOpen ? (
+				<button type="button" className="fr-card__open" onClick={onOpen} aria-label={`Voir la carte de ${displayName}`}>
+					<span className="fr-card__avatar">
+						<MiloAvatar equippedMeshNames={details?.equipped_meshes} initials={initials} />
+					</span>
+				</button>
+			) : (
+				<div className="fr-card__avatar">
+					<MiloAvatar equippedMeshNames={details?.equipped_meshes} initials={initials} />
+				</div>
+			)}
 
 			<div className="fr-card__id">
 				<h3 className="fr-card__name">{displayName}</h3>
