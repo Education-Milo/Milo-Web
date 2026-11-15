@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, RotateCcw, Star, Swords, X } from "lucide-react";
 import type { DuelDance } from "@features/duels/components/DuelMilo3D.component";
-import FriendMilo3D from "@features/friends/components/FriendMilo3D.component";
+import SharedMilo3D from "@shared/components/SharedMilo3D.component";
 import { useDuel } from "@features/duels/context/DuelContext";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import MiloAvatar from "@shared/components/MiloAvatar.component";
@@ -28,7 +28,7 @@ interface FriendFlashcardProps {
 	onClose: () => void;
 }
 
-/// La scène 3D (partagée par toutes les cartes, voir FriendMilo3D) est créée
+/// La scène 3D (partagée par toutes les cartes, voir SharedMilo3D) est créée
 /// à la première carte ouverte : sa création fige l'écran un instant, on
 /// attend donc que la carte ait fini d'arriver (ressort ~0,6 s)
 const MILO_MOUNT_DELAY_MS = 650;
@@ -284,7 +284,8 @@ const FlashcardBody = React.forwardRef<
 							<span className="fc-milo__fallback" aria-hidden="true">
 								<MiloAvatar equippedMeshNames={meshes} initials={initials} />
 							</span>
-							<FriendMilo3D
+							<SharedMilo3D
+									channel="friends"
 								equippedMeshNames={meshes}
 								dance={dance}
 								onReady={handleMiloReady}

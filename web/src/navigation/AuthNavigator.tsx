@@ -9,6 +9,7 @@ import ChallengeNotification from "@features/duels/components/ChallengeNotificat
 import ToastContainer from "@shared/components/Toast.component";
 import DemoBanner from "@shared/components/DemoBanner.component";
 import WellbeingNudge from "@features/wellbeing/components/WellbeingNudge.component";
+import MiloBuddy from "@features/milo-buddy/components/MiloBuddy.component";
 import OnboardingTour from "@features/onboarding/components/OnboardingTour.component";
 
 // Pages communes
@@ -68,6 +69,8 @@ const AuthNavigator: React.FC = () => {
 			<ToastContainer />
 			<DemoBanner />
 			<WellbeingNudge />
+			{/* Milo réagit aux réussites de l'élève (en bas à droite) */}
+			<MiloBuddy />
 			<OnboardingTour />
 			{/* Pages chargées à la demande : Three.js et les scènes 3D ne sont
 			    téléchargés que sur les pages qui en ont besoin */}
