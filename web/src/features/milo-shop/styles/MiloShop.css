@@ -693,9 +693,10 @@
 	display: grid;
 	place-items: center;
 	padding: 16px;
-	background: rgba(42, 24, 16, 0.45);
-	-webkit-backdrop-filter: blur(8px);
-	backdrop-filter: blur(8px);
+	/* Voile léger, comme sur la page Amis : la boutique reste visible derrière */
+	background: rgba(42, 24, 16, 0.22);
+	-webkit-backdrop-filter: blur(1.5px);
+	backdrop-filter: blur(1.5px);
 }
 
 .ms-modal {
@@ -875,3 +876,186 @@
 		transition: none !important;
 	}
 }
+
+/* ============================================================
+   CABINE D'ESSAYAGE (fenêtre d'achat d'un vêtement ou d'une danse)
+   Le Milo de l'élève, en entier, sur la vitrine aux couleurs de la
+   rareté. Grand écran : la cabine à gauche, la fiche à droite.
+   ============================================================ */
+.ms-modal__info { display: grid; gap: 0.8rem; }
+
+.ms-modal--tryon {
+	width: min(880px, 100%);
+	grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+	align-items: center;
+	gap: 24px;
+	padding: 18px 24px 18px 18px;
+}
+.ms-modal--tryon .ms-modal__info { align-content: center; }
+
+.ms-tryon { display: grid; justify-items: center; gap: 12px; min-width: 0; }
+.ms-tryon__cabin {
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+	height: min(460px, calc(100vh - 140px));
+	overflow: hidden;
+	border: 3px solid var(--r-line);
+	border-radius: 28px;
+	background:
+		var(--ms-dots) 0 0 / 22px 22px,
+		radial-gradient(circle at 50% 45%, var(--r-bg) 0%, var(--r-bg-2) 95%);
+	cursor: grab;
+	touch-action: pan-y;
+	user-select: none;
+}
+.ms-tryon__cabin:active { cursor: grabbing; }
+/* Ombre au sol, sous les pieds de Milo */
+.ms-tryon__floor {
+	position: absolute;
+	left: 50%;
+	bottom: 5%;
+	width: 46%;
+	height: 7%;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, rgba(60, 25, 5, 0.28) 0%, transparent 70%);
+	transform: translateX(-50%);
+}
+.ms-tryon__placeholder {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	transition: opacity 0.3s ease;
+}
+.ms-tryon.is-ready .ms-tryon__placeholder { opacity: 0; }
+.ms-tryon__milo.duel-milo-3d {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.4s ease-out;
+}
+.ms-tryon__milo.duel-milo-3d.is-ready { opacity: 1; }
+
+/* Gerbe d'étincelles quand l'objet apparaît sur Milo */
+.ms-tryon__burst {
+	position: absolute;
+	left: 50%;
+	z-index: 2;
+	width: 92px;
+	height: 92px;
+	margin: -46px 0 0 -46px;
+	pointer-events: none;
+}
+.ms-tryon__burst img { width: 100%; height: 100%; }
+
+/* L'objet essayé, en vignette dans le coin */
+.ms-tryon__badge {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 66px;
+	height: 66px;
+	border: 3px solid var(--r-line);
+	border-radius: 20px;
+	background: #fff;
+	box-shadow: 0 4px 0 var(--r-edge);
+	font-size: 2rem;
+}
+.ms-tryon__badge img { width: 48px; height: 48px; object-fit: contain; }
+
+.ms-tryon__hint {
+	position: absolute;
+	left: 12px;
+	bottom: 20px;
+	z-index: 2;
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: rgba(42, 24, 16, 0.55);
+	color: #fff;
+	font-size: 0.875rem;
+	font-weight: 700;
+	white-space: nowrap;
+	pointer-events: none;
+	animation: ms-tryon-nudge 2.2s ease-in-out infinite;
+}
+@keyframes ms-tryon-nudge {
+	0%, 100% { translate: 0 0; }
+	50% { translate: 0 -4px; }
+}
+.ms-tryon__turn { position: absolute; right: 12px; bottom: 12px; z-index: 2; display: flex; gap: 6px; }
+.ms-tryon__turn button {
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 2px solid var(--ms-line);
+	border-radius: 50%;
+	background: #fff;
+	color: var(--milo-encre);
+	cursor: pointer;
+	box-shadow: 0 3px 0 var(--ms-sable);
+	transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ms-tryon__turn button:hover { transform: rotate(-20deg) scale(1.08); }
+.ms-tryon__turn button:last-child:hover { transform: rotate(20deg) scale(1.08); }
+
+/* « Sans / Avec » : un rail crème, le choix en aplat d'action */
+.ms-tryon__switch {
+	display: inline-flex;
+	gap: 4px;
+	padding: 4px;
+	border-radius: 999px;
+	background: var(--ms-creme);
+	box-shadow: inset 0 0 0 2px var(--ms-line);
+}
+.ms-tryon__switch button {
+	position: relative;
+	min-width: 96px;
+	min-height: 42px;
+	padding: 0 18px;
+	border: 0;
+	border-radius: 999px;
+	background: none;
+	color: var(--text-2);
+	font: 700 1rem/1 var(--f-text);
+	cursor: pointer;
+}
+.ms-tryon__switch button > span:last-child { position: relative; z-index: 1; }
+.ms-tryon__switch button.is-on { color: #fff; }
+.ms-tryon__switch-bg {
+	position: absolute;
+	inset: 0;
+	border-radius: 999px;
+	background: var(--milo-action);
+	box-shadow: 0 4px 0 var(--milo-action-edge);
+}
+
+@media (max-width: 760px) {
+	.ms-modal--tryon { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 14px; }
+	.ms-tryon__cabin { height: min(310px, 42vh); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.ms-tryon__hint { animation: none; }
+}
+
+/* Carte d'un objet à acheter : toute la case ouvre la cabine d'essayage et
+   l'achat. Au survol, elle s'allume (bordure orange) et se soulève ; le
+   « bouton » du bas n'est plus qu'une indication.
+   (`translate` : l'animation d'arrivée des cartes écrit `transform`) */
+.ms-card.is-buyable { cursor: pointer; transition: translate 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.2s ease; }
+.ms-card.is-buyable:hover,
+.ms-card.is-buyable:focus-visible {
+	translate: 0 -6px;
+	border-color: var(--milo-orange);
+	box-shadow: 0 0 0 3px rgba(243, 107, 22, 0.22), 0 10px 0 var(--milo-orange), 0 30px 44px -26px rgba(185, 51, 15, 0.5);
+}
+.ms-card.is-buyable:focus-visible { outline: none; }
+.ms-card.is-buyable:active { translate: 0 2px; }
+.ms-card.is-buyable:hover .ms-btn--primary { box-shadow: 0 6px 0 var(--edge); translate: 0 -2px; }
+.ms-card__cta { width: 100%; pointer-events: none; }

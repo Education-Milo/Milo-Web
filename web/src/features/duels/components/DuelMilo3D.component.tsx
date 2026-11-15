@@ -49,7 +49,7 @@ interface DuelMilo3DProps {
 	/// Vrai tant qu'une réaction ou une danse est en cours : bloque les émotes
 	onBusyChange?: (busy: boolean) => void;
 	/// Orientation : Milo tourné vers la carte de question
-	facing?: "right" | "left";
+	facing?: "right" | "left" | "front";
 	className?: string;
 	/// Milo est chargé et cadré : ses animations peuvent être jouées
 	onReady?: () => void;
@@ -68,8 +68,19 @@ export function MiloModel({
 	onBusyChange,
 	facing,
 	onReady,
-}: Omit<DuelMilo3DProps, "className" | "onReady" | "mountDelayMs" | "maxDpr"> & { onReady: () => void }) {
+	focusY = FOCUS_Y,
+	spinRef,
+}: Omit<DuelMilo3DProps, "className" | "onReady" | "mountDelayMs" | "maxDpr"> & {
+	onReady: () => void;
+	/// Hauteur visée par la caméra (par défaut : le haut du corps ; plus bas
+	/// pour voir Milo en entier, comme dans la cabine d'essayage)
+	focusY?: number;
+	/// Rotation ajoutée (radians), lue à chaque image : on fait tourner Milo
+	/// à la souris sans rendre la scène à nouveau
+	spinRef?: { current: number };
+}) {
 	const group = useRef<THREE.Group>(null);
+	const baseRotationY = facing === "left" ? -0.35 : facing === "front" ? 0 : 0.35;
 	/// Deux Milo sont à l'écran : chacun travaille sur sa propre copie, sinon
 	/// les deux modèles partageraient os et visibilité des accessoires.
 	const { scene, animations } = useMiloInstance();
@@ -253,7 +264,13 @@ export function MiloModel({
 		};
 	}, [scene, invalidate, onReady, gl, camera, root]);
 
-	useFrame(() => {
+	useFrame((_, delta) => {
+		/// Rotation à la souris, amortie
+		const g = group.current;
+		if (g && spinRef) {
+			const goal = baseRotationY + spinRef.current;
+			g.rotation.y = THREE.MathUtils.damp(g.rotation.y, goal, 10, Math.min(delta, 0.1));
+		}
 		/// Garde-fou : plus aucune animation active veut dire Milo figé sur sa
 		/// dernière frame — et, s'il restait une réaction en cours, plus aucune
 		/// émote acceptée. On repart de l'attente.
@@ -268,10 +285,8 @@ export function MiloModel({
 		invalidate();
 	});
 
-	const rotationY = facing === "left" ? -0.35 : 0.35;
-
 	return (
-		<group ref={group} position={[0, -FOCUS_Y, 0]} rotation={[0, rotationY, 0]}>
+		<group ref={group} position={[0, -focusY, 0]} rotation={[0, baseRotationY, 0]}>
 			<primitive object={scene} />
 		</group>
 	);

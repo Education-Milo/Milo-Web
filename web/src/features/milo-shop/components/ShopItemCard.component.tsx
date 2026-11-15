@@ -43,7 +43,22 @@ const ShopItemCard: React.FC<ShopItemCardProps> = ({
 			layout
 			variants={cardVariants}
 			exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
-			className={`ms-card ms-r-${raritySlug(item.rarity)}${item.owned ? " is-owned" : ""}`}
+			className={`ms-card ms-r-${raritySlug(item.rarity)}${item.owned ? " is-owned" : " is-buyable"}`}
+			/// Objet à acheter : toute la case ouvre la fenêtre d'achat (et la cabine d'essayage)
+			{...(item.owned
+				? {}
+				: {
+						role: "button",
+						tabIndex: 0,
+						"aria-label": `${item.name}, ${formatMiloros(item.price)} miloros : l'essayer et l'acheter`,
+						onClick: () => onBuy(item),
+						onKeyDown: (event: React.KeyboardEvent) => {
+							if (event.key === "Enter" || event.key === " ") {
+								event.preventDefault();
+								onBuy(item);
+							}
+						},
+					})}
 			onMouseEnter={danceClip ? () => onPreviewStart(item.id) : undefined}
 			onMouseLeave={danceClip ? () => onPreviewStop(item.id) : undefined}
 		>
@@ -79,12 +94,8 @@ const ShopItemCard: React.FC<ShopItemCardProps> = ({
 							<img src="/landing/emoji/coin.webp" alt="" className="ms-coin" draggable={false} />
 							{formatMiloros(item.price)}
 						</span>
-						<button
-							type="button"
-							className={`ms-btn ms-btn--sm ${canAfford ? "ms-btn--primary" : "ms-btn--muted"}`}
-							onClick={() => onBuy(item)}
-							aria-label={`Acheter ${item.name} pour ${formatMiloros(item.price)} miloros`}
-						>
+						{/* (indication seulement : c'est la case entière qu'on clique) */}
+						<span className={`ms-btn ms-btn--sm ms-card__cta ${canAfford ? "ms-btn--primary" : "ms-btn--muted"}`} aria-hidden="true">
 							{canAfford ? (
 								"Acheter"
 							) : (
@@ -93,7 +104,7 @@ const ShopItemCard: React.FC<ShopItemCardProps> = ({
 									Il manque {formatMiloros(missing)}
 								</>
 							)}
-						</button>
+						</span>
 					</>
 				)}
 			</div>
