@@ -40,7 +40,7 @@ export type MiloAction =
 	| "openHelp"   // Indice sur la question ouverte
 	| "notes";     // Réviser les notes du post-it
 
-export type MiloAnimation = "Idle" | "Thinking" | "Explaining" | "Wrong" | "Disapointed";
+export type MiloAnimation = "Idle" | "Thinking" | "Explaining" | "Disapointed";
 
 export interface ThreadMessage {
 	id: string;

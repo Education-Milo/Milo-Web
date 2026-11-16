@@ -14,7 +14,7 @@ export const MILO_QCM_CLIPS: Record<MiloQcmState, readonly string[]> = {
 	/// Bonne réponse : jouée une fois, puis retour à l'attente
 	correct: ["Success"],
 	/// Mauvaise réponse : jouée une fois, puis retour à l'attente
-	wrong: ["Disapointed", "Wrong"],
+	wrong: ["Disapointed"],
 };
 
 export const MILO_QCM_CROSSFADE = 0.3;

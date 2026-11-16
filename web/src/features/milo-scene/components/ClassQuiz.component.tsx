@@ -114,7 +114,7 @@ const ClassQuiz: React.FC<ClassQuizProps> = ({ lessonId, lessonTitle, onClose, o
 			onReact("Explaining", 1800);
 		} else {
 			setStreak(0);
-			onReact("Wrong", 2400);
+			onReact("Disapointed", 3200);
 		}
 		requestAnimationFrame(() => nextBtnRef.current?.focus());
 	};
