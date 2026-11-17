@@ -61,6 +61,18 @@ interface Rig {
 
 let rigPromise: Promise<Rig> | null = null;
 
+/// En développement : un rechargement à chaud libère le rendu hors écran
+/// (sinon chaque rechargement laissait un contexte WebGL ouvert de plus)
+if (import.meta.hot) {
+	import.meta.hot.dispose(() => {
+		void rigPromise?.then((rig) => {
+			rig.renderer.dispose();
+			rig.renderer.forceContextLoss();
+		});
+		rigPromise = null;
+	});
+}
+
 function buildRig(): Promise<Rig> {
 	return new Promise<Rig>((resolve, reject) => {
 		/// Le .glb est compressé (meshopt, cf. tools/optimize-milo-glb) : useGLTF

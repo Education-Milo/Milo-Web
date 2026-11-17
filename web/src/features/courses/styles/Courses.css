@@ -94,6 +94,75 @@
 	filter: drop-shadow(0 18px 18px rgba(120, 50, 10, 0.22));
 }
 
+/* Milo qui lit, en 3D, comme sur la page Profil : posé sur la carte devant
+   un grand soleil feu, il en sort par le bas (la case descend jusqu'au bord
+   de la carte, qui le coupe) ; deux icônes 3D flottent autour de lui */
+.co-hero__art.is-3d {
+	align-self: stretch;
+	width: clamp(250px, 26vw, 340px);
+	min-height: 280px;
+	margin-bottom: calc(-1 * clamp(22px, 2.6vw, 34px));
+}
+.co-hero__sun {
+	position: absolute;
+	left: 50%;
+	bottom: -18%;
+	width: min(330px, 100%);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: var(--co-feu);
+	transform: translateX(-50%);
+	box-shadow: inset 0 -18px 36px rgba(150, 30, 10, 0.28);
+}
+.co-hero__sun::after {
+	content: "";
+	position: absolute;
+	inset: 9%;
+	border-radius: 50%;
+	border: 2px dashed rgba(246, 235, 223, 0.5);
+	animation: co-spin 40s linear infinite;
+}
+/* Même taille de Milo que sur le profil (.pf-hero-milo : 290 px pour un cadre
+   de 1,85) ; la toile monte de 28 px de plus pour la place d'un chapeau */
+.co-hero__reader {
+	position: absolute;
+	left: 50%;
+	bottom: 0;
+	width: min(300px, 100%);
+	height: 318px;
+	transform: translateX(-50%);
+}
+.co-hero__e {
+	position: absolute;
+	z-index: 1;
+	width: 54px;
+	filter: drop-shadow(0 10px 12px rgba(120, 50, 10, 0.22));
+	animation: co-float 5s ease-in-out infinite;
+}
+.co-hero__e--1 { top: 2%; left: 0; }
+.co-hero__e--2 { top: 12%; right: 0; width: 46px; animation-delay: -2s; }
+@keyframes co-float {
+	0%, 100% { transform: translateY(0) rotate(-4deg); }
+	50% { transform: translateY(-10px) rotate(4deg); }
+}
+@keyframes co-spin { to { transform: rotate(360deg); } }
+.co-reader {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transform: translateY(18px) scale(0.96);
+	transform-origin: 50% 100%;
+	transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.co-reader.is-ready { opacity: 1; transform: none; }
+/* Écran moyen : un cadre plus étroit, le choix de la classe garde sa place */
+@media (max-width: 1180px) and (min-width: 861px) {
+	.co-hero__art.is-3d { width: 220px; }
+	/* (le groupe garde son nom pour les lecteurs d'écran : aria-label) */
+	.co-levels { padding-left: 8px; }
+	.co-levels__label { display: none; }
+}
+
 /* Étiquette au-dessus du titre (matière en cours) */
 .co-eyebrow {
 	display: inline-flex;
@@ -475,6 +544,8 @@
 	.co-hero { grid-template-columns: minmax(0, 1fr); }
 	.co-hero__art { justify-self: center; }
 	.co-hero__milo { height: min(170px, 44vw); }
+	.co-hero__art.is-3d { width: min(300px, 100%); min-height: 230px; }
+	.co-hero__reader { height: 276px; }
 }
 @media (max-width: 680px) {
 	.co-course { grid-template-columns: auto minmax(0, 1fr); gap: 16px; }
@@ -492,6 +563,7 @@
 	.co-crumb { max-width: 160px; }
 }
 @media (prefers-reduced-motion: reduce) {
+	.co-hero__e, .co-hero__sun::after { animation: none; }
 	.co-card, .co-card *, .co-level, .co-back, .co-back svg { transition: none; }
 	.co-skeleton { animation: none; }
 }

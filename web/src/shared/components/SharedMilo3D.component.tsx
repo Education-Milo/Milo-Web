@@ -45,6 +45,20 @@ interface Shared {
 
 const scenes = new Map<SharedMiloChannel, Shared>();
 
+/// En développement, chaque rechargement à chaud de ce fichier recréait les
+/// scènes sans détruire les anciennes : leurs contextes WebGL s'accumulaient
+/// jusqu'à la limite du navigateur, qui en retirait alors un à une scène
+/// affichée (Milo disparaissait). On détruit donc les anciennes.
+if (import.meta.hot) {
+	import.meta.hot.dispose(() => {
+		scenes.forEach((s) => {
+			s.wrapper.remove();
+			s.root.unmount();
+		});
+		scenes.clear();
+	});
+}
+
 const getShared = (channel: SharedMiloChannel): Shared => {
 	const existing = scenes.get(channel);
 	if (existing) return existing;
@@ -184,9 +198,13 @@ const SharedMilo3D: React.FC<SharedMilo3DProps> = ({
 			s.onBusy = (busy) => latest.current.onBusyChange?.(busy);
 			host.appendChild(s.wrapper);
 			const measure = () => {
-				const rect = host.getBoundingClientRect();
-				if (rect.width < 1 || rect.height < 1) return;
-				s.size = { width: rect.width, height: rect.height, top: rect.top, left: rect.left };
+				/// Taille de mise en page (offset*), pas getBoundingClientRect : les
+				/// cartes apparaissent en s'agrandissant, et mesurée pendant cette
+				/// animation la toile restait trop petite (Milo rapetissé, décollé)
+				const width = host.offsetWidth;
+				const height = host.offsetHeight;
+				if (width < 1 || height < 1) return;
+				s.size = { width, height, top: 0, left: 0 };
 				void renderShared(channel, latest.current);
 			};
 			resize = new ResizeObserver(measure);

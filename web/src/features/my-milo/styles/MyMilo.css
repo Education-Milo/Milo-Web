@@ -1458,3 +1458,57 @@ h1.mm-title {
 }
 .mm-interests__hint { margin: 0; color: var(--text-2); font-size: 1.0625rem; max-width: 40em; }
 @media (max-width: 600px) { .mm-interests { border-radius: 28px; } }
+
+/* ------------------------------------------------------------------
+   Milo qu'on tient pour le faire tourner (zone posée sur lui, sous les
+   cases de la tenue). Lâché, il revient de face.
+   ------------------------------------------------------------------ */
+.mm-stage__grab {
+	position: absolute;
+	left: calc(50% + var(--milo-axis));
+	top: 14%;
+	height: 78%;
+	aspect-ratio: 0.6;
+	translate: -50% 0;
+	z-index: 3;
+	border-radius: 40%;
+	pointer-events: auto;
+	cursor: grab;
+	touch-action: pan-y;
+	user-select: none;
+	-webkit-user-select: none;
+}
+.mm-stage__grab.is-grabbing { cursor: grabbing; }
+
+/* En attendant Milo (chargement du modèle) : pastille de la charte, comme
+   « Milo arrive… » sur l'accueil */
+.mm-stage__wait {
+	position: absolute;
+	left: calc(50% + var(--milo-axis));
+	top: 50%;
+	translate: -50% -50%;
+	z-index: 3;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 18px 10px 12px;
+	border: 2px solid var(--mm-line);
+	border-radius: 999px;
+	background: #fff;
+	color: var(--milo-encre);
+	font-weight: 600;
+	white-space: nowrap;
+	box-shadow: 0 5px 0 var(--mm-sable);
+}
+.mm-stage__wait i {
+	width: 20px;
+	height: 20px;
+	border: 3px solid var(--mm-creme);
+	border-top-color: var(--milo-orange);
+	border-radius: 50%;
+	animation: mm-wait-spin 0.9s linear infinite;
+}
+@keyframes mm-wait-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+	.mm-stage__wait i { animation: none; }
+}

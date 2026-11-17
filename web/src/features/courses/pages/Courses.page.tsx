@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Lock } from "lucide-react";
 import ScreenLayout from "@shared/components/ScreenLayout.component";
@@ -6,10 +6,14 @@ import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import { useCoursesScreen } from "@features/courses/hooks/useCoursesPage";
 import { getSubjectArt, levelLabel, subjectDisplayTitles } from "@features/courses/utils/subjectArt";
 import type { ClassType } from "@shared/store/user/user.model";
+import { isWebGLAvailable } from "@shared/utils/webgl";
 import "@features/courses/styles/Courses.css";
 
 /// Page Cours : les matières de la classe de l'élève. Même charte que
 /// Missions, Duels et Personnalisation (voir Courses.css).
+
+/// Milo qui lit, en 3D : Three.js n'est téléchargé que pour lui, après la page
+const MiloReading3D = lazy(() => import("@features/courses/components/miloReading/MiloReading3D.component"));
 
 const LEVELS: { value: ClassType; label: string }[] = [
 	{ value: "6eme", label: "6ème" },
@@ -33,6 +37,9 @@ const CoursesScreen: React.FC = () => {
 	const open = subjects.filter((subject) => !getSubjectArt(subject.title).locked).length;
 	const soon = subjects.length - open;
 	const titles = subjectDisplayTitles(subjects);
+	/// Milo qui lit en 3D ; l'image fixe reste là sans WebGL ou si l'élève a
+	/// demandé moins d'animations
+	const reading3D = !reduceMotion && isWebGLAvailable();
 
 	return (
 		<ScreenLayout>
@@ -88,16 +95,33 @@ const CoursesScreen: React.FC = () => {
 							</div>
 						</div>
 
-						<div className="co-hero__art" aria-hidden="true">
-							<motion.img
-								src="/lesson/milo-cours.webp"
-								alt=""
-								className="co-hero__milo"
-								draggable={false}
-								initial={reduceMotion ? false : { x: 50, opacity: 0, rotate: 4 }}
-								animate={{ x: 0, opacity: 1, rotate: 0 }}
-								transition={{ type: "spring", stiffness: 110, damping: 14, delay: 0.25 }}
-							/>
+						<div className={`co-hero__art${reading3D ? " is-3d" : ""}`} aria-hidden="true">
+							{reading3D ? (
+								/* (la case garde sa taille pendant le chargement : rien ne saute) */
+								/* Comme sur la page Profil : Milo posé sur la carte, devant un
+								   grand soleil feu, il sort de la carte par le bas ; deux icônes 3D
+								   flottent autour de lui */
+								<>
+									<span className="co-hero__sun" aria-hidden="true" />
+									<Emoji3D name="books" className="co-hero__e co-hero__e--1" />
+									<Emoji3D name="light_bulb" className="co-hero__e co-hero__e--2" />
+									<div className="co-hero__reader">
+										<Suspense fallback={<div className="co-reader" />}>
+											<MiloReading3D />
+										</Suspense>
+									</div>
+								</>
+							) : (
+								<motion.img
+									src="/lesson/milo-cours.webp"
+									alt=""
+									className="co-hero__milo"
+									draggable={false}
+									initial={reduceMotion ? false : { x: 50, opacity: 0, rotate: 4 }}
+									animate={{ x: 0, opacity: 1, rotate: 0 }}
+									transition={{ type: "spring", stiffness: 110, damping: 14, delay: 0.25 }}
+								/>
+							)}
 						</div>
 					</motion.section>
 

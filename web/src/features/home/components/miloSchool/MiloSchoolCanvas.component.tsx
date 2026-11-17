@@ -35,6 +35,17 @@ interface Persistent {
 
 let persistent: Persistent | null = null;
 
+/// En développement : un rechargement à chaud de ce fichier détruit l'ancienne
+/// scène (sinon son contexte WebGL restait ouvert, et ils s'accumulaient
+/// jusqu'à ce que le navigateur en retire un à une scène affichée)
+if (import.meta.hot) {
+	import.meta.hot.dispose(() => {
+		persistent?.wrapper.remove();
+		persistent?.root.unmount();
+		persistent = null;
+	});
+}
+
 function getPersistent(): Persistent {
 	if (persistent) return persistent;
 	const wrapper = document.createElement("div");

@@ -1,39 +1,10 @@
 import { useEffect, useMemo, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { POOF_TIMING, smootherstep } from "@features/my-milo/utils/miloPoof";
+import { POOF_TIMING, makeCloudTexture, smootherstep } from "@features/my-milo/utils/miloPoof";
 
 /// « Tout enlever » : Milo fait une pirouette sautée, un nuage de fumée
 /// l'enveloppe et ses accessoires disparaissent sous le nuage.
-
-/// Bouffée de fumée dessinée une fois : quelques disques flous superposés,
-/// pour un contour de nuage plutôt qu'un rond parfait
-function makeCloudTexture() {
-	const size = 128;
-	const canvas = document.createElement("canvas");
-	canvas.width = canvas.height = size;
-	const ctx = canvas.getContext("2d");
-	if (ctx) {
-		const blobs: [number, number, number][] = [
-			[0.5, 0.55, 0.36],
-			[0.34, 0.5, 0.24],
-			[0.66, 0.48, 0.25],
-			[0.47, 0.36, 0.25],
-			[0.58, 0.66, 0.22],
-		];
-		for (const [x, y, r] of blobs) {
-			const g = ctx.createRadialGradient(x * size, y * size, 0, x * size, y * size, r * size);
-			g.addColorStop(0, "rgba(255,255,255,0.95)");
-			g.addColorStop(0.6, "rgba(255,255,255,0.75)");
-			g.addColorStop(1, "rgba(255,255,255,0)");
-			ctx.fillStyle = g;
-			ctx.fillRect(0, 0, size, size);
-		}
-	}
-	const texture = new THREE.CanvasTexture(canvas);
-	texture.colorSpace = THREE.SRGBColorSpace;
-	return texture;
-}
 
 const PUFF_COUNT = 22;
 /// Crème de la charte, légèrement chaud sur les bords des bouffées

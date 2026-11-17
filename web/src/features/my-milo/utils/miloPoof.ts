@@ -1,3 +1,5 @@
+import * as THREE from "three";
+
 /// « Tout enlever » : calendrier et pose de la pirouette (cf. MiloPoof.component)
 
 /// Calendrier (en secondes depuis le clic)
@@ -31,4 +33,33 @@ export function pirouetteAt(t: number) {
 		scaleY: squash,
 		scaleXZ: 1 / Math.sqrt(squash),
 	};
+}
+
+/// Bouffée de fumée dessinée une fois : quelques disques flous superposés,
+/// pour un contour de nuage plutôt qu'un rond parfait
+export function makeCloudTexture() {
+	const size = 128;
+	const canvas = document.createElement("canvas");
+	canvas.width = canvas.height = size;
+	const ctx = canvas.getContext("2d");
+	if (ctx) {
+		const blobs: [number, number, number][] = [
+			[0.5, 0.55, 0.36],
+			[0.34, 0.5, 0.24],
+			[0.66, 0.48, 0.25],
+			[0.47, 0.36, 0.25],
+			[0.58, 0.66, 0.22],
+		];
+		for (const [x, y, r] of blobs) {
+			const g = ctx.createRadialGradient(x * size, y * size, 0, x * size, y * size, r * size);
+			g.addColorStop(0, "rgba(255,255,255,0.95)");
+			g.addColorStop(0.6, "rgba(255,255,255,0.75)");
+			g.addColorStop(1, "rgba(255,255,255,0)");
+			ctx.fillStyle = g;
+			ctx.fillRect(0, 0, size, size);
+		}
+	}
+	const texture = new THREE.CanvasTexture(canvas);
+	texture.colorSpace = THREE.SRGBColorSpace;
+	return texture;
 }

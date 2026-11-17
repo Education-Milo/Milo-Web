@@ -26,6 +26,7 @@ import {
 	useUnequipCosmetics,
 } from "@features/cosmetics/store/cosmetics.queries";
 import { useEquippedMeshNames } from "@features/cosmetics/hooks/useEquippedMeshNames";
+import { OutfitFx3D, type OutfitFx } from "@features/my-milo/components/OutfitFx.component";
 import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	alternateIdlesOnLoop,
@@ -125,15 +126,34 @@ interface MiloModel3DProps {
 	poof: number;
 	/// Retrait en cours côté serveur : les accessoires restent cachés
 	stripping: boolean;
+	/// Étincelles (objet équipé) ou bouffée de fumée (objet retiré), à l'endroit de l'objet
+	fx: OutfitFx | null;
+	/// Milo qu'on fait tourner en le tenant (lu à chaque image)
+	drag: { held: boolean; angle: number };
+	/// Milo est chargé et affiché
+	onReady?: () => void;
 }
 
-const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
+/// Milo qu'on tient et qu'on fait tourner : il suit le doigt, puis revient de
+/// face en se balançant un peu quand on le lâche (ressort amorti)
+const DRAG_FOLLOW = 22;
+const SPRING = { stiffness: 70, damping: 7 };
+/// Lâché, Milo se rattrape avec son « Arrival », en accéléré : comme s'il
+/// atterrissait après qu'on l'a lâché d'un coup
+const RELEASE_CLIP = "Arrival";
+const RELEASE_SPEED = 1.9;
+
+const MiloModel3D = ({ reaction, poof, stripping, fx, drag, onReady }: MiloModel3DProps) => {
 	/// Copie dédiée : la rotation et la position posées ici resteraient sinon
 	/// sur la scène du .glb, partagée avec tous les autres écrans
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
 	const groupRef = useRef<THREE.Group>(null);
 	const spinRef = useRef<THREE.Group>(null);
+	const dragRef = useRef<THREE.Group>(null);
+	const dragVelocity = useRef(0);
+	const wasHeld = useRef(false);
+	const announced = useRef(false);
 
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
@@ -165,7 +185,13 @@ const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
 		applyEquippedAccessories(scene, equippedMeshNames);
 		applyAngelCircleGlow(scene);
 		scene.visible = true;
-	}, [scene, equippedMeshNames, accessoryMeshNames]);
+		if (!announced.current) {
+			announced.current = true;
+			/// (optionnel au cas où : en rechargement à chaud, la scène recevait
+			/// parfois le nouveau code avec les anciennes props, et plantait)
+			onReady?.();
+		}
+	}, [scene, equippedMeshNames, accessoryMeshNames, onReady]);
 
 	/// Action qui joue en ce moment : tout fondu part d'elle. Sans ce suivi,
 	/// équiper un chapeau pendant l'arrivée faisait partir HatLook d'un Idle
@@ -177,12 +203,12 @@ const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
 		[actions],
 	);
 
-	const fadeTo = useCallback((next: THREE.AnimationAction | null, once: boolean) => {
+	const fadeTo = useCallback((next: THREE.AnimationAction | null, once: boolean, speed = 1) => {
 		if (!next) return;
 		const prev = currentRef.current;
 		if (prev === next && !once) return;
 		next.reset();
-		next.setEffectiveTimeScale(1);
+		next.setEffectiveTimeScale(speed);
 		next.setEffectiveWeight(1);
 		next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity);
 		next.clampWhenFinished = once;
@@ -226,9 +252,35 @@ const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
 
 	useFrame((state, delta) => {
 		if (groupRef.current) {
-			groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, 1, delta * 4);
+			/// Entrée par la gauche. `damp` (et un pas de temps borné) plutôt que
+			/// lerp(x, 1, delta * 4) : au-delà de delta = 0,5 s (onglet en
+			/// arrière-plan, image figée pendant un chargement), ce lerp dépassait
+			/// sa cible de plus en plus à chaque image et Milo partait à des
+			/// centaines d'unités hors de la loge : il ne réapparaissait jamais.
+			groupRef.current.position.x = THREE.MathUtils.damp(groupRef.current.position.x, 1, 4, Math.min(delta, 0.1));
 		}
 		updateAngelCircleGlow(scene, state.clock.elapsedTime);
+
+		/// On le tient : il suit le doigt. Lâché : il revient de face (ressort)
+		const turn = dragRef.current;
+		/// On vient de le lâcher : il se réceptionne (Arrival en accéléré),
+		/// sauf pendant la pirouette de « Tout enlever »
+		if (wasHeld.current && !drag.held && poofStart.current === null) {
+			fadeTo(findAction(actions, RELEASE_CLIP), true, RELEASE_SPEED);
+		}
+		wasHeld.current = drag.held;
+		if (turn) {
+			const dt = Math.min(delta, 0.05);
+			if (drag.held) {
+				turn.rotation.y = THREE.MathUtils.damp(turn.rotation.y, drag.angle, DRAG_FOLLOW, dt);
+				dragVelocity.current = 0;
+			} else if (Math.abs(turn.rotation.y) > 0.0005 || Math.abs(dragVelocity.current) > 0.0005) {
+				dragVelocity.current += (-SPRING.stiffness * turn.rotation.y - SPRING.damping * dragVelocity.current) * dt;
+				turn.rotation.y += dragVelocity.current * dt;
+			} else {
+				turn.rotation.y = 0;
+			}
+		}
 
 		const now = state.clock.elapsedTime;
 		if (poofPending.current) {
@@ -263,11 +315,14 @@ const MiloModel3D = ({ reaction, poof, stripping }: MiloModel3DProps) => {
 
 	return (
 		<group ref={groupRef} position={[-20, -4, -7]}>
-			<group ref={spinRef} position={[0, 0, -1]}>
-				<primitive object={scene} scale={1} rotation={[0, -0.05, 0]} />
-			</group>
-			<group position={[0, 0, -1]}>
-				<PoofSmoke start={poofStart} height={MILO_HEIGHT} />
+			<group ref={dragRef}>
+				<group ref={spinRef} position={[0, 0, -1]}>
+					<primitive object={scene} scale={1} rotation={[0, -0.05, 0]} />
+				</group>
+				<group position={[0, 0, -1]}>
+					<PoofSmoke start={poofStart} height={MILO_HEIGHT} />
+					<OutfitFx3D fx={fx} height={MILO_HEIGHT} />
+				</group>
 			</group>
 		</group>
 	);
@@ -280,6 +335,23 @@ const MyMiloPage: React.FC = () => {
 	/// « Tout enlever » : déclencheur de la pirouette, et retrait en cours
 	const [poof, setPoof] = useState(0);
 	const [stripping, setStripping] = useState(false);
+	/// Étincelles ou fumée à l'endroit de l'objet qu'on équipe ou retire
+	const [fx, setFx] = useState<OutfitFx | null>(null);
+	const fxNonce = useRef(0);
+	const playFx = useCallback((kind: OutfitFx["kind"], type: CosmeticType) => {
+		fxNonce.current += 1;
+		setFx({ kind, type, nonce: fxNonce.current });
+	}, []);
+	/// Milo qu'on fait tourner en le tenant (lu par la scène à chaque image)
+	const drag = useRef({ held: false, angle: 0 });
+	const dragX = useRef<{ x: number; id: number } | null>(null);
+	const [grabbing, setGrabbing] = useState(false);
+	/// Milo affiché (« Milo arrive… » d'ici là) ; la scène est recréée si le
+	/// navigateur lui retire son contexte WebGL (sinon Milo restait invisible)
+	const [modelReady, setModelReady] = useState(false);
+	const handleModelReady = useCallback(() => setModelReady(true), []);
+	const [canvasKey, setCanvasKey] = useState(0);
+	const liveCanvas = useRef<HTMLCanvasElement | null>(null);
 	const [picker, setPicker] = useState<PickerTarget | null>(null);
 	// Force le recalcul de la roue quand les emplacements mémorisés changent
 	const [slotVersion, setSlotVersion] = useState(0);
@@ -338,6 +410,7 @@ const MyMiloPage: React.FC = () => {
 		if (isBusy) return;
 		const clip = EQUIP_REACTIONS[item.type];
 		if (clip) setReaction((prev) => ({ clip, nonce: (prev?.nonce ?? 0) + 1 }));
+		if (!calm) playFx("equip", item.type);
 		equipMutation.mutate(
 			{ cosmeticId: item.id, equipped: true },
 			{ onSuccess: () => setPicker(null), onError: notifyError },
@@ -346,6 +419,7 @@ const MyMiloPage: React.FC = () => {
 
 	const unequipType = (type: CosmeticType) => {
 		if (isBusy) return;
+		if (!calm && equippedByType.has(type)) playFx("unequip", type);
 		unequipMutation.mutate(type, {
 			onSuccess: () => setPicker(null),
 			onError: notifyError,
@@ -560,6 +634,42 @@ const MyMiloPage: React.FC = () => {
 									<div className="mm-stage__podium" />
 									<div className="mm-stage__shadow" />
 									<img className="mm-stage__float mm-stage__float--1" src="/landing/emoji/sparkles.webp" alt="" />
+									{!modelReady && (
+										<span className="mm-stage__wait">
+											<i />
+											Milo arrive…
+										</span>
+									)}
+									{/* On tient Milo pour le faire tourner ; lâché, il revient de face */}
+									<div
+										className={`mm-stage__grab${grabbing ? " is-grabbing" : ""}`}
+										onPointerDown={(event) => {
+											dragX.current = { x: event.clientX, id: event.pointerId };
+											drag.current.held = true;
+											drag.current.angle = 0;
+											setGrabbing(true);
+											try {
+												event.currentTarget.setPointerCapture(event.pointerId);
+											} catch {
+												/// (pointeur déjà relâché : on le suit sans capture)
+											}
+										}}
+										onPointerMove={(event) => {
+											if (!dragX.current || dragX.current.id !== event.pointerId) return;
+											drag.current.angle += (event.clientX - dragX.current.x) * 0.012;
+											dragX.current.x = event.clientX;
+										}}
+										onPointerUp={() => {
+											dragX.current = null;
+											drag.current.held = false;
+											setGrabbing(false);
+										}}
+										onPointerCancel={() => {
+											dragX.current = null;
+											drag.current.held = false;
+											setGrabbing(false);
+										}}
+									/>
 								</div>
 
 								<div className="mm-stage__canvas" aria-hidden="true">
@@ -567,11 +677,40 @@ const MyMiloPage: React.FC = () => {
 									    boîte, sans les transformations des parents. Sinon, mesuré
 									    pendant une animation d'entrée, il restait trop petit (et Milo
 									    décalé de son socle) jusqu'au premier scroll. */}
-									<Canvas aria-hidden="true" camera={{ position: [0, 0, 5], fov: 45 }} resize={{ offsetSize: true }}>
+									<Canvas
+										key={canvasKey}
+										aria-hidden="true"
+										camera={{ position: [0, 0, 5], fov: 45 }}
+										resize={{ offsetSize: true }}
+										/// La toile laisse passer les clics : R3F l'y autorise d'office
+										/// (pointer-events: auto), ce qui cachait la zone où l'on tient
+										/// Milo pour le faire tourner. Rien n'est cliquable dans la scène.
+										style={{ pointerEvents: "none" }}
+										onCreated={({ gl }) => {
+											const canvas = gl.domElement;
+											liveCanvas.current = canvas;
+											/// Contexte retiré par le navigateur (trop de scènes 3D, GPU
+											/// réinitialisé…) : on recrée la scène. Les pertes des toiles
+											/// déjà remplacées ou démontées sont ignorées.
+											canvas.addEventListener("webglcontextlost", () => {
+												if (liveCanvas.current !== canvas || !canvas.isConnected) return;
+												liveCanvas.current = null;
+												setModelReady(false);
+												setCanvasKey((k) => k + 1);
+											});
+										}}
+									>
 										<Environment preset="sunset" environmentIntensity={1.2} />
 										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#fff1e0" castShadow />
 										<ambientLight intensity={0.2} />
-										<MiloModel3D reaction={reaction} poof={poof} stripping={stripping} />
+										<MiloModel3D
+											reaction={reaction}
+											poof={poof}
+											stripping={stripping}
+											fx={fx}
+											drag={drag.current}
+											onReady={handleModelReady}
+										/>
 									</Canvas>
 								</div>
 

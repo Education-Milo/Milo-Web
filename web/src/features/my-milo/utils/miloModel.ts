@@ -2,15 +2,25 @@ import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// EquipGlasses, EquipTop, Explaining, HatLook, Hello, Idle, Idle2, Idle3,
-/// Point, Success, Thinking, Walk.
+/// Point, Read, Success, Thinking, Walk.
 /// (Walk : un cycle de marche en boucle ; Point : Milo montre la porte de la
-/// classe du doigt, à sa gauche. Tous deux joués par l'accueil.)
+/// classe du doigt, à sa gauche. Tous deux joués par l'accueil.
+/// Read : Milo fait apparaître un livre bleu au logo de Milo, le lit, tourne
+/// deux pages puis le fait disparaître — en-tête de la page Cours, cf.
+/// BOOK_MESH_NAME.)
 ///
-/// Fichier compressé (meshopt + WebP, 12,2 Mo → 2,1 Mo) et allégé (squelette
+/// Fichier compressé (meshopt + WebP, 12,6 Mo → 2,2 Mo) et allégé (squelette
 /// réduit aux os utiles) : après chaque export depuis Blender, le repasser
 /// dans tools/optimize-milo-glb. Un GLTFLoader créé à la main doit recevoir le
 /// décodeur meshopt (cf. miloAvatar.ts).
-export const MILO_MODEL_PATH = "/MiloV21.glb";
+export const MILO_MODEL_PATH = "/MiloV22.glb";
+
+/// Clip de lecture, et le livre qu'il anime. Le livre n'a de sens que pendant
+/// ce clip : comme tout maillage hors du corps, il est traité en accessoire,
+/// donc masqué partout tant qu'on ne l'affiche pas explicitement (seul
+/// MiloReading3D le fait, le temps de la lecture).
+export const READ_CLIP = "Read";
+export const BOOK_MESH_NAME = "livre";
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
 /// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
