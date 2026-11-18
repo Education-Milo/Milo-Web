@@ -15,6 +15,7 @@ const SalesPage = lazy(() => import("@features/legal/pages/Sales.page"));
 const AiCharterPage = lazy(() => import("@features/legal/pages/AiCharter.page"));
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from "@shared/lib/queryClient";
+import { Analytics } from '@vercel/analytics/react';
 
 const App: React.FC = () => {
 	const { isAuthenticated, isLoading } = useAuth();
@@ -42,6 +43,7 @@ const App: React.FC = () => {
 					<Route path="*" element={isAuthenticated ? <AuthNavigator /> : <PublicNavigator />} />
 				</Routes>
 				</Suspense>
+				<Analytics />
 			</QueryClientProvider>
 		</Router>
 	);
