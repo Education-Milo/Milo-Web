@@ -1,30 +1,75 @@
 {
+	"cleanUrls": true,
+	"trailingSlash": false,
 	"rewrites": [
 		{
 			"source": "/(.*)",
-			"destination": "/index.html"
+			"destination": "/app.html"
 		}
 	],
 	"headers": [
 		{
 			"source": "/assets/(.*)",
-			"headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=31536000, immutable"
+				}
+			]
+		},
+		{
+			"source": "/(sitemap.xml|robots.txt|llms.txt|llms-full.txt)",
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=3600, must-revalidate"
+				}
+			]
+		},
+		{
+			"source": "/llms(.*).txt",
+			"headers": [
+				{
+					"key": "Content-Type",
+					"value": "text/plain; charset=utf-8"
+				}
+			]
 		},
 		{
 			"source": "/(.*)\\.(glb|webp|png|jpg|jpeg|svg|webm|mp4|woff2)",
-			"headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=2592000" }]
+			"headers": [
+				{
+					"key": "Cache-Control",
+					"value": "public, max-age=604800, stale-while-revalidate=2592000"
+				}
+			]
 		},
 		{
 			"source": "/(.*)",
 			"headers": [
-				{ "key": "X-Content-Type-Options", "value": "nosniff" },
-				{ "key": "X-Frame-Options", "value": "DENY" },
-				{ "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-				{ "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" },
-				{ "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+				{
+					"key": "X-Content-Type-Options",
+					"value": "nosniff"
+				},
+				{
+					"key": "X-Frame-Options",
+					"value": "DENY"
+				},
+				{
+					"key": "Referrer-Policy",
+					"value": "strict-origin-when-cross-origin"
+				},
+				{
+					"key": "Permissions-Policy",
+					"value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+				},
+				{
+					"key": "Cross-Origin-Opener-Policy",
+					"value": "same-origin"
+				},
 				{
 					"key": "Content-Security-Policy-Report-Only",
-					"value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://api.milo-education.fr https://www.transparenttextures.com; media-src 'self' blob: data:; connect-src 'self' https://api.milo-education.fr wss://api.milo-education.fr https://api.web3forms.com https://formspree.io https://raw.githack.com blob: data:; worker-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://api.web3forms.com; frame-ancestors 'none'"
+					"value": "default-src 'self'; script-src 'self' https://cloud.umami.is https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https://api.milo-education.fr https://www.transparenttextures.com; media-src 'self' blob: data:; connect-src 'self' https://cloud.umami.is https://api-gateway.umami.dev https://vitals.vercel-insights.com https://api.milo-education.fr wss://api.milo-education.fr https://api.web3forms.com https://formspree.io https://raw.githack.com blob: data:; worker-src 'self' blob:; frame-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://api.web3forms.com; frame-ancestors 'none'"
 				}
 			]
 		}

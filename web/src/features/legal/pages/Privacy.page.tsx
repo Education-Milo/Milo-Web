@@ -209,7 +209,13 @@ const SECTIONS: LegalSection[] = [
 						chargement des pages ;
 					</li>
 					<li>
-						<strong>Formulaire de contact</strong> : Web3Forms, qui nous transmet ton message par email.
+						<strong>Formulaire de contact</strong> : Web3Forms, qui nous transmet ton message par email ;
+					</li>
+					<li>
+						<strong>Mesure d'audience</strong> : Vercel Web Analytics et Umami, sans cookie ni identifiant, qui
+						reçoivent des statistiques anonymes de visite (pages vues, site d'origine, type d'appareil) et
+						quelques actions comme une inscription réussie, jamais ton nom ni ton email (voir la{" "}
+						<Link to="/cookies#mesure">politique cookies</Link>).
 					</li>
 				</ul>
 				<p>

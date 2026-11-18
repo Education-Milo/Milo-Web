@@ -43,6 +43,13 @@ const STORAGE_ROWS: { name: string; kind: string; purpose: string; duration: str
 		duration: "Jusqu'à l'envoi du retour",
 	},
 	{
+		name: "milo_attribution",
+		kind: "Stockage de session (onglet)",
+		purpose:
+			"Retenir d'où vient la visite (site d'origine ou campagne) pour mesurer quelles sources amènent des inscriptions, sans identifier personne",
+		duration: "Jusqu'à la fermeture de l'onglet",
+	},
+	{
 		name: "milo_demo_session",
 		kind: "Stockage de session (onglet)",
 		purpose: "Mode démonstration réservé à l'équipe Milo",
@@ -93,7 +100,9 @@ const SECTIONS: LegalSection[] = [
 					</table>
 				</div>
 				<p>
-					Tous sont <strong>strictement nécessaires</strong> au service : la loi les dispense de consentement,
+					Tous sont <strong>strictement nécessaires</strong> au service, à l'exception de{" "}
+					<code>milo_attribution</code>, limité à une mesure d'audience anonyme, effacé à la fermeture de
+					l'onglet et jamais partagé : la loi (lignes directrices de la CNIL) les dispense de consentement,
 					c'est pourquoi Milo n'affiche pas de bandeau cookies.
 				</p>
 			</>
@@ -105,9 +114,32 @@ const SECTIONS: LegalSection[] = [
 		content: (
 			<ul>
 				<li>Aucun cookie publicitaire.</li>
-				<li>Aucun outil de mesure d'audience tiers : les statistiques d'usage restent sur nos serveurs.</li>
+				<li>
+					Aucun traceur de mesure d'audience : nos statistiques de visite (voir ci-dessous) fonctionnent sans
+					cookie ni identifiant enregistré sur ton appareil.
+				</li>
 				<li>Aucun bouton de réseau social qui te suivrait d'un site à l'autre.</li>
 			</ul>
+		),
+	},
+	{
+		id: "mesure",
+		title: "Mesure d'audience sans cookie",
+		content: (
+			<>
+				<p>
+					Pour savoir combien de personnes visitent Milo, quelles pages sont utiles et si nos explications
+					donnent envie de s'inscrire, nous utilisons <strong>Vercel Web Analytics</strong> et{" "}
+					<strong>Umami</strong>. Ces outils ne déposent <strong>aucun cookie</strong>, n'enregistrent rien sur
+					ton appareil et ne te suivent pas d'un site à l'autre : ils ne produisent que des statistiques
+					globales et anonymes (nombre de visites, pages vues, site d'origine, type d'appareil, pays).
+				</p>
+				<p>
+					Ils comptent aussi quelques actions, toujours sans savoir qui tu es : clic sur « Créer un compte »,
+					inscription réussie, message de contact envoyé. Aucun nom, email ni contenu de message n'est transmis.
+					L'espace élève n'envoie que le nom des écrans visités, sans aucun identifiant.
+				</p>
+			</>
 		),
 	},
 	{
@@ -149,7 +181,7 @@ const CookiesPage: React.FC = () => (
 		lead="Ce que Milo garde dans ton navigateur, et pourquoi il n'y a pas de bandeau cookies."
 		summary={[
 			"Milo n'utilise que des cookies indispensables : connexion et sécurité.",
-			"Aucun cookie publicitaire, aucun traceur de mesure d'audience.",
+			"Aucun cookie publicitaire ; des statistiques de visite anonymes, sans cookie.",
 			"Te déconnecter efface ta session ; ton navigateur peut tout supprimer.",
 		]}
 		sections={SECTIONS}

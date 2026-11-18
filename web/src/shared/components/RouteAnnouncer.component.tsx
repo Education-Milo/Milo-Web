@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { findSeoRoute } from "@shared/seo/seo.config";
 
 const SITE = "Milo";
 
@@ -47,6 +48,9 @@ const SELF_TITLED = /^\/(mentions|confidentialite|cookies|cgu|cgv|charte)$/;
 
 const titleFor = (pathname: string): string | null => {
 	if (SELF_TITLED.test(pathname)) return null;
+	// Pages publiques : titre optimisé pour les moteurs (seo.config)
+	const seo = findSeoRoute(pathname);
+	if (seo) return seo.title;
 	const entry = TITLES.find(([match]) =>
 		typeof match === "string" ? match === pathname : match.test(pathname),
 	);
@@ -86,14 +90,7 @@ const RouteAnnouncer: React.FC = () => {
 		const title = titleFor(pathname);
 		if (title) document.title = title;
 
-		// URL canonique de la page courante (sans paramètres de requête)
-		let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-		if (!canonical) {
-			canonical = document.createElement("link");
-			canonical.rel = "canonical";
-			document.head.appendChild(canonical);
-		}
-		canonical.href = `https://milo-education.fr${pathname === "/" ? "/" : pathname}`;
+		// Canonique, description, Open Graph : voir SeoHead
 
 		// Au premier chargement le lecteur d'écran lit déjà la page
 		const previous = lastPath.current;

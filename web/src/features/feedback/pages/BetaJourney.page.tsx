@@ -8,6 +8,7 @@ import { scrollToSection } from "@features/landing/lib/smoothScroll";
 import { BETA_FEATURES } from "@features/feedback/data/betaJourney.data";
 import { useBetaDraft } from "@features/feedback/hooks/useBetaDraft";
 import { submitBetaFeedback } from "@features/feedback/api/formspree.api";
+import { trackEvent } from "@shared/lib/analytics";
 import ProfileStep from "@features/feedback/components/ProfileStep.component";
 import { validateProfile } from "@features/feedback/utils/validateProfile";
 import FeatureStep from "@features/feedback/components/FeatureStep.component";
@@ -86,6 +87,7 @@ const BetaJourneyPage: React.FC = () => {
 		setErrorMessage(null);
 		try {
 			await submitBetaFeedback(draft);
+			trackEvent("beta_feedback_submitted", { role: draft.profile.role, rating: draft.general.rating });
 			setStatus("success");
 		} catch (err) {
 			setStatus("error");

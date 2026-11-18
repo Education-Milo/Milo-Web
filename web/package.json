@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seo:indexnow": "node tools/seo/indexnow.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -19,6 +20,8 @@
     "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.100.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

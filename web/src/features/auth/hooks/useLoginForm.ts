@@ -1,3 +1,4 @@
+import { trackEvent } from "@shared/lib/analytics";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@shared/store/auth/auth.store";
@@ -116,6 +117,7 @@ export const useLoginForm = () => {
 
 	/** Compte ouvert : profil déjà ouvert d'office, ou écran « Qui est-ce ? » */
 	function continueAfterAccountLogin(result: AccountLoginResult) {
+		trackEvent("login", { two_factor: Boolean(twoFactor) });
 		if (result.status === "select_profile") {
 			navigate(ROUTES.PROFILE_SELECT, { replace: true });
 			return;
