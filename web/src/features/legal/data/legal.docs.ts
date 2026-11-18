@@ -60,8 +60,8 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		description: "Les données que nous utilisons, et pourquoi.",
 		icon: "locked",
 		milo: "/landing/milo/milo-confidentialite.webp",
-		updatedAt: "8 octobre 2026",
-		version: "1.0",
+		updatedAt: "17 novembre 2026",
+		version: "1.1",
 	},
 	{
 		slug: "cookies",
@@ -71,8 +71,8 @@ export const LEGAL_DOCS: LegalDoc[] = [
 		description: "Ce que Milo garde dans ton navigateur.",
 		icon: "coin",
 		milo: "/landing/milo/milo-cookies.webp",
-		updatedAt: "8 octobre 2026",
-		version: "1.0",
+		updatedAt: "17 novembre 2026",
+		version: "1.1",
 	},
 	{
 		slug: "charte",

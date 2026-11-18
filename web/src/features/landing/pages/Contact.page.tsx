@@ -8,6 +8,7 @@ import { CONTACT_EMAIL, CONTACT_SUBJECTS } from "@features/landing/data/landing.
 import { gsap, prefersReducedMotion, useGSAP } from "@features/landing/lib/gsap";
 import { revealTitle } from "@features/landing/lib/animations";
 import "@features/landing/styles/Contact.css";
+import { trackEvent } from "@shared/lib/analytics";
 
 const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
 
@@ -64,6 +65,7 @@ const ContactPage: React.FC = () => {
 
 			if (result.success) {
 				setStatus("success");
+				trackEvent("contact_submitted", { subject: formData.subject });
 				setFormData(EMPTY_FORM);
 			} else {
 				setStatus("error");

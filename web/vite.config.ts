@@ -1,13 +1,21 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
+import { seoPlugin } from "./tools/seo/prerender";
 
 /// API relayée par le serveur de dev. Surchargeable pour taper sur un back
 /// local : VITE_DEV_API_TARGET=http://localhost:8000
 const API_TARGET = process.env.VITE_DEV_API_TARGET ?? "https://api.milo-education.fr";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+const env = loadEnv(mode, process.cwd(), "VITE_");
+return {
 	plugins: [
+		// Pages statiques, sitemap, llms.txt, vérification Search Console / Bing
+		seoPlugin({
+			googleVerification: env.VITE_GOOGLE_SITE_VERIFICATION,
+			bingVerification: env.VITE_BING_SITE_VERIFICATION,
+		}),
 		// Plugins Vite
 		react({
 			babel: {
@@ -59,4 +67,5 @@ export default defineConfig({
 			},
 		},
 	},
+};
 });

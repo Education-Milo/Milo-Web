@@ -1,8 +1,15 @@
 # Milo — https://milo-education.fr
-# Les pages publiques sont indexables ; l'espace élève, parent et
-# administrateur est privé (contenu personnel de mineurs).
+# Les pages publiques (vitrine, FAQ, contact, pages légales) sont ouvertes à
+# tous les moteurs de recherche ET aux assistants IA, pour que Milo puisse
+# être trouvé, cité et recommandé. L'espace élève, parent et administrateur
+# est privé (contenu personnel de mineurs) : jamais exploré.
+# Résumé du site pour les IA : https://milo-education.fr/llms.txt
+
 User-agent: *
 Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /app.html
 Disallow: /home
 Disallow: /milo
 Disallow: /courses
@@ -17,12 +24,62 @@ Disallow: /duels
 Disallow: /boutique
 Disallow: /personnalisation
 Disallow: /mon-milo
+Disallow: /bienvenue
 Disallow: /friends
 Disallow: /profile
 Disallow: /profiles
 Disallow: /parent/
+Disallow: /prof/
 Disallow: /admin
 Disallow: /unauthorized
+Disallow: /forgot-password
+Disallow: /feedback/
+
+# Assistants IA et moteurs de réponse : explicitement bienvenus sur les pages
+# publiques (mêmes règles que ci-dessus)
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: anthropic-ai
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: Bingbot
+User-agent: MistralAI-User
+User-agent: DuckAssistBot
+User-agent: Meta-ExternalAgent
+User-agent: cohere-ai
+User-agent: YouBot
+Allow: /
+Disallow: /app.html
+Disallow: /home
+Disallow: /milo
+Disallow: /courses
+Disallow: /course-milo
+Disallow: /qcm
+Disallow: /exercise-result
+Disallow: /exercice-genere
+Disallow: /ocr
+Disallow: /missions
+Disallow: /stats
+Disallow: /duels
+Disallow: /boutique
+Disallow: /personnalisation
+Disallow: /mon-milo
+Disallow: /bienvenue
+Disallow: /friends
+Disallow: /profile
+Disallow: /profiles
+Disallow: /parent/
+Disallow: /prof/
+Disallow: /admin
+Disallow: /unauthorized
+Disallow: /forgot-password
 Disallow: /feedback/
 
 Sitemap: https://milo-education.fr/sitemap.xml

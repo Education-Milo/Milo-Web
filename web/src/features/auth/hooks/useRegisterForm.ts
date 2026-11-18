@@ -8,6 +8,7 @@ import type {
 import type { ClassType } from "@shared/store/user/user.model";
 import { ROUTES } from "@shared/constants/routes";
 import { getRoleBySlug } from "@features/auth/constants/roles.constants";
+import { trackEvent } from "@shared/lib/analytics";
 import { useOnboardingStore } from "@features/onboarding/store/onboarding.store";
 
 const CLASS_VALUES: readonly ClassType[] = ["6eme", "5eme", "4eme", "3eme"];
@@ -120,6 +121,8 @@ export const useRegisterForm = () => {
 
 		if (Object.keys(newErrors).length === 0) {
 			setIsLoading(true);
+			const role = roleDef?.slug ?? "inconnu";
+			trackEvent("signup_submitted", { role });
 			try {
 				const common = {
 					first_name: formData.first_name.trim(),
@@ -134,16 +137,19 @@ export const useRegisterForm = () => {
 						class_: formData.classe as ClassType,
 					});
 					// Nouvel élève : Milo l'accueille en classe (onboarding)
+					trackEvent("signup_completed", { role, classe: formData.classe });
 					useOnboardingStore.getState().markPending();
 					navigate(ROUTES.ONBOARDING, { replace: true });
 				} else {
 					await registerParent(common);
+					trackEvent("signup_completed", { role });
 					navigate(ROUTES.PARENT.DASHBOARD, { replace: true });
 				}
 			} catch (error: any) {
 				console.error("❌ Erreur d'inscription:", error);
 				const status = error?.response?.status;
 				const detail = error?.response?.data?.detail;
+				trackEvent("signup_failed", { role, status: status ?? "network" });
 
 				if (status === 422 && Array.isArray(detail)) {
 					// detail est une liste d'erreurs de validation, pas une chaîne

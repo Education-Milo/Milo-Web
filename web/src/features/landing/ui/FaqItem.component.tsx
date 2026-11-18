@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import Emoji3D from "@features/landing/ui/Emoji3D.component";
 import type { Emoji3DName } from "@features/landing/data/landing.data";
 import "@features/landing/ui/FaqItem.css";
+import { trackEvent } from "@shared/lib/analytics";
 
 interface FaqItemProps {
 	question: string;
@@ -20,7 +21,10 @@ const FaqItem: React.FC<FaqItemProps> = ({ question, answer, icon, className = "
 	return (
 		<div className={`lp-faq-item${isOpen ? " is-open" : ""} ${className}`.trim()} style={style}>
 			<h3>
-				<button type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => setIsOpen((open) => !open)}>
+				<button type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => {
+						if (!isOpen) trackEvent("faq_open", { question: question.slice(0, 80) });
+						setIsOpen((open) => !open);
+					}}>
 					<span className="lp-faq-item__icon" aria-hidden="true">
 						<Emoji3D name={icon} />
 					</span>

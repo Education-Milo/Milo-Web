@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { AuthHeader } from "@features/auth/components/AuthHeader.component";
 import { StepProgress } from "@features/auth/components/StepProgress.component";
 import { RoleCard } from "@features/auth/components/RoleCard.component";
+import { trackEvent } from "@shared/lib/analytics";
 import { ROLES } from "@features/auth/constants/roles.constants";
 import "@features/auth/styles/AuthShared.css";
 import "@features/auth/styles/RoleSelect.css";
@@ -45,7 +46,10 @@ const RoleSelectPage: React.FC = () => {
 						>
 							<RoleCard
 								role={role}
-								onSelect={() => navigate(`/register/${role.slug}`)}
+								onSelect={() => {
+									trackEvent("signup_role_selected", { role: role.slug });
+									navigate(`/register/${role.slug}`);
+								}}
 							/>
 						</motion.div>
 					))}

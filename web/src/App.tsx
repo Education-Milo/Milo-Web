@@ -6,6 +6,8 @@ import PublicNavigator from "@navigation/PublicNavigator";
 import LoadingScreen from "@shared/components/LoadingScreen.component";
 import ScrollToTop from "@shared/components/ScrollToTop.component";
 import RouteAnnouncer from "@shared/components/RouteAnnouncer.component";
+import SeoHead from "@shared/components/SeoHead.component";
+import AnalyticsTracker from "@shared/components/AnalyticsTracker.component";
 const BetaJourneyPage = lazy(() => import("@features/feedback/pages/BetaJourney.page"));
 const MentionsPage = lazy(() => import("@features/legal/pages/Mentions.page"));
 const PrivacyPage = lazy(() => import("@features/legal/pages/Privacy.page"));
@@ -28,6 +30,8 @@ const App: React.FC = () => {
 			<QueryClientProvider client={queryClient}>
 				<ScrollToTop />
 				<RouteAnnouncer />
+				<SeoHead />
+				<AnalyticsTracker />
 				<Suspense fallback={<LoadingScreen label="Chargement…" />}>
 				<Routes>
 					{/* Retours bêta : ouverts à tous, connecté ou non */}
