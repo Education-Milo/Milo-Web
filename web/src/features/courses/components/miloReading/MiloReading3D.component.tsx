@@ -7,6 +7,7 @@ import { useMiloInstance } from "@features/my-milo/hooks/useMiloInstance";
 import {
 	BOOK_MESH_NAME,
 	READ_CLIP,
+	READ_LOOP_CLIP,
 	applyEquippedAccessories,
 	cameraDistanceFor,
 	findAction,
@@ -15,12 +16,14 @@ import {
 	prepareMiloScene,
 } from "@features/my-milo/utils/miloModel";
 
-/// Milo qui lit, dans l'en-tête de la page Cours : un livre apparaît entre
-/// ses pattes, il le lit, tourne deux pages, le referme et le fait disparaître.
-/// Entre deux lectures, il patiente sur son idle.
+/// Milo qui lit, dans l'en-tête de la page Cours : peu après l'arrivée sur la
+/// page, un livre apparaît entre ses pattes et s'ouvre (clip "Read"), puis il
+/// le feuillette sans fin, comme s'il cherchait le cours de l'élève (clip
+/// "ReadLoop", qui commence exactement là où "Read" s'arrête). Il ne le
+/// referme jamais.
 ///
 /// Le livre est un accessoire du modèle (maillage `livre`) : masqué partout
-/// ailleurs, il n'est affiché ici que pendant le clip "Read".
+/// ailleurs, il n'est affiché ici qu'une fois apparu.
 
 /// --- Cadrage --------------------------------------------------------------
 /// Le même que le Milo de la page Profil (MiloWelcome3D) et des cartes d'amis :
@@ -47,20 +50,16 @@ const ELEVATION = 0;
 /// --- Animations -----------------------------------------------------------
 const IDLE_CLIP = "Idle";
 const CROSSFADE = 0.35;
-/// Première lecture peu après l'apparition, puis une pause entre deux lectures
+/// "Read" finit dans la pose où "ReadLoop" commence : un fondu très court suffit
+const LOOP_CROSSFADE = 0.1;
+/// Le livre apparaît peu après l'arrivée de Milo
 const FIRST_READ_DELAY = 0.8;
-const PAUSE_MIN = 5;
-const PAUSE_MAX = 9;
-/// Le livre a une échelle nulle au début et à la fin du clip (images 0-12 et
-/// 214-240 sur 240). On ne l'affiche qu'entre les deux : pendant les fondus,
-/// three mélange son échelle avec celle du repos (1) et le ferait surgir en
-/// grand.
+/// Le livre a une échelle nulle au début de "Read" (images 0-12). On ne
+/// l'affiche qu'ensuite : pendant le fondu depuis l'idle, three mélange son
+/// échelle avec celle du repos (1) et le ferait surgir en grand.
 const BOOK_IN = 11 / 24;
-const BOOK_OUT = 215 / 24;
 /// Au retour d'un onglet en arrière-plan, pas de bond dans l'animation
 const MAX_DELTA = 0.1;
-
-const randomPause = () => PAUSE_MIN + Math.random() * (PAUSE_MAX - PAUSE_MIN);
 
 function ReadingMilo({ onReady }: { onReady: () => void }) {
 	const { scene, animations } = useMiloInstance();
@@ -75,10 +74,11 @@ function ReadingMilo({ onReady }: { onReady: () => void }) {
 	}, [animations, mixer]);
 	const idle = findAction(actions, IDLE_CLIP);
 	const read = findAction(actions, READ_CLIP);
+	const readLoop = findAction(actions, READ_LOOP_CLIP);
 	const book = useMemo(() => scene.getObjectByName(BOOK_MESH_NAME) ?? null, [scene]);
 
 	const currentRef = useRef<THREE.AnimationAction | null>(null);
-	/// Temps restant (s) avant la prochaine lecture
+	/// Temps restant (s) avant l'apparition du livre (une seule fois)
 	const countdown = useRef(FIRST_READ_DELAY);
 
 	/// Dès la phase de rendu : pas d'image en T-pose avec tous les accessoires
@@ -96,7 +96,7 @@ function ReadingMilo({ onReady }: { onReady: () => void }) {
 		applyEquippedAccessories(scene, equippedMeshNames);
 	}, [scene, equippedMeshNames]);
 
-	const fadeTo = useCallback((next: THREE.AnimationAction | null, once: boolean) => {
+	const fadeTo = useCallback((next: THREE.AnimationAction | null, once: boolean, fade = CROSSFADE) => {
 		if (!next) return;
 		const prev = currentRef.current;
 		next.reset();
@@ -106,7 +106,7 @@ function ReadingMilo({ onReady }: { onReady: () => void }) {
 		next.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity);
 		next.clampWhenFinished = once;
 		next.play();
-		if (prev && prev !== next) next.crossFadeFrom(prev, CROSSFADE, false);
+		if (prev && prev !== next) next.crossFadeFrom(prev, fade, false);
 		currentRef.current = next;
 	}, []);
 
@@ -119,28 +119,30 @@ function ReadingMilo({ onReady }: { onReady: () => void }) {
 		};
 	}, [idle, mixer, fadeTo]);
 
-	/// Fin de la lecture : retour à l'attente, puis nouvelle lecture plus tard
+	/// Livre ouvert : Milo le feuillette en boucle, pour toujours
 	useEffect(() => {
 		const onFinished = (event: { action: THREE.AnimationAction }) => {
 			if (event.action !== read) return;
-			countdown.current = randomPause();
-			fadeTo(idle, false);
+			fadeTo(readLoop, false, LOOP_CROSSFADE);
 		};
 		mixer.addEventListener("finished", onFinished);
 		return () => mixer.removeEventListener("finished", onFinished);
-	}, [mixer, read, idle, fadeTo]);
+	}, [mixer, read, readLoop, fadeTo]);
 
 	useFrame((_, delta) => {
-		if (read && currentRef.current !== read) {
+		/// Attente, puis apparition du livre (une seule fois)
+		if (read && currentRef.current === idle) {
 			countdown.current -= delta;
 			if (countdown.current <= 0) fadeTo(read, true);
 		}
 		mixer.update(Math.min(delta, MAX_DELTA));
 
 		if (book) {
+			const current = currentRef.current;
 			let showBook = false;
-			if (read && currentRef.current === read && read.isRunning()) {
-				showBook = read.getEffectiveWeight() > 0.98 && read.time > BOOK_IN && read.time < BOOK_OUT;
+			if (current && current === readLoop) showBook = true;
+			else if (read && current === read) {
+				showBook = read.getEffectiveWeight() > 0.98 && read.time > BOOK_IN;
 			}
 			book.visible = showBook;
 		}
