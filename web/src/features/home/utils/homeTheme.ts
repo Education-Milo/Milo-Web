@@ -11,7 +11,7 @@
 /// ?accueil=normal) à l'adresse de la page d'accueil.
 ///
 /// Même principe que la salle de classe (milo-scene/utils/classroomTheme.ts).
-export const HOME_THEME: HomeThemeSetting = "noel";
+export const HOME_THEME: HomeThemeSetting = "auto";
 
 /// ── Ajouter une saison (Halloween, printemps…) ─────────────────────────────
 /// 1. l'ajouter à HomeSeason et à HOME_SEASONS (ce qu'elle change),

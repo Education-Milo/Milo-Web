@@ -9,7 +9,7 @@
 ///
 /// Pour voir un thème sans toucher au code, ajouter ?salle=noel (ou
 /// ?salle=normal) à l'adresse de la page de la salle.
-export const CLASSROOM_THEME: ClassroomThemeSetting = "noel";
+export const CLASSROOM_THEME: ClassroomThemeSetting = "auto";
 
 /// Réglages de la déco de Noël
 export const CHRISTMAS_DECOR = {
