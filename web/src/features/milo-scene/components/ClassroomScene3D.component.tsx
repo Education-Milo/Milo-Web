@@ -15,6 +15,9 @@ import {
 	updateAngelCircleGlow,
 } from "@features/my-milo/utils/miloModel";
 import { CLASSROOM_MODEL } from "@features/milo-scene/utils/classroomAssets";
+import { CHRISTMAS_DECOR, resolveClassroomTheme } from "@features/milo-scene/utils/classroomTheme";
+import ChristmasDecor from "@features/milo-scene/components/ChristmasDecor.component";
+import { useSantaHat } from "@features/milo-scene/hooks/useSantaHat";
 import {
 	MILO_REST_YAW,
 	MILO_SCALE,
@@ -122,6 +125,8 @@ interface MiloModelProps {
 	activeAnimation: string;
 	/** Entrée en classe : Milo arrive par la porte et bondit à sa place */
 	entrance: Entrance;
+	/** Salle décorée pour Noël : Milo met son bonnet */
+	santaHat: boolean;
 }
 
 /// Réactions jouées par l'easter egg (clic sur Milo)
@@ -135,7 +140,7 @@ const MILO_REST_ROTATION: [number, number, number] = [0, MILO_REST_YAW, 0];
 /// sous le cadre, devant l'ardoise)
 const BOARD_DUST = { left: -4.4, right: 3.7, y: 1.95, z: 0.66 };
 
-function MiloModel({ modelPath, activeAnimation, entrance }: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
 	/// Déplace Milo pendant l'entrée ; à sa place, il ne change rien
 	const mover = useRef<THREE.Group>(null);
@@ -297,6 +302,8 @@ function MiloModel({ modelPath, activeAnimation, entrance }: MiloModelProps) {
 		updateAngelCircleGlow(scene, state.clock.elapsedTime);
 	});
 
+	useSantaHat(scene, santaHat);
+
 	return (
 		<group ref={mover} position={MILO_SPOT_ARRAY}>
 			<group position={MILO_UNSPOT_ARRAY}>
@@ -316,6 +323,8 @@ function MiloModel({ modelPath, activeAnimation, entrance }: MiloModelProps) {
 
 /// Luminosité du bake Blender : 1 = la texture telle que bakée
 const BAKE_BRIGHTNESS = 1.1;
+/// Place de classroom2.glb dans la scène (la déco de Noël se pose au même endroit)
+const CLASSROOM_POSITION: [number, number, number] = [-2, -2.5, 6.95];
 
 function Classroom({ modelPath }: { modelPath: string }) {
 	const { scene } = useGLTF(modelPath);
@@ -338,7 +347,7 @@ function Classroom({ modelPath }: { modelPath: string }) {
 			}
 		});
 	}, [scene]);
-	return <primitive object={scene} scale={[1, 1, 1]} position={[-2, -2.5, 6.95]} rotation={[0, 0, 0]} />;
+	return <primitive object={scene} scale={[1, 1, 1]} position={CLASSROOM_POSITION} rotation={[0, 0, 0]} />;
 }
 
 /// ── Ambiance jour / nuit ──
@@ -806,6 +815,13 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	const [mix] = useState<NightMix>(() => ({ value: nightTarget, ready: false }));
 	/// Entrée de Milo par la porte (lue par Milo, la porte et la caméra)
 	const [entrance] = useState<Entrance>(() => createEntrance(reducedMotion));
+	/// Salle décorée pour Noël ou non : cf. classroomTheme.ts (CLASSROOM_THEME).
+	/// La déco se télécharge avec la salle, derrière l'écran de chargement.
+	const [theme] = useState(() => {
+		const resolved = resolveClassroomTheme();
+		if (resolved === "noel") useGLTF.preload(CHRISTMAS_DECOR.model);
+		return resolved;
+	});
 
 	return (
 		<Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 2, 12], fov: CAMERA_FOV }} className="cls-canvas">
@@ -825,11 +841,17 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 				<ClassroomLighting mix={mix} />
 				<Environment preset="park" />
 				<Classroom modelPath={CLASSROOM_MODEL} />
+				{theme === "noel" && <ChristmasDecor mix={mix} position={CLASSROOM_POSITION} animated={!reducedMotion} />}
 				<NightBakeBoundary>
 					<NightBake modelPath={CLASSROOM_MODEL} mix={mix} />
 				</NightBakeBoundary>
 				<ClassroomDoorway entrance={entrance} mix={mix} />
-				<MiloModel modelPath={MILO_MODEL_PATH} activeAnimation={activeAnimation} entrance={entrance} />
+				<MiloModel
+					modelPath={MILO_MODEL_PATH}
+					activeAnimation={activeAnimation}
+					entrance={entrance}
+					santaHat={theme === "noel" && CHRISTMAS_DECOR.santaHat}
+				/>
 				<LandingDust entrance={entrance} line={BOARD_DUST} />
 				<Board visible={boardVisible}>{board}</Board>
 				<DeskItem config={SHEET} isHeld={isEditing} locked={isNotesOpen} onPick={onSheetClick} label="feuille">

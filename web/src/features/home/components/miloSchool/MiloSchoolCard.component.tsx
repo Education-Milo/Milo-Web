@@ -27,6 +27,7 @@ import {
 	type MiloSchoolContext,
 } from "@features/home/utils/miloSchool.talk";
 import MiloSchoolScene3D from "@features/home/components/miloSchool/MiloSchoolScene3D.component";
+import { homeSeasonLook } from "@features/home/utils/homeTheme";
 import "@features/home/styles/MiloSchool.css";
 import { isWebGLAvailable } from "@shared/utils/webgl";
 
@@ -154,7 +155,8 @@ const MiloSchoolCard: React.FC<MiloSchoolCardProps> = ({
 		() => ({ firstName, streak, weakSubject, pendingMissions, unreadNews }),
 		[firstName, streak, weakSubject, pendingMissions, unreadNews],
 	);
-	const lines = useMemo(() => idleLines(talk), [talk]);
+	/// (plus les phrases de la saison : neige, Noël… cf. homeTheme.ts)
+	const lines = useMemo(() => [...idleLines(talk), ...homeSeasonLook().lines], [talk]);
 	/// Au survol de la pancarte ou de la boîte aux lettres, Milo les commente ;
 	/// sinon la bulle suit son fil
 	const hinting = mode === "idle" && (hovered === "missions" || hovered === "mail");

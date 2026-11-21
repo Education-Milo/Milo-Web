@@ -17,6 +17,8 @@ const DUST = 1;
 /// Plus foncés (et quelques-uns plus clairs) que la pelouse : sinon les brins
 /// se confondent avec elle
 const GRASS_COLORS = ["#3F8A2A", "#2F6E22", "#4C9A30", "#58A831", "#9CCB3A", "#C9EC8E"].map((hex) => new THREE.Color(hex));
+/// Sur la pelouse enneigée (thème de Noël) : des éclats de neige à la place des brins d'herbe
+const SNOW_COLORS = ["#FFFFFF", "#F2F6FC", "#E4ECF8", "#D7E2F4"].map((hex) => new THREE.Color(hex));
 const DUST_COLOR = new THREE.Color("#FFF8EA");
 const STONE_DUST_COLOR = new THREE.Color("#F2EADC");
 
@@ -97,8 +99,11 @@ export class MiloFootsteps {
 	private readonly startAlpha = new Float32Array(MAX_PARTICLES);
 	private next = 0;
 	private alive = 0;
+	/** Couleurs de ce qui gicle sous les pas : brins d'herbe, ou neige */
+	private readonly blades: THREE.Color[];
 
-	constructor() {
+	constructor({ snowy = false }: { snowy?: boolean } = {}) {
+		this.blades = snowy ? SNOW_COLORS : GRASS_COLORS;
 		const attribute = (array: Float32Array, itemSize: number) =>
 			new THREE.BufferAttribute(array, itemSize).setUsage(THREE.DynamicDrawUsage);
 		this.geometry.setAttribute("position", attribute(this.position, 3));
@@ -159,7 +164,7 @@ export class MiloFootsteps {
 		up: number,
 		size: number,
 	) {
-		const k = this.spawn(GRASS, at, jitter, GRASS_COLORS[Math.floor(Math.random() * GRASS_COLORS.length)]);
+		const k = this.spawn(GRASS, at, jitter, this.blades[Math.floor(Math.random() * this.blades.length)]);
 		const lateral = random(-side, side);
 		/// Perpendiculaire au sens de la marche, dans le plan du sol
 		this.velocity[k * 3] = backX * back - backZ * lateral;

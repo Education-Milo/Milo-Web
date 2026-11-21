@@ -11,10 +11,20 @@ import {
 import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import { ARRIVAL, Arrive } from "@features/home/components/miloSchool/miloSchool.arrival";
 import {
+	BushSnow,
+	ChristmasLights,
+	RoofSnow,
+	Snowfall,
+	Snowman,
+	TreeSnow,
+} from "@features/home/components/miloSchool/miloSchool.seasons";
+import type { HomeSeasonLook } from "@features/home/utils/homeTheme";
+import {
 	cloudsTexture,
 	countBadgeTexture,
 	glowTexture,
 	grassTexture,
+	snowTexture,
 	letterTexture,
 	lightSpillTexture,
 	mailboxSideTexture,
@@ -200,8 +210,9 @@ const TreeLine: React.FC<{ night: number }> = ({ night }) => {
 	);
 };
 
-const Lawn: React.FC = () => {
-	const t = useOwnedTextures(() => ({ grass: grassTexture() }));
+/** La pelouse ; sous la neige en hiver (même taille de texture : rien de plus à dessiner) */
+const Lawn: React.FC<{ snowy: boolean }> = ({ snowy }) => {
+	const t = useOwnedTextures(() => ({ grass: snowy ? snowTexture() : grassTexture() }));
 	return (
 		<mesh rotation-x={-Math.PI / 2} position={[0.75, 0, 3]} receiveShadow>
 			<planeGeometry args={[64, 26]} />
@@ -308,7 +319,7 @@ function bush(cx: number, cz: number, size: number, seed: number, flowers = 6): 
 	return { leaves, petals };
 }
 
-const Garden: React.FC = () => {
+const Garden: React.FC<{ blossoms: boolean }> = ({ blossoms }) => {
 	const { leaves, petals } = useMemo(() => {
 		const parts = [
 			bush(-2.3, 0.34, 0.48, 3, 5),
@@ -324,7 +335,8 @@ const Garden: React.FC = () => {
 	return (
 		<group>
 			<Blobs blobs={leaves} castShadow roughness={0.9} />
-			<Blobs blobs={petals} detail={1} roughness={0.6} />
+			{/* (pas de fleurs en hiver) */}
+			{blossoms && <Blobs blobs={petals} detail={1} roughness={0.6} />}
 		</group>
 	);
 };
@@ -1404,6 +1416,8 @@ export interface MiloSchoolYardProps {
 	missions: MissionsSummary;
 	/** Actualités pas encore lues */
 	unreadNews: number;
+	/** Saison de l'accueil : neige, guirlande, bonhomme de neige… (cf. homeTheme.ts) */
+	look: HomeSeasonLook;
 }
 
 /// Lanterne à gauche de la porte, juste à côté de Milo : la nuit, c'est elle
@@ -1422,6 +1436,7 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 	reducedMotion,
 	missions,
 	unreadNews,
+	look,
 }) => (
 	<group>
 		{/* À chaque visite, tout entre par la droite (voir miloSchool.arrival) ;
@@ -1432,7 +1447,9 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 		<Arrive bridge={bridge} timing={ARRIVAL.treeLine}>
 			<TreeLine night={night} />
 		</Arrive>
-		<Lawn />
+		<Lawn snowy={look.snowyLawn} />
+		{/* La neige tombe sur place (elle n'arrive pas avec le reste) */}
+		{look.snowflakes > 0 && animate && <Snowfall count={look.snowflakes} night={night} animate={animate} />}
 		<Arrive bridge={bridge} timing={ARRIVAL.path}>
 			<Path />
 		</Arrive>
@@ -1441,13 +1458,18 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 		</Arrive>
 		<Arrive bridge={bridge} timing={ARRIVAL.trees}>
 			<Trees animate={animate} />
+			{look.snowCaps && <TreeSnow />}
 		</Arrive>
 		<Arrive bridge={bridge} timing={ARRIVAL.garden}>
-			<Garden />
+			<Garden blossoms={look.wildlife} />
+			{look.snowCaps && <BushSnow />}
+			{look.snowman && <Snowman />}
 		</Arrive>
 		<Arrive bridge={bridge} timing={ARRIVAL.house}>
 			<Walls />
 			<Roof />
+			{look.snowCaps && <RoofSnow school={SCHOOL} />}
+			{look.lights && <ChristmasLights school={SCHOOL} night={night} animate={animate} />}
 			<Windows night={night} />
 			<Sign />
 			<Lantern x={SCHOOL.door.x + SCHOOL.door.width / 2 + 0.42} night={night} animate={animate} />
@@ -1463,9 +1485,11 @@ const MiloSchoolYard: React.FC<MiloSchoolYardProps> = ({
 		<Arrive bridge={bridge} timing={ARRIVAL.lamp} sway={LAMP_SWAY}>
 			<GardenLamp night={night} animate={animate} />
 		</Arrive>
-		<Arrive bridge={bridge} timing={ARRIVAL.critters}>
-			<Critters night={night} animate={animate} />
-		</Arrive>
+		{look.wildlife && (
+			<Arrive bridge={bridge} timing={ARRIVAL.critters}>
+				<Critters night={night} animate={animate} />
+			</Arrive>
+		)}
 	</group>
 );
 

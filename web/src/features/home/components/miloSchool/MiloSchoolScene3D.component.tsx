@@ -17,6 +17,8 @@ import {
 import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 import { useHoverOutline } from "@features/home/components/miloSchool/miloSchool.outline";
 import MiloSchoolYard, { SCHOOL } from "@features/home/components/miloSchool/MiloSchoolYard.component";
+import { homeSeasonLook, type HomeSeasonLook } from "@features/home/utils/homeTheme";
+import { useSantaHat } from "@features/milo-scene/hooks/useSantaHat";
 import MiloSchoolCanvas from "@features/home/components/miloSchool/MiloSchoolCanvas.component";
 import { ARRIVAL, ArrivalClock, Arrive } from "@features/home/components/miloSchool/miloSchool.arrival";
 import { MiloFootsteps, type FootGround } from "@features/home/components/miloSchool/miloSchool.footsteps";
@@ -417,10 +419,12 @@ interface SchoolMiloProps {
 	reducedMotion: boolean;
 	/** 0 = jour, 1 = nuit (les brins d'herbe et la poussière s'assombrissent) */
 	night: number;
+	/** Saison de l'accueil : bonnet de Noël, neige sous les pas… */
+	look: HomeSeasonLook;
 	onReady?: () => void;
 }
 
-const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, night, onReady }) => {
+const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, night, look, onReady }) => {
 	const root = useRef<THREE.Group>(null);
 	const body = useRef<THREE.Group>(null);
 	const { scene, animations } = useMiloInstance(MILO_MODEL_PATH);
@@ -441,13 +445,15 @@ const SchoolMilo: React.FC<SchoolMiloProps> = ({ bridge, gaze, reducedMotion, ni
 	useLayoutEffect(() => {
 		applyEquippedAccessories(scene, equippedMeshNames);
 	}, [scene, equippedMeshNames]);
+	/// Bonnet de Père Noël l'hiver (comme en classe), sauf s'il porte déjà un chapeau
+	useSantaHat(scene, look.santaHat);
 
 	useMiloGaze(scene, gaze);
 	/// Contour blanc au survol (Milo est cliquable)
 	useHoverOutline(body, () => bridge.hovered === "milo" && state.current.phase === "idle", [scene]);
 
 	/// Herbe et poussière sous ses pas
-	const footsteps = useMemo(() => new MiloFootsteps(), []);
+	const footsteps = useMemo(() => new MiloFootsteps({ snowy: look.snowyLawn }), [look.snowyLawn]);
 	useEffect(() => () => footsteps.dispose(), [footsteps]);
 	const feet = useMemo(() => {
 		/// (le chargeur retire les points des noms : « DEF-foot.L » devient « DEF-footL »)
@@ -825,6 +831,9 @@ const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
 		schoolScene.ready = true;
 		onReady?.();
 	}, [onReady]);
+	/// Saison de l'accueil (neige, guirlande, bonhomme de neige… cf. homeTheme.ts),
+	/// lue une fois : elle ne change pas pendant la visite
+	const look = useMemo(() => homeSeasonLook(), []);
 	return (
 		<MiloSchoolCanvas
 			frameloop={reducedMotion ? "demand" : active ? "always" : "never"}
@@ -845,8 +854,10 @@ const MiloSchoolScene3D: React.FC<MiloSchoolScene3DProps> = ({
 					reducedMotion={reducedMotion}
 					missions={missions}
 					unreadNews={unreadNews}
+					look={look}
 				/>
 				<SchoolMilo
+					look={look}
 					bridge={bridge}
 					gaze={gaze && !reducedMotion}
 					reducedMotion={reducedMotion}

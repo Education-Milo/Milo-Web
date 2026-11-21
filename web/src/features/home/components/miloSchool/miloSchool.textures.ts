@@ -111,6 +111,49 @@ export function grassTexture() {
 	return repeat(texture, 14, 7);
 }
 
+/** Pelouse sous la neige (thème de Noël) : neige légèrement bleutée, ombres
+ *  douces et quelques touffes d'herbe qui dépassent. Même taille et même
+ *  répétition que l'herbe : rien de plus à dessiner. */
+export function snowTexture() {
+	const texture = canvasTexture(256, 256, (ctx) => {
+		ctx.fillStyle = "#F4F7FB";
+		ctx.fillRect(0, 0, 256, 256);
+		const rand = seeded(41);
+		/// Creux et bosses : de larges taches bleutées très pâles
+		for (let i = 0; i < 70; i++) {
+			const x = rand() * 256;
+			const y = rand() * 256;
+			const r = 10 + rand() * 26;
+			const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+			g.addColorStop(0, rand() > 0.5 ? "rgba(196, 212, 235, 0.35)" : "rgba(255, 255, 255, 0.7)");
+			g.addColorStop(1, "rgba(255, 255, 255, 0)");
+			ctx.fillStyle = g;
+			ctx.fillRect(x - r, y - r, r * 2, r * 2);
+		}
+		/// Quelques brins d'herbe qui percent la neige, en petites touffes
+		for (let i = 0; i < 46; i++) {
+			const cx = rand() * 256;
+			const cy = rand() * 256;
+			for (let j = 0; j < 5; j++) {
+				const x = cx + (rand() - 0.5) * 6;
+				const y = cy + (rand() - 0.5) * 3;
+				ctx.strokeStyle = rand() > 0.5 ? "rgba(96, 150, 60, 0.75)" : "rgba(130, 180, 80, 0.7)";
+				ctx.lineWidth = 1.2;
+				ctx.beginPath();
+				ctx.moveTo(x, y);
+				ctx.lineTo(x + (rand() - 0.5) * 3, y - 2 - rand() * 4);
+				ctx.stroke();
+			}
+		}
+		/// Scintillement : de minuscules points blancs
+		for (let i = 0; i < 260; i++) {
+			ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+			ctx.fillRect(rand() * 256, rand() * 256, 1, 1);
+		}
+	});
+	return repeat(texture, 14, 7);
+}
+
 export type SkyKind = "day" | "dusk" | "night";
 
 /** Ciel en dégradé (le soleil et la lune sont des objets à part) */
