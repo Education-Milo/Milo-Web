@@ -52,6 +52,7 @@ import {
 	assignSlot,
 	clearSlot,
 } from "@features/cosmetics/utils/wheelSlots";
+import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 
 /** Ancien stockage local de l'équipement, remplacé par l'API. */
 const LEGACY_INVENTORY_KEY = "milo-inventory-storage";
@@ -148,6 +149,8 @@ const MiloModel3D = ({ reaction, poof, stripping, fx, drag, onReady }: MiloModel
 	/// sur la scène du .glb, partagée avec tous les autres écrans
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
+	/// Il suit le curseur des yeux, sauf quand on le tient pour le faire tourner
+	useMiloGaze(scene, () => !drag.held);
 	const groupRef = useRef<THREE.Group>(null);
 	const spinRef = useRef<THREE.Group>(null);
 	const dragRef = useRef<THREE.Group>(null);
@@ -700,7 +703,9 @@ const MyMiloPage: React.FC = () => {
 											});
 										}}
 									>
-										<Environment preset="sunset" environmentIntensity={1.2} />
+										{/* Reflets de Milo : HDR servi par le site (le preset de drei le téléchargeait
+										    sur githack, et la scène l'attendait ~1,6 s) */}
+										<Environment files="/hdri/venice_sunset_1k.hdr" environmentIntensity={1.2} />
 										<directionalLight position={[5, 5, 5]} intensity={0.8} color="#fff1e0" castShadow />
 										<ambientLight intensity={0.2} />
 										<MiloModel3D

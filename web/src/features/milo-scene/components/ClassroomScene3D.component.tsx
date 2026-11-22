@@ -33,6 +33,7 @@ import {
 	EntranceDirector,
 	LandingDust,
 } from "@features/milo-scene/components/ClassroomEntrance.component";
+import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 
 /// Décor 3D de la salle : la classe, Milo, le tableau et la feuille. Le texte
 /// du tableau et de la feuille est du HTML projeté sur leur surface 3D (drei
@@ -148,6 +149,8 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 	/// les autres écrans, on ne doit pas y laisser la pose posée ici.
 	const { scene, animations } = useMiloInstance(modelPath);
 	const { actions, mixer } = useAnimations(animations, group);
+	/// Une fois à sa place, il suit le curseur des yeux (pas pendant l'entrée)
+	useMiloGaze(scene, () => entrance.phase === "done");
 	/// Action réellement jouée : ce n'est plus forcément `activeAnimation`
 	/// quand Milo alterne entre ses attentes (Idle, Idle2…)
 	const currentAction = useRef<THREE.AnimationAction | null>(null);
@@ -839,7 +842,9 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 					/>
 				)}
 				<ClassroomLighting mix={mix} />
-				<Environment preset="park" />
+				{/* Reflets de Milo : HDR servi par le site (le preset de drei le téléchargeait
+				    sur githack, et la scène l'attendait ~1,6 s) */}
+				<Environment files="/hdri/rooitou_park_1k.hdr" />
 				<Classroom modelPath={CLASSROOM_MODEL} />
 				{theme === "noel" && <ChristmasDecor mix={mix} position={CLASSROOM_POSITION} animated={!reducedMotion} />}
 				<NightBakeBoundary>
