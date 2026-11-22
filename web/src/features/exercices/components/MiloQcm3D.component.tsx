@@ -29,6 +29,7 @@ import {
 	MILO_QCM_CROSSFADE,
 	type MiloQcmState,
 } from "@features/exercices/data/miloQcm.animations";
+import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 
 /// Hauteur du corps entier de Milo en unités monde, une fois mis à l'échelle
 const FIT_HEIGHT = 2.1;
@@ -59,6 +60,8 @@ function MiloModel({
 	const group = useRef<THREE.Group>(null);
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, group);
+	/// Il suit le curseur des yeux : il « lit » les réponses avec l'élève
+	useMiloGaze(scene, true);
 	const { invalidate } = useThree();
 
 	/// Action en cours, et action "one-shot" en cours s'il y en a une

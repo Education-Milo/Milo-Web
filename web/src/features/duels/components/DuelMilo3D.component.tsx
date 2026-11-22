@@ -25,6 +25,7 @@ import {
 	MILO_QCM_CROSSFADE,
 	type MiloQcmState,
 } from "@features/exercices/data/miloQcm.animations";
+import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
 
 /// Même cadrage que le Milo du QCM : haut du corps, focale longue
 const FIT_HEIGHT = DUEL_MILO_FIT_HEIGHT;
@@ -85,6 +86,8 @@ export function MiloModel({
 	/// les deux modèles partageraient os et visibilité des accessoires.
 	const { scene, animations } = useMiloInstance();
 	const { actions, mixer } = useAnimations(animations, scene);
+	/// Il suit le curseur des yeux (carte d'ami, bulle, cabine d'essayage, duel)
+	useMiloGaze(scene, true);
 	const { invalidate, gl, camera, scene: root } = useThree();
 
 	const currentRef = useRef<THREE.AnimationAction | null>(null);

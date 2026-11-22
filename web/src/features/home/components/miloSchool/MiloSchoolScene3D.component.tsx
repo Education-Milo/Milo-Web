@@ -66,6 +66,12 @@ const MIN_FRAME_WIDTH_SQUARE = 7.2;
 const CAMERA_DISTANCE = 8.5;
 /// La caméra est un peu plus haute que le centre du cadre : on voit le toit
 const CAMERA_LIFT = 0.55;
+/// Parallaxe : la caméra se décale un peu vers le curseur en visant toujours le
+/// même point. Le premier plan glisse plus que le fond, la maison prend du
+/// volume (diorama). Décalage maximal (unités monde) et vitesse d'amortissement.
+/// Le plan visé (Milo, la pancarte) ne bouge presque pas : les bulles posées
+/// par-dessus restent en place.
+const PARALLAX = { x: 0.32, y: 0.16, speed: 2.2 };
 /// Le surplus de hauteur va surtout au ciel ; sur écran large, moins de ciel
 /// et un peu plus de pelouse : la maison est plus grande et la vue plus basse
 const SPARE_ABOVE_NARROW = 0.7;
@@ -193,6 +199,25 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 	/// Caméra fantôme placée sur la pose de gros plan : sert à savoir où sera
 	/// la boîte aux lettres à l'écran une fois la caméra arrivée
 	const probe = useMemo(() => new THREE.PerspectiveCamera(FOCUS_FOV, 1, 0.1, 80), []);
+	/// Curseur dans la fenêtre (-1…1), et décalage actuel de la caméra
+	const parallax = useMemo(() => ({ pointer: new THREE.Vector2(), offset: new THREE.Vector2() }), []);
+	useEffect(() => {
+		if (reducedMotion) return;
+		const onMove = (event: PointerEvent) => {
+			if (event.pointerType === "touch") return;
+			parallax.pointer.set((event.clientX / window.innerWidth) * 2 - 1, (event.clientY / window.innerHeight) * 2 - 1);
+		};
+		const onLeave = () => parallax.pointer.set(0, 0);
+		window.addEventListener("pointermove", onMove, { passive: true });
+		document.documentElement.addEventListener("mouseleave", onLeave);
+		window.addEventListener("blur", onLeave);
+		return () => {
+			window.removeEventListener("pointermove", onMove);
+			document.documentElement.removeEventListener("mouseleave", onLeave);
+			window.removeEventListener("blur", onLeave);
+			parallax.pointer.set(0, 0);
+		};
+	}, [parallax, reducedMotion]);
 
 	useFrame((frame, delta) => {
 		const cam = camera as THREE.PerspectiveCamera;
@@ -256,6 +281,13 @@ const CameraRig: React.FC<{ bridge: MiloSchoolBridge; reducedMotion: boolean }> 
 			pose.target.lerp(DOOR_TARGET, doorE);
 			fov = THREE.MathUtils.lerp(fov, DOOR_FOV, doorE);
 		}
+		/// Parallaxe, effacée pendant les gros plans et l'entrée en classe
+		const calm = (1 - pose.t) * (1 - doorE);
+		const k = 1 - Math.exp(-PARALLAX.speed * Math.min(delta, 0.1));
+		parallax.offset.x += (parallax.pointer.x * PARALLAX.x * calm - parallax.offset.x) * k;
+		parallax.offset.y += (-parallax.pointer.y * PARALLAX.y * calm - parallax.offset.y) * k;
+		cam.position.x += parallax.offset.x;
+		cam.position.y += parallax.offset.y;
 		applyProjection(cam, fov, size, frameWidth, height, doorE);
 		cam.lookAt(pose.target);
 

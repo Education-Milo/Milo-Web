@@ -59,10 +59,21 @@ const save = (entry: Saved) => {
 	entry.active = true;
 };
 
+/// Regard actif : un booléen, ou une fonction lue à chaque image (quand l'état
+/// qui décide vit dans un objet modifié pendant le rendu : Milo qu'on tient,
+/// entrée en classe…). Désactivé, Milo ramène doucement la tête vers son
+/// animation au lieu de la retrouver d'un coup.
+export type MiloGazeEnabled = boolean | (() => boolean);
+
 /// À appeler APRÈS useAnimations, dans le même composant : le regard
 /// s'applique une fois le mixer mis à jour pour la frame.
-export function useMiloGaze(scene: THREE.Object3D, enabled: boolean) {
+export function useMiloGaze(scene: THREE.Object3D, enabled: MiloGazeEnabled) {
 	const { camera, gl } = useThree();
+	/// Mouvements réduits : Milo garde le regard de ses animations
+	const listening = useMemo(
+		() => enabled !== false && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
+		[enabled],
+	);
 
 	const rig = useMemo(() => {
 		const head = scene.getObjectByName("DEF-head");
@@ -79,7 +90,7 @@ export function useMiloGaze(scene: THREE.Object3D, enabled: boolean) {
 	const pointer = useRef({ active: false, clientX: 0, clientY: 0, ndc: new THREE.Vector2() });
 
 	useEffect(() => {
-		if (!enabled) return;
+		if (!listening) return;
 		const state = pointer.current;
 		const project = () => {
 			const rect = gl.domElement.getBoundingClientRect();
@@ -114,8 +125,9 @@ export function useMiloGaze(scene: THREE.Object3D, enabled: boolean) {
 			window.removeEventListener("pointercancel", onUp);
 			window.removeEventListener("blur", onLeave);
 			document.documentElement.removeEventListener("mouseleave", onLeave);
+			state.active = false;
 		};
-	}, [enabled, gl]);
+	}, [listening, gl]);
 
 	const gaze = useRef({ headYaw: 0, headPitch: 0, eyeYaw: 0, eyePitch: 0 });
 	const tmp = useMemo(
@@ -158,9 +170,14 @@ export function useMiloGaze(scene: THREE.Object3D, enabled: boolean) {
 
 	/// Après le mixer : regard ajouté à la pose de l'animation
 	useFrame((_, delta) => {
-		if (!rig || !enabled) return;
+		if (!rig) return;
 		const dt = Math.min(delta, 0.1);
 		const g = gaze.current;
+		const state = pointer.current;
+		const looking = state.active && (typeof enabled === "function" ? enabled() : enabled);
+		/// Rien à suivre et la tête est revenue : l'animation joue seule
+		if (!looking && Math.abs(g.headYaw) + Math.abs(g.headPitch) + Math.abs(g.eyeYaw) + Math.abs(g.eyePitch) < 1e-4)
+			return;
 
 		/// Matrices à jour pour la pose que le mixer vient d'appliquer
 		rig.neck.updateWorldMatrix(true, true);
@@ -168,8 +185,7 @@ export function useMiloGaze(scene: THREE.Object3D, enabled: boolean) {
 		/// Direction du curseur dans le repère de Milo (+Z devant lui, +Y en haut)
 		let yaw = 0;
 		let pitch = 0;
-		const state = pointer.current;
-		if (state.active) {
+		if (looking) {
 			rig.head.getWorldPosition(tmp.pivot);
 			camera.getWorldDirection(tmp.cameraDir);
 			tmp.plane.setFromNormalAndCoplanarPoint(
