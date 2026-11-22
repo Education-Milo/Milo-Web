@@ -13,6 +13,8 @@ import {
 	MILO_MODEL_PATH,
 	prepareMiloScene,
 	updateAngelCircleGlow,
+	WRITING_CLIP,
+	WRITING_TIMES,
 } from "@features/my-milo/utils/miloModel";
 import { CLASSROOM_MODEL } from "@features/milo-scene/utils/classroomAssets";
 import { CHRISTMAS_DECOR, resolveClassroomTheme } from "@features/milo-scene/utils/classroomTheme";
@@ -34,6 +36,7 @@ import {
 	LandingDust,
 } from "@features/milo-scene/components/ClassroomEntrance.component";
 import { useMiloGaze } from "@features/landing/hooks/useMiloGaze";
+import ChalkFx, { type ChalkState } from "@features/milo-scene/components/ChalkFx.component";
 
 /// Décor 3D de la salle : la classe, Milo, le tableau et la feuille. Le texte
 /// du tableau et de la feuille est du HTML projeté sur leur surface 3D (drei
@@ -128,6 +131,8 @@ interface MiloModelProps {
 	entrance: Entrance;
 	/** Salle décorée pour Noël : Milo met son bonnet */
 	santaHat: boolean;
+	/** Sa craie touche le tableau : la leçon peut s'écrire */
+	onChalkReady?: () => void;
 }
 
 /// Réactions jouées par l'easter egg (clic sur Milo)
@@ -141,7 +146,7 @@ const MILO_REST_ROTATION: [number, number, number] = [0, MILO_REST_YAW, 0];
 /// sous le cadre, devant l'ardoise)
 const BOARD_DUST = { left: -4.4, right: 3.7, y: 1.95, z: 0.66 };
 
-function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModelProps) {
+function MiloModel({ modelPath, activeAnimation, entrance, santaHat, onChalkReady }: MiloModelProps) {
 	const group = useRef<THREE.Group>(null);
 	/// Déplace Milo pendant l'entrée ; à sa place, il ne change rien
 	const mover = useRef<THREE.Group>(null);
@@ -149,11 +154,19 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 	/// les autres écrans, on ne doit pas y laisser la pose posée ici.
 	const { scene, animations } = useMiloInstance(modelPath);
 	const { actions, mixer } = useAnimations(animations, group);
-	/// Une fois à sa place, il suit le curseur des yeux (pas pendant l'entrée)
-	useMiloGaze(scene, () => entrance.phase === "done");
+	/// Une fois à sa place, il suit le curseur des yeux (pas pendant l'entrée,
+	/// ni quand il écrit au tableau, dos à l'élève)
+	useMiloGaze(scene, () => entrance.phase === "done" && !writing.current);
 	/// Action réellement jouée : ce n'est plus forcément `activeAnimation`
 	/// quand Milo alterne entre ses attentes (Idle, Idle2…)
 	const currentAction = useRef<THREE.AnimationAction | null>(null);
+	/// Écriture au tableau en cours (clip writingBoard). `leaving` : le texte
+	/// est écrit, Milo finit sa ligne puis se retourne vers l'élève.
+	const writing = useRef<{ action: THREE.AnimationAction; leaving: boolean; touched: boolean } | null>(null);
+	const onChalkReadyRef = useRef(onChalkReady);
+	onChalkReadyRef.current = onChalkReady;
+	/// La craie, lue chaque image par ChalkFx
+	const chalk = useMemo<ChalkState>(() => ({ holding: false, touching: false }), []);
 	const { equippedMeshNames, accessoryMeshNames } = useEquippedMeshNames();
 
 	/// Dès la phase de rendu : masque les accessoires non équipés et désactive
@@ -195,29 +208,99 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 	/// Pose d'atterrissage de l'entrée, en cours
 	const entranceClip = useRef<THREE.AnimationAction | null>(null);
 
+	/// Joue l'animation demandée. L'écriture au tableau est jouée une fois, sa
+	/// boucle répétée tant qu'il écrit (cf. useFrame plus bas) ; quand on lui
+	/// demande autre chose, Milo finit sa ligne et se retourne d'abord.
+	const playRequested = useCallback(
+		(name: string) => {
+			const current = writing.current;
+			if (name === WRITING_CLIP) {
+				const action = findAction(actions, WRITING_CLIP);
+				if (!action) {
+					/// Modèle sans le clip : il explique, comme avant
+					const fallback = actions.Explaining;
+					if (fallback) loopTo(fallback);
+					return;
+				}
+				/// Déjà au tableau : il reprend sa ligne (s'il ne se retournait pas déjà)
+				if (current && currentAction.current === action && action.time < WRITING_TIMES.loopEnd) {
+					current.leaving = false;
+					return;
+				}
+				const prev = currentAction.current;
+				action.reset();
+				action.setLoop(THREE.LoopOnce, 1);
+				action.clampWhenFinished = true;
+				action.setEffectiveTimeScale(1);
+				action.setEffectiveWeight(1);
+				action.play();
+				if (prev && prev !== action) prev.crossFadeTo(action, 0.35, true);
+				currentAction.current = action;
+				writing.current = { action, leaving: false, touched: false };
+				return;
+			}
+			if (current && currentAction.current === current.action) {
+				current.leaving = true;
+				return;
+			}
+			const nextAction = actions[name];
+			if (nextAction) loopTo(nextAction);
+		},
+		[actions, loopTo],
+	);
+
 	useEffect(() => {
 		if (!actions || !activeAnimation) return;
 		/// Pendant l'entrée, c'est elle qui choisit les clips (marche, bond, pose) :
 		/// Milo reprendra l'animation demandée une fois posé
 		if (entrance.phase === "walking" || entrance.phase === "leaping") return;
 		if (entranceClip.current && reacting.current === entranceClip.current) return;
-		const nextAction = actions[activeAnimation];
-		if (nextAction) loopTo(nextAction);
-	}, [actions, activeAnimation, loopTo, entrance]);
+		playRequested(activeAnimation);
+	}, [actions, activeAnimation, playRequested, entrance]);
 
 	useEffect(() => {
 		const onFinished = (event: { action: THREE.AnimationAction }) => {
+			/// Fin de l'écriture : Milo s'est retourné, il fait ce qu'on lui demande
+			if (writing.current && event.action === writing.current.action) {
+				writing.current = null;
+				playRequested(activeRef.current);
+				return;
+			}
 			if (event.action !== reacting.current) return;
 			reacting.current = null;
-			const back = actions[activeRef.current];
-			if (back) loopTo(back);
+			playRequested(activeRef.current);
 		};
 		mixer.addEventListener("finished", onFinished);
 		return () => mixer.removeEventListener("finished", onFinished);
-	}, [mixer, actions, loopTo]);
+	}, [mixer, playRequested]);
+
+	/// Au tableau : la ligne d'écriture boucle tant que le texte s'écrit. Quand
+	/// il est écrit, Milo finit vite sa ligne, puis se retourne à vitesse normale.
+	useFrame(() => {
+		const current = writing.current;
+		const action = current?.action;
+		if (!current || !action || currentAction.current !== action) {
+			chalk.holding = false;
+			chalk.touching = false;
+			return;
+		}
+		const { loopStart, loopEnd, strokeEnd, chalkIn, chalkOut } = WRITING_TIMES;
+		if (!current.leaving) {
+			if (action.time >= loopEnd) action.time -= loopEnd - loopStart;
+		} else {
+			action.setEffectiveTimeScale(action.time < loopEnd ? 3 : 1);
+		}
+		chalk.holding = action.time > chalkIn && action.time < chalkOut;
+		chalk.touching = action.time > loopStart && action.time < strokeEnd;
+		/// Première fois que la craie touche l'ardoise : le texte commence
+		if (chalk.touching && !current.touched) {
+			current.touched = true;
+			onChalkReadyRef.current?.();
+		}
+	});
 
 	const playEasterEgg = useCallback(() => {
-		if (reacting.current || isEntering(entrance.phase)) return;
+		if (reacting.current || writing.current || isEntering(entrance.phase)) return;
 		const pool = EASTER_EGG_CLIPS.map((name) => findAction(actions, name)).filter(
 			(action): action is THREE.AnimationAction => Boolean(action),
 		);
@@ -237,8 +320,7 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 	const playEntranceClip = useCallback(() => {
 		const arrival = findAction(actions, ENTRANCE_CLIP);
 		if (!arrival) {
-			const back = actions[activeRef.current];
-			if (back) loopTo(back, 0.25);
+			playRequested(activeRef.current);
 			return;
 		}
 		const prev = currentAction.current;
@@ -252,7 +334,7 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 		currentAction.current = arrival;
 		reacting.current = arrival;
 		entranceClip.current = arrival;
-	}, [actions, loopTo]);
+	}, [actions, playRequested]);
 
 	/// L'entrée déplace Milo et change ses clips au fil des étapes
 	const entrancePhase = useRef<EntrancePhase | null>(null);
@@ -308,19 +390,23 @@ function MiloModel({ modelPath, activeAnimation, entrance, santaHat }: MiloModel
 	useSantaHat(scene, santaHat);
 
 	return (
-		<group ref={mover} position={MILO_SPOT_ARRAY}>
-			<group position={MILO_UNSPOT_ARRAY}>
-				<group
-					ref={group}
-					onClick={(e) => {
-						e.stopPropagation();
-						playEasterEgg();
-					}}
-				>
-					<primitive object={scene} scale={MILO_SCALE} position={MILO_SPOT_ARRAY} rotation={MILO_REST_ROTATION} />
+		<>
+			<group ref={mover} position={MILO_SPOT_ARRAY}>
+				<group position={MILO_UNSPOT_ARRAY}>
+					<group
+						ref={group}
+						onClick={(e) => {
+							e.stopPropagation();
+							playEasterEgg();
+						}}
+					>
+						<primitive object={scene} scale={MILO_SCALE} position={MILO_SPOT_ARRAY} rotation={MILO_REST_ROTATION} />
+					</group>
 				</group>
 			</group>
-		</group>
+			{/* La craie dans sa main et sa poussière, quand il écrit au tableau */}
+			<ChalkFx scene={scene} state={chalk} />
+		</>
 	);
 }
 
@@ -770,6 +856,8 @@ interface ClassroomScene3DProps {
 	onIntroDone: () => void;
 	/** Milo est arrivé à sa place : le tableau et l'interface apparaissent */
 	onLanded: () => void;
+	/** Sa craie touche le tableau (animation writingBoard) : la leçon s'écrit */
+	onChalkReady?: () => void;
 	/** Change quand l'élève passe l'intro */
 	skipSignal: number;
 	/** Mouvements réduits : Milo est déjà à sa place, la caméra au bureau */
@@ -797,6 +885,7 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 	introDone,
 	onIntroDone,
 	onLanded,
+	onChalkReady,
 	skipSignal,
 	reducedMotion,
 	onReady,
@@ -856,6 +945,7 @@ const ClassroomScene3D: React.FC<ClassroomScene3DProps> = ({
 					activeAnimation={activeAnimation}
 					entrance={entrance}
 					santaHat={theme === "noel" && CHRISTMAS_DECOR.santaHat}
+					onChalkReady={onChalkReady}
 				/>
 				<LandingDust entrance={entrance} line={BOARD_DUST} />
 				<Board visible={boardVisible}>{board}</Board>

@@ -40,7 +40,7 @@ export type MiloAction =
 	| "openHelp"   // Indice sur la question ouverte
 	| "notes";     // Réviser les notes du post-it
 
-export type MiloAnimation = "Idle" | "Thinking" | "Explaining" | "Disapointed";
+export type MiloAnimation = "Idle" | "Thinking" | "Explaining" | "Disapointed" | "writingBoard";
 
 export interface ThreadMessage {
 	id: string;
@@ -61,6 +61,10 @@ const QUESTION_MAX = 600;
 const TALK_AFTER_REPLY_MS = 4000;
 /// Vitesse de la craie (ms par caractère)
 const TYPEWRITER_MS = 14;
+/// Le texte attend que la craie de Milo touche le tableau (signal de la scène
+/// 3D, cf. handleChalkReady). Sans signal (pas de 3D, ancien modèle sans le
+/// clip writingBoard), il s'écrit quand même au bout de ce délai.
+const CHALK_FALLBACK_MS = 2500;
 
 const getUserDisplayName = (user: ReturnType<typeof useUserStore.getState>["user"]) => {
 	if (!user) return "l'élève";
@@ -187,6 +191,8 @@ export const useMiloScene = (
 	const reactionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const [sceneReady, setSceneReady] = useState(false);
 	const [introActive, setIntroActive] = useState(true);
+	/// Partie en attente de la craie de Milo pour s'écrire (cf. handleChalkReady)
+	const chalkListeners = useRef(new Set<() => void>());
 
 	// La scène est prête quand les modèles 3D sont chargés ET que le premier
 	// frame est dessiné : c'est <ClassroomScene3D> qui le signale.
@@ -302,24 +308,43 @@ export const useMiloScene = (
 	}, [freeChatSession]);
 
 	// ─── Craie : la partie s'écrit au tableau caractère par caractère ─────────
+	// Elle attend que Milo soit arrivé à sa place (fin de l'entrée en classe),
+	// puis qu'il se soit tourné vers le tableau : il écrit en même temps.
 	useEffect(() => {
 		if (phase !== "reading" || parts.length === 0) return;
 		const currentPart = parts[currentPartIndex];
 		if (!currentPart) return;
 
 		setDisplayedText("");
+		if (introActive) return;
 		let i = 0;
-		const interval = setInterval(() => {
-			i += 1;
-			setDisplayedText(currentPart.content.slice(0, i));
-			if (i >= currentPart.content.length) {
-				clearInterval(interval);
-				setPhase("ready");
-			}
-		}, TYPEWRITER_MS);
+		let interval = 0;
+		const begin = () => {
+			if (interval) return;
+			interval = window.setInterval(() => {
+				i += 1;
+				setDisplayedText(currentPart.content.slice(0, i));
+				if (i >= currentPart.content.length) {
+					clearInterval(interval);
+					setPhase("ready");
+				}
+			}, TYPEWRITER_MS);
+		};
+		const listeners = chalkListeners.current;
+		listeners.add(begin);
+		const fallback = window.setTimeout(begin, CHALK_FALLBACK_MS);
 
-		return () => clearInterval(interval);
-	}, [phase, currentPartIndex, parts]);
+		return () => {
+			listeners.delete(begin);
+			clearTimeout(fallback);
+			clearInterval(interval);
+		};
+	}, [phase, currentPartIndex, parts, introActive]);
+
+	/** La craie de Milo touche le tableau (scène 3D) : le texte peut s'écrire */
+	const handleChalkReady = useCallback(() => {
+		chalkListeners.current.forEach((begin) => begin());
+	}, []);
 
 	/** L'élève ne veut pas attendre la craie : tout le texte d'un coup. */
 	const skipTypewriter = useCallback(() => {
@@ -608,9 +633,11 @@ export const useMiloScene = (
 	const activeAnimation: MiloAnimation = reaction
 		?? (phase === "loading" || isMiloBusy || (isOpenQuestionMode && openQuestionPhase === "loading")
 			? "Thinking"
-			: phase === "reading" || isTalking
-				? "Explaining"
-				: "Idle");
+			: phase === "reading"
+				? "writingBoard"
+				: isTalking
+					? "Explaining"
+					: "Idle");
 
 	// La progression reflète la partie la plus avancée, pas celle relue.
 	const progressPercent =
@@ -672,6 +699,7 @@ export const useMiloScene = (
 		markSceneReady,
 		introActive,
 		handleIntroDone,
+		handleChalkReady,
 	};
 };
 

@@ -802,6 +802,7 @@ const MiloScene: React.FC = () => {
 				introRunning={scene.sceneReady}
 				introDone={!scene.introActive}
 				onIntroDone={scene.handleIntroDone}
+				onChalkReady={scene.handleChalkReady}
 				onLanded={markEntered}
 				skipSignal={skipSignal}
 				reducedMotion={Boolean(reduceMotion)}

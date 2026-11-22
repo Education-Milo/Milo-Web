@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 /// Modèle 3D de Milo. Contient les clips : 67, Arrival, Disapointed,
 /// EquipGlasses, EquipTop, Explaining, HatLook, Hello, Idle, Idle2, Idle3,
-/// Point, Read, ReadLoop, Success, Thinking, Walk.
+/// Point, Read, ReadLoop, Success, Thinking, Walk, writingBoard.
 /// (Walk : un cycle de marche en boucle ; Point : Milo montre la porte de la
 /// classe du doigt, à sa gauche. Tous deux joués par l'accueil.
 /// Read : Milo fait apparaître un livre bleu au logo de Milo et l'ouvre ;
@@ -22,6 +22,27 @@ export const MILO_MODEL_PATH = "/MiloV22.glb";
 export const READ_CLIP = "Read";
 export const READ_LOOP_CLIP = "ReadLoop";
 export const BOOK_MESH_NAME = "livre";
+
+/// Milo écrit au tableau de la salle de classe (pendant que la leçon s'écrit).
+/// Un seul clip, en trois temps : il se tourne vers l'ardoise d'un petit bond
+/// et lève la craie, il écrit une ligne (boucle sans raccord, rejouée tant que
+/// le texte s'écrit), puis il baisse le bras et se retourne vers l'élève.
+/// Orienté pour SA place dans la classe (l'ardoise derrière lui) : ailleurs,
+/// il écrirait dans le vide. La craie n'est pas dans le .glb : la salle de
+/// classe l'ajoute dans sa main gauche (cf. ChalkFx).
+export const WRITING_CLIP = "writingBoard";
+/// Repères du clip, en secondes (24 images/s)
+export const WRITING_TIMES = {
+	/// La craie apparaît dans sa main / disparaît
+	chalkIn: 10 / 24,
+	chalkOut: 78 / 24,
+	/// Boucle d'écriture : la pose est la même aux deux bouts
+	loopStart: 20 / 24,
+	loopEnd: 68 / 24,
+	/// Dans la boucle, la craie touche l'ardoise jusqu'ici (ensuite il revient
+	/// au début de la ligne, craie levée)
+	strokeEnd: 56 / 24,
+} as const;
 
 /// Maillage du corps de Milo dans les fichiers .glb : tout autre maillage du
 /// modèle est un accessoire équipable (masqué tant qu'il n'est pas équipé).
